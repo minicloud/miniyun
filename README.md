@@ -1,7 +1,7 @@
 迷你云，新型文件管理平台
 ==========
 
-开放的代码，遵循<a href="http://www.miniyun.cn/license.html">BSD许可证</a>
+迷你云服务器代码，遵循<a href="http://www.miniyun.cn/license.html">BSD许可证</a>
 
 ==========
 代码包说明
