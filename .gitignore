@@ -1,0 +1,13 @@
+.DS_Store
+.settings/
+protected/.DS_Store
+protected/config/.DS_Store
+protected/config/miniyun-config.php
+protected/runtime/
+statics/images/plugins/
+protected/config/memcache.php
+protected/config/miniyun_offline.php
+protected/modules/ipAccessControl/config/
+statics/thumbnails/
+.idea/
+statics/views/
