@@ -3,7 +3,7 @@
 说明
 ----
 1、代码包括了迷你云所有操作的接口实现<br>
-2、代码包仅提供安装向导UI<br
+2、代码包仅提供安装向导UI<br>
 3、代码包不提供网页版、Windows PC、Android、iOS客户端<br>
 4、使用PHP5.3编写，依赖Mysql与yii framework<br>
 
