@@ -2,9 +2,9 @@
 ==========
 说明
 ----
-1、对外提供Restful的服务接口
-2、自身不提供UI与Windows PC、Android、iOS客户端
-3、PHP5.3编写，依赖Mysql与yii framework
+1、对外提供Restful的服务接口<br>
+2、自身不提供UI与Windows PC、Android、iOS客户端<br>
+3、PHP5.3编写，依赖Mysql与yii framework<br>
 
 环境依赖
 ----
@@ -32,4 +32,8 @@ Windows系统Apache+PHP+Mysql+迷你云教程
 
 ```
 详情见：http://open.miniyun.cn/index.php?title=Apache与Windows系统
+```
+如需更多帮助，请访问
+```
+http://www.miniyun.cn
 ```
