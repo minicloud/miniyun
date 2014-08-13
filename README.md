@@ -1,5 +1,10 @@
-迷你云服务器核心代码
+迷你云服务器
 ==========
+说明
+----
+1、对外提供Restful的服务接口
+2、自身不提供UI与Windows PC、Android、iOS客户端
+3、PHP5.3编写，依赖Mysql与yii framework
 
 环境依赖
 ----
