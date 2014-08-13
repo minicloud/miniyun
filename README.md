@@ -1,14 +1,14 @@
 迷你云，新型文件管理平台
 ==========
 
-遵循<a href="http://www.miniyun.cn/license.html">BSD许可证</a>
+开放的代码，遵循<a href="http://www.miniyun.cn/license.html">BSD许可证</a>
 
 ==========
-说明
+代码包说明
 ----
-1、代码包括了迷你云所有操作的接口实现<br>
-2、代码包仅提供安装向导UI<br>
-3、代码包不提供网页版、Windows PC、Android、iOS客户端<br>
+1、包括迷你云客户端所有操作的接口实现，包括网页版<br>
+2、仅提供安装向导UI<br>
+3、不提供网页版、Windows PC、Android、iOS客户端<br>
 4、使用PHP5.3编写，依赖Mysql与yii framework<br>
 
 环境依赖
