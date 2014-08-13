@@ -1,4 +1,9 @@
-迷你云服务器
+<a href="http://www.miniyun.cn">迷你云，新型文件管理平台</a>
+
+==========
+
+迷你云开放的源代码，遵循<a href="http://www.miniyun.cn/license.html">BSD许可证</a>
+
 ==========
 说明
 ----
