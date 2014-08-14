@@ -417,4 +417,8 @@ class SystemManageBiz extends MiniBiz{
         $data['fileStorePath']        = BASE;
         return $data;
     }
+
+    public function mateCodeData($meatArr){
+        return MiniOption::getInstance()->setOptionValue("code", $meatArr);
+    }
 }

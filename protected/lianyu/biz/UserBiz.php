@@ -52,4 +52,9 @@ class UserBiz  extends MiniBiz{
     public function getGroupList(){
 
     }
+
+    public function getCodeByUserId(){
+        $data= MiniOption::getInstance()->getOptionValue("code");
+        return $data;
+    }
 }

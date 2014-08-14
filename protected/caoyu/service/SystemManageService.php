@@ -92,4 +92,11 @@ class SystemManageService extends MiniService{
         $data  = $model->getSiteInfo();
         return $data;
     }
+
+    public function mateCode(){
+        $mateArr= MiniHttp::getParam('mateArr','');
+        $model = new SystemManageBiz();
+        $data  = $model->mateCodeData($mateArr);
+        return $data;
+    }
 }

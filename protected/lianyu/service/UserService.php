@@ -35,4 +35,10 @@ class UserService extends MiniService{
     public function getGroupList() {
 
     }
+
+    public function getCode(){
+        $model = new UserBiz();
+        $data  = $model->getCodeByUserId();
+        return $data;
+    }
 }
