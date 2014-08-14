@@ -8,7 +8,7 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.6
  */
-define('YII_DEBUG',false);
+define('YII_DEBUG',true);
 define('STATICS_SERVER_HOST',"statics.miniyun.cn");
 include "miniBox.php";
 $box = new MiniBox();
