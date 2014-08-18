@@ -503,31 +503,14 @@ class MiniBox{
         }
         $this->version = $v;
         $header = "";
-        if(!YII_DEBUG){
-            //VIP授权验证信息
-            $user = $this->appInfo->getUser();
-            if(isset($user)){
-                $siteInfo = "s=".MiniSiteUtils::getSiteID();
-                $siteInfo .= "&u=".$user["user_uuid"];
-                //$header .= "<script type=\"text/javascript\"  src='".$this->staticsServerHost."index.php/vip/index?".$siteInfo."' charset=\"utf-8\"></script>";
-            }
-            //生产状态，将会把js/css文件进行合并处理，提高加载效率
-            $header .= "<script id='miniBox' statics-server-host='".$this->staticsServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticsServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
-            $header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticsServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
-        }else{
-            $header .= "<script id='miniBox' statics-server-host='".$this->staticsServerHost."' host='".Util::getMiniHost()."' version='".$v."' src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/3rd-party/xdomain/xdomain.js' slave='".$this->staticsServerHost."statics/".$this->cloudFolderName."/proxy/proxy.html'></script>";
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/3rd-party/jquery/jquery.min.js?v=".$v."' charset=\"utf-8\"></script>";
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/3rd-party/angular/angular.min.js?v=".$v."' charset=\"utf-8\"></script>";
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/3rd-party/angular/angular-route.min.js?v=".$v."' charset=\"utf-8\"></script>";
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/3rd-party/script/script.min.js?v=".$v."' charset=\"utf-8\"></script>";
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/api/mini-load.js?v=".$v."' charset=\"utf-8\"></script>";
-            //类型为PC客户端，则加载client目录下的JS资源，前提是index.php加入?client_type=pc
-            $mainFolder = "controllers";
-            if($this->isPC){
-                $mainFolder = "client";
-            }
-            $header .= "<script type=\"text/javascript\" src='".$this->staticsServerHost."statics/".$this->cloudFolderName."/".$mainFolder."/".$this->controller."/".$this->action."/app-bootstrap.js?v=".$v."' charset=\"utf-8\"></script>";
-        }
+		$user = $this->appInfo->getUser();
+		if(isset($user)){
+			$siteInfo = "s=".MiniSiteUtils::getSiteID();
+			$siteInfo .= "&u=".$user["user_uuid"]; 
+		}
+		//生产状态，将会把js/css文件进行合并处理，提高加载效率
+		$header .= "<script id='miniBox' statics-server-host='".$this->staticsServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticsServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
+		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticsServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>"; 
         $this->loadHtml($header);
     }
      
