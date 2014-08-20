@@ -5,7 +5,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class FileService extends MiniService{
@@ -96,5 +96,13 @@ class FileService extends MiniService{
         $biz = new FileBiz();
         $op  = $biz->cleanRecycle();
         return $op;
+    }
+    /**
+     * 获取文件打开的方式
+     */
+    public function getExtendTactics(){
+        $biz = new FileBiz();
+        $data = $biz->getExtendTactics();
+        return $data;
     }
 }
