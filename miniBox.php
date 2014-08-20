@@ -156,7 +156,9 @@ class Util{
         for($i=1;$i<count($info);$i++){
             $relativePath .= "/".$info[$i];
         }
-        $requestUri   = $_SERVER["REQUEST_URI"];
+        $requestUri = $_SERVER["REQUEST_URI"];
+		//增加过滤//的URL地址
+		$requestUri = str_replace("//","/",$requestUri);
         return substr($requestUri,strlen($relativePath),strlen($requestUri)-strlen($relativePath));
 
     }
