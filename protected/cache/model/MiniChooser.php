@@ -92,7 +92,7 @@ class MiniChooser extends MiniCache{
      * @return string 获得随机的字符串
      */
     private function getAppKey(){
-        $key = MiniUtil::getEventRandomString( MUtils::LEN_TIME );
+        $key = MiniUtil::getEventRandomString( self::LEN_KEY );
         $appKey = substr($key,0,self::LEN_KEY);
         return $appKey;
     }
