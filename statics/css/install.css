@@ -218,7 +218,7 @@ textarea {
 .tb td{ padding:3px 5px; }
 .tb .w, .tb .nw, .tb .padleft{ padding-left:45px; }
 .tb .pdleft1{ padding-left:67px; }
-.w{ background:url(../images/bg-repno.gif) no-repeat 55px -148px;  }
+.w{ background:url(../images/bg-repno.gif) no-repeat 55px -100px;  }
 body, td, input, textarea, select, button{ color:#666; font:12px/1.5 Verdana, Tahoma, Arial, 'Microsoft Yahei', 'Simsun', sans-serif; }
 .btn_white {overflow:hidden;display:block;height:31px!important;line-height:28px;color:#333;background:url(../images/btn-white-left.png) no-repeat left top;text-align:center;}
 .btn_white span.b1 {display:block;height:31px;background:url(../images/btn-white-right.png) no-repeat right top;}
