@@ -508,11 +508,11 @@ class MiniBox{
 		$user = $this->appInfo->getUser();
 		if(isset($user)){
 			$siteInfo = "s=".MiniSiteUtils::getSiteID();
-			$siteInfo .= "&u=".$user["user_uuid"]; 
+			$siteInfo .= "&u=".$user["user_uuid"];
 		}
 		//生产状态，将会把js/css文件进行合并处理，提高加载效率
 		$header .= "<script id='miniBox' statics-server-host='".$this->staticsServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticsServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
-		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticsServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>"; 
+		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticsServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
         $this->loadHtml($header);
     }
      
@@ -532,15 +532,29 @@ class MiniBox{
      *每隔24小时与云端同步一次版本信息，用户在不清理缓存的情况下，24小时更新到最新版本迷你云网页版
      */
     private function syncNewVersion(){
-        $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticsServerHost=".$this->staticsServerHost;
-        $this->redirectUrl($url);
+        //如本地尚未安装网页客户端，则跳转到online.html，通过online.html的js请求获得相关数据
+        $needSyncCloud = false;
+        //24小时后至少与云端同步一次最新网页客户端代码
+        $syncTime = $this->getCookie("syncTime");
+        if($syncTime!==NULL){
+            $diff = time()-intval($syncTime);
+            if($diff>86400){
+                $needSyncCloud = true;
+            }
+        }else{
+            $needSyncCloud = true;
+        }
+        if($needSyncCloud===true){
+            $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticsServerHost=".$this->staticsServerHost;
+            $this->redirectUrl($url);
+        }
     }
     /**
      *
      * 根据浏览器的版本返回语言
      */
     private function getCookie($name){
-        $value = null;
+        $value = NULL;
         if(array_key_exists($name,$_COOKIE)){
             $value = $_COOKIE[$name];
         }
