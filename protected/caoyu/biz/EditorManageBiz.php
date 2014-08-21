@@ -73,7 +73,9 @@ class EditorManageBiz extends MiniBiz{
     public function getEditorList($type){
         $data = array();
         $editors = MiniOption::getInstance()-> getOptionValue('online_editor');
-        $editors = unserialize($editors);
+        if($editors != null){
+            $editors = unserialize($editors);
+        }
         $data['total'] = count($editors);
         $disableTotal = 0;
         foreach($editors as $key=> $editor){
