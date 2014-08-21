@@ -532,22 +532,8 @@ class MiniBox{
      *每隔24小时与云端同步一次版本信息，用户在不清理缓存的情况下，24小时更新到最新版本迷你云网页版
      */
     private function syncNewVersion(){
-        //如本地尚未安装网页客户端，则跳转到online.html，通过online.html的js请求获得相关数据
-        $needSyncCloud = false;
-        //24小时后至少与云端同步一次最新网页客户端代码
-        $syncTime = $this->getCookie("syncTime");
-        if($syncTime===NULL){
-            $diff = time()-intval($syncTime);
-            if($diff>86400){
-                $needSyncCloud = true;
-            }
-        }else if($syncTime===""){
-            $needSyncCloud = true;
-        }
-        if($needSyncCloud===true){
-            $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticsServerHost=".$this->staticsServerHost;
-            $this->redirectUrl($url);
-        }
+        $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticsServerHost=".$this->staticsServerHost;
+        $this->redirectUrl($url);
     }
     /**
      *
