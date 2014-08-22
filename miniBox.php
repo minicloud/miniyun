@@ -395,6 +395,9 @@ class MiniBox{
             $this->redirectUrl($url);
         }
         if(count($uriInfo)===2||empty($uriInfo[2])){
+			if(empty($this->controller)){
+				$this->controller = "box";
+			}
             $url = Util::getMiniHost()."index.php/".$this->controller."/index";
             $this->redirectUrl($url);
         }else{
