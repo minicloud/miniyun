@@ -258,6 +258,11 @@ class SiteAppInfo{
         $app = new AppService();
         return $app->onlyDefaultAccount();
     }
+
+    public function getCode(){
+            $data= MiniOption::getInstance()->getOptionValue("code");
+            return $data;
+        }
     /**
      * 获得当前用户
      * @return array|null
@@ -268,6 +273,7 @@ class SiteAppInfo{
         }
         $user     = MUserManager::getInstance()->getCurrentUser();
         if(!empty($user)){
+
             $user = MiniUser::getInstance()->getUser($user["id"]);
             $data = array();
             $data['user_uuid']         = $user["user_uuid"];
@@ -279,6 +285,7 @@ class SiteAppInfo{
             $data['phone']             = $user["phone"];
             $data['avatar']            = $user["avatar"];
             $data['is_admin']          = $user["is_admin"];
+            $data['code']              = MiniOption::getInstance()->getOptionValue("code");
             $this->user = $data;
             return $data;
         }
