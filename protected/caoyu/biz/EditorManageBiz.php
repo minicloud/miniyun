@@ -32,8 +32,8 @@ class EditorManageBiz extends MiniBiz{
                     $extendStr = $option['extend'];
                     if(strpos($extendStr,"/")){
                         $extendArr = explode('/',$extendStr);
-                        $data = array_intersect($extendArr,$extends);
-                        if(count($data)!=0){
+                        $dataFix = array_intersect($extendArr,$extends);
+                        if(count($dataFix)!=0){
                             return false;
                         }
                     }else{
@@ -159,8 +159,8 @@ class EditorManageBiz extends MiniBiz{
                 $extendStr = $editor['extend'];
                 if(strpos($extendStr,"/")){
                     $extendArr = explode('/',$extendStr);
-                    $data = array_intersect($extendArr,$extends);
-                    if(count($data)!=0){
+                    $dataFix  = array_intersect($extendArr,$extends);
+                    if(count($dataFix)!=0){
                         return false;
                     }
                 }else{
