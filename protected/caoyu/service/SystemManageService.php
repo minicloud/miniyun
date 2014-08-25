@@ -13,7 +13,7 @@ class SystemManageService extends MiniService{
      * 设置站点基本信息
      */
     public function settingSiteInfo(){
-        $site['file']  = $_FILES['siteImage'];
+//        $site['file']  = $_FILES['siteImage'];
         $site['siteTitle']            = MiniHttp::getParam('siteTitle','miniyun');
         $site['siteName']             = MiniHttp::getParam('siteName','miniCloud');
         $site['siteDefaultSpace']     = MiniHttp::getParam('siteDefaultSpace','1024');
