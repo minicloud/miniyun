@@ -240,7 +240,7 @@ class SystemManageBiz extends MiniBiz{
      * 设置站点信息
      */
     public function settingSiteInfo($site){
-        $file          = $site['file'];
+//        $file          = $site['file'];
         $fileStorePath = $site['fileStorePath'];
         //文件存储路径的合法性检测
         if(is_dir($fileStorePath)== false){
@@ -268,24 +268,24 @@ class SystemManageBiz extends MiniBiz{
 
         //TODO 站点各信息的合法性检测
         //存储站点logo
-        if($file['error'] != 4){
-            $name = 'logo.png';
-            list($width, $height) = getimagesize($file['tmp_name']);
-            if(strpos($file['type'],'image') === false){
-                return array('success'=>false,'msg'=>'is_not_image');
-            }
-            if($width != 256 || $height != 256){
-                return array('success'=>false,'msg'=>'size_not_right');
-            }
-            $logoPath = dirname(__FILE__)."/../../../statics/images/".$name;
-            if($file['error'] == 0){
-                if(move_uploaded_file($file['tmp_name'],$logoPath)){
-                    chmod($logoPath, 0755);
-                }
-            }else{
-                return array('success'=>false,'msg'=>'save_fail');
-            }
-        }
+//        if($file['error'] != 4){
+//            $name = 'logo.png';
+//            list($width, $height) = getimagesize($file['tmp_name']);
+//            if(strpos($file['type'],'image') === false){
+//                return array('success'=>false,'msg'=>'is_not_image');
+//            }
+//            if($width != 256 || $height != 256){
+//                return array('success'=>false,'msg'=>'size_not_right');
+//            }
+//            $logoPath = dirname(__FILE__)."/../../../statics/images/".$name;
+//            if($file['error'] == 0){
+//                if(move_uploaded_file($file['tmp_name'],$logoPath)){
+//                    chmod($logoPath, 0755);
+//                }
+//            }else{
+//                return array('success'=>false,'msg'=>'save_fail');
+//            }
+//        }
         //TODO 权限插件开启后的默认权限设置
         //修改文件存储配置
         $this->setStorePath($site['fileStorePath']);
