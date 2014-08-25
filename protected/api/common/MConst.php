@@ -383,7 +383,7 @@ class MConst
     // sql语句最大执行长度1M
     //
     const MAX_SQL_STRING_LENGTH = 1048576;
-    const MAX_VERSION_CONUNT = 5;
+    const MAX_VERSION_CONUNT = 100;
     
     
     //
