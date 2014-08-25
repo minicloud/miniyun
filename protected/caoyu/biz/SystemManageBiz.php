@@ -296,6 +296,7 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("user_register_enabled", $site['userRegisterEnabled']);
         return array('success'=>true);
     }
+
     /**
      * 设置邮件服务顺
      */

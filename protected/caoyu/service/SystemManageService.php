@@ -29,6 +29,7 @@ class SystemManageService extends MiniService{
         }
         return $result;
     }
+
     /**
      *邮件服务器设置
      */
