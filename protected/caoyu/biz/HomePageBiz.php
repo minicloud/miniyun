@@ -1,10 +1,10 @@
 <?php
-/** 
+/**
  * 管理员首页
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class HomePageBiz extends MiniBiz{
@@ -14,7 +14,8 @@ class HomePageBiz extends MiniBiz{
     public function getUsedSpace(){
         $remain    = $this->getDiskFreeSpace();//空闲空间 字节
         $total     = $this->getDiskTotalSpace();//总空间 字节
-        $usedSpace = $this->_byteFormat($total - $remain);//磁盘已用的空间单位G(包括miniyun以外文件)
+//        $usedSpace = $this->_byteFormat($total - $remain);//磁盘已用的空间单位G(包括miniyun以外文件)
+        $usedSpace = $this->_byteFormat(MiniVersion::getInstance()->getTotalSize());
         $totalSpace = $this->_byteFormat($total);
         $usedPercentage = $this->getUsedPercent();//已用空间占的百分比
         $tempDirectory = $this->getDirectorySize(BASE.'temp');
@@ -62,9 +63,10 @@ class HomePageBiz extends MiniBiz{
     public function getUsedPercent() {
         $remain    = $this->getDiskFreeSpace();//空闲空间
         $total     = $this->getDiskTotalSpace();//总空间
+        $usedSpace = MiniVersion::getInstance()->getTotalSize();
         $percent = 0;
         if ($total > 0) {
-            $percent=(float)($total-$remain)/$total;
+            $percent=(float)($usedSpace)/$total;
         }
         $retval = round($percent,3)*100;
         return $retval;

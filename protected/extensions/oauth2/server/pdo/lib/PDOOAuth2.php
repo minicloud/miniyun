@@ -290,7 +290,6 @@ class PDOOAuth2 extends OAuth2 {
         $deviceName  = urldecode($_REQUEST['device_name']);
         $deviceInfo  = $_REQUEST['device_info'];
 
-
         if (!empty($deviceType) && !empty($deviceName) && !empty($deviceInfo)){
         } else {
             # 当用户传递过来的设备信息都为空时，表示为三方开发者
@@ -303,7 +302,7 @@ class PDOOAuth2 extends OAuth2 {
             }
         }
         //如被锁定，且是网页端则不进行登录。
-        $name   = urldecode($_REQUEST['username']);
+        $name   = urldecode($_POST['username']);
         $isLock = MiniUser::getInstance()->isLock($name);
         $user   = false;
         if(!($isLock && MiniHttp::clientIsBrowser())){
@@ -355,7 +354,7 @@ class PDOOAuth2 extends OAuth2 {
             return false;
         }else{
             //正常用户登陆模式
-            $name         = urldecode($_REQUEST['username']);
+            $name         = urldecode($_POST['username']);
             $password     = $_REQUEST['password'];
             $requestToken = $_REQUEST['client_id'];
             if (empty($name) || empty($password) || empty($requestToken))
@@ -363,6 +362,8 @@ class PDOOAuth2 extends OAuth2 {
                 Yii::trace(Yii::t('api',"用户名或者密码为空"),"miniyun.api");
                 return false;
             }
+
+
             //签名密码
             $key          = substr($requestToken, 0, 8);
             //验证用户是否正确
