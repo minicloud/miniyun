@@ -5,7 +5,8 @@
 </head>
 <style type="text/css">
     #tip-body{
-        margin: 150px auto;
+        margin: auto;
+        margin-top:7% ;
         width:600px;
     }
     #tip-title{
