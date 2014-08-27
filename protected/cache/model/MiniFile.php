@@ -880,9 +880,9 @@ class MiniFile extends MiniCache{
             //通过迷你存储存储的文件，通过代理方式直接请求文件内容
             $curl = curl_init($retData);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-            $output = curl_exec($curl);
+            $content = curl_exec($curl);
             curl_close($curl);
-            return $output;
+
         }else{
             $filePath = MUtils::getPathBySplitStr ( $signature );
             //data源处理对象
@@ -890,8 +890,21 @@ class MiniFile extends MiniCache{
             if ($dataObj->exists( $filePath ) === false) {
                 throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
             }
-            return $dataObj->get_contents($filePath);
+            $content = $dataObj->get_contents($filePath);
         }
+        //如果是UTF-8，不用转换。否则尝试将其转换为utf-8编码的文件，这里还是会存在转换失败的可能性，也就是说用户只是看到部分文本
+        $encode = mb_detect_encoding($content);
+        if($encode!=='UTF-8'){
+            $resultContent = iconv($encode,'UTF-8', $content);
+            $content = !$resultContent?$content:$resultContent;
+        }
+        //针对Windows系统下的记事本编辑的文件，默认是utf-8。但还需要进行二次转换
+        $encodeResult = json_encode($content);
+        if($encodeResult==="null"){
+            $content = iconv("GB2312",'UTF-8', $content);
+        }
+        return $content;
+
     }
 
     /**

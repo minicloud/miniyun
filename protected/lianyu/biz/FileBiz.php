@@ -219,8 +219,7 @@ class FileBiz  extends MiniBiz{
         $minFileMeta = $share->getMinFileMetaByPath($path);
         $file = array();
         $content = MiniFile::getInstance()->getTxtContent($minFileMeta['ori_path'],$signature);
-        $resultContent = iconv('gb2312','UTF-8', $content);
-        $file['content'] = !$resultContent?$content:$resultContent;
+        $file['content'] = $content;
         $file['type']    = $minFileMeta['mime_type'];
         return $file;
     }
