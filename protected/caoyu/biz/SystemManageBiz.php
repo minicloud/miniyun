@@ -277,7 +277,7 @@ class SystemManageBiz extends MiniBiz{
 //            if($width != 256 || $height != 256){
 //                return array('success'=>false,'msg'=>'size_not_right');
 //            }
-//            $logoPath = dirname(__FILE__)."/../../../statics/images/".$name;
+//            $logoPath = dirname(__FILE__)."/../../../static/images/".$name;
 //            if($file['error'] == 0){
 //                if(move_uploaded_file($file['tmp_name'],$logoPath)){
 //                    chmod($logoPath, 0755);

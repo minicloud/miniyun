@@ -118,7 +118,7 @@ class MiniHttp{
     public static function createStaticUrl($url,$module=""){
         $host = self::getMiniHost();
         if(empty($module)){
-            return $host."statics/".$url;
+            return $host."static/".$url;
         }else{
             return $module->assetsUrl."/".$url;
         }
@@ -133,7 +133,7 @@ class MiniHttp{
             $language="zh_cn";
         }
         $t = YII_DEBUG ? time() : Yii::app()->params['app']['version'];
-        return $host."statics/liyu/i18n/".$language."/".$appName.".js?t=".$t;
+        return $host."static/liyu/i18n/".$language."/".$appName.".js?t=".$t;
     }
 
     /**

@@ -86,7 +86,7 @@
         return "";
     }
     /**
-     * 访问statics.miniyun.cn成功，跳转回去
+     * 访问static.miniyun.cn成功，跳转回去
      */
     function online(text){
         var data = eval("(" + text + ")");
@@ -107,7 +107,7 @@
         }
     }
     /**
-     * 无法访问statics.miniyun.cn
+     * 无法访问static.miniyun.cn
      */
     function offline(){
         setCookie("syncTime","-1");
@@ -117,7 +117,7 @@
      * 判断是否在线
      */
     function judgeOnline(){
-        var host = getParameter("staticsServerHost");
+        var host = getParameter("staticServerHost");
         var url = host+"index.php/client/web";
         if(isIE()){
             var xdr = new XDomainRequest();

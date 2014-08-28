@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title><?php echo NAME_ZH; ?> &rsaquo; <?php echo Yii::t("front_common", "install_title")?></title>
 <link rel="shortcut icon" href="<?php echo(Yii::app()->params['app']['host'].Yii::app()->params['app']['logoSmall']);?>" />
-<link rel="stylesheet" href="<?php echo MiniHttp::getMiniHost()?>statics/css/install.css?v=<?php echo(Yii::app()->params['app']['version'])?>" type="text/css" />
+<link rel="stylesheet" href="<?php echo MiniHttp::getMiniHost()?>static/css/install.css?v=<?php echo(Yii::app()->params['app']['version'])?>" type="text/css" />
 <style>
 .errorSummary {
 	border: 2px solid #C00;

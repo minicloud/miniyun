@@ -110,7 +110,7 @@ class MiniUser extends MiniCache{
                     $user["is_admin"] = ($value==="1"?true:false);
                 }
                 if($key==="avatar"){
-                    $user["avatar"] = MiniHttp::getMiniHost()."statics/thumbnails/avatar/".$value;
+                    $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
                 }
             }
             return  $user;

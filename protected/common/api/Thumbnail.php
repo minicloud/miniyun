@@ -15,9 +15,9 @@ class Thumbnail extends CApiComponent {
      * @var array
      */
     public static $thumbSize = array(
-        "small" => array("width"=>48,"height"=>48,"default" => "/statics/images/file.png"),
-        "normal" => array("width"=>80,"height"=>80,"default" => "/statics/images/main/thumb/image.gif"),
-        "large"  => array("width"=>128,"height"=>128, "default" => "/statics/images/main/thumb_large/image.gif"),
+        "small" => array("width"=>48,"height"=>48,"default" => "/static/images/file.png"),
+        "normal" => array("width"=>80,"height"=>80,"default" => "/static/images/main/thumb/image.gif"),
+        "large"  => array("width"=>128,"height"=>128, "default" => "/static/images/main/thumb_large/image.gif"),
     );
     /**
      * 支持图片缩略图类型
@@ -53,7 +53,7 @@ class Thumbnail extends CApiComponent {
     public $quality = 75;    // 缩略图质量
     public $rotate  = 0;     // 旋转
     public $sharpen = 20;    // 锐化
-    public $default = "/statics/images/main/thumb_large/image.gif";
+    public $default = "/static/images/main/thumb_large/image.gif";
     public $format  = 'PNG'; // 默认转换为jpeg格式
     public $image;      // 图片对象
     public $isDirect = TRUE;  // 表示直接输出

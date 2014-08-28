@@ -4,10 +4,10 @@ protected/.DS_Store
 protected/config/.DS_Store
 protected/config/miniyun-config.php
 protected/runtime/error.log
-statics/images/plugins/
+static/images/plugins/
 protected/config/memcache.php
 protected/config/miniyun_offline.php
 protected/modules/ipAccessControl/config/
-statics/thumbnails/
+static/thumbnails/
 .idea/
-statics/views/
+static/views/

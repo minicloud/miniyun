@@ -234,7 +234,7 @@ class Util{
         if(!($language=="zh_tw"||$language=="zh_cn"||$language=="en")){
             $language="zh_cn";
         }
-        return $host."statics/".$mainPath."/i18n/".$language."/".$appName.".js?v=".$version;
+        return $host."static/".$mainPath."/i18n/".$language."/".$appName.".js?v=".$version;
     }
 }
 class SiteAppInfo{
@@ -311,7 +311,7 @@ class MiniBox{
      * 迷你云服务器地址
      * @var
      */
-    private $staticsServerHost;
+    private $staticServerHost;
     /**
      * 当前用户选择的语言版本
      * @var
@@ -380,9 +380,9 @@ class MiniBox{
         }
         $port = $_SERVER["SERVER_PORT"];
         if($port=="443"){
-            $this->staticsServerHost = "https://".STATICS_SERVER_HOST."/";
+            $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
         }else{
-            $this->staticsServerHost = "http://".STATICS_SERVER_HOST."/";
+            $this->staticServerHost = "http://".STATIC_SERVER_HOST."/";
         }
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
@@ -521,8 +521,8 @@ class MiniBox{
 			$siteInfo .= "&u=".$user["user_uuid"];
 		}
 		//生产状态，将会把js/css文件进行合并处理，提高加载效率
-		$header .= "<script id='miniBox' statics-server-host='".$this->staticsServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticsServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
-		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticsServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
+		$header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
+		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
         $this->loadHtml($header);
     }
      
@@ -555,7 +555,7 @@ class MiniBox{
             $needSyncCloud = true;
         }
         if($needSyncCloud===true){
-            $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticsServerHost=".$this->staticsServerHost;
+            $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticServerHost=".$this->staticServerHost;
             $this->redirectUrl($url);
         }
     }

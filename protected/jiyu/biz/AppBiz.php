@@ -19,7 +19,7 @@ class AppBiz extends MiniBiz
         $data['version'] = MiniHttp::getSystemParam("version");
         $data['status'] = SYSTEM_STATUS;
         $data['app_name'] = APP_NAME;
-        $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . "/statics/images/logo.png";
+        $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . "/static/images/logo.png";
         $data['default_size'] = DEFAULT_SIZE;
         $data['can_register'] = true;
         $data['register_url'] = "";

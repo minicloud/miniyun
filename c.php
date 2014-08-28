@@ -10,7 +10,7 @@
  */
 date_default_timezone_set("PRC");
 
-define('STATICS_SERVER_HOST',"statics.miniyun.cn");
+define('STATIC_SERVER_HOST',"static.miniyun.cn");
 
 defined('YII_DEBUG') or define('YII_DEBUG', false);
 @ini_set('display_errors', '1');
@@ -25,7 +25,7 @@ defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL',8);
 defined('CLIENT_REQUEST_API') or define('CLIENT_REQUEST_API', TRUE);
 require_once($yii);
 Yii::createWebApplication($config);
-header('Access-Control-Allow-Origin: statics.miniyun.cn');
+header('Access-Control-Allow-Origin: static.miniyun.cn');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Methods: GET');
 MiniAppParam::getInstance()->load();//初始化APP静态数据 

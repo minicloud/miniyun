@@ -49,7 +49,7 @@ class MPluginObtain
             //设置插件的logo.gif
             $logoPath = $path. $file . DIRECTORY_SEPARATOR . "logo.gif";
             if (file_exists($logoPath)){
-            	$aimPath = $path."..".DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."statics".DIRECTORY_SEPARATOR."images".DIRECTORY_SEPARATOR."plugins".DIRECTORY_SEPARATOR;
+            	$aimPath = $path."..".DIRECTORY_SEPARATOR."..".DIRECTORY_SEPARATOR."static".DIRECTORY_SEPARATOR."images".DIRECTORY_SEPARATOR."plugins".DIRECTORY_SEPARATOR;
             	if (!file_exists($aimPath)){
             		mkdir($aimPath);
             	}

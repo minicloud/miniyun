@@ -123,8 +123,8 @@ class MiniAppParam extends MiniCache{
         $params               = array(//app信息描述
             'name'            => NAME_ZH,//产品名称
             'title'           => "我的私有云",//产品标题
-            'logo'            => "/statics/images/logo.png",//LOGO
-            'logoSmall'       => "/statics/images/logo-small.png",//LOGO small類型
+            'logo'            => "/static/images/logo.png",//LOGO
+            'logoSmall'       => "/static/images/logo-small.png",//LOGO small類型
             'host'            => CUtils::getBaseUrl(),//域名
             'company'         => "www.miniyun.cn",//公司名称
             'sysSpace'        => 0,//默认系统无限空间
@@ -135,7 +135,7 @@ class MiniAppParam extends MiniCache{
             'enableMail'      => "1",//系统是否可发送邮件
             'mid'             => "",//此系统mid
             'uploadSize'      => (int)ini_get("upload_max_filesize") < (int)ini_get("post_max_size") ? ini_get("upload_max_filesize")*1024*1024 : ini_get("post_max_size")*1024*1024,
-            'skinUrl'         => CUtils::getBaseUrl()."/statics/skin/skin_gray",//默认存储路径
+            'skinUrl'         => CUtils::getBaseUrl()."/static/skin/skin_gray",//默认存储路径
             'skin'            => "skin_gray",// 皮肤
             'entryUri'        => $entryUri,// index.php的字符串
             'indexUri'        => CUtils::getBaseUrl().$entryUri,// index.php的路径
@@ -165,7 +165,7 @@ class MiniAppParam extends MiniCache{
                 $params["name"]      = $value;
             }
             else if("skin" == $key){
-                $params["skinUrl"]   = $baseUri."/statics/skin/".$value."/";
+                $params["skinUrl"]   = $baseUri."/static/skin/".$value."/";
                 $params["skin"]      = $value;
             }
             else if("site_title" == $key){

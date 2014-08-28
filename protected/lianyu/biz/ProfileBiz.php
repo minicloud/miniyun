@@ -95,7 +95,7 @@ class ProfileBiz  extends MiniBiz{
         file_put_contents($path, file_get_contents($url));
         //save to db
         MiniUserMeta::getInstance()->updateMeta($user["id"],"avatar",$avatarName);
-        return MiniHttp::getMiniHost()."statics/thumbnails/avatar/".$avatarName;
+        return MiniHttp::getMiniHost()."static/thumbnails/avatar/".$avatarName;
     }
     /**
      * delete头像
@@ -104,7 +104,7 @@ class ProfileBiz  extends MiniBiz{
      */
     public  function deleteAvatar($avatar){
         $userId = $this->user['id'];
-        $file = MiniHttp::getMiniHost()."statics/thumbnails/avatar/".$avatar;
+        $file = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$avatar;
         MUtils::RemoveFile($file);
         $result = MiniUserMeta::getInstance()->deleteAvatar($userId,$avatar);
         return array(success => $result);

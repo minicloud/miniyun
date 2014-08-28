@@ -358,11 +358,11 @@ class m120924_100748_base extends EDbMigration
 		$this->insert(DB_PREFIX.'_options', array("option_id"=>1,"option_name"=>"site_url","option_value"=>"NETLOC","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>2,"option_name"=>"site_title","option_value"=>"新型文件管理平台","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>3,"option_name"=>"site_name","option_value"=>"迷你云","created_at"=>$data,"updated_at"=>$data));
-        $this->insert(DB_PREFIX.'_options', array("option_id"=>4,"option_name"=>"site_logo_small_url","option_value"=>"/statics/images/logo.png","created_at"=>$data,"updated_at"=>$data));
+        $this->insert(DB_PREFIX.'_options', array("option_id"=>4,"option_name"=>"site_logo_small_url","option_value"=>"/static/images/logo.png","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>5,"option_name"=>"site_company","option_value"=>"成都迷你云科技有限公司","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>6,"option_name"=>"user_register_enabled","option_value"=>"1","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>7,"option_name"=>"mid","option_value"=>"ORIGINAL_MID","created_at"=>$data,"updated_at"=>$data));
-        $this->insert(DB_PREFIX.'_options', array("option_id"=>8,"option_name"=>"site_logo_url","option_value"=>"/statics/images/logo.png","created_at"=>$data,"updated_at"=>$data));
+        $this->insert(DB_PREFIX.'_options', array("option_id"=>8,"option_name"=>"site_logo_url","option_value"=>"/static/images/logo.png","created_at"=>$data,"updated_at"=>$data));
         $this->insert(DB_PREFIX.'_options', array("option_id"=>9,"option_name"=>"site_default_space","option_value"=>"1048576","created_at"=>$data,"updated_at"=>$data));
     }
 

@@ -66,7 +66,7 @@ define('DOCUMENT_ROOT_BLOCK', BASE . "/upload_block/");
 //
 // 图片缩略图存储路径
 //
-define('THUMBNAIL_TEMP', dirname(__FILE__) . '/../../statics/thumbnails/'); 
+define('THUMBNAIL_TEMP', dirname(__FILE__) . '/../../static/thumbnails/');
 //
 // 系统临时文件目录
 //

@@ -3,16 +3,16 @@
 ?>
 <script
     type='text/javascript'
-    src='<?php echo Yii::app()->request->baseUrl; ?>/statics/js/jquery.js'></script>
+    src='<?php echo Yii::app()->request->baseUrl; ?>/static/js/jquery.js'></script>
 <script
     type='text/javascript'
-    src='<?php echo Yii::app()->request->baseUrl; ?>/statics/js/password-strength-meter.js'></script>
+    src='<?php echo Yii::app()->request->baseUrl; ?>/static/js/password-strength-meter.js'></script>
 <script
     type='text/javascript'
-    src='<?php echo Yii::app()->request->baseUrl; ?>/statics/js/user-profile.js'></script>
+    src='<?php echo Yii::app()->request->baseUrl; ?>/static/js/user-profile.js'></script>
 <script
     type='text/javascript'
-    src='<?php echo Yii::app()->request->baseUrl; ?>/statics/js/l10n.js'></script>
+    src='<?php echo Yii::app()->request->baseUrl; ?>/static/js/l10n.js'></script>
 <tr class="form-field form-required">
     <th scope="row"><?php echo $form->labelEx($model,'password'); ?></th>
     <td><?php echo $form->passwordField($model,'password',array("id"=>"pass1","class"=>"input")); ?></td>

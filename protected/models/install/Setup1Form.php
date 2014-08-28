@@ -79,7 +79,7 @@ class Setup1Form extends CFormModel {
             './assets/'            => array('path' => '../assets'),
             './protected/config/'  => array('path' => 'config'),
             './protected/runtime/' => array('path' => 'runtime'),
-            './statics/thumbnails/' => array('path' => '../statics/thumbnails/'),
+            './static/thumbnails/' => array('path' => '../static/thumbnails/'),
         );
         foreach($this->dirItems as $key => $item) {
             $item_path = $item['path'];
