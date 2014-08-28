@@ -87,7 +87,7 @@ class ProfileBiz  extends MiniBiz{
         //save image to avatar folder,file name is user_uuid.png
         $user = MiniUser::getInstance()->getUser($this->user["id"]);
         $avatarName = MiniUtil::getRandomName(8).".png";
-        $savePath = THUMBNAIL_TEMP . "/avatar/";
+        $savePath = THUMBNAIL_TEMP . "avatar/";
         $path = $savePath.'/'.$avatarName;
         if(!file_exists($savePath)){
             mkdir($savePath);
