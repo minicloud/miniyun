@@ -8,6 +8,5 @@ static/images/plugins/
 protected/config/memcache.php
 protected/config/miniyun_offline.php
 protected/modules/ipAccessControl/config/
-static/thumbnails/
 .idea/
 static/views/
