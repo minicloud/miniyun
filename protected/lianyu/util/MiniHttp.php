@@ -53,6 +53,9 @@ class MiniHttp{
             $url = "https://";
         }
         $serverName = $_SERVER["SERVER_NAME"];
+		if($serverName==="demo.miniyun.cn"){
+		   $serverName = $_SERVER["HTTP_HOST"];
+		}
         $url .=$serverName;
         if(!($serverPort==="80" || $serverPort==="443")){
             $url .=":".$serverPort;

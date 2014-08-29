@@ -125,6 +125,10 @@ class Util{
             $url = "https://";
         }
         $serverName = $_SERVER["SERVER_NAME"];
+		//兼容Linux 一键安装的安装向导错误
+		if($serverName==="demo.miniyun.cn"){
+		   $serverName = $_SERVER["HTTP_HOST"];
+		}
         $url .=$serverName;
         if(!($serverPort==="80" || $serverPort==="443")){
             $url .=":".$serverPort;
