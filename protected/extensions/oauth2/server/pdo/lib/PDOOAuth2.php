@@ -302,7 +302,7 @@ class PDOOAuth2 extends OAuth2 {
             }
         }
         //如被锁定，且是网页端则不进行登录。
-        $name   = urldecode($_POST['username']);
+        $name   = urldecode($_REQUEST['username']);
         $isLock = MiniUser::getInstance()->isLock($name);
         $user   = false;
         if(!($isLock && MiniHttp::clientIsBrowser())){
@@ -354,7 +354,7 @@ class PDOOAuth2 extends OAuth2 {
             return false;
         }else{
             //正常用户登陆模式
-            $name         = urldecode($_POST['username']);
+            $name         = urldecode($_REQUEST['username']);
             $password     = $_REQUEST['password'];
             $requestToken = $_REQUEST['client_id'];
             if (empty($name) || empty($password) || empty($requestToken))
