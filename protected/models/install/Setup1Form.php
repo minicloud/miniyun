@@ -106,7 +106,7 @@ class Setup1Form extends CFormModel {
     private function envCheck() {
         $this->envItems = array(
             'os'               => array('c' => 'PHP_OS', 'r' => 'notset', 'b' => 'unix'), 
-            'php'              => array('c' => 'PHP_VERSION', 'r' => '5.2.0', 'b' => '5.3.0'), 
+            'php'              => array('c' => 'PHP_VERSION', 'r' => '5.3.0', 'b' => '5.3.0'), 
             'attachmentupload' => array('r' => 'notset', 'b' => '1024M'), 
             'gdversion'        => array('r' => '1.0', 'b' => '2.0'),
             'diskspace'        => array('r' => 'notset', 'b' => 'notset'),
