@@ -1236,7 +1236,11 @@ abstract class OAuth2 {
         }
         if ($stored === FALSE){
             //为密码锁定与错误提示提供数据
-            $name = urldecode($_REQUEST['username']);
+			$userName = $_REQUEST['username'];
+			if(empty($userName)){
+				$userName = $_POST['username'];
+			}
+            $name = urldecode($userName);
             $isLock = MiniUser::getInstance()->isLock($name);
             $errorCount = MiniUser::getInstance()->getPasswordErrorCount($name);
             $errorDescription = array("is_lock"=>$isLock,"error_count"=>$errorCount);
