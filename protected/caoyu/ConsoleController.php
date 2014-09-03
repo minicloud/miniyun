@@ -14,9 +14,9 @@ class ConsoleController extends AnonymousController{
      * 这类请求不用进行用户过滤
      * @return bool
      */
-    private function isAppSendRequest(){
+    private function isPluginSendRequest(){
         $uri = $_SERVER['REQUEST_URI'];
-        $key = "/module/";
+        $key = "/plugin/";
         $pos = strpos($uri,$key);
         if($pos){
             $key = "/app";
@@ -31,7 +31,7 @@ class ConsoleController extends AnonymousController{
     	//IP安全检查
     	do_action('ip_check',false);
         //如属于app向迷你云发送的请求，则不进行用户认证
-        if($this->isAppSendRequest()===false){
+        if($this->isPluginSendRequest()===false){
             $filter = new MUserFilter();
             $filter->oauth2Judge();
             //check user auth

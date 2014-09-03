@@ -28,7 +28,7 @@ class MMigration {
 
         $modulePaths = array();
         if ($module != "core"){
-            $modulePaths[$module] = "application.modules.{$module}.migrations";
+            $modulePaths[$module] = "application.plugins.{$module}.migrations";
             $migratePath  =Yii::getPathOfAlias($modulePaths[$module]);
             if (!is_dir($migratePath)){
                 return true;

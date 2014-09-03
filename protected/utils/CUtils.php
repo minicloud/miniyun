@@ -1350,28 +1350,6 @@ class CUtils{
     }
 
 
-
-    /**
-     * @param $file
-     * @param string $allowed_files
-     * @return int
-     */
-    public static function validate_file( $file, $allowed_files = '' ) {
-        if ( false !== strpos( $file, '..' ) )
-            return 1;
-
-        if ( false !== strpos( $file, './' ) )
-            return 1;
-
-        if ( ! empty( $allowed_files ) && ! in_array( $file, $allowed_files ) )
-            return 3;
-
-        if (':' == substr( $file, 1, 1 ) )
-            return 2;
-
-        return 0;
-    }
-
     /**
      * @param $url
      * @return bool

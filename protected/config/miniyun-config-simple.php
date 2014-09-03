@@ -75,7 +75,7 @@ define('DOCUMENT_CACHE', BASE . '/cache/');
 //
 // 插件的跟目录
 //
-define('PLUGIN_DIR', MINIYUN_PATH. DS . 'protected' . DS . 'modules');//插件的文件目录
+define('PLUGIN_DIR', MINIYUN_PATH. DS . 'protected' . DS . 'plugins');//插件的文件目录
 //
 // 默认空间大小
 //
