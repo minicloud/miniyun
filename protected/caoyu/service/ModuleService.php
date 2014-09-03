@@ -20,7 +20,7 @@ class ModuleService extends MiniService{
      * @return bool
      */
     public function invoke($uri = NULL){
-        $key = "/plugin/";
+        $key = "/module/";
         $pos = strpos($uri,$key);
         if($pos!==false){
             $temp = substr($uri,strlen($key));
