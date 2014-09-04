@@ -195,7 +195,7 @@ class Setup2Form extends CFormModel
                     define('DB_PREFIX',$this->tablePrefix);
                     define('DB_TYPE',"mysql");
 
-                    $migration = new MMigration();
+                    $migration = new MiniMigration();
                     $migration->connectionID = "dbInstall";
                     $migration->up();
                     $this->initDbConfigFile();

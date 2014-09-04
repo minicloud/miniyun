@@ -9,7 +9,7 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.6
  */
-class MMigration {
+class MiniMigration {
 
     public $connectionID = "db";
 

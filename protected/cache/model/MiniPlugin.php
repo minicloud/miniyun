@@ -39,6 +39,11 @@ class MiniPlugin extends MiniCache
 	 * 加载插件
 	 */
 	public function load(){
+        $configPath  = dirname(__FILE__).'/../../config/miniyun-config.php';
+        //如果系统尚未安装，则不加载插件
+        if (!file_exists($configPath)){
+             return;
+        }
         $value         = MiniOption::getInstance()->getOptionValue("active_plugins");
         if ($value !== NULL){
             $activePlugins = (array) unserialize($value);
@@ -197,11 +202,20 @@ class MiniPlugin extends MiniCache
             $data["success"] = false;
             return $data;
         }
+        //把激活插件列表写入到DB中
         $item = array();
         $item[$id] = $id."/".ucfirst($id)."Module.php";
         $list = array_merge($item,$list);
         MiniOption::getInstance()->setOptionValue("active_plugins",serialize($list));
+        //数据库增量更新插件相关数据结构
         $data["success"] = true;
+        try{
+            $migration = new MiniMigration();
+            $migration->up($id);
+        }catch(Exception $e){
+            Yii::log($e->getMessage(),CLogger::LEVEL_ERROR);
+            $data["success"] = false;
+        }
         return $data;
     }
     /**
