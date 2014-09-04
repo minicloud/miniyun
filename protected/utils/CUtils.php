@@ -1232,9 +1232,9 @@ class CUtils{
     public static function apiInfo() {
         $response = array();
         $response['version']     = Yii::app()->params["app"]["version"];
-        $response['status']      = SYSTEM_STATUS;
-        $response['appname']     = APP_NAME;
-        $response['defaultsize'] = DEFAULT_SIZE;
+        $response['status']      = "done";
+        $response['appname']     = "迷你云";
+        $response['defaultsize'] = 100;
         $response['enableReg']   = 0;
         $response['mult_user']   = 0;
         $value                   = MiniOption::getInstance()->getOptionValue('muti_clients');

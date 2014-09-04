@@ -251,7 +251,7 @@ class SiteAppInfo{
      * @return array|null
      */
     public  function getSiteInfo(){
-        $app = new AppService();
+        $app = new SiteService();
         return $app->info();
     }
     /**
@@ -259,7 +259,7 @@ class SiteAppInfo{
      * @return array|null
      */
     public  function defaultAccount(){
-        $app = new AppService();
+        $app = new SiteService();
         return $app->onlyDefaultAccount();
     }
 

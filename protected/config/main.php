@@ -1,8 +1,4 @@
 <?php
-// 全局变量
-define('SYSTEM_STATUS', 'done');
-define('DEFAULT_SIZE', 100);
-define('APP_NAME', '迷你云');
 $app_version = '1.6.0';
 //
 // 适配无REQUEST_URI的情况
@@ -249,8 +245,7 @@ $config = array(
         'autoUpdateFlash' => false,
     ),
 
-
-// using Yii::app()->params['paramName']
+    // using Yii::app()->params['paramName']
     'params' => array(
         'adminEmail' => 'webmaster@example.com',
         'tablePrefix' => $tablePrefix, //表前缀
@@ -264,9 +259,9 @@ $config = array(
             'uploadSize' => (int)ini_get("upload_max_filesize") < (int)ini_get("post_max_size") ? ini_get("upload_max_filesize") * 1024 * 1024 : ini_get("post_max_size") * 1024 * 1024,
             'language' => $languageList, // 语言
         ),
-//
-// office文档类型
-//
+        //
+        // office文档类型
+        //
         'officeType' => array(
             't0' => 'application/msword',
             't1' => 'application/msexcel',

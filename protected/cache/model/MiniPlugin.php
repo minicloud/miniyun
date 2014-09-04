@@ -68,7 +68,13 @@ class MiniPlugin extends MiniCache
             }
         }
 	}
+    /**
+     * 更新迷你云及其插件
+     * @return array
+     */
+    public function update(){
 
+    }
     /**
      * 获得迷你云站点安装的插件列表
      * @return array

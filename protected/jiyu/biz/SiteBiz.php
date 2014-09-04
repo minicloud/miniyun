@@ -8,19 +8,19 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.6
  */
-class AppBiz extends MiniBiz
+class SiteBiz extends MiniBiz
 {
     /**
      * 获得站点信息
      */
-    public static function getAppInfo()
+    public static function getSiteInfo()
     {
         $data = array();
         $data['version'] = MiniHttp::getSystemParam("version");
-        $data['status'] = SYSTEM_STATUS;
-        $data['app_name'] = APP_NAME;
+        $data['status'] = "done";
+        $data['app_name'] = 100;
         $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . "/static/images/logo.png";
-        $data['default_size'] = DEFAULT_SIZE;
+        $data['default_size'] = 100;
         $data['can_register'] = true;
         $data['register_url'] = "";
         //产品名称
