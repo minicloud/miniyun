@@ -15,7 +15,7 @@ class SystemManageService extends MiniService{
     public function settingSiteInfo(){
 //        $site['file']  = $_FILES['siteImage'];
         $site['siteTitle']            = MiniHttp::getParam('siteTitle','miniyun');
-        $site['siteName']             = MiniHttp::getParam('siteName','miniCloud');
+        $site['siteName']             = MiniHttp::getParam('siteName','迷你云');
         $site['siteDefaultSpace']     = MiniHttp::getParam('siteDefaultSpace','1024');
         $site['siteCompany']          = MiniHttp::getParam('siteCompany','');
         $site['userRegisterEnabled']  = MiniHttp::getParam('userRegisterEnabled','1');
