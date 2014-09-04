@@ -558,6 +558,11 @@ class MiniBox{
         }else{
             $needSyncCloud = true;
         }
+		//如是外链访问，则不用跳转进行是否在线检测
+		$requestUri   = Util::getRequestUri();
+		if(strpos($requestUri,"link/access/key")){
+			$needSyncCloud = false;
+		}
         if($needSyncCloud===true){
             $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticServerHost=".$this->staticServerHost;
             $this->redirectUrl($url);
