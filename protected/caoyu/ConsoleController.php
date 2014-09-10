@@ -10,6 +10,27 @@
  */
 class ConsoleController extends AnonymousController{
     /**
+     * 获得白名单
+     */
+    protected function getWhiteList(){
+        $list = parent::getWhiteList();
+        $newList = array(
+            "appManage",
+            "chooser",
+            "deviceManage",
+            "domain",
+            "editorManage",
+            "fileManage",
+            "homePage",
+            "module",
+            "onlineUser",
+            "plugin",
+            "systemManage",
+            "userInfo",
+        );
+        return array_merge($list,$newList);
+    }
+    /**
      * 判断是否是App应用发送的请求
      * 这类请求不用进行用户过滤
      * @return bool
