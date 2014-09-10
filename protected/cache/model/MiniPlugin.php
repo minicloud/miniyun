@@ -73,12 +73,78 @@ class MiniPlugin extends MiniCache
     }
 
     /**
-     * 更新迷你云及其插件
-     * @return array
+     * 上传并更新插件
      */
-    public function update()
-    {
+    public function uploadPlugin($name){
+        $data = array();
+        if ($_FILES["file"]["error"] > 0){
+            $data["success"] = false;
+            $data["msg"] = "not file";
+            return $data;
+        }
+        $fileType = $_FILES["file"]["type"];
+        if($fileType!=="application/zip"){
+            $data["success"] = false;
+            $data["msg"] = "file invalid";
+            return $data;
+        }
+        //把安装包放到upload/temp目录下
+        $aimTempPath = BASE."temp/";
+        if(!file_exists($aimTempPath)){
+            mkdir($aimTempPath);
+        }
+        $zipFilePath = $aimTempPath.$_FILES["file"]["name"];
+        move_uploaded_file($_FILES["file"]["tmp_name"],$zipFilePath);
+        $fileName = basename($_FILES["file"]["name"],".zip");
+        $unZipFilePath = $aimTempPath.$fileName;
+        //解压目录
+        $zip = new ZipArchive;
+        $res = $zip->open($zipFilePath);
+        if ($res === TRUE) {
+            $zip->extractTo($unZipFilePath);
+            $zip->close();
+        }
+        //迷你云系统升级
+        $isPlugin = true;
+        //移动目录到plugins
+        $aimPath = PLUGIN_DIR."/".$fileName;
+        if($name==="miniyun"){
+            $isPlugin = false;
+            $aimPath = BASE."../";
+        }
+        //拷贝文件与目录
+        self::copyDir($unZipFilePath,$aimPath);
+        //删除缓存数据
+        self::deleteDir($unZipFilePath);
+        unlink($zipFilePath);
+        if($isPlugin){
+            //如该插件已启用，则需升级数据库
+            //如插件未启用，则在启用时候升级数据库
+            $value = MiniOption::getInstance()->getOptionValue("active_plugins");
+            if ($value !== NULL) {
+                $activePlugins = (array)unserialize($value);
+                foreach($activePlugins as $id=>$item){
+                    if($id===$fileName){
+                        try {
+                            $migration = new MiniMigration();
+                            $migration->up($fileName);
+                        } catch (Exception $e) {
 
+                        }
+                        break;
+                    }
+                }
+            }
+        }else{
+            //如升级迷你云核心系统，则需升级数据库
+            try {
+                $migration = new MiniMigration();
+                $migration->up("core");
+            } catch (Exception $e) {
+            }
+        }
+        $data["success"] = true;
+        return $data;
     }
 
     /**
@@ -314,6 +380,26 @@ class MiniPlugin extends MiniCache
         rmdir($dirPath);
     }
 
+    /**
+     * 拷贝目录
+     * @param $src
+     * @param $dst
+     */
+    private static function copyDir($src,$dst) {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) ) {
+                    self::copyDir($src . '/' . $file,$dst . '/' . $file);
+                }
+                else {
+                    copy($src . '/' . $file,$dst . '/' . $file);
+                }
+            }
+        }
+        closedir($dir);
+    }
     /**
      *
      * 获取插件元数据信息

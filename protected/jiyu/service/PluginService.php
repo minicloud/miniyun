@@ -38,6 +38,20 @@ class PluginService extends MiniService{
     /**
      * 启用插件
      */
+    public function upload(){
+        $name  = MiniHttp::getParam("name","");
+        if(empty($name)){
+            $data = array();
+            $data["success"] = false;
+        }else{
+            $model = new PluginBiz();
+            $data  = $model->upload($name);
+        }
+        return $data;
+    }
+    /**
+     * 启用插件
+     */
     public function enable(){
         $id  = MiniHttp::getParam("id","");
         if(empty($id)){

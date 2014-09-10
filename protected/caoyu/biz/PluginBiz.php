@@ -29,6 +29,13 @@ class PluginBiz extends MiniBiz{
         return MiniPlugin::getInstance()->getDisabledPlugins();
     }
     /**
+     * 上传插件
+     * @param $name
+     */
+    public function upload($name){
+        return MiniPlugin::getInstance()->uploadPlugin($name);
+    }
+    /**
      * 启用插件
      * @param $id
      */
