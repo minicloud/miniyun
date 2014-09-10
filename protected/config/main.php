@@ -16,15 +16,15 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 function my_session_start()
 {
     if (isset($_COOKIE['PHPSESSID'])) {
-        $sessid = $_COOKIE['PHPSESSID'];
+        $sessionID = $_COOKIE['PHPSESSID'];
     } else if (isset($_GET['PHPSESSID'])) {
-        $sessid = $_GET['PHPSESSID'];
+        $sessionID = $_GET['PHPSESSID'];
     } else {
         session_start();
         return false;
     }
 
-    if (!preg_match('/^[a-z0-9]{32}$/', $sessid)) {
+    if (!preg_match('/^[a-z0-9]{32}$/', $sessionID)) {
         return false;
     }
     session_start();
