@@ -1,6 +1,7 @@
 <?php
 /*
 * Plugin Name: 迷你存储节点管理
+* Plugin Type: miniStore
 * Plugin URI: http://www.miniyun.cn
 * Description: 管理多个迷你存储节点的插件，包括：新增、修改、拉上/拉下迷你存储节点。什么是迷你存储，请<a href="http://help.miniyun.cn/ministor" style="color:#21759B;" target="_blank">“点击这里”</a><br> 前往 <a href="Yii::t('miniStoreModule.I18N', '#href')" style="color:#21759B;">“迷你存储节点设置”</a>页面进行设置
 * Author: MiniYun
