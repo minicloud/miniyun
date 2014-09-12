@@ -1231,7 +1231,7 @@ class CUtils{
      */
     public static function apiInfo() {
         $response = array();
-        $response['version']     = Yii::app()->params["app"]["version"];
+        $response['version']     = APP_VERSION;
         $response['status']      = "done";
         $response['appname']     = "迷你云";
         $response['defaultsize'] = 100;

@@ -16,7 +16,7 @@ class SiteBiz extends MiniBiz
     public static function getSiteInfo()
     {
         $data = array();
-        $data['version'] = MiniHttp::getSystemParam("version");
+        $data['version'] = APP_VERSION;
         $data['status'] = "done";
         $data['app_name'] = 100;
         $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . "/static/images/logo.png";

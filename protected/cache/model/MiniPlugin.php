@@ -217,6 +217,17 @@ class MiniPlugin extends MiniCache
             $meta["enabled"] = $enabled;
             $plugins[] = $meta;
         }
+        //把迷你云主系统加入到列表中
+        $plugins[] = array(
+            "id"=>"miniyun",
+            "type"=>"miniyun",
+            "name"=>NAME_ZH,
+            "url"=>"http://www.miniyun.cn",
+            "description"=>Yii::t("common", "plugin_miniyun_description", array("{app_name}"=>NAME_ZH)),
+            "version"=>APP_VERSION,
+            "logo"=>"http://static.miniyun.cn/static/mini-box/images/logo.png",
+            "enabled"=>true,
+        );
         return $plugins;
     }
 

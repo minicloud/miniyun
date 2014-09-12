@@ -8,17 +8,31 @@
  * @since 1.6
  */
 class AnonymousController{
-
+    /**
+     * 获得白名单
+     */
+    protected function getWhiteList(){
+        return array(
+           "linkAccess",
+           "site",
+        );
+    }
     public function invoke()
     {
         $uri = $this->getFilterUrl();
         $info = explode("/",$uri);
         $module = $info[3];
-        $newUri = "/".implode("/", array_slice($info,3));
-        $class = ucfirst($module)."Service";
-        $service = new $class;
-        $result = $service->invoke($newUri);
-        echo(json_encode($result));
+        $whiteList = $this->getWhiteList();
+        foreach($whiteList as $item){
+            if($module===$item){
+                $newUri = "/".implode("/", array_slice($info,3));
+                $class = ucfirst($module)."Service";
+                $service = new $class;
+                $result = $service->invoke($newUri);
+                echo(json_encode($result));
+            }
+        }
+
     }
 
     /**
