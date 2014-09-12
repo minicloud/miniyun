@@ -140,7 +140,6 @@ class MiniStoreModule extends MiniPluginModule {
      */
     private function getSign($uri, $access_token) {
 
-        Yii::trace('deal client sign ,path : ' . __FILE__, "miniyun.miniStore");
         $token = MiniToken2::getInstance()->getAccessInfo2($access_token);
         if (empty($token)) {
             return;
@@ -170,7 +169,6 @@ class MiniStoreModule extends MiniPluginModule {
         $uri = str_replace("%2f", "/", $uri);
 
         $url = "{$uri}?access_token={$access_token}&client_id={$client_id}&client_secret={$client_secret}";
-        Yii::trace('make client sign ,path : ' . $url . __FILE__, "miniyun.miniStor");
         return md5($url);
     }
     /**
@@ -241,7 +239,7 @@ class MiniStoreModule extends MiniPluginModule {
         $request['overwrite']            = $_REQUEST['overwrite'];
         $request['parent_rev']           = $_REQUEST['parent_rev'];
         $request['host']                 = Yii::app()->params['app']['absoluteUrl'];
-        $url                             = str_replace('/api.php/1/paramsdata/miniyun', '/c.php/1/plugin/miniStore/appFileMeta', $uri);
+        $url                             = str_replace('/api.php/1/paramsdata/miniyun', '/c.php/1/module/miniStore/appFileMeta', $uri);
         $sign                            = $this->getSign($url, $request['access_token']);
         
         $request["path"]                 = $filePath;
