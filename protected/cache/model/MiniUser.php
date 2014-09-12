@@ -766,7 +766,7 @@ class MiniUser extends MiniCache{
         $criteria->condition="user_status = 0";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="id";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $data = array();
