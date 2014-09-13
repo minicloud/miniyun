@@ -107,7 +107,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         }
         
         // 检查文件是否存在
-        $store_path = MUtils::getPathBySplitStr ( $hash );
+        $store_path = MiniUtil::getPathBySplitStr ( $hash );
         if ($dataObj->exists ( $store_path ) == false) {
             return $this->handleAssign();
         }

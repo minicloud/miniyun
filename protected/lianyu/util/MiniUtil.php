@@ -327,5 +327,73 @@ class MiniUtil{
             exit;
         }
     }
+    /**
+     * 将字符串按照每两个字符组成一个路径
+     *
+     * e.g 1234567890 => 12/34/56/78/1234567890
+     * @param string $str
+     * @return string $path
+     */
+    public static function getPathBySplitStr($str) {
+        //
+        // 每两个字符分割
+        //
+        $parts = str_split(substr($str,0,8), 2);
 
+        $path = join("/", $parts);
+        $path = $path . "/" . $str;
+        return $path;
+    }
+    /**
+     * 方法描述：输出文件流
+     * 参数：
+     *   $path         - 文件绝对路径
+     */
+    public static function outContent($filePath, $contentType, $fileName,$forceDownload=true) {
+        $options = array();
+        $options['saveName']  = $fileName;
+        $options['mimeType']  = $contentType;
+        $options['terminate'] = false;
+        if (self::xSendFile($filePath, $options)) {
+            return true;
+        }
+
+        $dataObj = Yii::app()->data;
+        $size = $dataObj->size( $filePath );
+        // 输入文件标签
+        Header ( "Content-type: $contentType" );
+        Header ( "Cache-Control: public" );
+        Header ( "Content-length: " . $size );
+        $encodedFileName = urlencode ( $fileName );
+        $encodedFileName = str_replace ( "+", "%20", $encodedFileName );
+        $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+        // 处理下载的时候的文件名
+        if($forceDownload){
+            if (preg_match ( "/MSIE/", $ua )) {
+                header ( 'Content-Disposition: attachment; filename="' . $encodedFileName . '"' );
+            } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
+                header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
+            } else if (preg_match ( "/Firefox/", $ua )) {
+                header ( 'Content-Disposition: attachment; filename*="utf8\'\'' . $fileName . '"' );
+            } else {
+                header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
+            }
+        }
+        if (isset ( $_SERVER ['HTTP_RANGE'] ) && ($_SERVER ['HTTP_RANGE'] != "") && preg_match ( "/^bytes=([0-9]+)-/i", $_SERVER ['HTTP_RANGE'], $match ) && ($match [1] < $size)) {
+            $range = $match [1];
+            header ( "HTTP/1.1 206 Partial Content" );
+            header ( "Last-Modified: " . gmdate ( "D, d M Y H:i:s", $dataObj->mtime ( $filePath ) ) . " GMT" );
+            header ( "Accept-Ranges: bytes" );
+            $rangeSize = ($size - $range) > 0 ? ($size - $range) : 0;
+            header ( "Content-Length:" . $rangeSize );
+            header ( "Content-Range: bytes " . $range . '-' . ($size - 1) . "/" . $size );
+        } else {
+            header ( "Content-Length: $size" );
+            header ( "Accept-Ranges: bytes" );
+            $range = 0;
+            header ( "Content-Range: bytes " . $range . '-' . ($size - 1) . "/" . $size );
+        }
+        // 下载输出文件内容
+        return $dataObj->render_contents($filePath, "", 0);
+    }
 }
