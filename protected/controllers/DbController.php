@@ -16,6 +16,8 @@ class DbController extends CController {
          	Yii::app()->db->createCommand("check  table ".$name)->execute();
          	Yii::app()->db->createCommand("repair table ".$name)->execute();
          }
+        $migration = new MiniMigration();
+        $migration->up();
          echo("success!<br>");
     }
     /**
@@ -25,5 +27,6 @@ class DbController extends CController {
         $migration = new MiniMigration();
         $migration->up();
         echo("success!<br>");
-    }
+    } 
+
 }
