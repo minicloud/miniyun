@@ -86,4 +86,27 @@ class MiniDocBiz extends MiniBiz{
         }
 
     }
+    /**
+     * 获得文件内容
+     */
+    public function getContent($hash){
+        $contentType = 'application/force-download';
+        $data = array('hash'=>$hash, 'filename'=>$hash, 'contentType' => $contentType);
+        $downloadUrl = apply_filters('web_download_url', $data);
+        if ($downloadUrl !== $data && !empty($downloadUrl)){
+            Yii::app()->request->redirect($downloadUrl);
+            return false;
+        }
+        $dataObj = Yii::app()->data;
+        $filePath = MiniUtil::getPathBySplitStr ($hash);
+        if ($dataObj->exists( $filePath ) === false) {
+            return false;
+        }
+        if (headers_sent()) {
+            return false;
+        }
+        if( MiniUtil::outContent($filePath, $contentType, $hash)) {
+            return true;
+        }
+    }
 }

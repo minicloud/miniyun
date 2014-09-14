@@ -62,4 +62,15 @@ class MiniDocService{
         $data  = $model->changeNodeStatus($id,$runStatus);
         return $data;
     }
+
+    /**
+     * 文件转换要获得文件的内容
+     * 这个接口提供给迷你文档服务
+     */
+    public function content(){
+        $hash = MiniHttp::getParam('hash','');
+        $model = new miniDocBiz();
+        $data  = $model->getContent($hash);
+        return $data;
+    }
 }
