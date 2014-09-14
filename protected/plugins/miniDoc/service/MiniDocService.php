@@ -7,7 +7,7 @@ class MiniDocService{
      * 获得迷你文档文档大小控制策略
      */
     public function limitPolicy(){
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->limitPolicy();
         return $data;
     }
@@ -19,7 +19,7 @@ class MiniDocService{
         $pptSize = MiniHttp::getParam('pptSize','1');
         $excelSize = MiniHttp::getParam('excelSize','1');
         $zip_rarSize = MiniHttp::getParam('zip_rarSize','1');
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->saveLimitPolicy($wordSize,$pptSize,$excelSize,$zip_rarSize);
         return $data;
     }
@@ -29,7 +29,7 @@ class MiniDocService{
     public function createNode(){
         $ip = MiniHttp::getParam('ip','');
         $port = MiniHttp::getParam('port','');
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->createNode($ip,$port);
         return $data;
     }
@@ -37,7 +37,7 @@ class MiniDocService{
      * 获得所有的文档节点信息
      */
     public function listNode(){
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->listNode();
         return $data;
     }
@@ -48,7 +48,7 @@ class MiniDocService{
         $id = MiniHttp::getParam('id','');
         $ip = MiniHttp::getParam('ip','');
         $port = MiniHttp::getParam('port','');
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->modifyNode($id,$ip,$port);
         return $data;
     }
@@ -58,7 +58,7 @@ class MiniDocService{
     public function changeNodeStatus(){
         $id = MiniHttp::getParam('id','');
         $runStatus = MiniHttp::getParam('run_status','');
-        $model = new miniDocBiz();
+        $model = new MiniDocBiz();
         $data  = $model->changeNodeStatus($id,$runStatus);
         return $data;
     }

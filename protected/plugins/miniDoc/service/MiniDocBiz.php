@@ -5,7 +5,7 @@
  * Date: 14-9-3
  * Time: 下午3:34
  */
-class miniDocBiz extends MiniBiz{
+class MiniDocBiz extends MiniBiz{
     const  OPTION_KEY="mini_doc_limit_file_size";
     /**
      * 获得迷你文档文档大小控制策略
