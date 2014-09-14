@@ -90,5 +90,9 @@ class m140909_135455_V170  extends EDbMigration{
         $this->createIndex("user_privilege", DB_PREFIX.'_user_privileges', "user_id");
         $this->createIndex("user_privilege_file_path", DB_PREFIX.'_user_privileges', "file_path");
         $this->createIndex("user_privilege_user_id_file_path", DB_PREFIX.'_user_privileges', "user_id, file_path");
-  }
+        //对miniyun_clients插入一条记录是关于插件通信使用到的，当前使用到的是miniDoc/miniSearch,迷你存储 使用的是PHP签名好的，暂时没有使用
+        $currentDate = date("Y-m-d H:i:s",time());
+        $this->insert(DB_PREFIX.'_clients', array("id"=>9,"user_id"=>-1,"client_name"=>"MiniyunPlugin", "client_id"=>"JsQCsjF3yr7KACy1", "client_secret"=>"bqGeM4Yrjs3tncJ1","redirect_uri"=>"","enabled"=>1,"description"=>"迷你云插件使用到的应用","created_at"=>$currentDate,"updated_at"=>$currentDate));
+
+    }
 }
