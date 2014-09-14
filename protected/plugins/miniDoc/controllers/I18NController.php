@@ -7,7 +7,7 @@
 ?>
 <?php
 
-class I18NController extends Controller {
+class I18NController extends CController {
     
     public function actionIndex() {
         $this->render('index');

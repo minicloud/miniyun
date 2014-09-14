@@ -39,7 +39,7 @@ class m131026_143551_mini_doc extends EDbMigration
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
         }
-        $this->createTable(DB_PREFIX.'_doc_nodes',array(
+        $this->createTable(DB_PREFIX.'_doc_services',array(
                 "id"              => "pk",
                 "run_status"      => "tinyint(4) NOT NULL",                "ip"              => "varchar(256) NOT NULL",                "port"            => "bigint(30) NOT NULL",                "created_at"      => "datetime NOT NULL",                "updated_at"      => "datetime NOT NULL"            ),$extend);
         $this->createIndex( "status_index", DB_PREFIX.'_services', "status,run_status" );

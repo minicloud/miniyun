@@ -105,7 +105,7 @@ class ZipListForm extends CFormModel {
     
     private function getContentPath() {
         $hash = $this->hash;
-        $parts = array(MINIYUN_PATH,'statics', 'views', CUtils::getPathBySplitStr($hash), $hash, $hash. '.meta'
+        $parts = array(MINIYUN_PATH,'statics', 'views', MiniUtil::getPathBySplitStr($hash), $hash, $hash. '.meta'
         );
         return join('/', $parts);
     }

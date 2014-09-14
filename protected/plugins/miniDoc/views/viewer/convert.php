@@ -13,16 +13,14 @@
     ?>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title><?php echo CHtml::encode(Yii::app()->params["app"]["name"]); ?> - <?php echo CHtml::encode($this->pageTitle); ?></title>
-<?php echo Yii::app()->params['app']['bootstrap'] ?>
 <link href="<?php echo $this->module->assetsUrl?>/css/doc-viewer.css?t=<?php echo($t)?>" media="screen" rel="stylesheet" type="text/css"/>
-<?php echo Yii::app()->params['app']['bootstrapJs'] ?>
-<script type='text/javascript' src='<?php echo Yii::app()->request->baseUrl; ?>/statics/js/jquery.js?t=<?php echo($t)?>'></script>
+<script type='text/javascript' src='http://static.miniyun.cn/static/mini-box/3rd-party/jquery/jquery.min.js'></script>
 <script type="text/javascript" src="<?php echo $this->module->assetsUrl?>/js/doc-convert.js?t=<?php echo($t)?>" charset="utf-8"></script>
 <script type="text/javascript" src="<?php echo $this->createUrl('i18N/index')?>?t=<?php echo($t)?>" charset="utf-8"></script>
 <script type="text/javascript">
 var data = {
     callback: "<?php echo  $this->createAbsoluteUrl('/miniDoc/push')?>",
-    name: "<?php echo $model->name?>",
+    name: "在线编辑.ppt",
     type: "<?php echo $model->type?>",
     hash: "<?php echo $model->hash?>"};
 </script>

@@ -23,14 +23,14 @@ class ConvertActionModel extends CFormModel {
              return false;
         }
                 $dataObj = Yii::app()->data;
-        $file_path = CUtils::getPathBySplitStr ( $this->hash );
+        $file_path = MiniUtil::getPathBySplitStr ( $this->hash );
         if ($dataObj->exists( $file_path ) === false) {
            return false;
         }
                 if (headers_sent()) {
             return false;
         }
-        if( CUtils::outContent($file_path, $content_type, $this->hash)) {
+        if( MiniUtil::outContent($file_path, $content_type, $this->hash)) {
             return true;
         }
         return true;

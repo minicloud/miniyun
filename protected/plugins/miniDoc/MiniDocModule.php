@@ -1,7 +1,6 @@
 <?php
 /*
 Plugin Name: 迷你文档转换服务
-Plugin Type: miniDoc
 Plugin URI: http://www.miniyun.cn
 Description: 提供doc/docx/ppt/pptx/xls/xlsx/rar/zip在线浏览功能 使用：<br>1) 点击左侧的“启用”链接。<br>2) 前往 <a href="Yii::t('MiniDocModule.I18N', 'url')" style="color:#21759B;">“Yii::t('MiniDocModule.I18N', 'settings')”</a>页面进行设置
 Author: MiniYun

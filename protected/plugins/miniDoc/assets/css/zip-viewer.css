@@ -1,1 +1,47 @@
-.form-group{position:absolute;bottom:-18px;left:200px}.tfiles-icon{width:32px}.tfiles-name{width:190px}.tfiles-size{width:72px}.tfiles-date{width:150px}.tfiles-handle{width:97px}.files-name{width:190px;height:20px}.files-name a{display:inline-block;width:150px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.files-size{width:72px;height:20px}.files-date{width:150px;height:20px}.files-open{width:97px;height:20px}.bs-example{position:absolute;top:27px}
+.form-group{
+    position:absolute;
+    bottom:-18px;
+    left:200px;
+}
+.tfiles-icon{
+    width:32px;
+}
+.tfiles-name{
+    width:190px;
+}
+.tfiles-size{
+    width:72px;
+}
+.tfiles-date{
+    width:150px;
+}
+.tfiles-handle{
+    width:97px;
+}
+.files-name{
+    width:190px;
+    height:20px;
+}
+.files-name a{
+    display:inline-block;
+    width:150px;
+    text-overflow:ellipsis;
+    overflow:hidden;
+    white-space: nowrap;
+}
+.files-size{
+    width:72px;
+    height:20px;
+}
+.files-date{
+    width:150px;
+    height:20px;
+}
+.files-open{
+    width:97px;
+    height:20px;
+}
+.bs-example{
+    position:absolute;
+    top:27px;
+}

@@ -7,7 +7,7 @@
 ?>
 <?php
 
-class ViewerController extends Controller {
+class ViewerController extends CController {
 
     
     public function actionDoc(){
