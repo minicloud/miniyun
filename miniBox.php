@@ -50,9 +50,7 @@ class OldVersion{
         $this->actionName = $actionInfo[0];
         $this->whiteList = array(
             "install",
-			"repairDb",
-            //插件
-            "miniStore",
+			"db",
         );
         $this->blackList = array(
             "site/login"
