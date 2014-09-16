@@ -160,7 +160,7 @@ class MThumbnailBase extends MModel {
         }
         //data源处理对象
         $dataObj = Yii::app()->data;
-        $signaturePath = CUtils::getPathBySplitStr($signature);
+        $signaturePath = MiniUtil::getPathBySplitStr($signature);
         if ($dataObj->isExistLocal()){
             $storePath = $dataObj->documentStorePath($signaturePath) . $signaturePath;
         } else {
@@ -181,13 +181,13 @@ class MThumbnailBase extends MModel {
         $this->image   = $tmpPath;
         $this->resize  = true;
         // 缩略图存储位置
-        $thumbnail  = THUMBNAIL_TEMP . MUtils::getPathBySplitStr($signature);
+        $thumbnail  = THUMBNAIL_TEMP . MiniUtil::getPathBySplitStr($signature);
         $thumbnail .= "_{$this->width}_{$this->height}.{$this->format}";
         
         
         if (file_exists($thumbnail) == true) {
             //直接跳转，避免重复生成缩略图
-            $url = MiniHttp::getMiniHost()."static/thumbnails/".MUtils::getPathBySplitStr($signature);
+            $url = MiniHttp::getMiniHost()."static/thumbnails/".MiniUtil::getPathBySplitStr($signature);
             $url .= "_{$this->width}_{$this->height}.{$this->format}";
             header('Location: '.$url);
             exit;

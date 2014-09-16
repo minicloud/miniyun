@@ -209,7 +209,7 @@ class CreateFile extends CApiComponent
         //
         // 文件内容保存路径
         //
-        $storePath = DOCUMENT_ROOT_BLOCK . CUtils::getPathBySplitStr($this->hash);
+        $storePath = DOCUMENT_ROOT_BLOCK . MiniUtil::getPathBySplitStr($this->hash);
         if (file_exists(dirname($storePath)) === false) {
             CUtils::MkDirs(dirname($storePath));
         }

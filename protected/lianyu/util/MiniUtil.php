@@ -327,5 +327,186 @@ class MiniUtil{
             exit;
         }
     }
+    /**
+     * 将字符串按照每两个字符组成一个路径
+     *
+     * e.g 1234567890 => 12/34/56/78/1234567890
+     * @param string $str
+     * @return string $path
+     */
+    public static function getPathBySplitStr($str) {
+        //
+        // 每两个字符分割
+        //
+        $parts = str_split(substr($str,0,8), 2);
+
+        $path = join("/", $parts);
+        $path = $path . "/" . $str;
+        return $path;
+    }
+    /**
+     * 方法描述：输出文件流
+     * 参数：
+     *   $path         - 文件绝对路径
+     */
+    public static function outContent($filePath, $contentType, $fileName,$forceDownload=true) {
+        $options = array();
+        $options['saveName']  = $fileName;
+        $options['mimeType']  = $contentType;
+        $options['terminate'] = false;
+        if (self::xSendFile($filePath, $options)) {
+            return true;
+        }
+
+        $dataObj = Yii::app()->data;
+        $size = $dataObj->size( $filePath );
+        // 输入文件标签
+        Header ( "Content-type: $contentType" );
+        Header ( "Cache-Control: public" );
+        Header ( "Content-length: " . $size );
+        $encodedFileName = urlencode ( $fileName );
+        $encodedFileName = str_replace ( "+", "%20", $encodedFileName );
+        $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+        // 处理下载的时候的文件名
+        if($forceDownload){
+            if (preg_match ( "/MSIE/", $ua )) {
+                header ( 'Content-Disposition: attachment; filename="' . $encodedFileName . '"' );
+            } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
+                header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
+            } else if (preg_match ( "/Firefox/", $ua )) {
+                header ( 'Content-Disposition: attachment; filename*="utf8\'\'' . $fileName . '"' );
+            } else {
+                header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
+            }
+        }
+        if (isset ( $_SERVER ['HTTP_RANGE'] ) && ($_SERVER ['HTTP_RANGE'] != "") && preg_match ( "/^bytes=([0-9]+)-/i", $_SERVER ['HTTP_RANGE'], $match ) && ($match [1] < $size)) {
+            $range = $match [1];
+            header ( "HTTP/1.1 206 Partial Content" );
+            header ( "Last-Modified: " . gmdate ( "D, d M Y H:i:s", $dataObj->mtime ( $filePath ) ) . " GMT" );
+            header ( "Accept-Ranges: bytes" );
+            $rangeSize = ($size - $range) > 0 ? ($size - $range) : 0;
+            header ( "Content-Length:" . $rangeSize );
+            header ( "Content-Range: bytes " . $range . '-' . ($size - 1) . "/" . $size );
+        } else {
+            header ( "Content-Length: $size" );
+            header ( "Accept-Ranges: bytes" );
+            $range = 0;
+            header ( "Content-Range: bytes " . $range . '-' . ($size - 1) . "/" . $size );
+        }
+        // 下载输出文件内容
+        return $dataObj->render_contents($filePath, "", 0);
+    }
+    /**
+     * send file 下载文件,服务器必须支持send file模式
+     * @since 0.9.5
+     * @param string $filePath   - 文件绝对路径
+     * @param array $options
+     * @return mix
+     */
+    private static function xSendFile($filePath, $options) {
+        $infoList = explode('/', $_SERVER['SERVER_SOFTWARE']);
+        if (empty($infoList)) {
+            return FALSE;
+        }
+
+        if (defined('X_SEND_FILE') == FALSE || !X_SEND_FILE)
+            return FALSE;
+
+        $dataObj = Yii::app()->data;
+        $filePath = $dataObj->get_local_path($filePath);
+
+        if(!isset($options['saveName']))
+            $options['saveName']=basename($filePath);
+
+        //
+        // 不同服务器,不同的
+        //
+        switch (strtolower($infoList[0])) {
+            case 'nginx':
+                $options['xHeader'] = 'X-Accel-Redirect';
+                $offset   = strlen(BASE);
+                $filePath = substr_replace($filePath, '', 0, $offset);
+                $filePath = NGINX_SEND_FILE_TAG . $filePath;
+                break;
+            case 'lighttpd':
+                // 1.4的lighttpd使用X-LIGHTTPD-send-file
+                if (strpos($infoList[0], '1.4') !== FALSE) {
+                    $options['xHeader'] = 'X-LIGHTTPD-send-file';
+                    break;
+                }
+            default:
+                $options['xHeader'] = 'X-Sendfile';
+                break;
+        }
+        $addHeaders = array();
+        //
+        // 处理浏览器兼容
+        //
+        $encoded_filename = urlencode ( $options['saveName'] );
+        $encoded_filename = str_replace ( "+", "%20", $encoded_filename );
+        $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+        if (preg_match ( "/MSIE/", $ua )) {
+            $addHeaders['Content-Disposition'] = 'attachment; filename="' . $encoded_filename . '"' ;
+        } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
+            $addHeaders['Content-Disposition'] = 'attachment; filename="' . $options['saveName'] . '"' ;
+        } else if (preg_match ( "/Firefox/", $ua )) {
+            $addHeaders['Content-Disposition'] = 'attachment; filename*="utf8\'\'' . $options['saveName'] . '"';
+        } else {
+            $addHeaders['Content-Disposition'] = 'attachment; filename="' . $options['saveName'] . '"' ;
+        }
+        $options['addHeaders'] = $addHeaders;
+
+        self::X_SendFile($filePath, $options);
+
+        return TRUE;
+    }
+
+    /**
+     *
+     * send file {@see CHttpRequest::xSendFile}
+     * @since 0.9.5
+     * As this header directive is non-standard different directives exists for different web servers applications:
+     * <ul>
+     * <li>Apache: {@link http://tn123.org/mod_xsendfile X-Sendfile}</li>
+     * <li>Lighttpd v1.4: {@link http://redmine.lighttpd.net/wiki/lighttpd/X-LIGHTTPD-send-file X-LIGHTTPD-send-file}</li>
+     * <li>Lighttpd v1.5: X-Sendfile {@link http://redmine.lighttpd.net/wiki/lighttpd/X-LIGHTTPD-send-file X-Sendfile}</li>
+     * <li>Nginx: {@link http://wiki.nginx.org/XSendfile X-Accel-Redirect}</li>
+     * <li>Cherokee: {@link http://www.cherokee-project.com/doc/other_goodies.html#x-sendfile X-Sendfile and X-Accel-Redirect}</li>
+     * </ul>
+     * @param string $filePath
+     * @param array $options
+     *
+     */
+    private static function X_SendFile($filePath, $options) {
+        if(!isset($options['forceDownload']) || $options['forceDownload'])
+            $disposition='attachment';
+        else
+            $disposition='inline';
+
+        if(!isset($options['saveName']))
+            $options['saveName']=basename($filePath);
+
+        if(!isset($options['mimeType']))
+        {
+            if(($options['mimeType']=CFileHelper::getMimeTypeByExtension($filePath))===null)
+                $options['mimeType']='text/plain';
+        }
+
+        if(!isset($options['xHeader']))
+            $options['xHeader']='X-Sendfile';
+
+        if($options['mimeType'] !== null)
+            header('Content-type: '.$options['mimeType']);
+        header('Content-Disposition: '.$disposition.'; filename="'.$options['saveName'].'"');
+        if(isset($options['addHeaders']))
+        {
+            foreach($options['addHeaders'] as $header=>$value)
+                header($header.': '.$value);
+        }
+        header(trim($options['xHeader']).': '.$filePath);
+
+        if(!isset($options['terminate']) || $options['terminate'])
+            Yii::app()->end();
+    }
 
 }

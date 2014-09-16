@@ -77,7 +77,7 @@ class DownLoad extends CApiComponent
 
         //获取文件绝对路径地址
         $dataObj = Yii::app()->data;
-        $file_path = CUtils::getPathBySplitStr ( $signature );
+        $file_path = MiniUtil::getPathBySplitStr ( $signature );
         if ($dataObj->exists( $file_path ) === false) {
             throw new ApiException("File don't exists.");
         }
@@ -89,7 +89,7 @@ class DownLoad extends CApiComponent
             $this->handleResult(false, 0, Yii::t("front_common", "download_error"));
             return;
         }
-        if( CUtils::outContent($file_path, $content_type, $file_name)) {
+        if( MiniUtil::outContent($file_path, $content_type, $file_name)) {
             $this->handleResult(true, 0, Yii::t("front_common", "download_success"));
             return true;
         }

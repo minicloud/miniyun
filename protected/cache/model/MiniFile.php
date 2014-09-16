@@ -845,7 +845,7 @@ class MiniFile extends MiniCache{
             return;
         }
 
-        $filePath = MUtils::getPathBySplitStr ( $signature );
+        $filePath = MiniUtil::getPathBySplitStr ( $signature );
         //data源处理对象
         $dataObj = Yii::app()->data;
         if ($dataObj->exists( $filePath ) === false) {
@@ -855,7 +855,7 @@ class MiniFile extends MiniCache{
         if (headers_sent ()) {
             exit ();
         }
-        CUtils::outContent($filePath, $contentType, $fileName,$forceDownload);
+        MiniUtil::outContent($filePath, $contentType, $fileName,$forceDownload);
         exit;
     }
 
@@ -884,7 +884,7 @@ class MiniFile extends MiniCache{
             curl_close($curl);
 
         }else{
-            $filePath = MUtils::getPathBySplitStr ( $signature );
+            $filePath = MiniUtil::getPathBySplitStr ( $signature );
             //data源处理对象
             $dataObj = Yii::app()->data;
             if ($dataObj->exists( $filePath ) === false) {

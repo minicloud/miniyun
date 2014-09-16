@@ -1,0 +1,216 @@
+*{
+    padding:0;
+    margin:0;
+}
+body{
+    background-color:#cccccc;
+    overflow:hidden;
+}
+.head-bar {
+    position: absolute;
+    width:100%;
+}
+#splitter{
+    position: absolute;
+    background-image:url("../images/ppt-break.png");
+    width:3px;
+    height:85px;
+}
+.head-bar {
+    opacity:0;
+    filter:alpha(opacity=0);
+    background: -moz-linear-gradient(#fefefe, #ececec);
+    background: -webkit-gradient(linear, center top, center bottom, from(#fefefe), to(#ececec));
+    background: -webkit-linear-gradient(#fefefe, #ececec);
+    background: -o-linear-gradient(#fefefe, #ececec);
+    background: -ms-linear-gradient(#fefefe, #ececec);
+    background: linear-gradient(#fefefe, #ececec);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefefe', endColorstr='#ececec');
+    border: solid #8b9097;
+    border-width: 1px 0;
+    height: 65px;
+    left: 0;
+    top: 0;
+    z-index:101;
+}
+.play{
+    position:relative;
+    left:40%;
+}
+.playcur{
+    position:relative;
+    left:45%;
+}
+.head-bar a {
+    display: block;
+    float: left;
+    height: 55px;
+    margin-top: 2px;
+    margin-left: 3px;
+    padding: 1px;
+    text-decoration: none
+}
+.head-bar a:hover {
+    background-image: -moz-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -webkit-gradient(linear, center top, center bottom, from(#fdeeb3), to(#fdfdeb));
+    background-image: -webkit-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -o-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -ms-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: linear-gradient(#fdeeb3, #fdfdeb);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdeeb3', endColorstr='#fdfdeb');
+    border-radius: 3px;
+    border: 1px solid #f4d053;
+    padding: 0;
+    cursor:pointer;
+}
+#toolbar .play {
+    width: 55px;
+}
+
+#toolbar .playcur {
+    width: 100px;
+}
+.head-bar .play .icon {
+    background-image: url("../images/firstppt.gif");
+}
+
+.head-bar .playcur .icon {
+    background-image: url("../images/thisppt.gif");
+}
+.icon {
+    height: 24px;
+    margin: 0 4px 0 0;
+    width: 17px
+}
+.head-bar .icon {
+    background-repeat: no-repeat;
+    background-position: center 3px;
+    display: block;
+    height: 33px;
+    margin-left:20px;
+    width: 60px;
+    padding-top: 3px;
+}
+.head-bar .label {
+    color: #3b3b3b;
+    display: block;
+    font-size: 12px;
+    height: 20px;
+    width: 100px;
+    line-height: 20px;
+    text-align: center;
+}
+.splitter{
+    background-image:url("../images/ppt-break.png");
+    display:inline-block;
+    width:3px;
+    height:65px;
+}
+.left-image-box{
+    background-color:#cccccc;
+    height:100%;
+    overflow-x:hidden;
+    width:300px;
+    overflow-y:scroll;
+}
+.self-imgbox{
+    display:block;
+    cursor:pointer;
+    margin-bottom:14px;
+    text-decoration: none;
+    margin-top:5px;
+    height:160px;
+}
+.thumbnail{
+    display:inline-block;
+}
+.self-imgbox img{
+    width: 224px;
+    height: 140px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border:1px solid #686868;
+}
+.right-image-box{
+    position:absolute;
+    top:0;
+    left:300px;
+    overflow-x:hidden;
+    overflow-y:scroll;
+    width:1032px;
+    height:726px;
+}
+.right-image-box a{
+    display:block;
+    position:relative;
+    top:40px;
+}
+.self-imgbox span{
+    display:inline-block;
+    width:18px;
+    position:relative;
+    top:-125px;
+    padding-left:0;
+    font-size:14px;
+    text-align: center;
+}
+#right-image-show{
+    width:auto;
+    text-align: center;
+}
+#right-table{
+    border-collapse: separate;
+    border-spacing: 0;
+    position: fixed;
+    z-index: -1;
+}
+#right-table tr{
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+#right-table td{
+    text-align: center;
+    vertical-align: middle;
+}
+#right-table td img{
+    background-position: center center;
+    border: 1px solid #a9b0b8;
+    box-shadow: 0 0 11px 2px rgba(0,0,0,.3);
+}
+.selected{
+    background-image: -moz-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -webkit-gradient(linear, center top, center bottom, from(#fdeeb3), to(#fdfdeb));
+    background-image: -webkit-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -o-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -ms-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: linear-gradient(#fdeeb3, #fdfdeb);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdeeb3', endColorstr='#fdfdeb');
+    border-radius: 3px;
+    border: 1px solid #f4d053;
+    padding: 0;
+    cursor:pointer;
+    text-align: center;
+    position:relative;
+    top:0;
+    width:280px;
+}
+#rdivobj{
+    z-index: 10;
+}
+.self-imgbox:hover{
+    background-image: -moz-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -webkit-gradient(linear, center top, center bottom, from(#fdeeb3), to(#fdfdeb));
+    background-image: -webkit-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -o-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: -ms-linear-gradient(#fdeeb3, #fdfdeb);
+    background-image: linear-gradient(#fdeeb3, #fdfdeb);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fdeeb3', endColorstr='#fdfdeb');
+    border-radius: 3px;
+    border: 1px solid #f4d053;
+    padding: 0;
+    cursor:pointer;
+}
+#popup-background{
+    text-align: center;
+}

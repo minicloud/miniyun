@@ -26,7 +26,7 @@
     <p class="gray"><img src="<?php echo MiniHttp::getMiniHost()?>static/images/circle.png?v=<?php echo(APP_VERSION)?>" width="12px"/><span style="font-size: 18px;">&nbsp;2.请管理员帮助确认下面2个问题：</span></p>
     <ul  class="gray">
         <li>{protected/runtime}需要有写权限</li>
-        <li>Mysql数据库正常启动</li>
+        <li>Mysql数据库正常启动，如果正确启动，<a href="<?php echo MiniHttp::getMiniHost()."index.php/db/repair"?>">点击这里修复数据库>></a></li>
     </ul>
     <p class="gray"><img src="<?php echo MiniHttp::getMiniHost()?>static/images/circle.png?v=<?php echo(APP_VERSION)?>" width="12px"/><span style="font-size: 18px;">&nbsp;3.如上述2个方法还没有成功，请访问社区。举报问题，快速解决。<a target="_blank" href="http://bbs.miniyun.cn/forum.php?mod=viewthread&tid=2&extra=page%3D1">点击访问迷你云社区>></a></span></p>
 </div>

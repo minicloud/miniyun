@@ -184,7 +184,7 @@ class SystemManageBiz extends MiniBiz{
 
             // 如果不存在的话，删除流文件，删除该条version记录
             $signature    = $version['file_signature'];
-            $signaturePath = CUtils::getPathBySplitStr($signature);
+            $signaturePath = MiniUtil::getPathBySplitStr($signature);
             // 判断文件是否存在
             if ($dataObj->exists($signaturePath) === false){
                 MiniVersion::getInstance()->deleteById($version["id"]);
