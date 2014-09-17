@@ -128,4 +128,18 @@ class MiniGroup extends MiniCache{
             return array('success'=>false,'msg'=>'name existed');
         }
     }
+    /**
+     * 根据id查找group
+     */
+    public function findById($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:group_id";
+        $criteria->params = array('group_id'=> $groupId,);
+        $group = Group::model()->find($criteria);
+        if(!empty($group)){
+            return $group;
+        }else{
+            return false;
+        }
+    }
 }
