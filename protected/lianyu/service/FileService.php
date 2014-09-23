@@ -105,4 +105,29 @@ class FileService extends MiniService{
         $data = $biz->getExtendTactics();
         return $data;
     }
+    /**
+     * 判断迷你文档插件是否打开
+     */
+    public function validMiniDocPlugin(){
+        $biz = new FileBiz();
+        $data = $biz->validMiniDocPlugin();
+        return $data;
+    }
+    /**
+     *获取文件信息
+     */
+    public function getFileInfo(){
+        $filePath = MiniHttp::getParam("file_path","");
+        $biz = new FileBiz();
+        $data = $biz->getFileInfo($filePath);
+        return $data;
+    }
+    /**
+     * 获取文本文档文本大小
+     */
+    public function limitPolicy(){
+        $biz = new FileBiz();
+        $data = $biz->limitPolicy();
+        return $data;
+    }
 }

@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: hengwei
- * Date: 14-9-12
- * Time: 上午10:11
+ * User: gly
+ * Date: 14-9-15
+ * Time: 下午3:23
  */
 class MiniUserGroupRelation extends MiniCache{
     /**
@@ -39,18 +39,78 @@ class MiniUserGroupRelation extends MiniCache{
     }
     /**
      * 把数据库值序列化
-     * @param array $items
      */
     private function db2list($items){
         $data  = array();
         foreach($items as $item) {
-            $value                 = array();
-            $value["id"]           = $item->id;
-            $value["user_id"]      = $item->user_id;
-            $value["group_id"]    = $item->group_id;
-            array_push($data, $value);
+            array_push($data, $this->db2Item($item));
         }
         return $data;
+    }
+
+    private function db2Item($item){
+        if(empty($item)) return NULL;
+        $value                     = array();
+//        $value["id"]           = $item->id;
+        $value["group_id"]      = $item->group_id;
+        $value["user_id"]    = $item->user_id;
+        return $value;
+    }
+    /**
+     * 根据用户组group_id获取用户与群组的关系
+     */
+    public function getByGroupId($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id";
+        $criteria->params = array('group_id'=> $groupId);
+        $item = UserGroupRelation::model()->findAll($criteria);
+        return $this->db2list($item);
+    }
+    /**
+     * 新建用户与群组的关系
+     */
+    public function create($userId,$groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id and user_id =:user_id";
+        $criteria->params = array('group_id'=> $groupId,'user_id'=>$userId);
+        $item = UserGroupRelation::model()->find($criteria);
+        if (empty($item)){
+            $group = new UserGroupRelation();
+            $group['group_id']=$groupId;
+            $group['user_id']=$userId;
+            $group->save();
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'name existed');
+        }
+    }
+    /**
+     * 删除用户与群组的关系
+     */
+    public function delete($userId,$groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id and group_id=:group_id";
+        $criteria->params = array('user_id'=> $userId,'group_id'=>$groupId);
+        $item = UserGroupRelation::model()->find($criteria);
+        if(!empty($item)){
+            $item->delete();
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'not existed');
+        }
+    }
+    /**
+     * 更改用户与群组的关系
+     */
+    public function update($userId,$groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id";
+        $criteria->params = array('user_id'=> $userId);
+        $oldGroup = UserGroupRelation::model()->find($criteria);;
+        $oldGroup['group_id']=$groupId;
+        $oldGroup->save();
+        return array('success'=>true,'msg'=>'success');
+
     }
     /**
      * 获得群组下好友列表

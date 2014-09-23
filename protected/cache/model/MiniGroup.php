@@ -44,18 +44,24 @@ class MiniGroup extends MiniCache{
     }
     /**
      * 把数据库值序列化
-     * @param array $items
      */
     private function db2list($items){
         $data  = array();
         foreach($items as $item) {
-            $value                 = array();
-            $value["id"]           = $item->id;
-            $value["user_id"]      = $item->user_id;
-            $value["group_name"]    = $item->name;
-            array_push($data, $value);
+            array_push($data, $this->db2Item($item));
         }
         return $data;
+    }
+
+    private function db2Item($item){
+        if(empty($item)) return NULL;
+        $value                     = array();
+        $value["id"]           = $item->id;
+        if($item->user_id!=-1){
+            $value["user_id"]      = $item->user_id;
+        }
+        $value["group_name"]    = $item->name;
+        return $value;
     }
     /**
      * 得到用户群组列表
@@ -76,7 +82,7 @@ class MiniGroup extends MiniCache{
     /**
      * 新建群组
      */
-    public function create($groupName,$userId){
+    public function create($groupName,$userId,$parentGroupId){
         $groupName = trim($groupName);
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id and name =:group_name";
@@ -88,6 +94,12 @@ class MiniGroup extends MiniCache{
             $group['user_id']=$userId;
             $group['description']='';
             $group->save();
+            if($userId==-1){
+                $relation = new GroupRelation();
+                $relation ['group_id'] = $group['id'];
+                $relation ['parent_group_id'] = $parentGroupId;
+                $relation->save ();
+            }
             return array('success'=>true,'msg'=>'success');
         }else{
             return array('success'=>false,'msg'=>'name existed');
@@ -100,6 +112,21 @@ class MiniGroup extends MiniCache{
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id and name =:group_name";
         $criteria->params = array('user_id'=> $userId,'group_name'=>$groupName);
+        $item = Group::model()->find($criteria);
+        if(!empty($item)){
+            $item->delete();
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'not existed');
+        }
+    }
+    /**
+     * by department_id 删除群组
+     */
+    public function deleteByDepartmentId($departmentId,$userId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id and id =:id";
+        $criteria->params = array('user_id'=> $userId,'id'=>$departmentId);
         $item = Group::model()->find($criteria);
         if(!empty($item)){
             $item->delete();
@@ -127,6 +154,63 @@ class MiniGroup extends MiniCache{
         }else{
             return array('success'=>false,'msg'=>'name existed');
         }
+    }
+    /**
+     * 根据Id获取group
+     */
+    public function getById($id){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $id);
+        $group = Group::model()->find($criteria);
+        return $this->db2Item($group);
+    }
+    /**
+     *获取目录树
+     */
+    public function getTreeNodes($parentGroupId){
+        $relations = MiniGroupRelation::getInstance()->getByParentId($parentGroupId);
+        $userRelations = MiniUserGroupRelation::getInstance()->getByGroupId($parentGroupId);
+        if(isset($relations)){
+            foreach($relations as $relation){
+                $group = $this->getById($relation['group_id']);
+                $newGroup[] = $group['id'];
+                $newGroup[] = $group['group_name'];
+                $groups[] =  $group;
+            }
+        }
+        if(0 < count($groups))
+        {
+            for($i = 0; $i < count($groups); $i++)
+            {
+                $groups[$i]['nodes'] = $this->getTreeNodes($groups[$i]['id']);
+                if($groups[$i]['nodes']==NULL){
+                    $groups[$i]['nodes']=array();
+                }
+            }
+
+        }
+        if($userRelations){
+            foreach($userRelations as $userRelation){
+                $user = array();
+                $userInfo = MiniUser::getInstance()->getById($userRelation['user_id']);
+                $user['id'] = $userInfo['id'];
+                $user['user_name']= $userInfo['user_name'];
+                $user['group_id']=$parentGroupId;
+                $groups[] = $user;
+            }
+        }
+        return $groups;
+    }
+    /**
+     * 根据group_name获取数据
+     */
+    public function getByGroupName($groupName){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "name=:group_name";
+        $criteria->params = array('group_name'=> $groupName);
+        $group = Group::model()->find($criteria);
+        return $this->db2Item($group);
     }
     /**
      * 根据id查找group

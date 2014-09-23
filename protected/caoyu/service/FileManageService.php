@@ -21,7 +21,13 @@ class FileManageService extends MiniService{
         return $data;
     }
 
-
+    public function create(){
+        $departmentName = MiniHttp::getParam('department_name','');
+//        $parentDepartmentId = MiniHttp::getParam('parent_department_id','-1');
+//        $biz = new DepartmentBiz();
+//        $result = $biz->create($departmentName,$parentDepartmentId);
+        return $departmentName;
+    }
     /**
      * 根据文件类型分页获取文件列表
      */
@@ -98,5 +104,11 @@ class FileManageService extends MiniService{
         $saveSpace = $model->getSaveSpace();
         return $saveSpace;
     }
-
+    /**
+     * 获取该文件的信息
+     */
+    public function getFileInfo(){
+        $filePath = MiniHttp::getParam('file_path',"");
+        return $filePath;
+    }
 }

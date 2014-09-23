@@ -17,6 +17,7 @@ class ConsoleController extends AnonymousController{
         $newList = array(
             "appManage",
             "chooser",
+            "department",
             "deviceManage",
             "domain",
             "editorManage",
