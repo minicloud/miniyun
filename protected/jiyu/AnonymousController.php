@@ -15,6 +15,8 @@ class AnonymousController{
         return array(
            "linkAccess",
            "site",
+           "plugin",
+            "module",
         );
     }
     public function invoke()

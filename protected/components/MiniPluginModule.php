@@ -9,5 +9,31 @@
  */
 class MiniPluginModule extends CWebModule {
 
+    /**
+     *
+     * 资源文件根路径
+     * @var string
+     */
+    private $_assetsUrl;
 
+
+
+    /**
+     *
+     * 静态资源路径
+     */
+    public function getAssetsUrl() {
+        if ($this->_assetsUrl === null)
+            $this->_assetsUrl = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.plugins.'.$this->getName().'.assets'),false, -1,true);
+        return $this->_assetsUrl;
+    }
+
+    /**
+     *
+     * 设置静态资源路径
+     * @param string $value
+     */
+    public function setAssetsUrl($value) {
+        $this->_assetsUrl = $value;
+    }
 }
