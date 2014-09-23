@@ -20,9 +20,12 @@ class UserBiz  extends MiniBiz{
         $users = array();
         foreach($items as $item){
             $friend = array();
+            $friend["id"]   = $item["id"];
             $friend["nick"] = $item["nick"];
             $friend["name"] = $item["user_name"];
             $friend["avatar"] = $item['avatar'];
+            $arr = MiniUserGroupRelation::getInstance()->findUserGroup($item["id"]);
+            $friend["user_group"]= $arr;
             array_push($users,$friend);
         }
         $data = array();
