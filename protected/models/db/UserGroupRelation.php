@@ -13,6 +13,6 @@ class UserGroupRelation extends CMiniyunModel{
 
     public function tableName()
     {
-        return Yii::app()->params['tablePrefix'].'user_group_relation';
+        return Yii::app()->params['tablePrefix'].'user_group_relations';
     }
 }

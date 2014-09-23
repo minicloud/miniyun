@@ -11,7 +11,7 @@ class MiniUserGroupRelation extends MiniCache{
      * Cache Key的前缀
      * @var string
      */
-    private static $CACHE_KEY = "cache.model.userGroupRelation";
+    private static $CACHE_KEY = "cache.model.userGroupRelations";
 
     /**
      *  静态成品变量 保存全局实例
@@ -142,9 +142,13 @@ class MiniUserGroupRelation extends MiniCache{
         $items=$this->db2list($items);
         $list = array();
         foreach($items as $item){
+            $group = array();
             $groupId = $item['group_id'];
-            $group = MiniGroup::getInstance()->findById($groupId);
-            array_push($list,$group['name']);
+            $result = MiniGroup::getInstance()->findById($groupId);
+            $group['id'] = $result['id'];
+            $group['user_id'] = $result['user_id'];
+            $group['group_name'] = $result['name'];
+            array_push($list,$group);
         }
         return $list;
     }

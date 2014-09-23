@@ -16,7 +16,7 @@ class MiniGroup extends MiniCache{
      * Cache Key的前缀
      * @var string
      */
-    private static $CACHE_KEY = "cache.model.group";
+    private static $CACHE_KEY = "cache.model.groups";
 
     /**
      *  静态成品变量 保存全局实例

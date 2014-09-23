@@ -13,6 +13,6 @@ class Group extends CMiniyunModel{
 
     public function tableName()
     {
-        return Yii::app()->params['tablePrefix'].'group';
+        return Yii::app()->params['tablePrefix'].'groups';
     }
 }
