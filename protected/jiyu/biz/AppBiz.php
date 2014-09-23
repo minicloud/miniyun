@@ -30,6 +30,7 @@ class AppBiz extends MiniBiz
         }
         //站点ID
         $data['site_id'] = MiniSiteUtils::getSiteID();
+        $data['wx_token'] = MiniSiteUtils::getWxToken();
         //产品Logo
         $value = MiniOption::getInstance()->getOptionValue('site_logo_url');
         if (isset($value)) {
@@ -157,5 +158,22 @@ class AppBiz extends MiniBiz
             $status = MiniUser::getInstance()->valid($name, $password);
         }
         return array("success"=>$status);
+    }
+    /**
+     * 根据openId获得accessToken
+     */
+    public function bindOpenId($appKey,$openId)
+    {
+        $user = MiniUser::getInstance()->getUserByOpenId($openId);
+        if(!empty($user)){
+            $webDevice = MiniUserDevice::getInstance()->getWebDevice($user["id"]);
+            if(!empty($webDevice)){
+                $token = MiniToken::getInstance()->getToken4Login($appKey,$webDevice["id"]);
+                if(!empty($token)){
+                    return array("success"=>true,"access_token"=>$token["oauth_token"]);
+                }
+            }
+        }
+        return array("success"=>false);
     }
 }

@@ -17,9 +17,9 @@ class DeviceManager{
 	public static function getDevice($userId, $deviceType, $deviceName, $deviceInfo){
 		//生成设备的uuid
 		if ($deviceType == MConst::DEVICE_WEB){
-			$device_uuid = MiniUtil::getDeviceUUID("web", $deviceType, "web", $userId);
+			$deviceUuid = MiniUtil::getDeviceUUID("web", $deviceType, "web", $userId);
 		} else {
-			$device_uuid = MiniUtil::getDeviceUUID($deviceInfo, $deviceType, $deviceName, $userId);
+			$deviceUuid = MiniUtil::getDeviceUUID($deviceInfo, $deviceType, $deviceName, $userId);
 		}
 
 		//存在用户指定设备则通过
@@ -27,18 +27,18 @@ class DeviceManager{
 		if ($deviceType == MConst::DEVICE_WEB){
 			$device = MiniUserDevice::getInstance()->getWebDevice($userId);
 		} else {
-			$device = MiniUserDevice::getInstance()->getByUuid($device_uuid);
+			$device = MiniUserDevice::getInstance()->getByUuid($deviceUuid);
 		}
 		if (isset($device)){
 			return $device;
 		}
 		//生成设备
         $device = MiniUserDevice::getInstance()->create($userId,
-		                                                      $device_uuid,
-		                                                      $deviceType,
-		                                                      $deviceInfo,
-		                                                      $deviceName
-		                                                      ); 
+                                                        $deviceUuid,
+                                                        $deviceType,
+                                                        $deviceInfo,
+                                                        $deviceName
+                                                        );
 		return $device;
 	}
 }

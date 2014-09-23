@@ -110,7 +110,11 @@ class MiniUser extends MiniCache{
                     $user["is_admin"] = ($value==="1"?true:false);
                 }
                 if($key==="avatar"){
-                    $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
+                    if(strpos($value,"http")==0){
+                        $user["avatar"] = $value;
+                    }else{
+                        $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
+                    }
                 }
             }
             return  $user;
@@ -868,5 +872,15 @@ class MiniUser extends MiniCache{
             return false;
         }
         return true;
+    }
+    /**
+     *通过OpenId获得用户
+     */
+    public function getUserByOpenId($openId){
+        $user = User::model()->find("user_uuid=?",array(trim($openId)));
+        if(isset($user)){
+            return $this->db2Item($user);
+        }
+        return NULL;
     }
 }

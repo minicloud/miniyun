@@ -39,6 +39,15 @@ class AppService extends MiniService{
         return  $biz->createUser($name,$password,$email);
     }
     /**
+     * 根据OpenId获得accessToken
+     */
+    public function bind(){
+        $appKey   = MiniHttp::getParam('app_key',"");
+        $openId   = MiniHttp::getParam('open_id',"");
+        $biz = new AppBiz();
+        return  $biz->bindOpenId($appKey,$openId);
+    }
+    /**
      * 系统是否只有默认的账号
      */
     public function onlyDefaultAccount(){

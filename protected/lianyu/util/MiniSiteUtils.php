@@ -132,6 +132,18 @@ class MiniSiteUtils
     public static function getDocumentRootBlock(){
         return DOCUMENT_ROOT_BLOCK;
     }
-
+    /**
+     *
+     * 获得微信信息加密的Token
+     * @since 1.0.7
+     */
+    public static function getWxToken(){
+        $wxToken = MiniOption::getInstance()->getOptionValue("wx_token");
+        if ($wxToken===NULL){
+            $wxToken         = md5(MiniUtil::random(32));
+            MiniOption::getInstance()->setOptionValue("wx_token", $wxToken);
+        }
+        return $wxToken;
+    }
 
 }

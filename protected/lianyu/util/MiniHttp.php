@@ -72,7 +72,26 @@ class MiniHttp{
         }
         return $url.$path;
     }
+    /**
+     * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀
+     * @return string
+     */
+    public static function getRequestUri(){
+        $host = self::getMiniHost();
+        $host = str_replace("http://","",$host);
+        $host = str_replace("https://","",$host);
+        $host = str_replace("//","/",$host);
+        $info = explode("/",$host);
+        $relativePath = "";
+        for($i=1;$i<count($info);$i++){
+            $relativePath .= "/".$info[$i];
+        }
+        $requestUri = $_SERVER["REQUEST_URI"];
+        //增加过滤//的URL地址
+        $requestUri = str_replace("//","/",$requestUri);
+        return substr($requestUri,strlen($relativePath),strlen($requestUri)-strlen($relativePath));
 
+    }
     /**
      * 标示是否是离线
      * @return bool

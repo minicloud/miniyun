@@ -74,6 +74,17 @@ class ProfileService extends MiniService{
         return array('url'=>$avatar);
     }
     /**
+     * 保存微信头像
+     * @return string
+     */
+    public function saveWxAvatar(){
+        $avatar = MiniHttp::getParam("avatar","");
+        $nick = MiniHttp::getParam("nick","");
+        $model = new ProfileBiz();
+        $avatar = $model->saveWxAvatar($avatar,$nick);
+        return array('url'=>$avatar);
+    }
+    /**
      * delete头像
      * @return string
      */
