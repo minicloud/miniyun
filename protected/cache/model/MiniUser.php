@@ -890,14 +890,6 @@ class MiniUser extends MiniCache{
         return $this->db2list($data);
 
     }
-    public function getById($id){
-        $criteria                = new CDbCriteria();
-        $criteria->condition="id = :id";
-        $criteria->params    = array('id'=>$id);
-        $data =  User::model()->find($criteria);
-        return $this->db2Item($data);
-
-    }
     /**
      *通过OpenId获得用户
      */
