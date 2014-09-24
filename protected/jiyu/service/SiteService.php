@@ -44,7 +44,7 @@ class SiteService extends MiniService{
     public function bind(){
         $appKey   = MiniHttp::getParam('app_key',"");
         $openId   = MiniHttp::getParam('open_id',"");
-        $biz = new AppBiz();
+        $biz = new SiteBiz();
         return  $biz->bindOpenId($appKey,$openId);
     }
     /**
