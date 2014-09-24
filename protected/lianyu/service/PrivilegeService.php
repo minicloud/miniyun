@@ -28,7 +28,7 @@ class PrivilegeService extends MiniService
     {
         $filePath = MiniHttp::getParam("file_path", '');
         $data = MiniHttp::getParam("data", array());
-
+        var_dump($data);exit;
         if(count($data)<1){
             return false;
         }

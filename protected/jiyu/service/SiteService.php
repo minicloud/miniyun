@@ -7,14 +7,14 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.6
  */
-class AppService extends MiniService{
+class SiteService extends MiniService{
     /**
      * 站点信息
      * @return array
      */
     public function info() {
-        $biz = new AppBiz();
-        $data = $biz->getAppInfo();
+        $biz = new SiteBiz();
+        $data = $biz->getSiteInfo();
         $data = apply_filters("api_info_add", $data);
         return $data;
     }
@@ -25,7 +25,7 @@ class AppService extends MiniService{
     public function createLink() {
         $tid    = MiniHttp::getParam('tid',"");
         $status = MiniHttp::getParam('is_link',"");
-        $biz    = new AppBiz();
+        $biz    = new SiteBiz();
         return $biz->createLink($tid,$status);
     }
     /**
@@ -35,7 +35,7 @@ class AppService extends MiniService{
         $name       = MiniHttp::getParam('name',"");
         $email      = MiniHttp::getParam('email',"");
         $password   = MiniHttp::getParam('password',"");
-        $biz = new AppBiz();
+        $biz = new SiteBiz();
         return  $biz->createUser($name,$password,$email);
     }
     /**
@@ -51,7 +51,7 @@ class AppService extends MiniService{
      * 系统是否只有默认的账号
      */
     public function onlyDefaultAccount(){
-        $biz = new AppBiz();
+        $biz = new SiteBiz();
         return  $biz->onlyDefaultAccount();
     }
 }

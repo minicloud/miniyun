@@ -94,7 +94,7 @@ class Thumbnail extends CApiComponent {
         //
         // 缩略图存储位置
         //
-        $thumbnail  = THUMBNAIL_TEMP . CUtils::getPathBySplitStr($signature);
+        $thumbnail  = THUMBNAIL_TEMP . MiniUtil::getPathBySplitStr($signature);
         $thumbnail .= "_{$this->width}_{$this->height}.{$this->format}";
         // 如果图片已经存在，则直接输出，否则执行转换
         if (file_exists($thumbnail) == true) {
@@ -107,7 +107,7 @@ class Thumbnail extends CApiComponent {
         $dataObj = Yii::app()->data;
 
         $isTmp = false;
-        $signaturePath = CUtils::getPathBySplitStr($signature);
+        $signaturePath = MiniUtil::getPathBySplitStr($signature);
         if ($dataObj->isExistLocal()){
             $storePath = $dataObj->documentStorePath($signaturePath) . $signaturePath;
         } else {

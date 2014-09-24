@@ -49,9 +49,9 @@ class MBtUpload extends MApplicationComponent {
         //
         // 文件临时存储路径
         //
-        $this->cache = DOCUMENT_CACHE . MUtils::getPathBySplitStr($if_match);
-        $des_path    = DOCUMENT_CACHE . MUtils::getPathBySplitStr($if_match) . ".des";
-        $store_path  = MUtils::getPathBySplitStr($if_match);
+        $this->cache = DOCUMENT_CACHE . MiniUtil::getPathBySplitStr($if_match);
+        $des_path    = DOCUMENT_CACHE . MiniUtil::getPathBySplitStr($if_match) . ".des";
+        $store_path  = MiniUtil::getPathBySplitStr($if_match);
         // 表示文件已经上传ok
         if ($dataObj->exists($store_path)) {
             $this->cache = $store_path;

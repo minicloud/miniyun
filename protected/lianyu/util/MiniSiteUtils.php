@@ -26,13 +26,12 @@ class MiniSiteUtils
      * @since 1.1.0
      */
     public static function getSiteBasicArray() {
-        global $app_version;
         $siteUrl = urlencode(Yii::app()->params['app']['absoluteUrl'].Yii::app()->params['app']['entryUri']);
 
         $upData = array();
         $upData["siteurl"]         = $siteUrl;
         $upData["sitename"]        = Yii::app()->params['app']['name'];
-        $upData["app_version"]     = $app_version;
+        $upData["app_version"]     = APP_VERSION;
         $upData["windows_version"] = "1.0";
         $upData["android_version"] = "1.0";
         $upData["ios_version"]     = "1.0";

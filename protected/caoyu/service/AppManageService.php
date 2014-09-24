@@ -1,6 +1,6 @@
 <?php
 /**
- * app管理
+ * 迷你云app管理
  *
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn

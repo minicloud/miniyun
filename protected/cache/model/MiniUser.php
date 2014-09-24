@@ -874,6 +874,31 @@ class MiniUser extends MiniCache{
         return true;
     }
     /**
+     * 查询未分组的用户
+     */
+    public function unbindUsers(){
+        $items=UserGroupRelation::model()->findAll();
+        $value                 = array();
+        if(isset($items)){
+            foreach($items as $item) {
+                $value[]           = $item->user_id;
+            }
+        }
+        $criteria                = new CDbCriteria();
+        $criteria->addNotInCondition('id',$value);
+        $data = User::model()->findAll($criteria);
+        return $this->db2list($data);
+
+    }
+    public function getById($id){
+        $criteria                = new CDbCriteria();
+        $criteria->condition="id = :id";
+        $criteria->params    = array('id'=>$id);
+        $data =  User::model()->find($criteria);
+        return $this->db2Item($data);
+
+    }
+    /**
      *通过OpenId获得用户
      */
     public function getUserByOpenId($openId){

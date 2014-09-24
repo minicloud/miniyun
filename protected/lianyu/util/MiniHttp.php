@@ -154,7 +154,7 @@ class MiniHttp{
         if(!($language=="zh_tw"||$language=="zh_cn"||$language=="en")){
             $language="zh_cn";
         }
-        $t = YII_DEBUG ? time() : Yii::app()->params['app']['version'];
+        $t = YII_DEBUG ? time() : APP_VERSION;
         return $host."static/liyu/i18n/".$language."/".$appName.".js?t=".$t;
     }
 

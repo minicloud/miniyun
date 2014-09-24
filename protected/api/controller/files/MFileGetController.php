@@ -109,7 +109,7 @@ class MFileGetController extends MApplicationComponent implements MIController {
             return;
         }
 
-        $file_path = MUtils::getPathBySplitStr ( $signature );
+        $file_path = MiniUtil::getPathBySplitStr ( $signature );
         if ($dataObj->exists( $file_path ) === false) {
             throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
         }
@@ -117,7 +117,7 @@ class MFileGetController extends MApplicationComponent implements MIController {
         if (headers_sent ()) {
             exit ();
         }
-        CUtils::outContent($file_path, $content_type, $file_name);
+        MiniUtil::outContent($file_path, $content_type, $file_name);
     }
     /**
      * get处理异常入口地址
@@ -129,4 +129,3 @@ class MFileGetController extends MApplicationComponent implements MIController {
         return;
     }
 }
-?>

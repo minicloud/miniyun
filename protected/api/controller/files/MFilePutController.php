@@ -127,7 +127,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
         $this->signature = MiniUtil::getFileHash($tmp);
         
         // 如果文件不存在则保存
-        $store_path = MUtils::getPathBySplitStr($this->signature);
+        $store_path = MiniUtil::getPathBySplitStr($this->signature);
         if ($dataObj->exists($store_path) === false) {
             // 创建父目录
             if ($dataObj->exists(dirname($store_path)) === false) {
@@ -162,7 +162,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
     private function handleEntireFile($hash, $size) {
         $dataObj = Yii::app()->data;
         $handle = $this->getInputFileHandle();
-        $cache = '/cache/' . MUtils::getPathBySplitStr($hash);
+        $cache = '/cache/' . MiniUtil::getPathBySplitStr($hash);
 
         if ($dataObj->exists(dirname($cache)) === false) {
             $dataObj->mkdir(dirname($cache));
@@ -196,7 +196,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
     private function handleBreakPointFile($hash, $size, $offset) {
         $dataObj = Yii::app()->data;
         
-        $cache = '/cache/' . MUtils::getPathBySplitStr($hash);
+        $cache = '/cache/' . MiniUtil::getPathBySplitStr($hash);
         // 文件不存在，则需要客户端全部重新传文件
         if ($dataObj->exists(dirname($cache)) === false) {
             $this->ResponseRetryWith($hash, $size, 0, FALSE);
@@ -262,7 +262,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
         //data源处理对象
         $dataObj = Yii::app()->data;
         // 如果文件不存在则保存
-        $store_path = MUtils::getPathBySplitStr($hash);
+        $store_path = MiniUtil::getPathBySplitStr($hash);
         if ($dataObj->exists($store_path) === false) {
             // 创建父目录
             if ($dataObj->exists(dirname($store_path)) === false) {

@@ -533,24 +533,6 @@ class MUtils
         return hash('sha1', $str);
     }
     /**
-     * 将字符串按照每两个字符组成一个路径
-     *
-     * e.g 1234567890 => 12/34/56/78/1234567890
-     * @param string $str
-     * @return string $path
-     */
-    public static function getPathBySplitStr($str) {
-        //
-        // 每两个字符分割
-        //
-        $parts = str_split(substr($str,0,8), 2);
-
-        $path = join("/", $parts);
-        $path = $path . "/" . $str;
-        return $path;
-    }
-
-    /**
      * 获取冲突文件名
      */
     public static function getConflictName($name, $names=array()) {

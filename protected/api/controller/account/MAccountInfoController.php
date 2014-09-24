@@ -84,12 +84,12 @@ class MAccountInfoController extends MApplicationComponent implements MIControll
             $blockSize = $mem_limit / 4;
         }
         $postMaxSize       = CUtils::return_bytes(ini_get('post_max_size'));
-        $uploadMaxFilesize = CUtils::return_bytes(ini_get('upload_max_filesize'));
+        $uploadMaxFileSize = CUtils::return_bytes(ini_get('upload_max_filesize'));
         
-        $min = $postMaxSize > $uploadMaxFilesize ? $uploadMaxFilesize : $postMaxSize;
+        $min = $postMaxSize > $uploadMaxFileSize ? $uploadMaxFileSize : $postMaxSize;
         
         $data['block_size'] = $min > $blockSize ? $blockSize : $min;
-        if ($data['block_size'] == $postMaxSize && $data['block_size'] == $uploadMaxFilesize) {
+        if ($data['block_size'] == $postMaxSize && $data['block_size'] == $uploadMaxFileSize) {
             $data['block_size'] = $data['block_size'] - 104858;
         }
         

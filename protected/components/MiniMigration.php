@@ -9,7 +9,7 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.6
  */
-class MMigration {
+class MiniMigration {
 
     public $connectionID = "db";
 
@@ -28,7 +28,7 @@ class MMigration {
 
         $modulePaths = array();
         if ($module != "core"){
-            $modulePaths[$module] = "application.modules.{$module}.migrations";
+            $modulePaths[$module] = "application.plugins.{$module}.migrations";
             $migratePath  =Yii::getPathOfAlias($modulePaths[$module]);
             if (!is_dir($migratePath)){
                 return true;

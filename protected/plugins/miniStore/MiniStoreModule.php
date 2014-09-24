@@ -1,6 +1,7 @@
 <?php
 /*
 * Plugin Name: 迷你存储节点管理
+* Plugin Type: miniStore
 * Plugin URI: http://www.miniyun.cn
 * Description: 管理多个迷你存储节点的插件，包括：新增、修改、拉上/拉下迷你存储节点。什么是迷你存储，请<a href="http://help.miniyun.cn/ministor" style="color:#21759B;" target="_blank">“点击这里”</a><br> 前往 <a href="Yii::t('miniStoreModule.I18N', '#href')" style="color:#21759B;">“迷你存储节点设置”</a>页面进行设置
 * Author: MiniYun
@@ -14,13 +15,12 @@
  * Mini Store
  *
  */
-
-class MiniStoreModule extends MPluginModule {
+class MiniStoreModule extends MiniPluginModule {
     /**
-     * 存储到db中的标志，这里还是保留了stor_id，避免对db结构的冲击
+     * 存储到db中的标志，这里还是保留了store_id，避免对db结构的冲击
      * @var string
      */
-    public static $versionMetaKey = "stor_id";
+    public static $versionMetaKey = "store_id";
     /**
      *
      * @see CModule::init()
@@ -32,9 +32,7 @@ class MiniStoreModule extends MPluginModule {
         		'miniStore.models.*',
                 'miniStore.cache.model.*',
         ));
-        
-        // 添加后台导航菜单
-        add_action('admin_menu',                 array($this, "addPages"));
+
         //为miniStore存储源方式增加参数
         add_filter("account_info_add",           array($this, "getMiniStoreInfo"));
         //为miniStore存储源方式增加参数
@@ -56,19 +54,6 @@ class MiniStoreModule extends MPluginModule {
         add_filter('meta_add',                   array($this, 'createFileMeta'));
         //附加磁盘空间大小显示
         add_action("show_local_disk_space",      array($this, "showLocalDiskSpace"));
-    }
-
-    /**
-     *
-     * 后台添加一个页面
-     */
-    public function addPages() {
-       //用户管理添加子菜单
-		add_options_page(
-				         Yii::t('miniStoreModule.I18N', 'nav_title'),
-		                'manage_options',
-		                "miniStore/setting"
-				        );
     }
     /**
      *
@@ -155,7 +140,6 @@ class MiniStoreModule extends MPluginModule {
      */
     private function getSign($uri, $access_token) {
 
-        Yii::trace('deal client sign ,path : ' . __FILE__, "miniyun.miniStore");
         $token = MiniToken2::getInstance()->getAccessInfo2($access_token);
         if (empty($token)) {
             return;
@@ -185,7 +169,6 @@ class MiniStoreModule extends MPluginModule {
         $uri = str_replace("%2f", "/", $uri);
 
         $url = "{$uri}?access_token={$access_token}&client_id={$client_id}&client_secret={$client_secret}";
-        Yii::trace('make client sign ,path : ' . $url . __FILE__, "miniyun.miniStor");
         return md5($url);
     }
     /**

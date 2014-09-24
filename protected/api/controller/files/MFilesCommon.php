@@ -77,7 +77,7 @@ class MFilesCommon extends MModel {
         //
         // 文件内容保存路径
         //
-        $store_path = MUtils::getPathBySplitStr ( $signature );
+        $store_path = MiniUtil::getPathBySplitStr ( $signature );
         if ($dataObj->exists( dirname ( $store_path ) ) === false) {
             MUtils::MkDirs ( dirname ( $store_path ) );
         }

@@ -386,6 +386,15 @@ class MAPIController extends MApplicationComponent implements MIController{
         $dump = new MDumpController();
         $dump->invoke($this->commonUri);
     }
+    /**
+     * 群组
+     */
+    private function group() {
+
+        $service = new GroupService();
+        $result = $service->invoke($this->commonUri);
+        echo(json_encode($result));
+    }
     
     /**
      * 自定义异常处理

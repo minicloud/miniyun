@@ -128,7 +128,7 @@ class MiniStoreService{
             $uri = urldecode($uri);
         }
         //这里在兼容2级子目录存在问题
-        $key = "/c.php/1/module/miniStore/fileMeta";
+        $key = "/c.php/1/plugin/miniStore/fileMeta";
         $pos = strpos($uri,$key);
         $uri = substr($uri,$pos,strlen($uri));
         $parts = array_slice(explode('/', $uri), 4);

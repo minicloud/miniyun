@@ -1,9 +1,7 @@
 <?php
-// 全局变量
-define('SYSTEM_STATUS', 'done');
-define('DEFAULT_SIZE', 100);
-define('APP_NAME', '迷你云');
-$app_version = '1.6.0';
+define('NAME_ZH', '迷你云');
+define('NAME_EN', 'MyCloud');
+define('APP_VERSION',"1.6.0");
 //
 // 适配无REQUEST_URI的情况
 //
@@ -20,15 +18,15 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 function my_session_start()
 {
     if (isset($_COOKIE['PHPSESSID'])) {
-        $sessid = $_COOKIE['PHPSESSID'];
+        $sessionID = $_COOKIE['PHPSESSID'];
     } else if (isset($_GET['PHPSESSID'])) {
-        $sessid = $_GET['PHPSESSID'];
+        $sessionID = $_GET['PHPSESSID'];
     } else {
         session_start();
         return false;
     }
 
-    if (!preg_match('/^[a-z0-9]{32}$/', $sessid)) {
+    if (!preg_match('/^[a-z0-9]{32}$/', $sessionID)) {
         return false;
     }
     session_start();
@@ -42,12 +40,10 @@ my_session_start();
 $languageList = array("zh_cn" => "简体中文", "zh_tw" => "繁體中文", "en" => "English");
 
 // 增加版本逻辑
-global $app_version;
 $path = dirname(__FILE__) . "/../../upload/"; //默认存储路径
 $configPath = dirname(__FILE__) . '/miniyun-config.php';
 
-define('NAME_ZH', '迷你云');
-define('NAME_EN', 'MyCloud');
+
 
 //
 // 共享memcache时namespace
@@ -249,24 +245,22 @@ $config = array(
         'autoUpdateFlash' => false,
     ),
 
-
-// using Yii::app()->params['paramName']
+    // using Yii::app()->params['paramName']
     'params' => array(
         'adminEmail' => 'webmaster@example.com',
         'tablePrefix' => $tablePrefix, //表前缀
         'defaultAvatar' => '/static/images/default-avatar.png', //默认头像
         'app' => array( //app信息描述
             'initialized' => $initialized, //系统是否初始化
-            'version' => $app_version, //产品版本
             'key' => $key, //系统key
             'path' => $path, //默认存储路径
             'apiVersion' => "1", // api 版本
             'uploadSize' => (int)ini_get("upload_max_filesize") < (int)ini_get("post_max_size") ? ini_get("upload_max_filesize") * 1024 * 1024 : ini_get("post_max_size") * 1024 * 1024,
             'language' => $languageList, // 语言
         ),
-//
-// office文档类型
-//
+        //
+        // office文档类型
+        //
         'officeType' => array(
             't0' => 'application/msword',
             't1' => 'application/msexcel',
