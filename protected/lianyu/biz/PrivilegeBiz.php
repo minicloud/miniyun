@@ -33,7 +33,6 @@ class PrivilegeBiz  extends MiniBiz{
      * @return bool
      */
     public function save($filePath,$privileges){
-        var_dump($privileges);exit;
         //获得绝对路径
         $filePath = MiniUtil::getAbsolutePath($this->user["id"],$filePath);
         MiniUserPrivilege::getInstance()->createPrivilege($filePath,$privileges);
