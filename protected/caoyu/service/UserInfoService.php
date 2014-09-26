@@ -240,6 +240,10 @@ class UserInfoService extends MiniService{
         $errorList = array();
         $successList = array();
         foreach($userData as $user){//简单验证数据是否符合标准
+            if(count($user)===4){
+                //自动把电子邮件给补充上去
+                $user[]="";
+            }
             if(count($user)<5){
                 $user[5]="为空的数据请以“”填充";
                 $errorList[] = $user;
