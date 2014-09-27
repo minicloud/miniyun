@@ -28,13 +28,13 @@ class PrivilegeService extends MiniService
     {
         $filePath = MiniHttp::getParam("file_path", '');
         $data = MiniHttp::getParam("data", array());
-        var_dump($data);exit;
         if(count($data)<1){
             return false;
         }
         $privilege = new PrivilegeBiz();
-        $privilege->save($filePath, $data);
-        return array('success'=>true);
+        $result = $privilege->save($filePath, $data);
+//        return array('success'=>true);
+        return $result;
     }
     /**
      * 根据文件路径查找对应用户权限

@@ -25,7 +25,7 @@ class UserPrivilege extends CMiniyunModel
 	 */
 	public function tableName()
 	{
-		return Yii::app()->params['tablePrefix'].'user_privilege';
+		return Yii::app()->params['tablePrefix'].'user_privileges';
 	}
 
 	 

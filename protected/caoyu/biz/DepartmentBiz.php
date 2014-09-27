@@ -49,8 +49,13 @@ class DepartmentBiz extends MiniBiz{
     /**
      * 移动部门
      */
-    public function move($parentDepartmentId,$departmentId){
-        $data = MiniGroupRelation::getInstance()->update($parentDepartmentId,$departmentId);
+    public function move($parentDepartmentId,$sourceId,$sourceType){
+        if($sourceType == "group"){
+            $data = MiniGroupRelation::getInstance()->update($parentDepartmentId,$sourceId);
+        }
+        if($sourceType == "user"){
+            $data = MiniUserGroupRelation::getInstance()->update($sourceId,$parentDepartmentId);
+        }
         return $data;
     }
     /**

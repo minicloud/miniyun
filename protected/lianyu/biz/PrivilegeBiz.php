@@ -33,11 +33,28 @@ class PrivilegeBiz  extends MiniBiz{
      * @return bool
      */
     public function save($filePath,$privileges){
-        var_dump($privileges);exit;
+
+        $departmentPrivileges = array();
+        foreach($privileges as $privilege){
+
+            if($privilege['info']['type']=='user'){
+
+            }
+            if($privilege['info']['type']=='department'){
+                $departmentPrivilege['slave_id'] = $privilege['info']['id'];
+                $departmentPrivilege['privilege'] = $privilege['privilege'];
+            }
+            if($privilege['info']['type']=='group'){
+
+            }
+            $departmentPrivileges[] = $departmentPrivilege;
+        }
+
         //获得绝对路径
         $filePath = MiniUtil::getAbsolutePath($this->user["id"],$filePath);
-        MiniUserPrivilege::getInstance()->createPrivilege($filePath,$privileges);
-        return true;
+//        $result = MiniGroupPrivilege::getInstance()->createDepartmentPrivilege($departmentPrivileges,$filePath);
+        $result = MiniUserPrivilege::getInstance()->createPrivilege($filePath, $privileges);
+        return $result;
     }
     /**
      * 根据file_path查询文件权限

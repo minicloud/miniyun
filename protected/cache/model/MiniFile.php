@@ -238,7 +238,7 @@ class MiniFile extends MiniCache{
      * 创建File对象
      * 这里使用了引用传值，确保event_uuid可传递到外面
      */
-    public function create(&$file,$userId){
+    public function create($file,$userId){
         if (!isset($file["version_id"])){
             $file["version_id"] = 0;
         }
@@ -257,7 +257,7 @@ class MiniFile extends MiniCache{
         $item->mime_type         = $file["mime_type"];//有存在NULL的情况
         $item->save();
         //修复sort值为id值，确保唯一
-        $item->sort              = $item->id;
+//        $item->sort              = $item->id;
         $item->save();
         $file["id"] = $item->id;
         return $file;
@@ -379,11 +379,21 @@ class MiniFile extends MiniCache{
         $model               = $this->getModelByPath($path);
         if(isset($model)){
             foreach ($values as $key=>$value){
+                return $key;
                 if($key==="share_key"||$key==="privilege"){
                     continue;
                 }
                 $model->$key = $value;
             }
+            $model->save();
+            return true;
+        }
+        return false;
+    }
+    public function togetherShareFile($path,$fileType){
+        $model               = $this->getModelByPath($path);
+        if(isset($model)){
+            $model->file_type = $fileType;
             $model->save();
             return true;
         }
