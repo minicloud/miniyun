@@ -130,7 +130,6 @@ class PrivilegeBiz  extends MiniBiz{
                         $existed = true;
                     }
                 }
-                echo  $existed;
                 if ($existed === false) {
                     MiniUserPrivilege::getInstance()->deletePrivilege($userId, $filePath);
                     //删除对应file_meta
@@ -141,7 +140,6 @@ class PrivilegeBiz  extends MiniBiz{
                     foreach ($slaves as $slaveId => $slaveFilePath) { //删除被共享这file file_meta
                         if ($slaveId == $userId) {
                             $file = MiniFile::getInstance()->getByPath($slaveFilePath);
-                            print_r($file);
                             $fileId = $file['id'];
                             $userId = $file['user_id'];
                             //删除文件夹
@@ -156,9 +154,6 @@ class PrivilegeBiz  extends MiniBiz{
             }
         }
 
-//        print_r($userIdInfos);
-
-        //TODO 还没有进行过滤
 
             //group user common Operation
             $privilegeUseds = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);//查出已被共享的人
@@ -234,7 +229,7 @@ class PrivilegeBiz  extends MiniBiz{
                         $meta_key = MConst::SHARED_FOLDERS;
                         MiniFileMeta::getInstance()->createFileMeta($file["file_path"], $meta_key, $meta_value);
                         //创建事件
-//                $this->createEvent($userIdInfo['id'], 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
+                        MiniUserPrivilege::getInstance()->createEvent($userIdInfo['id'], 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
 
                         //分享者 path
                         if ($number == count($userIdInfos)-1) {
@@ -248,7 +243,7 @@ class PrivilegeBiz  extends MiniBiz{
                             $meta_key = MConst::SHARED_FOLDERS;
                             MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
                             //创建事件
-//                    $this->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
+                            MiniUserPrivilege::getInstance()->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
 
                         }
                     } else { //同路径同名文件不二次创建,但是存在修改问题。
@@ -261,7 +256,7 @@ class PrivilegeBiz  extends MiniBiz{
                         //被分享者 path
                         $meta_value = array();
                         $meta_value['master'] = intval($newPath[1]); //分享者ID
-                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);//todo
+                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);
                         $meta_value['path'] = $filePath;
                         $meta_value['send_msg'] = "000";
                         $meta_value = serialize($meta_value);
