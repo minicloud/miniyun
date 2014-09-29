@@ -78,250 +78,261 @@ class MiniUserPrivilege extends MiniCache
         $value["updated_at"] = $item->updated_at;
         return $value;
     }
-
-    /**
-     * 创建用户权限
-     * @param $filePath
-     * @param $privileges
-     * @return bool
-     */
-    public function createPrivilege($filePath, $privileges)
-    {
-        //查出对应filePath的权限
-        $oldPrivileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
-        //第一步 、首先根据filePath查表，将查出的数据中$names遍历出来的$name的没有的user_id删除。
-        $users = array();
-        foreach ($privileges as $user) {
-            $user = MiniUser::getInstance()->getUserByName($user['name']); //前端穿进来的username用来查询用户user_id。
-            array_push($users, $user);
+    public  function create($userId,$filePath,$permission){
+        //存储权限
+        $criteria = UserPrivilege::model()->find("user_id=:user_id and file_path=:file_path", array(":user_id" => $userId, ":file_path" => $filePath));
+        if (empty($criteria)) {
+            $criteria = new UserPrivilege();
         }
-        //删除权限
-        if (!empty($oldPrivileges)) {
-            foreach ($oldPrivileges as $item) {
-                $userId = $item['user_id']; //数据表中的userId
-                $existed = false;
-                foreach ($users as $user) {
-                    if ($user["id"] == $userId) {
-                        $existed = true;
-                    }
-                }
-                if ($existed === false) {
-                    MiniUserPrivilege::getInstance()->deletePrivilege($userId, $filePath);
-                    //删除对应file_meta
-                    $key = MConst::SHARED_FOLDERS;
-                    $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key); //根据共享文件路径查到file_meta信息
-                    $metaValue = unserialize($fileMeta['meta_value']); //得到metaValue 下一步根据value查得被共享者文件路径
-                    $slaves = $metaValue['slaves']; //得到被共享者文件路径集合
-                    foreach ($slaves as $slaveId => $slaveFilePath) { //删除被共享这file file_meta
-                        if ($slaveId == $userId) {
-                            $file = MiniFile::getInstance()->getByPath($slaveFilePath);
-                            $fileId = $file['id'];
-                            $userId = $file['user_id'];
-                            //删除文件夹
-                            MiniFile::getInstance()->deleteFile($fileId);
-                            //创建slaves取消共享事件
-                            $this->createEvent($userId, 1, MConst::DELETE, $slaveFilePath, $slaveFilePath);
-                            //删除slaves的file_meta信息
-                            MiniFileMeta::getInstance()->deleteFileMetaByPath($slaveFilePath);
-                        }
-                    }
-                }
-            }
-        }
-        /**
-         * 创建被共享者的共享文件夹，meta值。
-         */
-        $newPath = explode('/', $filePath);
-        $fileName = end($newPath); //获取文件名
-        $master = MiniUser::getInstance()->getUser($newPath[1]);
-        $masterName = $master['user_name'];
-        $userIds = array();
-        $currentPaths = array();
-        $loop = 0;
-        $privileges2 = $this->getPrivilegeList($filePath); //查出已被共享的人
-        $privileges2 = $this->db2list($privileges2);
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, MConst::SHARED_FOLDERS);
-        $metaValue = unserialize($fileMeta['meta_value']);
-        $slaves = $metaValue['slaves'];
-
-        $privilegeIds = array();
-        foreach ($privileges2 as $privilege2) {
-            array_push($privilegeIds, $privilege2['user_id']);
-        }
-        foreach ($users as $user) { //遍历传进来的用户，为其创建文件元数据
-            $userId = $user['id'];
-            if (!empty($privileges2)) {
-                if (in_array($userId, $privilegeIds)) { //如果该用户已经被分享过
-                    $currentPath = $slaves[$userId];
-                    array_push($userIds, $userId);
-                    array_push($currentPaths, $currentPath);
-                } else {
-                    $name = $fileName . "(" . $masterName . "的共享)";
-                    $name = $this->nameUnique($name, $name, 0, $userId);
-                    $currentPath = '/' . $userId . '/' . $name;
-                    array_push($userIds, $userId);
-                    array_push($currentPaths, $currentPath);
-                }
-            } else {
-                $name = $fileName . "(" . $masterName . "的共享)";
-                $name = $this->nameUnique($name, $name, 0, $userId);
-                $currentPath = '/' . $userId . '/' . $name;
-                array_push($userIds, $userId);
-                array_push($currentPaths, $currentPath);
-            }
-        }
-        //存储或者更新权限
-        for ($i = 0; $i < count($privileges); $i++) {
-            //序列化权限
-            $privilege = $privileges[$i];
-            $user = $users[$i];
-            $privilegeDetail = $privilege['privilege'];
-            $userId = $user["id"];
-            $keys = array('resource.read', 'folder.create', 'folder.rename', 'folder.delete', 'file.create', 'file.modify', 'file.rename', 'file.delete', 'permission.grant');
-            $privilegeArray = array_map('intval', $privilegeDetail); //将数组$privilege，string转换成int
-            $permission = array_combine($keys, $privilegeArray);
-            $permission = serialize($permission);
-            //存储权限
-            $criteria = UserPrivilege::model()->find("user_id=:user_id and file_path=:file_path", array(":user_id" => $userId, ":file_path" => $filePath));
-            if (empty($criteria)) {
-                $criteria = new UserPrivilege();
-            }
-            $criteria["user_id"] = $userId;
-            $criteria["file_path"] = $filePath;
-            $criteria["permission"] = $permission;
-            $criteria->save();
-        }
-
-        foreach ($users as $user) { //遍历传进来的用户，为其创建文件元数据
-            $loop++;
-            $userId = $user['id'];
-            $currentPath = '/' . $userId . '/' . $fileName . "(" . $masterName . "的共享)";
-            $item = MiniFile::getInstance()->getByPath($currentPath);
-            if (empty($item)) { //如果文件名未被共享过，则共享
-                $file = array();
-                $file["file_type"] = MConst::OBJECT_TYPE_BESHARED;
-                $file["parent_file_id"] = 0;
-                $file["file_create_time"] = time();
-                $file["file_update_time"] = time();
-                $file["file_name"] = $fileName . "(" . $masterName . "的共享)";
-                $file["version_id"] = 0;
-                $file["file_size"] = 0;
-                $file["file_path"] = '/' . $userId . '/' . $file["file_name"];
-                $file["mime_type"]; //有存在NULL的情况
-                MiniFile::getInstance()->create($file, $userId);
-
-                //被分享者 path
-                $meta_value = array();
-                $meta_value['master'] = intval($newPath[1]); //分享者ID
-                $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                $meta_value['path'] = $filePath;
-                $meta_value['send_msg'] = "000";
-                $meta_value = serialize($meta_value);
-                $meta_key = MConst::SHARED_FOLDERS;
-                MiniFileMeta::getInstance()->createFileMeta($file["file_path"], $meta_key, $meta_value);
-                //创建事件
-                $this->createEvent($userId, 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
-
-                //分享者 path
-                if ($loop == count($users)) {
-                    $meta_value = array();
-                    $meta_value['master'] = intval($newPath[1]); //分享者ID
-                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                    $meta_value['path'] = $filePath;
-                    $meta_value['send_msg'] = "000";
-                    $meta_value = serialize($meta_value);
-                    $meta_key = MConst::SHARED_FOLDERS;
-                    MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
-                    $this->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
-
-                }
-            } else { //如果文件名已被共享过，则需判断是否同一路径传入。不是则新创建
-                $key = MConst::SHARED_FOLDERS;
-                $file_meta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key);
-                $meta_value = unserialize($file_meta['meta_value']);
-                $path = $meta_value['path'];
-                if ($path != $filePath) { //共享文件名相同，但路径不同,则创建。同路径同名文件不二次创建
-                    $file = array();
-                    $file["file_type"] = MConst::OBJECT_TYPE_BESHARED;
-                    $file["parent_file_id"] = 0;
-                    $file["file_create_time"] = time();
-                    $file["file_update_time"] = time();
-                    $num = 0;
-                    $name = $fileName . "(" . $masterName . "的共享)";
-                    $file["file_name"] = $this->nameUnique($name, $name, $num, $userId);
-                    $file["version_id"] = 0;
-                    $file["file_size"] = 0;
-                    $file["file_path"] = '/' . $userId . '/' . $file["file_name"];
-                    $file["mime_type"]; //有存在NULL的情况
-                    MiniFile::getInstance()->create($file, $userId);
-
-                    //被分享者 path
-                    $meta_value = array();
-                    $meta_value['master'] = intval($newPath[1]); //分享者ID
-                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                    $meta_value['path'] = $filePath;
-                    $meta_value['send_msg'] = "000";
-                    $meta_value = serialize($meta_value);
-                    $meta_key = MConst::SHARED_FOLDERS;
-                    MiniFileMeta::getInstance()->createFileMeta($file["file_path"], $meta_key, $meta_value);
-
-                    //创建事件
-                    $this->createEvent($userId, 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
-
-                    //分享者 path
-                    if ($loop == count($users)) {
-                        $meta_value = array();
-                        $meta_value['master'] = intval($newPath[1]); //分享者ID
-                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                        $meta_value['path'] = $filePath;
-                        $meta_value['send_msg'] = "000";
-                        $meta_value = serialize($meta_value);
-                        $meta_key = MConst::SHARED_FOLDERS;
-                        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
-                        //创建事件
-                        $this->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
-
-                    }
-                } else { //同路径同名文件不二次创建,但是存在修改问题。
-                    $key = MConst::SHARED_FOLDERS;
-                    $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key);
-                    $metaValue = unserialize($fileMeta['meta_value']);
-                    $slaves = $metaValue['slaves'];
-                    $slavePath = $slaves[$userId]; //得到用户path，
-
-                    //被分享者 path
-                    $meta_value = array();
-                    $meta_value['master'] = intval($newPath[1]); //分享者ID
-                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                    $meta_value['path'] = $filePath;
-                    $meta_value['send_msg'] = "000";
-                    $meta_value = serialize($meta_value);
-                    $meta_key = MConst::SHARED_FOLDERS;
-                    MiniFileMeta::getInstance()->createFileMeta($slavePath, $meta_key, $meta_value);
-
-                    //分享者 path
-                    if ($loop == count($users)) {
-                        $meta_value = array();
-                        $meta_value['master'] = intval($newPath[1]); //分享者ID
-                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);
-                        $meta_value['path'] = $filePath;
-                        $meta_value['send_msg'] = "000";
-                        $meta_value = serialize($meta_value);
-                        $meta_key = MConst::SHARED_FOLDERS;
-                        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
-                        //创建事件
-                    }
-                }
-            }
-        }
-        /**
-         * 存储权限之后更新被分享文件的file_type = 2，出现分享图标
-         */
-        $beSharedFile = MiniFile::getInstance()->getByPath($filePath);
-        $beSharedFile['file_type'] = MConst::OBJECT_TYPE_SHARED;
-        MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
-        return true;
+        $criteria["user_id"] = $userId;
+        $criteria["file_path"] = $filePath;
+        $criteria["permission"] = $permission;
+        $criteria->save();
     }
+
+//    /**
+//     * 创建用户权限
+//     * @param $filePath
+//     * @param $privileges
+//     * @return bool
+//     */
+//    public function createPrivilege($filePath, $privileges)
+//    {
+//        //查出对应filePath的权限
+//        $oldPrivileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
+//        //第一步 、首先根据filePath查表，将查出的数据中$names遍历出来的$name的没有的user_id删除。
+//        $users = array();
+//        foreach ($privileges as $user) {
+//            $user = MiniUser::getInstance()->getUserByName($user['name']); //前端穿进来的username用来查询用户user_id。
+//            array_push($users, $user);
+//        }
+//        //删除权限
+//        if (!empty($oldPrivileges)) {
+//            foreach ($oldPrivileges as $item) {
+//                $userId = $item['user_id']; //数据表中的userId
+//                $existed = false;
+//                foreach ($users as $user) {
+//                    if ($user["id"] == $userId) {
+//                        $existed = true;
+//                    }
+//                }
+//                if ($existed === false) {
+//                    MiniUserPrivilege::getInstance()->deletePrivilege($userId, $filePath);
+//                    //删除对应file_meta
+//                    $key = MConst::SHARED_FOLDERS;
+//                    $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key); //根据共享文件路径查到file_meta信息
+//                    $metaValue = unserialize($fileMeta['meta_value']); //得到metaValue 下一步根据value查得被共享者文件路径
+//                    $slaves = $metaValue['slaves']; //得到被共享者文件路径集合
+//                    foreach ($slaves as $slaveId => $slaveFilePath) { //删除被共享这file file_meta
+//                        if ($slaveId == $userId) {
+//                            $file = MiniFile::getInstance()->getByPath($slaveFilePath);
+//                            $fileId = $file['id'];
+//                            $userId = $file['user_id'];
+//                            //删除文件夹
+//                            MiniFile::getInstance()->deleteFile($fileId);
+//                            //创建slaves取消共享事件
+//                            $this->createEvent($userId, 1, MConst::DELETE, $slaveFilePath, $slaveFilePath);
+//                            //删除slaves的file_meta信息
+//                            MiniFileMeta::getInstance()->deleteFileMetaByPath($slaveFilePath);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        /**
+//         * 创建被共享者的共享文件夹，meta值。
+//         */
+//        $newPath = explode('/', $filePath);
+//        $fileName = end($newPath); //获取文件名
+//        $master = MiniUser::getInstance()->getUser($newPath[1]);
+//        $masterName = $master['user_name'];
+//        $userIds = array();
+//        $currentPaths = array();
+//        $loop = 0;
+//        $privileges2 = $this->getPrivilegeList($filePath); //查出已被共享的人
+//        $privileges2 = $this->db2list($privileges2);
+//        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, MConst::SHARED_FOLDERS);
+//        $metaValue = unserialize($fileMeta['meta_value']);
+//        $slaves = $metaValue['slaves'];
+//
+//        $privilegeIds = array();
+//        foreach ($privileges2 as $privilege2) {
+//            array_push($privilegeIds, $privilege2['user_id']);
+//        }
+//        foreach ($users as $user) { //遍历传进来的用户，为其创建文件元数据
+//            $userId = $user['id'];
+//            if (!empty($privileges2)) {
+//                if (in_array($userId, $privilegeIds)) { //如果该用户已经被分享过
+//                    $currentPath = $slaves[$userId];
+//                    array_push($userIds, $userId);
+//                    array_push($currentPaths, $currentPath);
+//                } else {
+//                    $name = $fileName . "(" . $masterName . "的共享)";
+//                    $name = $this->nameUnique($name, $name, 0, $userId);
+//                    $currentPath = '/' . $userId . '/' . $name;
+//                    array_push($userIds, $userId);
+//                    array_push($currentPaths, $currentPath);
+//                }
+//            } else {
+//                $name = $fileName . "(" . $masterName . "的共享)";
+//                $name = $this->nameUnique($name, $name, 0, $userId);
+//                $currentPath = '/' . $userId . '/' . $name;
+//                array_push($userIds, $userId);
+//                array_push($currentPaths, $currentPath);
+//            }
+//        }
+//        //存储或者更新权限
+//        for ($i = 0; $i < count($privileges); $i++) {
+//            //序列化权限
+//            $privilege = $privileges[$i];
+//            $user = $users[$i];
+//            $privilegeDetail = $privilege['privilege'];
+//            $userId = $user["id"];
+//            $keys = array('resource.read', 'folder.create', 'folder.rename', 'folder.delete', 'file.create', 'file.modify', 'file.rename', 'file.delete', 'permission.grant');
+//            $privilegeArray = array_map('intval', $privilegeDetail); //将数组$privilege，string转换成int
+//            $permission = array_combine($keys, $privilegeArray);
+//            $permission = serialize($permission);
+//            //存储权限
+//            $criteria = UserPrivilege::model()->find("user_id=:user_id and file_path=:file_path", array(":user_id" => $userId, ":file_path" => $filePath));
+//            if (empty($criteria)) {
+//                $criteria = new UserPrivilege();
+//            }
+//            $criteria["user_id"] = $userId;
+//            $criteria["file_path"] = $filePath;
+//            $criteria["permission"] = $permission;
+//            $criteria->save();
+//        }
+//
+//        foreach ($users as $user) { //遍历传进来的用户，为其创建文件元数据
+//            $loop++;
+//            $userId = $user['id'];
+//            $currentPath = '/' . $userId . '/' . $fileName . "(" . $masterName . "的共享)";
+//            $item = MiniFile::getInstance()->getByPath($currentPath);
+//            if (empty($item)) { //如果文件名未被共享过，则共享
+//                $file = array();
+//                $file["file_type"] = MConst::OBJECT_TYPE_BESHARED;
+//                $file["parent_file_id"] = 0;
+//                $file["file_create_time"] = time();
+//                $file["file_update_time"] = time();
+//                $file["file_name"] = $fileName . "(" . $masterName . "的共享)";
+//                $file["version_id"] = 0;
+//                $file["file_size"] = 0;
+//                $file["file_path"] = '/' . $userId . '/' . $file["file_name"];
+//                $file["mime_type"]; //有存在NULL的情况
+//                MiniFile::getInstance()->create($file, $userId);
+//
+//                //被分享者 path
+//                $meta_value = array();
+//                $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                $meta_value['path'] = $filePath;
+//                $meta_value['send_msg'] = "000";
+//                $meta_value = serialize($meta_value);
+//                $meta_key = MConst::SHARED_FOLDERS;
+//                MiniFileMeta::getInstance()->createFileMeta($file["file_path"], $meta_key, $meta_value);
+//                //创建事件
+//                $this->createEvent($userId, 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
+//
+//                //分享者 path
+//                if ($loop == count($users)) {
+//                    $meta_value = array();
+//                    $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                    $meta_value['path'] = $filePath;
+//                    $meta_value['send_msg'] = "000";
+//                    $meta_value = serialize($meta_value);
+//                    $meta_key = MConst::SHARED_FOLDERS;
+//                    MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
+//                    $this->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
+//
+//                }
+//            } else { //如果文件名已被共享过，则需判断是否同一路径传入。不是则新创建
+//                $key = MConst::SHARED_FOLDERS;
+//                $file_meta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key);
+//                $meta_value = unserialize($file_meta['meta_value']);
+//                $path = $meta_value['path'];
+//                if ($path != $filePath) { //共享文件名相同，但路径不同,则创建。同路径同名文件不二次创建
+//                    $file = array();
+//                    $file["file_type"] = MConst::OBJECT_TYPE_BESHARED;
+//                    $file["parent_file_id"] = 0;
+//                    $file["file_create_time"] = time();
+//                    $file["file_update_time"] = time();
+//                    $num = 0;
+//                    $name = $fileName . "(" . $masterName . "的共享)";
+//                    $file["file_name"] = $this->nameUnique($name, $name, $num, $userId);
+//                    $file["version_id"] = 0;
+//                    $file["file_size"] = 0;
+//                    $file["file_path"] = '/' . $userId . '/' . $file["file_name"];
+//                    $file["mime_type"]; //有存在NULL的情况
+//                    MiniFile::getInstance()->create($file, $userId);
+//
+//                    //被分享者 path
+//                    $meta_value = array();
+//                    $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                    $meta_value['path'] = $filePath;
+//                    $meta_value['send_msg'] = "000";
+//                    $meta_value = serialize($meta_value);
+//                    $meta_key = MConst::SHARED_FOLDERS;
+//                    MiniFileMeta::getInstance()->createFileMeta($file["file_path"], $meta_key, $meta_value);
+//
+//                    //创建事件
+//                    $this->createEvent($userId, 1, MConst::SHARE_FOLDER, $file["file_path"], $file["file_path"]);
+//
+//                    //分享者 path
+//                    if ($loop == count($users)) {
+//                        $meta_value = array();
+//                        $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                        $meta_value['path'] = $filePath;
+//                        $meta_value['send_msg'] = "000";
+//                        $meta_value = serialize($meta_value);
+//                        $meta_key = MConst::SHARED_FOLDERS;
+//                        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
+//                        //创建事件
+//                        $this->createEvent(intval($newPath[1]), 1, MConst::SHARE_FOLDER, $filePath, $filePath);
+//
+//                    }
+//                } else { //同路径同名文件不二次创建,但是存在修改问题。
+//                    $key = MConst::SHARED_FOLDERS;
+//                    $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key);
+//                    $metaValue = unserialize($fileMeta['meta_value']);
+//                    $slaves = $metaValue['slaves'];
+//                    $slavePath = $slaves[$userId]; //得到用户path，
+//
+//                    //被分享者 path
+//                    $meta_value = array();
+//                    $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                    $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                    $meta_value['path'] = $filePath;
+//                    $meta_value['send_msg'] = "000";
+//                    $meta_value = serialize($meta_value);
+//                    $meta_key = MConst::SHARED_FOLDERS;
+//                    MiniFileMeta::getInstance()->createFileMeta($slavePath, $meta_key, $meta_value);
+//
+//                    //分享者 path
+//                    if ($loop == count($users)) {
+//                        $meta_value = array();
+//                        $meta_value['master'] = intval($newPath[1]); //分享者ID
+//                        $meta_value['slaves'] = array_combine($userIds, $currentPaths);
+//                        $meta_value['path'] = $filePath;
+//                        $meta_value['send_msg'] = "000";
+//                        $meta_value = serialize($meta_value);
+//                        $meta_key = MConst::SHARED_FOLDERS;
+//                        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
+//                        //创建事件
+//                    }
+//                }
+//            }
+//        }
+//        /**
+//         * 存储权限之后更新被分享文件的file_type = 2，出现分享图标
+//         */
+//        $beSharedFile = MiniFile::getInstance()->getByPath($filePath);
+//        $beSharedFile['file_type'] = MConst::OBJECT_TYPE_SHARED;
+//        MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
+//        return true;
+//    }
 
     /**
      * 获得权限列表
@@ -337,7 +348,7 @@ class MiniUserPrivilege extends MiniCache
         );
         $criteria->order = "id ASC";
         $list = UserPrivilege::model()->findAll($criteria);
-        return $list;
+        return $this->db2list($list);
     }
 
     /**
