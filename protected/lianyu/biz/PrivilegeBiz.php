@@ -70,6 +70,7 @@ class PrivilegeBiz  extends MiniBiz{
      * @return bool
      */
     public function save($filePath,$slaves){
+//        var_dump($slaves);exit;
         $userId = $this->user['id'];
         //获得绝对路径
         $filePath = MiniUtil::getAbsolutePath($userId,$filePath);
@@ -121,6 +122,9 @@ class PrivilegeBiz  extends MiniBiz{
                 MiniUserPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
             }
             if($privilegeType=='1'){
+                MiniGroupPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
+            }
+            if($privilegeType=='2'){
                 MiniGroupPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
             }
         }
