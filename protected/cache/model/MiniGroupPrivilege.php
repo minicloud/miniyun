@@ -103,6 +103,7 @@ class MiniGroupPrivilege extends MiniCache
         );
         $criteria->order = "id ASC";
         $list = GroupPrivilege::model()->findAll($criteria);
+        $list = $this->db2list($list);
         return $list;
     }
 
