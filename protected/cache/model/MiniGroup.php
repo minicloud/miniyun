@@ -121,6 +121,21 @@ class MiniGroup extends MiniCache{
         }
     }
     /**
+     * 根据groupId删除群组
+     */
+    public function deleteByGroupId($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $groupId);
+        $item = Group::model()->find($criteria);
+        if(!empty($item)){
+            $item->delete();
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'not existed');
+        }
+    }
+    /**
      * by department_id 删除群组
      */
     public function deleteByDepartmentId($departmentId,$userId){

@@ -130,6 +130,16 @@ class MiniGroupPrivilege extends MiniCache
         }
         return true;
     }
+    /**
+     * 删除Group时附带的删除和该组相关的所有权限
+     */
+    public function deleteRelatedPrivilegeById($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = 'group_id=:group_id';
+        $criteria->params = array(':group_id' => $groupId);
+        GroupPrivilege::model()->deleteAll($criteria);
+        return true;
+    }
 
     /**
      * 根据路径删除记录

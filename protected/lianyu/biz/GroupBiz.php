@@ -55,11 +55,14 @@ class GroupBiz extends MiniBiz{
     }
     /**
      * 删除群组
+     * 删除群组时，对应的group_privilege 和 user_group_relations的内容也一并删除
      */
-    public function delete($groupName){
-        $user = $this->user;
-        $userId = $user['user_id'];
-        return MiniGroup::getInstance()->delete($groupName,$userId);
+    public function delete($groupId){
+        MiniGroup::getInstance()->deleteByGroupId($groupId);//删除群组
+        MiniGroupPrivilege::getInstance()->deleteRelatedPrivilegeById($groupId);//删除群组对应group_privilege的所有信息
+        MiniUserGroupRelation::getInstance()->deleteRelatedRelations($groupId);
+        return true;
+//        return MiniGroup::getInstance()->delete($groupName,$userId);
     }
     /**
      * 群组更名

@@ -100,6 +100,15 @@ class MiniUserGroupRelation extends MiniCache{
         }
     }
     /**
+     * 删除该群组所有的用户关联信息
+     */
+    public function deleteRelatedRelations($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id";
+        $criteria->params = array('group_id'=>$groupId);
+        UserGroupRelation::model()->deleteAll($criteria);
+    }
+    /**
      * 更改用户与群组的关系
      */
     public function update($userId,$groupId){

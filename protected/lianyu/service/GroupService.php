@@ -34,9 +34,9 @@ class GroupService extends MiniService{
      * 删除群组
      */
     public function delete(){
-        $groupName = MiniHttp::getParam("group_name","");
+        $groupId = MiniHttp::getParam("group_id","");
         $biz = new GroupBiz();
-        return $biz->delete($groupName);
+        return $biz->delete($groupId);
     }
     /**
      * 群组更名
