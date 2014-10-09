@@ -197,6 +197,7 @@ class UserInfoBiz extends MiniBiz{
         if(!$isAdmin){
             $user = new User();
             $user->deleteUsers($id);
+            MiniUserPrivilege::getInstance()->deletePrivilegeWhenKillUser($id);
             return true;
         }
         else{

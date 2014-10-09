@@ -310,6 +310,7 @@ class MConst
     const MIME_TYPE      = "mime_type";
     const VERSION        = "version";
     const SHARED_FOLDERS = "shared_folders";
+    const PUBLIC_FOLDER  = "public_folder";
     
     /*
      * ============================================================

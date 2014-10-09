@@ -184,4 +184,19 @@ class MiniFileMeta extends MiniCache{
         }
         return true;
     }
+    /**
+     * 设置公共目录权限
+     */
+    public function setPublicPrivilege($filePath,$privilege){
+        $meta_key=MConst::PUBLIC_FOLDER;
+        $fileMeta              = $this->getModelByPath($filePath, $meta_key);
+        if(empty($fileMeta)){
+            $fileMeta = new FileMeta();
+        }
+        $fileMeta["file_path"]  = $filePath;
+        $fileMeta["meta_key"]   = $meta_key;
+        $fileMeta["meta_value"] = $privilege;
+        $fileMeta->save();
+        return array('success'=>true);
+    }
 }
