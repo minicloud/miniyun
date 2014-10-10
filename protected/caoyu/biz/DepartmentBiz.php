@@ -23,7 +23,8 @@ class DepartmentBiz extends MiniBiz{
         $result = MiniGroup::getInstance()->deleteByDepartmentId($departmentId,$userId);
         if($result['success']==true){
             $result = MiniGroupRelation::getInstance()->getByGroupId($departmentId);
-            if(isset($result)){
+            if(!empty($result)){
+                MiniGroupPrivilege::getInstance()->deleteRelatedPrivilegeById($departmentId);
                 $result = MiniGroupRelation::getInstance()->delete($departmentId);
             }
         }
