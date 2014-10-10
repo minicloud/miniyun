@@ -198,8 +198,10 @@ class MAPIController extends MApplicationComponent implements MIController{
      */
     private function metadata()
     {
-        $metadataController = new MMetadataController();
-        $metadataController -> invoke($this->commonUri);
+        $service = new MetaDataService();
+        $result = $service->invoke($this->commonUri);
+//        $metadataController = new MMetadataController();
+//        $metadataController -> invoke($this->commonUri);
     }
 
     /**

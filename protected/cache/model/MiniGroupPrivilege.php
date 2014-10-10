@@ -251,5 +251,49 @@ class MiniGroupPrivilege extends MiniCache
         MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
         return true;
     }
-
+    public function getPublic(){
+       $criteria = new CDbCriteria();
+       $items = GroupPrivilege::model()->findAll($criteria);
+        return ($this->db2list($items));
+    }
+    public function getByGroupId($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id";
+        $criteria->params = array("group_id" => $groupId);
+        $items = GroupPrivilege::model()->findAll($criteria);
+        return ($this->db2list($items));
+    }
+    /**
+     * 根据groupId,filePath一级一级往上查，查询groupId最小数据
+     * @param $filePath
+     * @param $groupId
+     * @return null
+     */
+    public function getGroupPrivilege($filePath,$groupId){
+        $groupRelation = MiniGroupRelation::getInstance()->getByGroupId($groupId);
+        if(empty($groupRelation)){
+            return null;
+        }
+        if($groupRelation['parent_group_id']!=-1){
+           $privilege =  MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($groupRelation['parent_group_id'], $filePath);
+           if(empty($privilege)){
+              return  $this->getGroupPrivilege($filePath,$groupRelation['parent_group_id']);
+           }else{
+               return $privilege;
+           }
+        }else{
+            return null;
+        }
+    }
+    public  function getGroupIds($groupId,$ids){
+        $group = MiniGroupRelation::getInstance()->getByGroupId($groupId);
+        if(isset($group)){
+            if($group['parent_group_id']!=-1){
+                array_push($ids,$group['parent_group_id']);
+                return $this->getGroupIds($group['parent_group_id'],$ids);
+            }else{
+                return $ids;
+            }
+        }
+    }
 }

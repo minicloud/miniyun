@@ -89,7 +89,15 @@ class MiniUserPrivilege extends MiniCache
         $criteria["permission"] = $permission;
         $criteria->save();
     }
-
+    public function getByUserId($userId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id";
+        $criteria->params = array(
+            "user_id" => $userId
+        );
+        $list = UserPrivilege::model()->findAll($criteria);
+        return $this->db2list($list);
+    }
 //    /**
 //     * 创建用户权限
 //     * @param $filePath
@@ -413,51 +421,78 @@ class MiniUserPrivilege extends MiniCache
         $eventUuid = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
         MiniEvent::getInstance()->createEvent($userId, $userDeviceId, $action, $path, $context, $eventUuid, $extends = NULL);
     }
+
     /**
      * 判断目录是否可发起共享
      * 递归查询父目录file_type情况，file_type=1时返回false，file_type==2||3时返回true
      */
     public function getFolderPrivilege($currentUserId,$file){
-        $fileType = intval($file['file_type']);
+        $filePath = $file['file_path'];
+        $fileType = (int)$file['file_type'];
         //被共享目录本身可以修改和删除
         $privilege = Array('resource.read' => 1, 'folder.create' => 1, 'folder.rename' => 1, 'folder.delete' => 1, 'file.create' => 1, 'file.modify' => 1, 'file.rename' => 1, 'file.delete' => 1, 'permission.grant' => 1,'can_set_share' => 1);
-        if($fileType === 3){
-            $fileMeta = MiniFileMeta::getInstance()->getFileMeta($file['file_path'],MConst::SHARED_FOLDERS);
-            $metaValue = unserialize($fileMeta['meta_value']);
-            $masterPath = $metaValue['path'];
-            $item = $this->getSpecifyPrivilege($currentUserId,$masterPath);
-            $privilege = unserialize($item['permission']);
-            //被共享着不能发起共享
-            $privilege["folder.delete"] = 1;
-            $privilege["can_set_share"] = 0;
+        if($fileType == 3 ){
+            $arr = explode('/',$filePath);
+            $parentPath = "/".$file['user_id']."/".$arr[2];
+            $userPrivilege = MiniUserPrivilege::getInstance()->getSpecifyPrivilege($currentUserId,$parentPath);
+            if(empty($userPrivilege)){
+                $userGroupRelation = MiniUserGroupRelation::getInstance()->getByUserId($currentUserId);
+                $groupId = $userGroupRelation['group_id'];
+                $groupPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($groupId,$parentPath);
+                if(empty($groupPrivilege)){
+                  $groupPrivilege =  MiniGroupPrivilege::getInstance()->getGroupPrivilege($filePath,$groupId);
+                }
+                $permission= $groupPrivilege['permission'];
+            }else{
+                $permission = $userPrivilege['permission'];
+            }
+            for($i=0;$i<strlen($permission);$i++){
+                $privilege['resource.read'] = (int)$permission[0];
+                $privilege['folder.create'] = (int)$permission[1];
+                $privilege['folder.rename'] = (int)$permission[2];
+                $privilege['folder.delete'] = (int)$permission[3];
+                $privilege['file.create'] = (int)$permission[4];
+                $privilege['file.modify'] = (int)$permission[5];
+                $privilege['file.rename'] = (int)$permission[6];
+                $privilege['file.delete'] = (int)$permission[7];
+                $privilege['permission.grant'] = (int)$permission[8];
+                $privilege["can_set_share"] = 0;
+            }
         }
-        if($fileType === 1){
+        if($fileType == 1){
+            $isShared = false;
+            $userId = $file['user_id'];
             //判断下级目录是否有共享目录
             $filePath = $file['file_path'];
-            $key = MConst::SHARED_FOLDERS;
-            $childrenMeta = MiniFileMeta::getInstance()->getChildrenFileMetaByPath($filePath,$key);
-            if(!empty($childrenMeta)){
+            $children = MiniFile::getInstance()->getShowChildrenByPath($filePath);
+            $userGroupRelation = MiniUserGroupRelation::getInstance()->getByUserId($userId);
+            $groupId = $userGroupRelation['group_id'];
+            $arr = array();
+            array_push($arr,$groupId);
+            $groupIds = MiniGroupPrivilege::getInstance()->getGroupIds($groupId,$arr);
+            foreach($children as $child){
+                $childFilePath = $child['file_path'];
+                if($childFilePath==$filePath){
+                    continue;
+                }
+                $file = MiniFile::getInstance()->getByFilePath($childFilePath);
+                if($file['file_type']==2){
+                    $isShared = true;
+                    break;
+                }
+            }
+            if($isShared){
                 //子目录已经共享则不能二次共享
                 $privilege["can_set_share"] = 0;
             }else{
                 //判断上级目录是否有共享目录,获得父目录权限
                 $arr = explode('/',$filePath);
-                $userId = $file['user_id'];
                 $parentPath = "/".$userId;
                 for($i=2;$i<count($arr);$i++){
                     $parentPath = $parentPath."/".$arr[$i];
-                    $fileMeta = MiniFileMeta::getInstance()->getFileMeta($parentPath,MConst::SHARED_FOLDERS);
-                    if(!empty($fileMeta)){
-                        $metaValue = unserialize($fileMeta['meta_value']);
-                        $masterPath = $metaValue['path'];
-                        $item = $this->getSpecifyPrivilege($currentUserId,$masterPath);
-                        if(!empty($item)){//权限列表只有被共享目录的信息，所以必须判断(非空则为被共享目录)
-                            $privilege = unserialize($item['permission']);
-                        }else{
-                            $privilege = Array('resource.read' => 1, 'folder.create' => 1, 'folder.rename' => 1, 'folder.delete' => 1, 'file.create' => 1, 'file.modify' => 1, 'file.rename' => 1, 'file.delete' => 1, 'permission.grant' => 1);
-                        }
+                    $file = MiniFile::getInstance()->getByFilePath($parentPath);
+                    if($file['file_type']==2){
                         $privilege["can_set_share"] = 0;
-                        break;
                     }
                 }
             }

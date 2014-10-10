@@ -126,10 +126,19 @@ class MiniFile extends MiniCache{
         $items = UserFile::model()->findAll('file_type=:file_type ', array('file_type' => 16));
         return  $this->db2list($items);
     }
+    public function getByFilePath($filePath){
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "file_path = :file_path";
+        $criteria->params    = array("file_path"=>$filePath);
+        $criteria->order     = "id DESC";
+        $item               = UserFile::model()->find($criteria);
+        return  $this->db2Item($item);
+    }
+
     /**
      * 根据条件获得子文件记录
      */
-    public function getChildrenByFileID($parentFileId, $includeDeleted = false, $user=null,$userId=null) {
+    public function getChildrenByFileID($parentFileId, $includeDeleted = false, $user=null,$userId=null,$filePaths=null) {
         $criteria                 = new CDbCriteria();
         $params                   = array();
         $sql                      = "parent_file_id = :parent_file_id";
@@ -145,12 +154,22 @@ class MiniFile extends MiniCache{
             $var                  = apply_filters('file_list_filter', $var);
             $sql                 .= ' AND ' .$var['condition'];
         }
+        if(isset($filePaths)){
+            $files = array();
+           foreach($filePaths as $filePath){
+            $value =    $this->getByFilePath($filePath);
+               $value['file_type'] = 3;
+               array_push($files,$value);
+           }
+        }
         $order                    = 'file_type desc,id DESC ';
         $criteria->condition      = $sql;
         $criteria->params         = $params;
         $criteria->order          = $order;
         $items                    = UserFile::model()->findAll($criteria);
+
         $items                    = $this->db2list($items);
+        array_splice($items,0,0,$files);
         if(!empty($user)){
             $data = array();
             foreach($items as $file){
@@ -210,6 +229,7 @@ class MiniFile extends MiniCache{
         $items              = UserFile::model()->findAll($criteria);
         return  $this->db2list($items);
     }
+
     /**
      * 根据Parent_file_id获得该目录下的所有子文件
      */
