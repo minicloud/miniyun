@@ -1318,5 +1318,40 @@ class MiniFile extends MiniCache{
         $data['recycleNum'] = $recycleNum;
         return $data;
     }
-
+    /**
+     * 设置为公共目录
+     */
+    public function  setToPublic($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "file_path=:file_path";
+        $criteria->params        = array(
+            "file_path"=>$filePath
+        );
+        $item = UserFile::model()->find($criteria);
+        if(!empty($item)){
+            $item->file_type='4';
+            $item->save();
+            return array('success'=>true);
+        }else{
+            return array('success'=>false);
+        }
+    }
+    /**
+     * 取消设置为公共目录
+     */
+    public function  cancelPublic($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "file_path=:file_path";
+        $criteria->params        = array(
+            "file_path"=>$filePath
+        );
+        $item = UserFile::model()->find($criteria);
+        if(!empty($item)){
+            $item->file_type='1';
+            $item->save();
+            return array('success'=>true);
+        }else{
+            return array('success'=>false);
+        }
+    }
 }

@@ -382,6 +382,16 @@ class MiniUserPrivilege extends MiniCache
         }
         return true;
     }
+    /**
+     * 删除用户的时候删除其对应user_privilege表权限
+     */
+    public function deletePrivilegeWhenKillUser($userId){
+        $modal = UserPrivilege::model()->find("user_id=:user_id", array(":user_id" => $userId));
+        if (!empty($modal)) {
+            $modal->delete();
+        }
+        return true;
+    }
 
     /**
      * 根据路径删除记录

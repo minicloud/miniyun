@@ -131,4 +131,36 @@ class FileManageBiz extends MiniBiz{
         $saveSpace = MiniFile::getInstance()->getTotalSize() - MiniVersion::getInstance()->getTotalSize();
         return $saveSpace;
     }
+    /**
+     * 设置为公共目录
+     */
+    public function setToPublic($filePath){
+        $item=$this->user;
+        $userId = $item['user_id'];
+        $filePath = MiniUtil::getAbsolutePath($userId,$filePath);
+        Minifile::getInstance()->setToPublic($filePath);//设置目录file_type为4(公共目录)
+        MiniGroupPrivilege::getInstance()->create(-1,$filePath,'111111111');
+        return array('success'=>true);
+    }
+    /**
+     * 设置为公共目录
+     */
+    public function cancelPublic($filePath){
+        $item=$this->user;
+        $userId = $item['user_id'];
+        $filePath = MiniUtil::getAbsolutePath($userId,$filePath);
+        Minifile::getInstance()->cancelPublic($filePath);//设置目录file_type为1(变成普通目录)
+        MiniGroupPrivilege::getInstance()->deletePrivilege(-1, $filePath);
+        return array('success'=>true);
+    }
+    /**
+     * 设置公共目录权限
+     */
+    public function setPrivilege($filePath,$privilege){
+        $item=$this->user;
+        $userId = $item['user_id'];
+        $filePath = MiniUtil::getAbsolutePath($userId,$filePath);
+        MiniGroupPrivilege::getInstance()->create(-1,$filePath,$privilege);
+        return array('success'=>true);
+    }
 }
