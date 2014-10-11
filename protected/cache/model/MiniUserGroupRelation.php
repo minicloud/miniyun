@@ -73,8 +73,8 @@ class MiniUserGroupRelation extends MiniCache{
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id";
         $criteria->params = array('user_id'=> $groupId);
-        $item = UserGroupRelation::model()->find($criteria);
-        return $this->db2Item($item);
+        $items = UserGroupRelation::model()->findAll($criteria);
+        return $this->db2List($items);
     }
     /**
      * 新建用户与群组的关系

@@ -442,17 +442,65 @@ class MiniUserPrivilege extends MiniCache
         //被共享目录本身可以修改和删除
         $privilege = Array('resource.read' => 1, 'folder.create' => 1, 'folder.rename' => 1, 'folder.delete' => 1, 'file.create' => 1, 'file.modify' => 1, 'file.rename' => 1, 'file.delete' => 1, 'permission.grant' => 1,'can_set_share' => 1);
         if($fileType == 3 ){
-            $arr = explode('/',$filePath);
-            $parentPath = "/".$file['user_id']."/".$arr[2];
+            $parentPath = $file['file_path'];
+            //当用户，群组与部门中的用户权限出现重复时，获取最小部门的权限，顺序为用户，群组，部门
             $userPrivilege = MiniUserPrivilege::getInstance()->getSpecifyPrivilege($currentUserId,$parentPath);
             if(empty($userPrivilege)){
-                $userGroupRelation = MiniUserGroupRelation::getInstance()->getByUserId($currentUserId);
-                $groupId = $userGroupRelation['group_id'];
-                $groupPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($groupId,$parentPath);
-                if(empty($groupPrivilege)){
-                  $groupPrivilege =  MiniGroupPrivilege::getInstance()->getGroupPrivilege($filePath,$groupId);
+                $userGroupRelations = MiniUserGroupRelation::getInstance()->getByUserId($currentUserId);
+                if(count($userGroupRelations)>1){//说明用户对应了群组和部门,
+                    $groupIdsArr = array();
+                    //获取群组id
+                    foreach($userGroupRelations as $userGroupRelation){
+                        $group = MiniGroup::getInstance()->findById($userGroupRelation['group_id']);
+                        if($group['user_id']!=-1){
+                            array_push($groupIdsArr,$userGroupRelation['group_id']);
+                        }else{
+                            $departmentId = $userGroupRelation['group_id'];
+                        }
+                    }
+                    //将所有群组的权限放入数组
+                    $permissionArr = array();
+                    foreach($groupIdsArr as $groupId){
+                        $privilege_0 = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($groupId,$parentPath);
+                        if(!empty($privilege_0)){
+                            array_push($permissionArr,$privilege_0['permission']);
+                        }
+                    }
+                    //拼接群组中权限的最大值，如果为空则为空字符串
+                    $permission = "";
+                    if(count($permissionArr)>0){
+                        for($j=0;$j<10;$j++){
+                           $isHighestAuthority = false;
+                           foreach($permissionArr as $per){
+                               if($per[$j]==1){
+                                   $isHighestAuthority = true;
+                                   break;
+                               }
+                           }
+                            if($isHighestAuthority){
+                                $permission .="1";
+                            }else{
+                                $permission .= "0";
+                            }
+
+                       }
+                    }
+
+                    if($permission==""){
+                        $groupPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($departmentId,$parentPath);
+                        if(empty($groupPrivilege)){
+                            $groupPrivilege =  MiniGroupPrivilege::getInstance()->getGroupPrivilege($filePath,$departmentId);
+                        }
+                        $permission= $groupPrivilege['permission'];
+                    }
+                }else{
+                    $groupId = $userGroupRelations[0]['group_id'];
+                    $groupPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($groupId,$parentPath);
+                    if(empty($groupPrivilege)){
+                        $groupPrivilege =  MiniGroupPrivilege::getInstance()->getGroupPrivilege($filePath,$groupId);
+                    }
+                    $permission= $groupPrivilege['permission'];
                 }
-                $permission= $groupPrivilege['permission'];
             }else{
                 $permission = $userPrivilege['permission'];
             }
@@ -495,7 +543,7 @@ class MiniUserPrivilege extends MiniCache
                 //子目录已经共享则不能二次共享
                 $privilege["can_set_share"] = 0;
             }else{
-                //判断上级目录是否有共享目录,获得父目录权限
+                //判断上级目录是否有共享目录
                 $arr = explode('/',$filePath);
                 $parentPath = "/".$userId;
                 for($i=2;$i<count($arr);$i++){

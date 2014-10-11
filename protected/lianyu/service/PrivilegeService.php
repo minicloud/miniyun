@@ -54,4 +54,12 @@ class PrivilegeService extends MiniService
         $privilege ->delete($filePath);
         return array('success'=>true);
     }
+    /**
+     * 获取共享文件的根目录文件
+     */
+    public function getSharedParentPath(){
+        $sharedPath = MiniHttp::getParam('shared_path','');
+        $privilege = new PrivilegeBiz();
+        return $privilege ->getSharedParentPath($sharedPath);
+    }
 }

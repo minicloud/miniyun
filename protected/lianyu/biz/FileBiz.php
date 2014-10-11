@@ -23,7 +23,7 @@ class FileBiz  extends MiniBiz{
     /**
      * 目录打包下载
      */
-    public function downloadToPackage($paths){
+    public function downloadToPackage($paths,$realPath){
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
         $limit = new DownloadPackageLimit();
@@ -31,9 +31,16 @@ class FileBiz  extends MiniBiz{
         $limitSize  = $limit->getLimitSize();
         $code = '';
         $fileNames = array();
+
+        if($realPath != 'undefined'){
+            $realPathArr = explode('/',$realPath);
+            $userId = $realPathArr[1];
+        }else{
+            $userId   = $this->user['id'];
+        }
         $paths = explode(',',$paths);
         foreach($paths as $path){
-            $absolutePath = MiniUtil::getAbsolutePath($this->user['id'],$path);
+            $absolutePath = MiniUtil::getAbsolutePath($userId,$path);
             $file = MiniFile::getInstance()->getByPath($absolutePath);
             if (empty($file)){
                 echo  Yii::t('i18n','error_path');
@@ -42,7 +49,7 @@ class FileBiz  extends MiniBiz{
             $code = $code.','.$file['id'] ;
             array_push($fileNames,$file['file_name']);
         }
-        $userId   = $this->user['id'];
+
         if(count($fileNames)>1){
             $packageName = 'miniyun';
         }else{
@@ -53,7 +60,6 @@ class FileBiz  extends MiniBiz{
         $fileSystem = new CFileSystem();
         MUtils::MkDirsLocal(DOCUMENT_TEMP.$userId);
         $storePath = DOCUMENT_TEMP.$userId."/".$packageName;
-
         $array = array();
         $ids = explode(",", $code);
         foreach ($ids as $id){

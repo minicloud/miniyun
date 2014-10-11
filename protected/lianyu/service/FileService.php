@@ -22,8 +22,9 @@ class FileService extends MiniService{
      */
     public function downloadToPackage(){
         $paths = MiniHttp::getParam('paths','');
+        $realPath = MiniHttp::getParam('real_path','');
         $package = new FileBiz();
-        $package->downloadToPackage($paths);
+        $package->downloadToPackage($paths,$realPath);
     }
 
     /**

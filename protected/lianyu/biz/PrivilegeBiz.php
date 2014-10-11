@@ -154,4 +154,20 @@ class PrivilegeBiz  extends MiniBiz{
         MiniUserPrivilege::getInstance()->cancelPrivilege($filePath);
         return true;
     }
+    /**
+     * 获取共享文件的根目录文件
+     */
+    public function getSharedParentPath($sharedpath){
+        $arr = explode('/',$sharedpath);
+        $parentPath = "/".$arr[1];
+        for($i=2;$i<count($arr);$i++){
+            $parentPath = $parentPath."/".$arr[$i];
+            $file = MiniFile::getInstance()->getByFilePath($parentPath);
+            if($file['file_type']==2){
+                return $parentPath;
+            }
+        }
+        return null;
+    }
+
 }

@@ -49,16 +49,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if($path===false){
         	$path = "/";
         }
-//        $this->share_filter = MSharesFilter::init();
-//        if ($this->share_filter->handlerCheck($this->userId, $path, true)) {
-//            $this->userId = $this->share_filter->master;
-//            $path = $this->share_filter->_path;
-//        }
-//
-//        //判断需要进行列表的文件夹是否具有读权限，没权限则抛出异常
-//        if ($this->share_filter->is_shared) {
-//            $this->share_filter->hasPermissionExecute("/".$this->share_filter->master.$path, MPrivilege::RESOURCE_READ);
-//        }
         // 根目录
         if ($path == "/"){
             $response = $this->handleRootPath($includeDeleted);
@@ -125,14 +115,22 @@ class MMetadataController extends MApplicationComponent implements MIController{
         foreach($groupPrivileges as $groupPrivilege){
             array_push($groupIds,$groupPrivilege['group_id']);
         }
+        $groupIdsArr = array();
         $userGroupRelations =MiniUserGroupRelation::getInstance()->findUserGroup($userId);
         if(isset($userGroupRelations)){
             foreach($userGroupRelations as $userRelation){
                 $groupId = $userRelation['id'];
                 $arr = array();
                 array_push($arr,$groupId);
-                $ids = $this->getGroupIds($groupId,$arr);
-                $commonGroupIds = array_intersect($ids,$groupIds);
+                $result = MiniGroup::getInstance()->findById($groupId);
+                if($result['user_id']>0){
+                    array_push($groupIdsArr,$groupId);
+                }else{
+                    $ids = $this->getGroupIds($groupId,$arr);
+                }
+            }
+            array_splice($groupIdsArr,0,0,$ids);
+                $commonGroupIds = array_intersect($groupIdsArr,$groupIds);
                 foreach($commonGroupIds as $commonGroupId){
                     $groupInfos = MiniGroupPrivilege::getInstance()->getByGroupId($commonGroupId);
                         foreach($groupInfos as $groupInfo){
@@ -142,8 +140,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     if($paths){
                         array_splice($filePaths,0,0,$paths);
                     }
-                }
+
         }
+        $filePaths = array_unique($filePaths);
         $files = MiniFile::getInstance()->getChildrenByFileID(
             $parentFileId=0,
             $includeDeleted,
@@ -164,16 +163,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 $mimeType = $version["mime_type"];
                 $signature = $version["file_signature"];
             }
-
-
-//            //列表权限，如果没有列表权限，则不进行显示
-//            if (MUtils::isShareFolder($file['file_type'])) {
-//                try {
-//                  $this->share_filter->hasPermissionExecute($file['file_path'], MPrivilege::RESOURCE_READ);
-//                } catch (Exception $e) {
-//                    continue;
-//                }
-//            }
             $file["signature"] = $signature;
             $isShared = null;
             $item = $this->assembleResponse($item, $file, $mimeType,$isShared);
@@ -208,9 +197,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $mimeType = $version["mime_type"];
         }
         $response                   = array();
-//        if ($this->share_filter->_is_shared_path) {
-//            $currentFile['file_type'] = $this->share_filter->file_type;
-//        }
         $response = $this->assembleResponse($response, $currentFile, $mimeType,$isShared);
         //获取当前目录的权限
         $shareKeyPrivilege = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
@@ -235,14 +221,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     $mimeType = $version["mime_type"];
                     $file["signature"] = $version["file_signature"];
                 }
-//                //列表权限，如果没有列表权限，则不进行显示
-//                if ($this->share_filter->is_shared) {
-//                    try {
-//                        $this->share_filter->hasPermissionExecute($file['file_path'], MPrivilege::RESOURCE_READ);
-//                    } catch (Exception $e) {
-//                        continue;
-//                    }
-//                }
                 if($isShared){
                     $file['privilege'] = $response['privilege'];
                 }
@@ -263,16 +241,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if($file['file_type'] == 3||$isShared){
             $response['shared_path']  = $filePath;
         }
-//        if ($this->share_filter->is_shared && $this->share_filter->operator != $file['user_id']
-//            &&$this->share_filter->type == 0) {
-//            $path                           = $this->share_filter->slaves[$this->share_filter->operator];
-//            $index                          = strlen($this->share_filter->_shared_path);
-//            $filePath                       = substr_replace($filePath, $path, 0, $index);
-//            $index                          = strlen("/{$this->share_filter->operator}");
-//            $filePath                       = substr_replace($filePath,"",0, $index);
-//        } else {
-            $filePath  = CUtils::removeUserFromPath($filePath);
-//        }
+        $filePath  = CUtils::removeUserFromPath($filePath);
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
