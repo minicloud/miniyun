@@ -140,7 +140,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     if($paths){
                         array_splice($filePaths,0,0,$paths);
                     }
-
         }
         $filePaths = array_unique($filePaths);
         $files = MiniFile::getInstance()->getChildrenByFileID(
