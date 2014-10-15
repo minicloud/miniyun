@@ -231,4 +231,20 @@ class MiniUserGroupRelation extends MiniCache{
         }
         return $list;
     }
+    /**
+     * 根据userId获取部门
+     */
+    public function getDepartment($userId){
+        $relations = $this->getByUserId($userId);
+        if(empty($relations)){
+            return NULL;
+        }
+        foreach($relations as $relation){
+            $group = MiniGroup::getInstance()->getById($relation['group_id']);
+            if($group['user_id']==-1){
+                return $group;
+            }
+        }
+        return NULL;
+    }
 }

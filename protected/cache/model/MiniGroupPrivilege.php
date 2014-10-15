@@ -251,9 +251,16 @@ class MiniGroupPrivilege extends MiniCache
         MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
         return true;
     }
+
+    /**
+     * 寻找公共目录
+     * @return array
+     */
     public function getPublic(){
-       $criteria = new CDbCriteria();
-       $items = GroupPrivilege::model()->findAll($criteria);
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id";
+        $criteria->params = array("group_id" => -1);
+        $items = GroupPrivilege::model()->findAll($criteria);
         return ($this->db2list($items));
     }
     public function getByGroupId($groupId){
@@ -295,5 +302,16 @@ class MiniGroupPrivilege extends MiniCache
                 return $ids;
             }
         }
+    }
+    /**
+     * 根据path模糊查询
+     * return array
+     */
+    public function getByFilePath($filePath){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_path like :file_path";
+        $criteria->params = array(':file_path'=>$filePath.'/%');
+        $items = GroupPrivilege::model()->findAll($criteria);
+        return $this->db2list($items);
     }
 }
