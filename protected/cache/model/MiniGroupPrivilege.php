@@ -296,4 +296,15 @@ class MiniGroupPrivilege extends MiniCache
             }
         }
     }
+    /**
+     * 根据path模糊查询
+     * return array
+     */
+    public function getByFilePath($filePath){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_path like :file_path";
+        $criteria->params = array(':file_path'=>$filePath.'/%');
+        $items = GroupPrivilege::model()->findAll($criteria);
+        return $this->db2list($items);
+    }
 }

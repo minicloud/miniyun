@@ -593,5 +593,12 @@ class MiniUserPrivilege extends MiniCache
         MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
         return true;
     }
+    public function searchFilePath($filePath){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_path like :file_path";
+        $criteria->params = array(':file_path'=>$filePath.'/%');
+        $items = UserPrivilege::model()->findAll($criteria);
+        return ($this->db2list($items));
+    }
 
 }
