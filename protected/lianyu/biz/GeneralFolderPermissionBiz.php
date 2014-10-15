@@ -8,6 +8,7 @@
 class GeneralFolderPermissionBiz extends  MiniBiz{
     public $permission;
     public $isShared;
+    public $shareRootPath;
     public function __construct($path){
          if($this->isChildrenShared($path)||$this->isParentShared($path)){
              $this->isShared = true;
@@ -40,6 +41,7 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
                 $user     = MUserManager::getInstance()->getCurrentUser();
                 $userId =   $user['user_id'];
                 $this->permission = $this->getPermission($userId,$file['file_path']);
+                $this->shareRootPath = $file['file_path'];
                 return true;
             }
         }
