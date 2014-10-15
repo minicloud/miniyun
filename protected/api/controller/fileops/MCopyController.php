@@ -12,6 +12,8 @@ class MCopyController extends MApplicationComponent implements MIController{
 	
     public $_from_path        = null;
     public $_to_path          = null;
+    public $_from_shared_path   = null;
+    public $_to_shared_path      = null;
     public $_user_id          = null;
     public $_user_device_id   = null;
     public $_user_device_name = null;
@@ -20,7 +22,7 @@ class MCopyController extends MApplicationComponent implements MIController{
     public $result            = array('data'=>array());
     public $fromId            = 0;
     public $versions          = array();
-    public $owner             = NULL; // 所有者，默认owner为操作用户id
+    public $owner             = NULL; // 所有者，默认ow为操作用户id
     public $user_nick;
     /**
      * 
@@ -88,7 +90,9 @@ class MCopyController extends MApplicationComponent implements MIController{
         $root               = $params["root"];
         $this->_from_path   = $params["from_path"];
         $this->_to_path     = $params["to_path"];
-        
+        $this->_from_shared_path     = $params["from_shared_path"];
+        $this->_to_shared_path     = $params["to_shared_path"];
+
         //
         // 检查文件名是否有效
         //
@@ -139,9 +143,17 @@ class MCopyController extends MApplicationComponent implements MIController{
             $this->user_nick      = $this->to_share_filter->master_nick;
             $this->_to_path = $this->to_share_filter->_path;
         }
-        
-        $this->_from_path = "/".$this->master.$this->_from_path;
-        $this->_to_path   = "/".$this->_user_id.$this->_to_path;
+        if($this->_from_shared_path){
+            $this->_from_path =  $this->_from_shared_path;
+        }else{
+            $this->_from_path = "/".$this->master.$this->_from_path;
+        }
+        if($this->_to_shared_path){
+            $this->_to_path =  $this->_to_shared_path;
+        }else{
+            $this->_to_path   = "/".$this->_user_id.$this->_to_path;
+        }
+
         //
         // 检查目标路径是否在复制目录下
         //

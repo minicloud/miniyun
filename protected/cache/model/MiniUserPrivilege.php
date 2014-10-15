@@ -485,7 +485,6 @@ class MiniUserPrivilege extends MiniCache
 
                        }
                     }
-
                     if($permission==""){
                         $groupPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($departmentId,$parentPath);
                         if(empty($groupPrivilege)){
