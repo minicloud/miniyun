@@ -6,11 +6,13 @@
  * Time: 上午9:56
  */
 class GeneralFolderPermissionBiz extends  MiniBiz{
+    public $permission;
+    public $isShared;
     public function __construct($path){
          if($this->isChildrenShared($path)||$this->isParentShared($path)){
-             return true;
+             $this->isShared = true;
          }
-        return false;
+        $this->isShared =  false;
     }
     /**
      * 判断文件夹内是否有子文件被共享
@@ -35,9 +37,52 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
             $parentPath = $parentPath."/".$arr[$i];
             $file = MiniFile::getInstance()->getByFilePath($parentPath);
             if($file['file_type']==2){
+                $user     = MUserManager::getInstance()->getCurrentUser();
+                $userId =   $user['user_id'];
+                $this->permission = $this->getPermission($userId,$file['file_path']);
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 获的共享父目录的权限
+     */
+    public function getPermission($userId,$path){
+        $privilegeLength = 9;
+        $userPrivilege = MiniUserPrivilege::getInstance()->getSpecifyPrivilege($userId,$path);
+        if(empty($userPrivilege)){//如果不存在user_privilege，则向上查找group_privilege和department_privilege
+            $groupPrivilege = new GroupPermissionBiz($path,$userId);
+            $groupPermission = $groupPrivilege->permission2;
+            $departmentPrivilege = new DepartmentPermissionBiz();
+            $departmentPermission = $departmentPrivilege->getPermission($userId,$path);
+            if(empty($groupPermission)){
+                $permission = $departmentPermission;
+            }
+            if(empty($departmentPermission)){
+                $permission = $groupPermission;
+            }
+            if(!empty($groupPermission)&&!empty($departmentPermission)){
+                $permission = '';
+                $total = $groupPermission+$departmentPermission;
+                for($i=0;$i<$privilegeLength;$i++){
+                    $can = false;
+                    $value = substr($total,$i,1);
+                    if($value == '1'||$value == '2'){
+                        $can = true;
+                        break;
+                    }
+                }
+                if($can){
+                    $permission .='1';
+                }else{
+                    $permission .='0';
+                }
+            }
+        }else{
+            $permission = $userPrivilege['permission'];
+        }
+        return $permission;
     }
 }
