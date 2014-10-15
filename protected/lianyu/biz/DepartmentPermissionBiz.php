@@ -13,7 +13,7 @@ class DepartmentPermissionBiz  extends MiniBiz{
         $department = MiniUserGroupRelation::getInstance()->getDepartment($userId);
         $departmentPermission = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($department['group_id'],$path);
         if(empty($departmentPermission)){
-            $departmentPermission =  MiniGroupPrivilege::getInstance()->searchPermission($path,$department['group_id']);
+            $departmentPermission =  $this->searchPermission($path,$department['group_id']);
         }
         if(empty($departmentPermission)){
             return NULL;
