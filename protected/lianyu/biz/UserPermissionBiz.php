@@ -84,10 +84,10 @@ class UserPermissionBiz extends MiniBiz{
             $model = new PublicFolderPermissionBiz();
             $permission = $model->getPublicPermission($path);
             if((int)$masterId!=$userId){//非共享者本人操作此文件
-                return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
+                return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_public_folder"=>true,'can_set_share'=>0);
             }else{
                 $permission = '111111111';
-                return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
+                return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_public_folder"=>true,'can_set_share'=>0);
             }
         }
     }
