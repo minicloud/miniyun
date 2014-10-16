@@ -76,8 +76,7 @@ class UserPermissionBiz extends MiniBiz{
                     return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,'can_set_share'=>0);
                 }
             }else{//向上向下均没有共享
-                $permission = "111111111";
-                return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,'can_set_share'=>1);
+                return null;
             }
         }
         if($fileType==4){//公共目录情况
