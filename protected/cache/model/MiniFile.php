@@ -123,7 +123,7 @@ class MiniFile extends MiniCache{
      * 获得系统公共目录
      */
     public function getPublics(){
-        $items = UserFile::model()->findAll('file_type=:file_type ', array('file_type' => 16));
+        $items = UserFile::model()->findAll('file_type=:file_type ', array('file_type' => 4));
         return  $this->db2list($items);
     }
     public function getByFilePath($filePath){
