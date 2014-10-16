@@ -73,7 +73,7 @@ class UserPermissionBiz extends MiniBiz{
                 }
                 if($model->isChildrenShared($path)){
                     $permission = "111111111";
-                    return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,'can_set_share'=>0);
+                    return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,'children_shared'=>true,'can_set_share'=>0);
                 }
             }else{//向上向下均没有共享
                 return null;
