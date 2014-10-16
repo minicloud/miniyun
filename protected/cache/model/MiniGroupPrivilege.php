@@ -264,6 +264,15 @@ class MiniGroupPrivilege extends MiniCache
         return ($this->db2list($items));
     }
     /**
+     * 获取所有group记录
+     * @return array
+     */
+    public function getAllGroups(){
+        $criteria = new CDbCriteria();
+        $items = GroupPrivilege::model()->findAll($criteria);
+        return ($this->db2list($items));
+    }
+    /**
      * 寻找公共目录权限
      */
     public function getPublicPermission($path){
