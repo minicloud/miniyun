@@ -12,8 +12,9 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
     public function __construct($path){
          if($this->isChildrenShared($path)||$this->isParentShared($path)){
              $this->isShared = true;
+         }else{
+             $this->isShared =  false;
          }
-        $this->isShared =  false;
     }
     /**
      * 判断文件夹内是否有子文件被共享

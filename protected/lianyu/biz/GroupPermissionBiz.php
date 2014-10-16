@@ -6,7 +6,7 @@
  * Time: 上午9:14
  */
 class GroupPermissionBiz extends MiniBiz{
-    public $permission2;
+    public $authority;
     public function GroupPermissionBiz($path,$userId){
         $this->getPermission($path,$userId);
     }
@@ -44,13 +44,16 @@ class GroupPermissionBiz extends MiniBiz{
                     }
                 }
                 return
-                    $this->permission2 = array('success'=>true,'permission'=>$permission);
+                    $this->authority = $permission;
+//                        array('success'=>true,'permission'=>$permission);
             }else{
                 return
-                    $this->permission2 = array('success'=>false,'msg'=>'file is not shared by group');
+                    $this->authority = null;
+//                        array('success'=>false,'msg'=>'file is not shared by group');
             }
         }else{
-            $this->permission2 = array('success'=>false,'msg'=>'user is not in a group');
+            $this->authority = null;
+//                array('success'=>false,'msg'=>'user is not in a group');
         }
 //        return new MiniPermission();
     }

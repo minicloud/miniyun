@@ -25,11 +25,11 @@ class PublicFolderPermissionBiz extends MiniBiz{
             array_push($fileList,$file);
         }
         return $this->list = $fileList;
-        //先查询公共目录文件夹
-        //select * from miniyun_group_priveleges where user_id=-1;
-        //循环获得每一个path，根据path，获得MiniFile对象，同时组装权限数据
-        //miniFile["permission"] = group_priveleges.permission;
-        //miniFile["is_public_folder"] = true
-//        return List<MiniFile>()
+    }
+    /**
+     * 获取公共目录权限
+     */
+    public function getPublicPermission($path){
+        return $permission = MiniGroupPrivilege::getInstance()->getPublicPermission($path);
     }
 }
