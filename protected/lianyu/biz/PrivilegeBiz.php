@@ -170,4 +170,11 @@ class PrivilegeBiz  extends MiniBiz{
         return null;
     }
 
+    /**
+     * 用户对应某个文件的权限
+     * @param $sharedPath
+     */
+    public function getUserPermission($sharedPath){
+        $userId = $this->user['id'];
+    }
 }

@@ -62,4 +62,14 @@ class PrivilegeService extends MiniService
         $privilege = new PrivilegeBiz();
         return $privilege ->getSharedParentPath($sharedPath);
     }
+
+    /**
+     * 用户对应某个文件的权限
+     * @return mixed
+     */
+    public function getUserPermission(){
+        $sharedPath = MiniHttp::getParam('shared_path','');
+        $privilege = new PrivilegeBiz();
+        return $privilege ->getUserPermission($sharedPath);
+    }
 }

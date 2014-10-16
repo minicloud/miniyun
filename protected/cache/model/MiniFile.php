@@ -229,6 +229,21 @@ class MiniFile extends MiniCache{
         $items              = UserFile::model()->findAll($criteria);
         return  $this->db2list($items);
     }
+    /**
+     * 根据Parent_file_id获得该目录下的普通和公共目录
+     */
+    public  function getChildrenFolderByParentId($userId,$parentFileId,$isDeleted) {
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id and parent_file_id=:parent_file_id and is_deleted=:is_deleted and file_type = 1 or file_type = 4";
+        $criteria->params    = array(
+            "user_id"        => $userId,
+            "parent_file_id" => $parentFileId,
+            "is_deleted"     => $isDeleted,
+        );
+        $criteria->order    = "file_type desc, id desc";
+        $items              = UserFile::model()->findAll($criteria);
+        return  $this->db2list($items);
+    }
 
     /**
      * 根据Parent_file_id获得该目录下的所有子文件

@@ -136,4 +136,12 @@ class FileManageService extends MiniService{
         $model     = new FileManageBiz();
         return $model->setPrivilege($filePath,$privilege);
     }
+    /**
+     * 获取根目录下文件夹
+     */
+    public function getFolders(){
+        $biz = new FileManageBiz();
+        $data = $biz->getFolders();
+        return $data;
+    }
 }
