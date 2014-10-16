@@ -179,7 +179,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 array_push($contents, $content);
             }
         }
-        $response['content'] = $contents;
+        $response['contents'] = $contents;
         return $response;
     }
     

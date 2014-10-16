@@ -84,7 +84,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $path           = $this->share_filter->_path;
         }
         
-        $path               = "/".$this->_user_id.$path;
+//        $path               = "/".$this->_user_id.$path;
         // 查询其是否存在 信息
         $parentPath        = dirname($path);
         $file               = MiniFile::getInstance()->getByPath($path);
