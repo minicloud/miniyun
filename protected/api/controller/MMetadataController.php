@@ -39,9 +39,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if (isset($params["locale"])) {
             $this->locale  = $params["locale"];
         }
-
         $includeDeleted    = MUtils::convertToBool($includeDeleted);
-        
         $urlManager = new MUrlManager();
         $path = MUtils::convertStandardPath($urlManager->parsePathFromUrl($uri));
 
@@ -53,17 +51,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($path == "/"){
             $response = $this->handleRootPath($includeDeleted);
         }else{
-//            $isShared = false;
-//            $fileInfo = MiniFile::getInstance()->getByFilePath($path);
-//            if(!isset($fileInfo)){
-//                $isShared = true;
-//                $path               = $absolutePath;
-//            }
-            $response = $this->handleNotRootPath(
-                                                $path,
-                                                $includeDeleted,$isShared);
+            $response = $this->handleNotRootPath($path,$includeDeleted);
         }
-      echo json_encode($response) ;
+        echo json_encode($response) ;
     }
     private function getGroupIds($groupId,$ids){
         $group = MiniGroupRelation::getInstance()->getByGroupId($groupId);
@@ -81,7 +71,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
      */
     private  function  handleRootPath($includeDeleted)
     {
-
         $response                           = array();
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, 0);
         $response["bytes"]                  = 0;
@@ -99,57 +88,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($lastEvent && count($lastEvent) > 0) {
             $response["event"]              = $lastEvent[0]['id'];
         }
-        // 共享检查
         $contents = array();
         $user = MUserManager::getInstance()->getCurrentUser();
-        $userId = $this->userId;
-
-//        $userPrivileges = MiniUserPrivilege::getInstance()->getByUserId($userId);
-//        $filePaths = array();
-//        foreach($userPrivileges as $userPrivilege){
-//            array_push($filePaths,$userPrivilege['file_path']);
-//        }
-//        $groupPrivileges = MiniGroupPrivilege::getInstance()->getPublic();
-//        $groupIds = array();
-//        foreach($groupPrivileges as $groupPrivilege){
-//            array_push($groupIds,$groupPrivilege['group_id']);
-//        }
-//        $groupIdsArr = array();
-//        $userGroupRelations =MiniUserGroupRelation::getInstance()->findUserGroup($userId);
-//        if(isset($userGroupRelations)){
-//            foreach($userGroupRelations as $userRelation){
-//                $groupId = $userRelation['id'];
-//                $arr = array();
-//                array_push($arr,$groupId);
-//                $result = MiniGroup::getInstance()->findById($groupId);
-//                if($result['user_id']>0){
-//                    array_push($groupIdsArr,$groupId);
-//                }else{
-//                    $ids = $this->getGroupIds($groupId,$arr);
-//                }
-//            }
-//            array_splice($groupIdsArr,0,0,$ids);
-//                $commonGroupIds = array_intersect($groupIdsArr,$groupIds);
-//                foreach($commonGroupIds as $commonGroupId){
-//                    $groupInfos = MiniGroupPrivilege::getInstance()->getByGroupId($commonGroupId);
-//                        foreach($groupInfos as $groupInfo){
-//                            $paths[] = $groupInfo['file_path'];
-//                        }
-//                    }
-//                    if($paths){
-//                        array_splice($filePaths,0,0,$paths);
-//                    }
-//        }
-//      $filePaths = array_unique($filePaths);
-
         $publicFiles = MiniFile::getInstance()->getPublics();
         $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
         $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege();
-        $shareFiles = array();
-        $fileData   = array();
         $filePaths  = array();
-//        array_push($shareFiles,$groupShareFiles);
-//        array_push($shareFiles,$userShareFiles);
         $shareFiles = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
         $userFiles = MiniFile::getInstance()->getChildrenByFileID(
             $parentFileId=0,
@@ -189,34 +133,15 @@ class MMetadataController extends MApplicationComponent implements MIController{
         }
         $response["contents"] = $contents;
         return $response;
-        // 组装子文件数据
-//        foreach ($files as $file){
-//            $item = array();
-//            $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
-//            $mimeType = null;
-//            $signature = null;
-//            if ($version != NULL)
-//            {
-//                $mimeType = $version["mime_type"];
-//                $signature = $version["file_signature"];
-//            }
-//            $file["signature"] = $signature;
-//            $isShared = null;
-//            $item = $this->assembleResponse($item, $file, $mimeType,$isShared);
-//            array_push($contents, $item);
-//        }
     }
     
     /**
      * 处理非根目录下文件查询
      */
-    private function handleNotRootPath($path, $includeDeleted,$isShared)
+    private function handleNotRootPath($path, $includeDeleted)
     {
-        // 查询其是否存在 信息
+        // 查询其是否存在信息
         $currentFile = MiniFile::getInstance()->getByPath($path);
-//        if($isShared){
-//              $currentFile['file_type'] = 3;
-//        }
         if (empty($currentFile)){
             throw new MFileopsException(Yii::t('api','not existed'),MConst::HTTP_CODE_404);
         }
@@ -229,40 +154,31 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $mimeType = $version["mime_type"];
         }
         $response                   = array();
-
-        $response = $this->assembleResponse($response, $currentFile, $mimeType);
-        return $response;
-        //获取当前目录的权限
         $shareKeyPrivilege = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
         $response['share_key']=$shareKeyPrivilege['share_key'];
-        $response['privilege']=$shareKeyPrivilege['privilege'];
-        if ($currentFile["file_type"] != MConst::OBJECT_TYPE_FILE)
-        {
-            $user = MUserManager::getInstance()->getCurrentUser();
-            // 需要返回请求目录的这一层子文件
-            $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
-                $currentFile['id'],
-                $includeDeleted,
-                $user);
-            // 组装子文件数据
-            $contents = array();
-            $response["contents"] = $contents;
-            foreach ($childrenFiles as $file){
+        $response = $this->assembleResponse($response, $currentFile, $mimeType);
+        $user = MUserManager::getInstance()->getCurrentUser();
+        // 组装子文件数据
+        $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
+            $parentFileId=$currentFile['id'],
+            $includeDeleted,
+            $user,
+            $this->userId);
+        $contents = array();
+        if(!empty($childrenFiles)){
+            foreach($childrenFiles as $childrenFile){
                 $content = array();
-                $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
+                $version = MiniVersion::getInstance()->getVersion($childrenFile["version_id"]);
                 $mimeType = null;
                 if ($version != NULL){
                     $mimeType = $version["mime_type"];
                     $file["signature"] = $version["file_signature"];
                 }
-                if($isShared){
-                    $file['privilege'] = $response['privilege'];
-                }
-                $content = $this->assembleResponse($content, $file, $mimeType);
+                $content = $this->assembleResponse($content, $childrenFile, $mimeType);
                 array_push($contents, $content);
             }
-            $response["contents"] = $contents;
         }
+        $response['content'] = $contents;
         return $response;
     }
     
@@ -271,11 +187,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
      */
     private function assembleResponse($response, $file, $mimeType)
     {
-        $filePath                          = $file["file_path"];
-//        if($file['file_type'] == 3||$isShared){
-//            $response['shared_path']  = $filePath;
-//        }
-//        $filePath  = CUtils::removeUserFromPath($filePath);
+        $filePath                           = $file["file_path"];
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
@@ -290,12 +202,18 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["sort"]                   = (int)$file["sort"];
         //外链Key
         $response["share_key"]              = $file["share_key"];
-//        $response["privilege"]              = $file["privilege"];
         $response['is_dir'] = false;
         if($file['file_type'] != 0){
             $response['is_dir'] = true;
             $permissionModel = new UserPermissionBiz($filePath,$this->userId);
-            $response['share'] = $permissionModel->getPermission($filePath,$this->userId);
+            $permission = $permissionModel->getPermission($filePath,$this->userId);
+            if(!empty($permission)){
+                if(isset($permission['children_shared'])){
+                    $response['children_shared'] = true;
+                }else{
+                    $response['share'] = $permission;
+                }
+            }
         }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
             //支持类s3数据源的文件下载
@@ -315,11 +233,11 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if (!empty($mimeType)){
             $response["mime_type"]     = $mimeType;
         }
-//        if ($file["is_deleted"] == true){
-//            $response["is_deleted"]    = true;
-//        }
+        if ($file["is_deleted"] == true){
+            $response["is_deleted"]    = true;
+        }
         // 添加hook，修改meta值
-//        $response = apply_filters('meta_add', $response);
+        $response = apply_filters('meta_add', $response);
         return $response;
     }
 }
