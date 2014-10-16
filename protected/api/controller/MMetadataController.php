@@ -53,15 +53,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($path == "/"){
             $response = $this->handleRootPath($includeDeleted);
         }else{
-            $path               = "/{$this->userId}{$path}";
-            $isShared = false;
-            $fileInfo = MiniFile::getInstance()->getByFilePath($path);
-            if(!isset($fileInfo)){
-                $isShared = true;
-                $path               = $absolutePath;
-            }
-
-
+//            $isShared = false;
+//            $fileInfo = MiniFile::getInstance()->getByFilePath($path);
+//            if(!isset($fileInfo)){
+//                $isShared = true;
+//                $path               = $absolutePath;
+//            }
             $response = $this->handleNotRootPath(
                                                 $path,
                                                 $includeDeleted,$isShared);
@@ -166,8 +163,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
             return $response;
         }
         foreach($fileData as $file){
-            $filePaths[] = $file['file_path'];
+            $file = MiniFile::getInstance()->getByPath($file['file_path']);
+            if($file['parent_file_id'] == 0){
+                $filePaths[] = $file['file_path'];
+            }
         }
+
         $filePaths = array_unique($filePaths);
         // 组装子文件数据
         foreach($filePaths as $filePath){
@@ -213,17 +214,14 @@ class MMetadataController extends MApplicationComponent implements MIController{
     {
         // 查询其是否存在 信息
         $currentFile = MiniFile::getInstance()->getByPath($path);
-        if($isShared){
-              $currentFile['file_type'] = 3;
-        }
+//        if($isShared){
+//              $currentFile['file_type'] = 3;
+//        }
         if (empty($currentFile)){
             throw new MFileopsException(Yii::t('api','not existed'),MConst::HTTP_CODE_404);
-
         }
-
         //查询文件类型
         $version = MiniVersion::getInstance()->getVersion($currentFile["version_id"]);
-
         $mimeType = null;
         if ($version != NULL)
         {
@@ -231,7 +229,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $mimeType = $version["mime_type"];
         }
         $response                   = array();
-        $response = $this->assembleResponse($response, $currentFile, $mimeType,$isShared);
+
+        $response = $this->assembleResponse($response, $currentFile, $mimeType);
+        return $response;
         //获取当前目录的权限
         $shareKeyPrivilege = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
         $response['share_key']=$shareKeyPrivilege['share_key'];
