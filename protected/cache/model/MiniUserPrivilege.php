@@ -600,5 +600,14 @@ class MiniUserPrivilege extends MiniCache
         $items = UserPrivilege::model()->findAll($criteria);
         return ($this->db2list($items));
     }
+    /**
+     * 获取所有记录
+     * @return array
+     */
+    public function getAllUserPrivilege(){
+        $criteria = new CDbCriteria();
+        $items = UserPrivilege::model()->findAll($criteria);
+        return ($this->db2list($items));
+    }
 
 }
