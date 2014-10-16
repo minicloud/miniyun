@@ -108,11 +108,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         }
         foreach($fileData as $file){
             $file = MiniFile::getInstance()->getByPath($file['file_path']);
-            if($file['parent_file_id'] == 0){
-                $filePaths[] = $file['file_path'];
+            if(!empty($file)){
+                if($file['parent_file_id'] == 0){
+                    $filePaths[] = $file['file_path'];
+                }
             }
         }
-
         $filePaths = array_unique($filePaths);
         // 组装子文件数据
         foreach($filePaths as $filePath){
