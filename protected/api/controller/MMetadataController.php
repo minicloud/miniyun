@@ -109,7 +109,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         foreach($fileData as $file){
             $file = MiniFile::getInstance()->getByPath($file['file_path']);
             if(!empty($file)){
-                if($file['parent_file_id'] == 0){
+                if($file['parent_file_id'] == 0 && $file['is_deleted'] == 0){
                     $filePaths[] = $file['file_path'];
                 }
             }
@@ -178,7 +178,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     $file["signature"] = $version["file_signature"];
                 }
                 $content = $this->assembleResponse($content, $childrenFile, $mimeType);
-                if(!empty($item)){
+                if(!empty($item) && $childrenFile['is_deleted'] == 0){
                     array_push($contents, $content);
                 }
             }
