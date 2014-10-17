@@ -70,10 +70,6 @@ class PrivilegeBiz  extends MiniBiz{
      * @return bool
      */
     public function save($filePath,$slaves){
-//        var_dump($slaves);exit;
-        $userId = $this->user['id'];
-        //获得绝对路径
-        $filePath = MiniUtil::getAbsolutePath($userId,$filePath);
         //delete privilege
         $oldGroupPrivileges = MiniGroupPrivilege::getInstance()->getPrivilegeList($filePath);
         $oldUserPrivileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
