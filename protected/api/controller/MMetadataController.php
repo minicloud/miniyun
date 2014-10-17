@@ -130,7 +130,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $file["signature"] = $signature;
             $isShared = null;
             $item = $this->assembleResponse($item, $file, $mimeType,$isShared);
-            array_push($contents, $item);
+            if(!empty($item)){
+                array_push($contents, $item);
+            }
         }
         $response["contents"] = $contents;
         return $response;
@@ -176,7 +178,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     $file["signature"] = $version["file_signature"];
                 }
                 $content = $this->assembleResponse($content, $childrenFile, $mimeType);
-                array_push($contents, $content);
+                if(!empty($item)){
+                    array_push($contents, $content);
+                }
             }
         }
         $response['contents'] = $contents;
@@ -214,6 +218,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 }else{
                     $response['share'] = $permission;
                 }
+            }else{
+                return null;
             }
         }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
