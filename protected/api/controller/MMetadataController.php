@@ -102,7 +102,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $this->userId);
         $fileData = array_merge($shareFiles,$userFiles);
         //如果没有文件记录
-        if (empty($publicFiles) && empty($shareFiles)){
+        if (empty($publicFiles) && empty($shareFiles) && empty($userFiles)){
             $response["contents"] = $contents;
             return $response;
         }
