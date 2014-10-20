@@ -52,11 +52,14 @@ class UserPermissionBiz extends MiniBiz{
                             $permission .='0';
                         }
                     }
+                    if(empty($groupPermission)&&empty($departmentPermission)){
+                        $permission = null;
+                    }
                 }else{
                     $permission = $userPrivilege['permission'];
                 }
                 if($permission==null){
-                    return $this->authority = null;
+                    return $this->authority = array('permission'=>$permission);
                 }
                 return $this->authority = array("permission"=>$permission,"share_root_path"=>$path,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
             }
