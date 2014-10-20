@@ -23,6 +23,7 @@ implements MIController
     public $versions = array();
     public $isSingle = true; // 移动用户 or 用户组
     public $isEcho   = true; // 输出返回
+    public $isRename = false;
     /**
      * 控制器执行主逻辑函数, 处理移动文件或者文件夹
      *
@@ -47,7 +48,6 @@ implements MIController
         $user_nick                   = $user["user_name"];
         $user_device_id              = $device["device_id"];
         $this->_user_device_name     = $device["user_device_name"];
-
         // 文件大小格式化参数
         $this->_locale = "bytes";
         if (isset($params["locale"])) {
@@ -63,7 +63,11 @@ implements MIController
         $this->_root        = $params["root"];
         $from_path          = $params["from_path"];
         $to_path            = $params["to_path"];
-
+        $file                        = MiniFile::getInstance()->getByPath($from_path);
+        $isSelfFile = false;
+        if(!empty($file) && ($file['user_id'] == $this->_userId)){
+            $isSelfFile = true;
+        }
         // 转换路径分隔符，便于以后跨平台，如：将 "\"=>"/"
         $from_path = MUtils::convertStandardPath($from_path);
         $to_path   = MUtils::convertStandardPath($to_path);
@@ -76,79 +80,73 @@ implements MIController
         }
         
         // 检查共享
-        $from_share_filter       = MSharesFilter::init();
-        $this->to_share_filter   = MSharesFilter::init();
+//        $from_share_filter       = MSharesFilter::init();
+//        $this->to_share_filter   = MSharesFilter::init();
         // 当从共享目录拷贝到其他目录时，源目录用户id设置为共享用户id
-        $from_share_filter->handlerCheck($this->_userId, $from_path);
-        
+//        $from_share_filter->handlerCheck($this->_userId, $from_path);
         // 当拷贝到共享目录的时候，目标目录的用户id设置为共享用户id
-        $this->to_share_filter->handlerCheck($this->_userId, $to_path);
+//        $this->to_share_filter->handlerCheck($this->_userId, $to_path);
         
         $to_parts   = explode('/', $to_path);
         $from_parts = explode('/', $from_path);
+        $isSharedPath = true;
         $this->rename = false;
-        if ($from_share_filter->_is_shared_path && count($to_parts) == count($from_parts)) {
-            if ($this->to_share_filter->is_shared) {
-                throw new MFileopsException(
-                Yii::t('api','The file or folder name is invalid'),
-                MConst::HTTP_CODE_403);
-            }
-            $this->rename = true;
-            $this->setAction(MConst::RENAME);
-            $from_share_filter->_path = $from_share_filter->src_path;
-            $this->to_share_filter->_path = $this->to_share_filter->src_path;
+        if ($isSharedPath && count($to_parts) == count($from_parts)) {
+//            if ($this->to_share_filter->is_shared) {
+//                throw new MFileopsException(
+//                Yii::t('api','The file or folder name is invalid'),
+//                MConst::HTTP_CODE_403);
+//            }
+//            $this->rename = true;
+//            $this->setAction(MConst::RENAME);
+//            $from_share_filter->_path = $from_share_filter->src_path;
+//            $this->to_share_filter->_path = $this->to_share_filter->src_path;
             // 重命名添加hook,引用$this
-            apply_filters('move_additions', array('object'=> &$this, 'filter'=>$from_share_filter));
+//            apply_filters('move_additions', array('object'=> &$this, 'filter'=>$from_share_filter));
         } else {
-            if ($from_share_filter->is_shared) {
-            $this->master = $from_share_filter->master;}
-            if ($this->to_share_filter->is_shared) {
-                $this->_userId = $this->to_share_filter->master;
-                $user_nick     = $this->to_share_filter->master_nick;
-            }
+//            if ($from_share_filter->is_shared) {
+//            $this->master = $from_share_filter->master;}
+//            if ($this->to_share_filter->is_shared) {
+//                $this->_userId = $this->to_share_filter->master;
+//                $user_nick     = $this->to_share_filter->master_nick;
+//            }
         }
-        
         // 检查移动方式
-        if ($this->rename == false && $from_share_filter->handlerCheckMove($from_share_filter->master, 
-                                                 $this->to_share_filter->master, 
-                                                 $from_path, 
-                                                 $to_path,
-                                                 $this->to_share_filter->is_shared)) {
-            
+        if ($this->rename == true) {
             $file_name = MUtils::get_basename($to_path);
-            $from_path = "/".$this->master.$from_share_filter->_path;
-            $to_path   = "/".$this->_userId.$this->to_share_filter->_path;
-            $from_file = $query_db_file = MFiles::queryFilesByPath($from_path);
+//            $from_path = "/".$this->master.$from_share_filter->_path;
+//            $to_path   = "/".$this->_userId.$this->to_share_filter->_path;
+//            $from_file = $query_db_file = MFiles::queryFilesByPath($from_path);
+//            $data = array("obj"=>$this, "scene"=>self::$scene, "from_share_filter"=>$from_share_filter, "query_db_file"=>$query_db_file[0], "to_share_filter"=>$this->to_share_filter);
 
-            $data = array("obj"=>$this, "scene"=>self::$scene, "from_share_filter"=>$from_share_filter, "query_db_file"=>$query_db_file[0], "to_share_filter"=>$this->to_share_filter);
             //进行移动之前的检测
-            do_action("before_move_check", $data);
+//            do_action("before_move_check", $data);
 
-            $isBeShareMove = false;
-            if ($from_file[0]["file_type"] == MConst::OBJECT_TYPE_SHARED && $from_share_filter->operator != $from_share_filter->master){
-                $isBeShareMove = true;
-            }
+//            $isBeShareMove = false;
+//            if ($from_file[0]["file_type"] == MConst::OBJECT_TYPE_SHARED && $from_share_filter->operator != $from_share_filter->master){
+//                $isBeShareMove = true;
+//            }
 
             //权限判断
             //当属于共享目录时才进行权限控制(原路径)
             //如果是共享模式下的被共享者进行目录的移动则不进行权限的判断
-            if ($from_share_filter->is_shared && !$isBeShareMove){
-                if ($from_file[0]["file_type"] == 0){  //移动文件
-                    $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_DELETE, Yii::t("api_message", "move.file"));
-                } else {                                   //移动文件夹
-                    $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_DELETE, Yii::t("api_message", "move.folder"));
-                }
-            }
+//            if ($from_share_filter->is_shared && !$isBeShareMove){
+//                if ($from_file[0]["file_type"] == 0){  //移动文件
+//                    $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_DELETE, Yii::t("api_message", "move.file"));
+//                } else {                                   //移动文件夹
+//                    $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_DELETE, Yii::t("api_message", "move.folder"));
+//                }
+//            }
 
             //共享外移动到共享内(目标路径)
-            if ($this->to_share_filter->is_shared){
-                //移动等情况 （目标路径的创建权限）  的判断
-                if ($from_file[0]["file_type"] == 0){  //文件
-                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FILE_CREATE, Yii::t("api_message", "move.to.folder"));
-                } else {                                        //文件夹
-                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FOLDER_CREATE, Yii::t("api_message", "move.to.folder"));
-                }
-            }
+//            if ($this->to_share_filter->is_shared){
+//                //移动等情况 （目标路径的创建权限）  的判断
+//                if ($from_file[0]["file_type"] == 0){  //文件
+//                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FILE_CREATE, Yii::t("api_message", "move.to.folder"));
+//                } else {                                        //文件夹
+//                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FOLDER_CREATE, Yii::t("api_message", "move.to.folder"));
+//                }
+//            }
 
             // 先copy再删除,如果是移动共享文件夹则只copy，再执行shareManager取消共享
             $copy_handler = new MCopyController();
@@ -161,16 +159,16 @@ implements MIController
             $delete_handler->invoke();
             if (MUserManager::getInstance()->isWeb() === true)
             {
-                $this->buildWebResponse();
+                $this->buildWebResponse();exit;
                 return ;
             }
             echo json_encode($response);
             return ;
         }
-        
+
         $file_name = MUtils::get_basename($to_path);
-        $from_path = "/".$this->master.$from_share_filter->_path;
-        $to_path   = "/".$this->_userId.$this->to_share_filter->_path;
+//        $from_path = "/".$this->master.$from_share_filter->_path;
+//        $to_path   = "/".$this->_userId.$this->to_share_filter->_path;
         // 检查文件名是否有效
         $is_invalid = MUtils::checkNameInvalid($file_name);
         if ($is_invalid)
@@ -192,11 +190,54 @@ implements MIController
             Yii::t('api','Can not be moved to the error directory'),
             MConst::HTTP_CODE_403);
         }
-        
         $from_parent = CUtils::pathinfo_utf($from_path);
         $to_parent   = CUtils::pathinfo_utf($to_path);
+        $fromPermission = new UserPermissionBiz($from_path,$this->_userId);
+        if(!(count($to_parts)==3)){
+            $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
+            $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
+            if(empty($toPrivilege)){
+                $toPrivilege['permission'] = '111111111';
+            }
+            $toFilter      = new MiniPermission($toPrivilege['permission']);
+        }else{
+            $toFilter      = new MiniPermission('111111111');
+        }
+        $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
+        if(empty($fromPrivilege)){
+            $fromPrivilege['permission'] = '111111111';
+        }
+        $fromFilter    = new MiniPermission($fromPrivilege['permission']);
         if ($to_parent['dirname'] == $from_parent['dirname']) {
             $this->setAction(MConst::RENAME);
+            $this->isRename = true;
+            $canRenameFile = $fromFilter->canModifyFileName();
+            $canRenameFolder = $fromFilter->canModifyFolderName();
+            $canRenameFile2 = $toFilter->canModifyFileName();
+            $canRenameFolder2 = $toFilter->canModifyFolderName();
+            if((!$canRenameFile || !$canRenameFolder) && !$isSelfFile){
+                throw new MFileopsException(
+                    Yii::t('api','have no permission to rename file'),
+                    MConst::HTTP_CODE_404);
+            }
+            if((!$canRenameFile2 || !$canRenameFolder2) && !$isSelfFile){
+                throw new MFileopsException(
+                    Yii::t('api','have no permission to rename file'),
+                    MConst::HTTP_CODE_404);
+            }
+        }else{
+            $canModifyFile = $fromFilter->canModifyFile();
+            $canModifyFile2 = $toFilter->canModifyFile();
+            if(!$canModifyFile && !$isSelfFile){
+                throw new MFileopsException(
+                    Yii::t('api','have no permission to move file'),
+                    MConst::HTTP_CODE_404);
+            }
+            if(!$canModifyFile2 && !$isSelfFile){
+                throw new MFileopsException(
+                    Yii::t('api','have no permission to move file'),
+                    MConst::HTTP_CODE_404);
+            }
         }
         // 先检查源目录是否存在，如果不存在抛出404错误
         //
@@ -231,54 +272,54 @@ implements MIController
             }
             
         }
-
-        $data = array("obj"=>$this, "scene"=>self::$scene, "from_share_filter"=>$from_share_filter, "query_db_file"=>$query_db_file[0], "to_share_filter"=>$this->to_share_filter);
+//        $data = array("obj"=>$this, "scene"=>self::$scene, "from_share_filter"=>$from_share_filter, "query_db_file"=>$query_db_file[0], "to_share_filter"=>$this->to_share_filter);
         //进行移动之前的检测
-        do_action("before_move_check", $data);
+//        do_action("before_move_check", $data);
 
         //权限判断
-        $isRename = false;
+//        $isRename = false;
         //当属于共享目录时才进行权限控制(原路径)
-        if ($from_share_filter->is_shared){
-            //如果是对被共享则进行操作则不进行权限判断
-            if ($query_db_file[0]["file_type"] != MConst::OBJECT_TYPE_BESHARED){
+//        if ($from_share_filter->is_shared){
+//            如果是对被共享则进行操作则不进行权限判断
+//            if ($query_db_file[0]["file_type"] != MConst::OBJECT_TYPE_BESHARED){
                 //判断文件重命名是否有权限操作
-                if (self::$scene == MConst::RENAME){  //如果是重命名则只进行（源路径的重命名权限）判断
-                    $isRename = true;
-                    if ($query_db_file[0]["file_type"] == 0){  //重命名文件
-                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_RENAME);
-                    } else {                                   //重命名文件夹
-                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_RENAME);
-                    }
-                } else { //移动等情况，需要进行（原路径的删除权限）   的判断
-                    if ($query_db_file[0]["file_type"] == 0){  //重命名文件
-                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_DELETE, Yii::t("api_message", "move.file"));
-                    } else {                                   //重命名文件夹
-                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_DELETE, Yii::t("api_message", "move.folder"));
-                    }
-                }
-            } else {
-                if (self::$scene == MConst::RENAME){
-                    $isRename = true;
-                }
-            }
-        }
+//                if (self::$scene == MConst::RENAME){  //如果是重命名则只进行（源路径的重命名权限）判断
+//                    $isRename = true;
+//                    if ($query_db_file[0]["file_type"] == 0){  //重命名文件
+//                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_RENAME);
+//                    } else {                                   //重命名文件夹
+//                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_RENAME);
+//                    }
+//                } else { //移动等情况，需要进行（原路径的删除权限）   的判断
+//                    if ($query_db_file[0]["file_type"] == 0){  //重命名文件
+//                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FILE_DELETE, Yii::t("api_message", "move.file"));
+//                    } else {                                   //重命名文件夹
+//                        $from_share_filter->hasPermissionExecute($from_path, MPrivilege::FOLDER_DELETE, Yii::t("api_message", "move.folder"));
+//                    }
+//                }
+//            } else {
+//                if (self::$scene == MConst::RENAME){
+//                    $isRename = true;
+//                }
+//            }
+//        }
 
         //共享外移动到共享内(目标路径)
-        if (!$isRename){
-            if ($this->to_share_filter->is_shared){
-                //移动等情况 （目标路径的创建权限）  的判断
-                if ($query_db_file[0]["file_type"] == 0){  //重命名文件
-                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FILE_CREATE, Yii::t("api_message", "move.to.folder"));
-                } else {                                        //重命名文件夹
-                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FOLDER_CREATE, Yii::t("api_message", "move.to.folder"));
-                }
-            }
-        }
+//        if (!$isRename){
+//            if ($this->to_share_filter->is_shared){
+//                //移动等情况 （目标路径的创建权限）  的判断
+//                if ($query_db_file[0]["file_type"] == 0){  //重命名文件
+//                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FILE_CREATE, Yii::t("api_message", "move.to.folder"));
+//                } else {                                        //重命名文件夹
+//                    $this->to_share_filter->hasPermissionExecute($to_path, MPrivilege::FOLDER_CREATE, Yii::t("api_message", "move.to.folder"));
+//                }
+//            }
+//        }
         
         //
         // 查询其信息
         //
+
         $query_db_file = MFiles::queryFilesByPath($from_path);
         if ($query_db_file === false || empty($query_db_file))
         {
@@ -316,11 +357,11 @@ implements MIController
         $file_detail->user_id           = $this->_userId;
         $file_detail->mime_type         = NULL;
         $create_array = array();
+
         //
         // 判断操作的是文件夹，还是文件
         //
-        if ($file_detail->file_type > MConst::OBJECT_TYPE_FILE)
-        {
+        if ($file_detail->file_type > MConst::OBJECT_TYPE_FILE){
             //
             // 文件夹，将会对其子文件做进一步处理
             //
@@ -342,9 +383,7 @@ implements MIController
             $query_db_file[0]["id"],
             $this->_user_device_name,
             $query_db_file[0]["file_size"]);
-        }
-        else
-        {
+        }else{
             $file_detail->mime_type = CUtils::mime_content_type($file_name);
             $file_meta              = new MFileMetas();
             $file_meta->version_id  = $query_db_file[0]["version_id"];
@@ -352,8 +391,7 @@ implements MIController
             // 查询之前是否包含其版本
             //
             $file_version = MFileMetas::queryFileMeta($to_path, MConst::VERSION);
-            if ($file_version)
-            {
+            if ($file_version){
                 $meta_value = MUtils::getFileVersions(
                     $this->_user_device_name,
                     $query_db_file[0]['file_size'],
@@ -364,9 +402,7 @@ implements MIController
                     $file_version[0]["meta_value"]
                 );
                 $file_meta->is_add      = false;
-            }
-            else
-            {
+            }else{
                 $meta_value = MUtils::getFileVersions(
                     $this->_user_device_name,
                     $query_db_file[0]['file_size'],
@@ -385,16 +421,21 @@ implements MIController
             //
             array_push($this->versions, $file_meta->version_id);
         }
+        if($this->isRename && ($file['file_type'] == 2)){
+            MiniUserPrivilege::getInstance()->updateByPath($from_path,$to_path);
+            MiniGroupPrivilege::getInstance()->updateByPath($from_path,$to_path);
+        }
         //
         // 创建版本信息
         //
         $ret = MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
-        if ($ret === false)
-        {
-            throw new MFileopsException(
-            Yii::t('api','Internal Server Error'),
-            MConst::HTTP_CODE_500);
-        }
+//        if ($ret === false)
+//        {
+//            throw new MFileopsException(
+//            Yii::t('api','Internal Server Error'),
+//            MConst::HTTP_CODE_500);
+//        }
+
         //
         // 更新版本
         //
@@ -454,11 +495,11 @@ implements MIController
             MFiles::updateParentId($deleted, $file_detail->id);
         }
         
-        if ($this->rename) {  // 共享目录本身重命名
-            $this->to_share_filter->handlerRenameShared($file_detail->from_path, $file_detail->file_path);
-        } else {
-            $this->to_share_filter->handlerAction($event_action, $user_device_id, $file_detail->from_path,$file_detail->file_path);
-        }
+//        if ($this->rename) {  // 共享目录本身重命名
+//            $this->to_share_filter->handlerRenameShared($file_detail->from_path, $file_detail->file_path);
+//        } else {
+//            $this->to_share_filter->handlerAction($event_action, $user_device_id, $file_detail->from_path,$file_detail->file_path);
+//        }
         
         //进行扩展操作
         $this->extend($from_path, $to_path);
@@ -466,13 +507,12 @@ implements MIController
         //执行完删除操作后执行的额外事物
         $after = new MMoveAfter();
         $after->action            = self::$scene;
-        $after->from_share_filter = $from_share_filter;
+//        $after->from_share_filter = $from_share_filter;
         $after->to_share_filter   = $this->to_share_filter;
         $after->from_path         = $from_path;
         $after->to_path           = $to_path;
         $after->file_detail       = $file_detail;
         $after->execute();
-        
         $this->buildResult($query_db_file[0], $to_path);
     }
     

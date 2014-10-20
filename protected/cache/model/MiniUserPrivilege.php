@@ -89,6 +89,24 @@ class MiniUserPrivilege extends MiniCache
         $criteria["permission"] = $permission;
         $criteria->save();
     }
+    public function updateByPath($oldPath,$newPath){
+        $privilege = $this->getByPath($oldPath);
+        if(empty($privilege)){
+           return null;
+        }
+        $permission = UserPrivilege::model()->findByPk($privilege['id']);
+        $permission['file_path'] = $newPath;
+        $permission->save();
+    }
+    public function getByPath($path){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_path=:file_path";
+        $criteria->params = array(
+            "file_path" => $path
+        );
+        $item = UserPrivilege::model()->find($criteria);
+        return $this->db2Item($item);
+    }
     public function getByUserId($userId){
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id";
