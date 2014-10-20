@@ -208,9 +208,23 @@ class MDeleteController extends MApplicationComponent implements MIController
         }
         
         //
-        // 删除共享目录
+        // 删除共享目录(删除共享目录，对应的权限也一起删除)
         //
-        if ($filter !== true && $share_filter->_is_shared_path 
+        //首先判断用户有无删除权限
+        $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
+//        var_dump($authority);exit;
+
+        $userPrivilegeList = MiniUserPrivilege::getInstance()->getPrivilegeList($file_detail->file_path);
+        $groupPrivilegeList = MiniGroupPrivilege::getInstance()->getPrivilegeList($file_detail->file_path);
+        if(!empty($userPrivilegeList)){
+            MiniUserPrivilege::getInstance()->deleteByFilePath($file_detail->file_path);
+        }
+        if(!empty($groupPrivilegeList)){
+            MiniGroupPrivilege::getInstance()->deleteByFilePath($file_detail->file_path);
+        }
+        //并且将file_type改为1
+        MiniFile::getInstance()->togetherShareFile($file_detail->file_path,Mconst::OBJECT_TYPE_DIRECTORY);
+        if ($filter !== true && $share_filter->_is_shared_path
             && $share_filter->operator == $share_filter->master) {
             $file = MFiles::queryFilesByPath("/".$share_filter->operator . $path, true);
             if (!$file) {
@@ -229,7 +243,7 @@ class MDeleteController extends MApplicationComponent implements MIController
                                         Yii::t('api','Internal Server Error'),
                                         MConst::HTTP_CODE_500);
             }
-            
+
         }
         // 如果彻底删除，则调用回收站
         if ($this->completely_remove) {
