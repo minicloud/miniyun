@@ -119,7 +119,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         $file_name   = MUtils::get_basename($path);
         $file_detail = new MFiles();
         $file_detail->file_name               = $file_name;
-        $file_detail->file_path               = "/".$this->_user_id.$path;
+        $file_detail->file_path               = $path;
         //
         // 查询其目录信息,是否存在
         //

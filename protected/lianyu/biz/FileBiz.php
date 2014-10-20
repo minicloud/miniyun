@@ -23,7 +23,7 @@ class FileBiz  extends MiniBiz{
     /**
      * 目录打包下载
      */
-    public function downloadToPackage($paths,$realPath){
+    public function downloadToPackage($paths){
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
         $limit = new DownloadPackageLimit();
@@ -31,17 +31,11 @@ class FileBiz  extends MiniBiz{
         $limitSize  = $limit->getLimitSize();
         $code = '';
         $fileNames = array();
-
-        if($realPath != 'undefined'){
-            $realPathArr = explode('/',$realPath);
-            $userId = $realPathArr[1];
-        }else{
-            $userId   = $this->user['id'];
-        }
+        $user = $this->user;
+        $userId = $user['user_id'];
         $paths = explode(',',$paths);
         foreach($paths as $path){
-            $absolutePath = MiniUtil::getAbsolutePath($userId,$path);
-            $file = MiniFile::getInstance()->getByPath($absolutePath);
+            $file = MiniFile::getInstance()->getByPath($path);
             if (empty($file)){
                 echo  Yii::t('i18n','error_path');
                 Yii::app()->end();
@@ -265,16 +259,16 @@ class FileBiz  extends MiniBiz{
      */
     public function upload($path){
         //下面的方式将取得共享目录下的原始路径，如在自己目录下，会返回当前用户目录
-        $share = new MiniShare();
-        $minFileMeta = $share->getMinFileMetaByPath($path);
+//        $share = new MiniShare();
+//        $minFileMeta = $share->getMinFileMetaByPath($path);
         //表示没有权限
-        if($minFileMeta===NULL){
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
-            return;
-        }
-        $filePath = $minFileMeta["ori_path"];
+//        if($minFileMeta===NULL){
+//            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+//            return;
+//        }
+//        $filePath = $minFileMeta["ori_path"];
         $fileHandler = new MFilePostController();
-        $uri  = '/files/miniyun' . MiniUtil::getRelativePath($filePath);
+        $uri  = '/files/miniyun' . $path;
         $fileHandler->invoke($uri);
     }
 
