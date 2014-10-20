@@ -163,9 +163,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         // 组装子文件数据
         $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
             $parentFileId=$currentFile['id'],
-            $includeDeleted,
-            $user,
-            $this->userId);
+            $includeDeleted);
         $contents = array();
         if(!empty($childrenFiles)){
             foreach($childrenFiles as $childrenFile){
