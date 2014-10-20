@@ -128,11 +128,10 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 $signature = $version["file_signature"];
             }
             $file["signature"] = $signature;
-            $isShared = null;
-            $item = $this->assembleResponse($item, $file, $mimeType,$isShared);
-            if(!empty($item)){
+            $item = $this->assembleResponse($item, $file, $mimeType);
+//            if(!empty($item)){
                 array_push($contents, $item);
-            }
+//            }
         }
         $response["contents"] = $contents;
         return $response;
