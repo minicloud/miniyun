@@ -13,7 +13,6 @@ class PrivilegeBiz  extends MiniBiz{
      */
     public function getPrivilegeList($filePath){
         //获得绝对路径
-        $filePath = MiniUtil::getAbsolutePath($this->user["id"],$filePath);
         $privileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
         $groupPrivileges = MiniGroupPrivilege::getInstance()->getPrivilegeList($filePath);
         $data = array();
