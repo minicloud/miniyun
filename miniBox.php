@@ -86,32 +86,6 @@ class OldVersion{
         $webApp->run();
     }
 }
-
-/**
- * 对来自PC Client的URL进行签名验证并初始化Cookie
- * Class ClientUrl
- */
-class PCClientUrl{
-    public function initCookie(){
-        //如果url地址有了access_token与sign参数，则表示是PC Client的URL地址
-        if(array_key_exists("access_token",$_REQUEST) && array_key_exists("sign",$_REQUEST)){
-            $requestUri   = Util::getRequestUri();
-            $accessToken = $_REQUEST["access_token"];
-            $clientID = "d6n6Hy8CtSFEVqNh";
-            $clientSecret = "e6yvZuKEBZQe9TdA";
-            $info = explode("?",$requestUri);
-            $oriUrl = "/".$info[0]."?access_token=".$accessToken."&client_id=".$clientID."&client_secret=".$clientSecret;
-            //如果签名信息一致，则可初始化Cookie
-            if(md5($oriUrl)===$_REQUEST["sign"]){
-                setcookie("accessToken", $accessToken,0,"/");
-                setcookie("siteId", MiniSiteUtils::getSiteID(),0,"/");
-                setcookie("appKey", $clientID,0,"/");
-                setcookie("appSecret", $clientSecret,0,"/");
-            }
-
-        }
-    }
-}
 class Util{
     /**
      * 获得迷你云Host
@@ -211,6 +185,16 @@ class Util{
         return -1;
     }
     /**
+     * 判断是否是PC客户端
+     */
+    public static function isPCClient(){
+        $pos = strpos($_SERVER["HTTP_USER_AGENT"],"miniClient");
+        if($pos){
+            return true;
+        }
+        return false;
+    }
+    /**
      * 判断是否是Chrome浏览器
      * @return bool
      */
@@ -239,7 +223,9 @@ class Util{
         return $host."static/".$mainPath."/i18n/".$language."/".$appName.".js?v=".$version;
     }
 }
+
 class SiteAppInfo{
+
     private $user;
     public function  SiteAppInfo(){
 
@@ -260,11 +246,6 @@ class SiteAppInfo{
         $app = new SiteService();
         return $app->onlyDefaultAccount();
     }
-
-    public function getCode(){
-            $data= MiniOption::getInstance()->getOptionValue("code");
-            return $data;
-        }
     /**
      * 获得当前用户
      * @return array|null
@@ -275,7 +256,6 @@ class SiteAppInfo{
         }
         $user     = MUserManager::getInstance()->getCurrentUser();
         if(!empty($user)){
-
             $user = MiniUser::getInstance()->getUser($user["id"]);
             $data = array();
             $data['user_uuid']         = $user["user_uuid"];
@@ -287,7 +267,11 @@ class SiteAppInfo{
             $data['phone']             = $user["phone"];
             $data['avatar']            = $user["avatar"];
             $data['is_admin']          = $user["is_admin"];
-            $data['code']              = MiniOption::getInstance()->getOptionValue("code");
+            $code = MiniOption::getInstance()->getOptionValue("code");
+            if(empty($code)){
+                $code = "";
+            }
+            $data['code']              = $code;
             $this->user = $data;
             return $data;
         }
@@ -340,11 +324,6 @@ class MiniBox{
      */
     private $isWeb = true;
     private $appInfo;
-    /**
-     * 是否是PC客户端
-     * @var
-     */
-    private $isPC = false;
 
     /**
      *
@@ -366,20 +345,10 @@ class MiniBox{
         MiniAppParam::getInstance()->load();
         MiniPlugin::getInstance()->load();
 
-        //对来自PC Client的URL请求进行Cookie初始化
-        $clientUrl = new PCClientUrl();
-        $clientUrl->initCookie();
         //根据物理路径判断网页客户端本地是否存在
         $this->offline = $this->isOffline();
         //根据外部的参数判断是什么客户端
-        $clientType = strtolower(Util::getParam("client_type"));
-        if(empty($clientType)){
-            $this->isWeb = true;
-            $this->isPC = false;
-        }elseif($clientType==="pc"){
-            $this->isWeb = false;
-            $this->isPC = true;
-        }
+        $this->isWeb = !Util::isPCClient();
         $port = $_SERVER["SERVER_PORT"];
         if($port=="443"){
             $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
@@ -435,13 +404,6 @@ class MiniBox{
      * @param $url
      */
     private function redirectUrl($url){
-        //如果是PC客户端请求，把后面加上client_type=pc
-        if($this->isPC){
-            if(strpos($url,"?")){
-                $url .= "&client_type=pc";
-            }
-            $url .= "?client_type=pc";
-        }
         header('Location: '.$url);
         exit;
     }
@@ -495,11 +457,18 @@ class MiniBox{
             //兼容老版本逻辑
             $oldVersion = new OldVersion($this->offline);
             $oldVersion->load($this->webApp);
+        }else{
+            $accessToken = Util::getParam("accessToken");
+            if(!empty($accessToken)){
+                setcookie("accessToken",$accessToken,time()+10*24*3600,"/");
+            }
         }
 
         $this->appInfo = new SiteAppInfo();
-
-        $this->syncNewVersion();
+        //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
+        if($this->isWeb){
+            $this->syncNewVersion();
+        }
         //默认业务主路径
         $this->cloudFolderName = "mini-box";
 
@@ -509,19 +478,20 @@ class MiniBox{
         }
         $this->language = $language;
         $v = $this->getCookie("cloudVersion");
-        if(empty($v)){
-            $v = "1.0";
+        if (empty($v)) {
+            //这里为空，只有一种情况就是PC客户端第一次访问的时候，由于没有进行syncNewVersion操作
+            //PC客户端使用Get方式初始化
+            if($this->isWeb){
+                $v = "1.0";
+            }else{
+                $v = Util::getParam("cloudVersion");
+            }
         }
         if(YII_DEBUG){
             $v = time();
         }
         $this->version = $v;
         $header = "";
-		$user = $this->appInfo->getUser();
-		if(isset($user)){
-			$siteInfo = "s=".MiniSiteUtils::getSiteID();
-			$siteInfo .= "&u=".$user["user_uuid"];
-		}
 		//生产状态，将会把js/css文件进行合并处理，提高加载效率
 		$header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
 		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
@@ -569,6 +539,8 @@ class MiniBox{
     /**
      *
      * 根据浏览器的版本返回语言
+     * @param $name
+     * @return string
      */
     private function getCookie($name){
         $value = NULL;
@@ -578,3 +550,5 @@ class MiniBox{
         return $value;
     }
 }
+//下面这一行不能删除，删除后setcookie不能成功
+?>

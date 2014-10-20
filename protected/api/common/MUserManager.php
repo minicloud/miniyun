@@ -90,11 +90,13 @@ class MUserManager
      */
     public function getCurrentUser() {
         $needSetOnline = false;
-        if(MiniHttp::clientIsBrowser()){
+        if(MiniHttp::clientIsBrowser()||MiniHttp::isPCClient()){
             //javascript判断用户是否登录，在服务器端本地进行用户初始化
             $this->_current_user = NULL;
             $userIdentity = new UserIdentity(NULL, NULL);
             $userIdentity->cookieLogin();
+            $sessionUser = Yii::app()->session["user"];
+            $this->_current_user = $sessionUser;
             $needSetOnline = true;
         }else{
             if(empty($this->_current_user)){

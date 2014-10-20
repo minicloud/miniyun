@@ -21,6 +21,16 @@ class MiniHttp{
         return Yii::app()->params["app"][$key];
     }
     /**
+     * 判断是否是PC客户端
+     */
+    public static function isPCClient(){
+        $pos = strpos($_SERVER["HTTP_USER_AGENT"],"miniClient");
+        if($pos){
+            return true;
+        }
+        return false;
+    }
+    /**
      * 判断是否是Web浏览器
      * 通过referer判断是否是浏览器客户端
      */
