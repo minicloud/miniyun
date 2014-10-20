@@ -177,7 +177,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     $file["signature"] = $version["file_signature"];
                 }
                 $content = $this->assembleResponse($content, $childrenFile, $mimeType);
-                if(!empty($item) && $childrenFile['is_deleted'] == 0){
+                if(!empty($content) && $childrenFile['is_deleted'] == 0){
                     array_push($contents, $content);
                 }
             }
