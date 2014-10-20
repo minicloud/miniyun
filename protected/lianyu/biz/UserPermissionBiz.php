@@ -10,6 +10,10 @@ class UserPermissionBiz extends MiniBiz{
     private $shareUserNick;
     public  $authority;
     public function  UserPermissionBiz($path,$userId){
+        $file = MiniFile::getInstance()->getByPath($path);
+        if(empty($file)){
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+        }
         $this->getPermission($path,$userId);
     }
     public function getPermission($path,$userId){
