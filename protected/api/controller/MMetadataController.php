@@ -163,9 +163,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         // 组装子文件数据
         $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
             $parentFileId=$currentFile['id'],
-            $includeDeleted,
-            $user,
-            $this->userId);
+            $includeDeleted);
         $contents = array();
         if(!empty($childrenFiles)){
             foreach($childrenFiles as $childrenFile){
@@ -177,7 +175,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     $file["signature"] = $version["file_signature"];
                 }
                 $content = $this->assembleResponse($content, $childrenFile, $mimeType);
-                if(!empty($item) && $childrenFile['is_deleted'] == 0){
+                if(!empty($content) && $childrenFile['is_deleted'] == 0){
                     array_push($contents, $content);
                 }
             }
