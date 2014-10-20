@@ -169,7 +169,7 @@ class MiniGroupPrivilege extends MiniCache
         $criteria = new CDbCriteria;
         $criteria->condition = "file_path=:file_path";
         $criteria->params = array("file_path" => $path);
-        UserPrivilege::model()->deleteAll($criteria);
+        GroupPrivilege::model()->deleteAll($criteria);
         return true;
     }
 

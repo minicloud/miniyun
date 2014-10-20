@@ -101,7 +101,6 @@ class FileBiz  extends MiniBiz{
             foreach ($array as $file){
                 $fileType = $file["file_type"];
                 $filePath = $file["file_path"];
-
                 //获取存储文件的绝对路径
                 if (!empty($removeParent)){
                     $relativePath = CUtils::str_replace_once($removeParent,"",CUtils::removeUserFromPath($filePath));
@@ -116,18 +115,16 @@ class FileBiz  extends MiniBiz{
                 } catch (Exception $e) {
                     $store        = $relativePath;
                 }
-
+                $hasRead = true;
                 if ($userId == $file["user_id"] && $fileType == MConst::OBJECT_TYPE_FILE){    //属于自己的文件
                     $this->addToFile($zip, $file, $store, $fileSystem);
                 } elseif ($userId != $file["user_id"] && $fileType == MConst::OBJECT_TYPE_FILE){ //不属于自己的文件
-                    $hasRead = Yii::app()->privilege->hasShareFilePermissionUser($userId, $file, MPrivilege::RESOURCE_READ);
                     if ($hasRead){
                         $this->addToFile($zip, $file, $store, $fileSystem);
                     }
                 } elseif ($userId == $file["user_id"] && $fileType == MConst::OBJECT_TYPE_DIRECTORY){ //属于自己的文件夹
                     $this->addToFolder($zip, $store);
                 } else { //不属于自己的文件夹
-                    $hasRead = Yii::app()->privilege->hasShareFilePermissionUser($userId, $file, MPrivilege::RESOURCE_READ);
                     if ($hasRead){
                         $this->addToFolder($zip, $store);
                     }

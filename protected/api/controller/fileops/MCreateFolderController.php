@@ -83,11 +83,28 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $this->_user_id = $this->share_filter->master;
             $path           = $this->share_filter->_path;
         }
-        if($params['is_root']){
+        if($params['is_root']=="/"){
             $path               = "/".$this->_user_id.$path;
         }
-        // 查询其是否存在 信息
         $parentPath        = dirname($path);
+        if(dirname(MiniUtil::getRelativePath($path)) == "/"){
+            $permission = "111111111";
+        }else{
+            $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
+            $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
+            if(!isset($permissionArr)){
+                $permission = "111111111";
+            }else{
+                $permission = $permissionArr['permission'];
+            }
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canCreateFolder = $miniPermission->canCreateFolder();
+        if(!$canCreateFolder){
+            throw new MFileopsException(MConst::HTTP_CODE_1132);
+        }
+        // 查询其是否存在 信息
+
         $file               = MiniFile::getInstance()->getByPath($path);
 
         
