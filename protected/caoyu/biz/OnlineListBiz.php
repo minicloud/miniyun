@@ -12,11 +12,11 @@ class OnlineListBiz extends MiniBiz{
     public function getOnlineUsers($refresh = false){
         $data = array();
         if (empty ( $this->items ) || $refresh) {
-            $cacheDevices = MiniOnlineDevice::getInstance()->getOnlineDevices();
-            foreach ($cacheDevices as $item ) {
+            $devices = MiniOnlineDevice::getInstance()->getOnlineDevices();
+            foreach ($devices as $item ) {
                 $appId                 = $item["application_id"];
                 $device                = MiniUserDevice::getInstance()->getUserDevice($item["device_id"]);
-                $user                  = MiniUser2::getInstance()->getUser2($device["user_id"]);
+                $user                  = MiniUser::getInstance()->getUser($device["user_id"]);
                 $online                = array(
                     "name"=>$user ["user_name"],
                     "appname"=>$appId,

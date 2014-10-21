@@ -43,8 +43,9 @@ class UserIdentity extends CUserIdentity
      * @return bool
      */
     public function loadUser($user){
+
         //对设备进行检测
-        $device     = DeviceManager::getDevice($user["id"], MConst::DEVICE_WEB, "web", $_SERVER['HTTP_USER_AGENT']);
+        $device     = $this->getCurrentDevice($user);
         $this->setSession($user, $device);
         $this->errorCode=MConst::ERROR_NONE;
         return true;
@@ -52,12 +53,15 @@ class UserIdentity extends CUserIdentity
     /**
      * 
      * 设置session对应的信息
-     * @since 0.9.7
+     * @param $user
+     * @param $device
      */
     public function setSession($user, $device) {
-        Yii::app()->session["user"] = $user;
+
         //初始化系统需要的状态信息
-        Yii::app()->session["appId"] = 1;//设置appId为1
+        Yii::app()->session["appId"] = $device["user_device_type"];
+        $user["appId"] = $device["user_device_type"];
+        Yii::app()->session["user"] = $user;
 
         $deviceId = 0;
         if(!empty($device)){
@@ -84,6 +88,35 @@ class UserIdentity extends CUserIdentity
         $user  = MUserManager::getInstance()->getUserOauth2($accessInfo["device_id"]);//获取用户的信息
         return $user;
     }
+
+    /**
+     * 获得当前登录的设备
+     * @param $user
+     * @return null
+     */
+    private function getCurrentDevice($user){
+        $deviceType = 1;
+        $deviceName = "web";
+        if(MiniHttp::isPCClient()){
+            if(MiniHttp::isWindowsOS()){
+                $deviceType = 2;//Windows 客户端
+                $deviceName = "Windows PC";
+            }else if(MiniHttp::isMacOS()){
+                $deviceType = 3;//Mac 客户端
+                $deviceName = "Mac PC";
+            }else{
+                $deviceType = 4;//Linux 客户端
+                $deviceName = "Linux PC";
+            }
+        }
+        //对设备进行检测
+        if($deviceType==1){
+            $device = DeviceManager::getDevice($user["id"], MConst::DEVICE_WEB, "web", $_SERVER['HTTP_USER_AGENT']);
+        }else{
+            $device = MiniUserDevice::getInstance()->getFirstByDeviceTypeAndDeviceName($user["id"],$deviceType,$deviceName);
+        }
+        return $device;
+    }
     /**
      * 
      * 使用cookie自动登陆
@@ -94,13 +127,10 @@ class UserIdentity extends CUserIdentity
         if($user===NULL){
             return false;
         }
-        //对设备进行检测
-        $device = DeviceManager::getDevice($user["id"], MConst::DEVICE_WEB, "web", $_SERVER['HTTP_USER_AGENT']);
+        $device = $this->getCurrentDevice($user);
         $this->setSession($user, $device);
         return true;
     }
-
-    
     /**
      * 
      * 清理cookie,登出时候调用

@@ -320,6 +320,20 @@ class MiniUserDevice extends MiniCache{
 		return $newIds;
 	}
     /**
+     * 根据device_type获得用户的第一个设备数据
+     * @param $userId 用户ID
+     * @param $deviceType 设备类型
+     * @param $deviceName 设备名称
+     * @return array
+     */
+    public function getFirstByDeviceTypeAndDeviceName($userId,$deviceType,$deviceName){
+        $criteria            = new CDbCriteria;
+        $criteria->condition = 'user_id = :user_id and user_device_type=:user_device_type and user_device_name=:user_device_name';
+        $criteria->params    = array(':user_id'=>$userId,":user_device_type"=>$deviceType,":user_device_name"=>$deviceName);
+        $item = UserDevice::model()->find($criteria);
+        return $this->db2Item($item);
+    }
+    /**
      * 根据device_type获得数据
      */
     public function getByDeviceUuid($deviceUuid){
@@ -343,11 +357,11 @@ class MiniUserDevice extends MiniCache{
      * 根据设备类型查找设备
      * 分页获取数据
      */
-    public function getDeviceByType($deveceType,$pageSize,$currentPage){
+    public function getDeviceByType($deviceType,$pageSize,$currentPage){
         $criteria                = new CDbCriteria();
         $criteria->condition     = "user_device_type=:user_device_type";
         $criteria->params        = array(
-            "user_device_type"=>$deveceType
+            "user_device_type"=>$deviceType
         );
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;

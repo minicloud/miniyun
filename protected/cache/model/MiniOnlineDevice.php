@@ -185,15 +185,15 @@ class MiniOnlineDevice extends MiniCache{
 		}
 		if($this->hasCache===true){
 			//TODO 这里存在隐患，因为每个客户端会定时请求，会存在获得值+解析的成本
-			$onlieDevices            = array();
+			$onlineDevice            = array();
 			$dataStr                 = $this->get(MiniOnlineDevice::$CACHE_KEY);
 			if(!($dataStr===false)){
-				$onlieDevices        = unserialize($dataStr);
+				$onlineDevice        = unserialize($dataStr);
 
 			}
-			$onlieDevices[$deviceId] = array($appId,time());
+			$onlineDevice[$deviceId] = array($appId,time());
 			Yii::trace(MiniOnlineDevice::$CACHE_KEY." set cache onlieDevice","miniyun.cache1");
-			$this->set(MiniOnlineDevice::$CACHE_KEY, serialize($onlieDevices));
+			$this->set(MiniOnlineDevice::$CACHE_KEY, serialize($onlineDevice));
 		}
 
 	}

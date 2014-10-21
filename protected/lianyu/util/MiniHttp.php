@@ -31,10 +31,34 @@ class MiniHttp{
         return false;
     }
     /**
+     * 判断是否windows电脑
+     */
+    public static function isWindowsOS(){
+        $pos = strpos($_SERVER["HTTP_USER_AGENT"],"Windows");
+        if($pos){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 判断是否苹果电脑
+     */
+    public static function isMacOS(){
+        $pos = strpos($_SERVER["HTTP_USER_AGENT"],"Macintosh");
+        if($pos){
+            return true;
+        }
+        return false;
+    }
+    /**
      * 判断是否是Web浏览器
      * 通过referer判断是否是浏览器客户端
      */
     public static function clientIsBrowser(){
+        //如是PC客户端，则也遵循浏览器的逻辑
+        if(MiniHttp::isPCClient()){
+            return true;
+        }
         if(array_key_exists("client_id",$_REQUEST)){
             if($_REQUEST["client_id"]==="JsQCsjF3yr7KACyT"){
                 return true;
