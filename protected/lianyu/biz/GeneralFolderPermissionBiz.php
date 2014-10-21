@@ -38,7 +38,7 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
         for($i=2;$i<count($arr);$i++){
             $parentPath = $parentPath."/".$arr[$i];
             $file = MiniFile::getInstance()->getByFilePath($parentPath);
-            if($file['file_type']==2){
+            if($file['file_type']==2||$file['file_type']==4){
                 $user     = MUserManager::getInstance()->getCurrentUser();
                 $userId =   $user['user_id'];
                 $this->permission = $this->getPermission($userId,$file['file_path']);
@@ -53,6 +53,11 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
      * 获的共享父目录的权限
      */
     public function getPermission($userId,$path){
+        $publicPrivilege = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege(-1, $path);
+        if(!empty($publicPrivilege)){
+            $permission = $publicPrivilege['permission'];
+            return $permission;
+        }
         $privilegeLength = 9;
         $userPrivilege = MiniUserPrivilege::getInstance()->getSpecifyPrivilege($userId,$path);
         if(empty($userPrivilege)){//如果不存在user_privilege，则向上查找group_privilege和department_privilege
