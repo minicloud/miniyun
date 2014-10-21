@@ -64,6 +64,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         $this->setAction(MConst::COPY);
         $this->beforeInvoke();
         $this->beforecheck();
+        $user                     = MUserManager::getInstance()->getCurrentUser();
         // 调用父类初始化函数，注册自定义的异常和错误处理逻辑
         parent::init();
         
@@ -90,8 +91,6 @@ class MCopyController extends MApplicationComponent implements MIController{
         $root               = $params["root"];
         $this->_from_path   = $params["from_path"];
         $this->_to_path     = $params["to_path"];
-        $this->_from_shared_path     = $params["from_shared_path"];
-        $this->_to_shared_path     = $params["to_shared_path"];
 
         //
         // 检查文件名是否有效
@@ -132,31 +131,33 @@ class MCopyController extends MApplicationComponent implements MIController{
         $from_share_filter = MSharesFilter::init();
         $this->to_share_filter   = MSharesFilter::init();
         // 当从共享目录拷贝到其他目录时，源目录用户id设置为共享用户id
-        if ($from_share_filter->handlerCheck($this->owner, $this->_from_path)) {
-            $this->master = $from_share_filter->master;
-            $this->_from_path = $from_share_filter->_path;
-        }
-        
-        // 当拷贝到共享目录的时候，目标目录的用户id设置为共享用户id
-        if ($this->to_share_filter->handlerCheck($this->_user_id, $this->_to_path)) {
-            $this->_user_id = $this->to_share_filter->master;
-            $this->user_nick      = $this->to_share_filter->master_nick;
-            $this->_to_path = $this->to_share_filter->_path;
-        }
-        if($this->_from_shared_path){
-            $this->_from_path =  $this->_from_shared_path;
-        }else{
-            $this->_from_path = "/".$this->master.$this->_from_path;
-        }
-        if($this->_to_shared_path){
-            $this->_to_path =  $this->_to_shared_path;
-        }else{
-            $this->_to_path   = "/".$this->_user_id.$this->_to_path;
-        }
-
+//        if ($from_share_filter->handlerCheck($this->owner, $this->_from_path)) {
+//            $this->master = $from_share_filter->master;
+//            $this->_from_path = $from_share_filter->_path;
+//        }
+//
+//        // 当拷贝到共享目录的时候，目标目录的用户id设置为共享用户id
+//        if ($this->to_share_filter->handlerCheck($this->_user_id, $this->_to_path)) {
+//            $this->_user_id = $this->to_share_filter->master;
+//            $this->user_nick      = $this->to_share_filter->master_nick;
+//            $this->_to_path = $this->to_share_filter->_path;
+//        }
+//        if($this->_from_shared_path){
+//            $this->_from_path =  $this->_from_shared_path;
+//        }else{
+//            $this->_from_path = "/".$this->master.$this->_from_path;
+//        }
+//        if($this->_to_shared_path){
+//            $this->_to_path =  $this->_to_shared_path;
+//        }else{
+//            $this->_to_path   = "/".$this->_user_id.$this->_to_path;
+//        }
         //
         // 检查目标路径是否在复制目录下
         //
+        if($params['is_root']){
+            $this->_to_path = "/".$user['id'].$this->_to_path;
+        }
         if (strpos($this->_to_path, $this->_from_path."/") === 0)
         {
             throw new MFileopsException(
@@ -197,20 +198,51 @@ class MCopyController extends MApplicationComponent implements MIController{
                 Yii::t('api','Not found the source files of the specified path'),
                 MConst::HTTP_CODE_404);
         }
-
+        $fromArr = explode('/',$this->_from_path);
+        $fromId = $fromArr[1];
+        if($params['is_root']){
+            $toArr = explode('/',$this->_to_path);
+            $toId = $toArr[1];
+        }else{
+            $toId = $user['id'];
+       }
         //权限判断
         //当属于共享目录时才进行权限控制(源路径)
-        if ($from_share_filter->is_shared){
+        if ($fromId!=$user['id']){
             //判断文件重命名是否有权限操作
-            $from_share_filter->hasPermissionExecute($this->_from_path, MPrivilege::RESOURCE_READ);
+//            $from_share_filter->hasPermissionExecute($this->_from_path, MPrivilege::RESOURCE_READ);
+            $permissionModel = new UserPermissionBiz($this->_from_path,$user['id']);
+            $permissionArr = $permissionModel->getPermission($this->_from_path,$user['id']);
+            if(!isset($permissionArr)){
+                $permission = "111111111";
+            }else{
+                $permission = $permissionArr['permission'];
+            }
+            $miniPermission = new MiniPermission($permission);
+            $canCopy = $miniPermission->canCopy();
+            if(!$canCopy){
+                throw new MFileopsException(MConst::HTTP_CODE_1132);
+            }
         }
         //目标路径
-        if ($this->to_share_filter->is_shared){
+        if ($toId!=$user['id']){
             //拷贝到 （目标路径的创建权限）  的判断
-            if ($query_from_path_db_file[0]["file_type"] == 0){  //文件
-                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FILE_CREATE);
-            } else {                                           //文件夹
-                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FOLDER_CREATE);
+//            if ($query_from_path_db_file[0]["file_type"] == 0){  //文件
+//                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FILE_CREATE);
+//            } else {                                           //文件夹
+//                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FOLDER_CREATE);
+//            }
+            $permissionModel = new UserPermissionBiz(dirname($this->_to_path),$user['id']);
+            $permissionArr = $permissionModel->getPermission(dirname($this->_to_path),$user['id']);
+            if(!isset($permissionArr)){
+                $permission = "111111111";
+            }else{
+                $permission = $permissionArr['permission'];
+            }
+            $miniPermission = new MiniPermission($permission);
+            $canCopy = $miniPermission->canCopy();
+            if(!$canCopy){
+                throw new MFileopsException(MConst::HTTP_CODE_1132);
             }
         }
 
