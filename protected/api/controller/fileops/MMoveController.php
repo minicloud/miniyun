@@ -228,12 +228,12 @@ implements MIController
         }else{
             $canModifyFile = $fromFilter->canModifyFile();
             $canModifyFile2 = $toFilter->canModifyFile();
-            if(!$canModifyFile && !$isSelfFile){
+            if(!$canModifyFile || !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
                     MConst::HTTP_CODE_404);
             }
-            if(!$canModifyFile2 && !$isSelfFile){
+            if(!$canModifyFile2 || !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
                     MConst::HTTP_CODE_404);
