@@ -109,7 +109,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         foreach($fileData as $file){
             $file = MiniFile::getInstance()->getByPath($file['file_path']);
             if(!empty($file)){
-                if($file['is_deleted'] == 0){
+                if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];
                 }
             }
