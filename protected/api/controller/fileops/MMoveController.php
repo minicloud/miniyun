@@ -349,6 +349,8 @@ implements MIController
         }else{
             $parent_file_id                   = $create_folder->handlerParentFolder($parent_path);
         }
+        $fromUserId = $from_parts[1];
+        $toUserId   = $to_parts[1];
         //
         // 组装对象信息
         //
@@ -359,13 +361,9 @@ implements MIController
         $file_detail->id                = $query_db_file[0]["id"];
         $file_detail->from_path         = $from_path;
         $file_detail->parent_file_id    = $parent_file_id;
-        $file_detail->user_id           = $this->_userId;
-        if($this->isRename){
-            $file_detail->user_id       = $file['user_id'];
-        }
+        $file_detail->user_id           = $toUserId;
         $file_detail->mime_type         = NULL;
         $create_array = array();
-
         //
         // 判断操作的是文件夹，还是文件
         //
@@ -496,10 +494,8 @@ implements MIController
                 $updates['user_id'] = $this->_userId;
             }
         }
-        $fromUserId = $from_parts[1];
-        $toUserId   = $to_parts[1];
         if($fromUserId != $toUserId){
-            $updates['user_id'] = $this->_userId;
+            $updates['user_id'] = $toUserId;
         }
         MiniFile::getInstance()->updateByPath($to_path, $updates);
 
