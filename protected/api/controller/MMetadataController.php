@@ -205,7 +205,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         //外链Key
         $response["share_key"]              = $file["share_key"];
         $response['is_dir'] = false;
-        if($file['file_type'] != 0){
+//        if($file['file_type'] != 0){
             $response['is_dir'] = true;
             $permissionModel = new UserPermissionBiz($filePath,$this->userId);
             $permission = $permissionModel->getPermission($filePath,$this->userId);
@@ -219,7 +219,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     return null;
                 }
             }
-        }
+//        }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
             //支持类s3数据源的文件下载
             $data = array("hash" => $file["signature"]);
