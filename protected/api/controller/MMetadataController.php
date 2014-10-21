@@ -206,7 +206,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["share_key"]              = $file["share_key"];
         $response['is_dir'] = false;
 //        if($file['file_type'] != 0){
-            $response['is_dir'] = true;
             $permissionModel = new UserPermissionBiz($filePath,$this->userId);
             $permission = $permissionModel->getPermission($filePath,$this->userId);
             if(!empty($permission)){
@@ -231,6 +230,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
             }
             $mimeType = CUtils::mime_content_type($file['file_path']);
             $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
+        }else{
             $response['is_dir'] = true;
         }
         if ($file["file_type"] > MConst::OBJECT_TYPE_FILE) {
