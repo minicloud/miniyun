@@ -145,8 +145,9 @@ class PrivilegeBiz  extends MiniBiz{
      * 取消共享，删除权限
      */
     public function delete($filePath){
-        $filePath = MiniUtil::getAbsolutePath($this->user["id"],$filePath);
-        MiniUserPrivilege::getInstance()->cancelPrivilege($filePath);
+        MiniUserPrivilege::getInstance()->deleteByFilePath($filePath);
+        MiniGroupPrivilege::getInstance()->deleteByFilePath($filePath);
+        MiniFile::getInstance()->cancelPublic($filePath);
         return true;
     }
     /**
