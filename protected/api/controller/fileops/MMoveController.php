@@ -81,7 +81,7 @@ implements MIController
         
         // 检查共享
 //        $from_share_filter       = MSharesFilter::init();
-//        $this->to_share_filter   = MSharesFilter::init();
+        $this->to_share_filter   = MSharesFilter::init();
         // 当从共享目录拷贝到其他目录时，源目录用户id设置为共享用户id
 //        $from_share_filter->handlerCheck($this->_userId, $from_path);
         // 当拷贝到共享目录的时候，目标目录的用户id设置为共享用户id
@@ -228,12 +228,12 @@ implements MIController
         }else{
             $canModifyFile = $fromFilter->canModifyFile();
             $canModifyFile2 = $toFilter->canModifyFile();
-            if(!$canModifyFile || !$isSelfFile){
+            if((!$canModifyFile2) || (!$canModifyFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
                     MConst::HTTP_CODE_404);
             }
-            if(!$canModifyFile2 || !$isSelfFile){
+            if((!$canModifyFile2) && (!$isSelfFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
                     MConst::HTTP_CODE_404);
@@ -338,12 +338,17 @@ implements MIController
         //
         // 查询目标路径父目录信息
         //
+
         $pathInfo                         = MUtils::pathinfo_utf($to_path);
         $parent_path                      = $pathInfo["dirname"];
         $create_folder                    = new MCreateFolderController();
         $create_folder->_user_device_id   = $user_device_id;
         $create_folder->_user_id          = $this->_userId;
-        $parent_file_id                   = $create_folder->handlerParentFolder($parent_path);
+        if(count(explode('/',$parent_path)) == 2){
+            $parent_file_id = 0;
+        }else{
+            $parent_file_id                   = $create_folder->handlerParentFolder($parent_path);
+        }
         //
         // 组装对象信息
         //
@@ -355,6 +360,9 @@ implements MIController
         $file_detail->from_path         = $from_path;
         $file_detail->parent_file_id    = $parent_file_id;
         $file_detail->user_id           = $this->_userId;
+        if($this->isRename){
+            $file_detail->user_id       = $file['user_id'];
+        }
         $file_detail->mime_type         = NULL;
         $create_array = array();
 
@@ -362,10 +370,16 @@ implements MIController
         // 判断操作的是文件夹，还是文件
         //
         if ($file_detail->file_type > MConst::OBJECT_TYPE_FILE){
+            if($file['user_id'] != ($this->_userId)){
+                $updateUserId = $query_db_file[0]["user_id"];
+            }else{
+                $updateUserId = $this->master;
+            }
             //
             // 文件夹，将会对其子文件做进一步处理
             //
-            $ret_value = MFiles::updateMoveChildrenFileDetail($this->master, $file_detail);
+            $ret_value = MFiles::updateMoveChildrenFileDetail($updateUserId, $file_detail);
+
             if ($ret_value === false)
             {
                 throw new MFileopsException(
@@ -421,9 +435,14 @@ implements MIController
             //
             array_push($this->versions, $file_meta->version_id);
         }
-        if($this->isRename && ($file['file_type'] == 2)){
+
+        if($file['file_type'] == 2){
             MiniUserPrivilege::getInstance()->updateByPath($from_path,$to_path);
             MiniGroupPrivilege::getInstance()->updateByPath($from_path,$to_path);
+            if($to_parent['dirname'] != $from_parent['dirname']){
+                MiniUserPrivilege::getInstance()->deleteByFilePath($to_path);
+                MiniGroupPrivilege::getInstance()->deleteByFilePath($to_path);
+            }
         }
         //
         // 创建版本信息
@@ -470,6 +489,20 @@ implements MIController
             Yii::t('api','Internal Server Error'),
             MConst::HTTP_CODE_500);
         }
+        $updates = array();
+        if($file['file_type'] == 2){
+            if($to_parent['dirname'] != $from_parent['dirname']){
+                $updates['file_type'] = 1;
+                $updates['user_id'] = $this->_userId;
+            }
+        }
+        $fromUserId = $from_parts[1];
+        $toUserId   = $to_parts[1];
+        if($fromUserId != $toUserId){
+            $updates['user_id'] = $this->_userId;
+        }
+        MiniFile::getInstance()->updateByPath($to_path, $updates);
+
         //
         // 保存移动事件 
         // by Kindac;
