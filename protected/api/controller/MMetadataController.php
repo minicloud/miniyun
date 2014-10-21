@@ -231,6 +231,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
             }
             $mimeType = CUtils::mime_content_type($file['file_path']);
             $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
+            $response['is_dir'] = true;
         }
         if ($file["file_type"] > MConst::OBJECT_TYPE_FILE) {
             $response["type"] = (int)$file["file_type"];
