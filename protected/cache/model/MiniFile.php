@@ -414,7 +414,7 @@ class MiniFile extends MiniCache{
         $model               = $this->getModelByPath($path);
         if(isset($model)){
             foreach ($values as $key=>$value){
-                return $key;
+//                return $key;
                 if($key==="share_key"||$key==="privilege"){
                     continue;
                 }
