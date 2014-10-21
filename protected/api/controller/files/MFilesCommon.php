@@ -136,6 +136,7 @@ class MFilesCommon extends MModel {
             }else{//别人共享目录下判断有无创建权限
                 $authority = new UserPermissionBiz($parentPath,$currentUserId);
                 $permissionArr = $authority->authority;
+                $this->user_id = $masterId;
                 $permission = $permissionArr['permission'];
                 $create_file_num = substr($permission,4,1);
                 if($create_file_num==1){
@@ -646,6 +647,7 @@ class MFilesCommon extends MModel {
         // 保存文件元数据
         //
         $retval = MFiles::CreateFileDetail ( $file_detail, $this->user_id, $this->user_nick );
+
         if ($retval === false) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
         }
