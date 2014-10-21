@@ -171,6 +171,29 @@ class MDeleteController extends MApplicationComponent implements MIController
                                   $file_detail->file_size
                                   );
         }
+        $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
+        $permissionArr = $authority->authority;
+        $permission = $permissionArr['permission'];
+        if(!empty($permission)){
+            if($file_detail->file_type==0){//删除文件
+                $can_file_delete = substr($permission,7,1);
+                if($can_file_delete==0){
+                    throw new MFileopsException(
+                        Yii::t('api','Internal Server Error'),
+                        MConst::HTTP_CODE_500);
+
+                }
+            }
+            if($file_detail->file_type==1||$file_detail->file_type==2){
+                $can_folder_delete = substr($permission,3,1);
+                if($can_folder_delete==0){
+                    throw new MFileopsException(
+                        Yii::t('api','Internal Server Error'),
+                        MConst::HTTP_CODE_500);
+                }
+            }
+        }
+
         //
         // 更新文件元数据的为删除数据
         //
@@ -211,8 +234,6 @@ class MDeleteController extends MApplicationComponent implements MIController
         // 删除共享目录(删除共享目录，对应的权限也一起删除)
         //
         //首先判断用户有无删除权限
-        $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
-//        var_dump($authority);exit;
 
         $userPrivilegeList = MiniUserPrivilege::getInstance()->getPrivilegeList($file_detail->file_path);
         $groupPrivilegeList = MiniGroupPrivilege::getInstance()->getPrivilegeList($file_detail->file_path);
