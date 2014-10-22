@@ -86,6 +86,7 @@ class MiniGroupPrivilege extends MiniCache
         $criteria["group_id"] = $groupId;
         $criteria["file_path"] = $filePath;
         $criteria["permission"] = $permission;
+        $criteria["updated_at"] = time();
         $criteria->save();
         return true;
     }
@@ -94,7 +95,7 @@ class MiniGroupPrivilege extends MiniCache
         if(empty($privilege)){
             return null;
         }
-        $permission = UserPrivilege::model()->findByPk($privilege['id']);
+        $permission = GroupPrivilege::model()->findByPk($privilege['id']);
         $permission['file_path'] = $newPath;
         $permission->save();
     }

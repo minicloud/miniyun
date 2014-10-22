@@ -87,6 +87,7 @@ class MiniUserPrivilege extends MiniCache
         $criteria["user_id"] = $userId;
         $criteria["file_path"] = $filePath;
         $criteria["permission"] = $permission;
+        $criteria["updated_at"] = time();
         $criteria->save();
     }
     public function updateByPath($oldPath,$newPath){
