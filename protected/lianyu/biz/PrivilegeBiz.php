@@ -130,6 +130,8 @@ class PrivilegeBiz  extends MiniBiz{
         /**
          * 存储权限之后更新被分享文件的file_type = 2，出现分享图标
          */
+        $fileValue = array('updated_at'=>time());
+        MiniFile::getInstance()->updateByPath($filePath,$fileValue);
         MiniFile::getInstance()->togetherShareFile($filePath, MConst::OBJECT_TYPE_SHARED);
         return array('success'=>true);
     }

@@ -86,6 +86,7 @@ class MiniGroupPrivilege extends MiniCache
         $criteria["group_id"] = $groupId;
         $criteria["file_path"] = $filePath;
         $criteria["permission"] = $permission;
+        $criteria["updated_at"] = time();
         $criteria->save();
         return true;
     }
