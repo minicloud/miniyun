@@ -192,6 +192,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         $file_name   = MUtils::get_basename($this->_to_path);
         $query_from_path_db_file = MFiles::queryFilesByPath($this->_from_path);
+        $query_to_path_db_file = MFiles::queryFilesByPath(dirname($this->_to_path));
         if ($query_from_path_db_file === false || empty($query_from_path_db_file))
         {
             throw new MFileopsException(
@@ -341,8 +342,8 @@ class MCopyController extends MApplicationComponent implements MIController{
                                             $this->_user_id, 
                                             $this->user_nick, 
                                             $this->_from_path, 
-                                            $this->_to_path, 
-                                            $query_from_path_db_file[0]["id"],
+                                            $this->_to_path,
+                                            $query_to_path_db_file[0]["id"],
                                             $this->_user_device_name,
                                             $query_from_path_db_file[0]["file_size"]
                                             );
