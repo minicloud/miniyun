@@ -280,6 +280,10 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         }
         else 
         {
+            $pathArr =explode("/",$path);
+            if($this->_user_id!=$pathArr[1]){
+                $this->_user_id = $pathArr;
+            }
             // 不存在数据，添加
             $ret_value                    = MiniFile::getInstance()->create($file_detail, $this->_user_id);
         }
