@@ -67,13 +67,14 @@ class UserPermissionBiz extends MiniBiz{
                 }
                 return $this->authority = array("permission"=>$permission,"share_root_path"=>$path,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
             }
-            return $this->authority = array("permission"=>"111111111","share_root_path"=>$path,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>1);
+            return $this->authority = array("permission"=>"111111111","share_root_path"=>$path,"share_user_nick"=>$shareUserNick,'can_set_share'=>1);
         }
         if($fileType==1||$fileType==0){//普通目录情况
             $model = new GeneralFolderPermissionBiz($path);
-            if($model->permission == null){
-                return $this->authority = null;
-            }
+//            var_dump($model->permission);exit;
+//            if($model->permission == null){
+//                return $this->authority = null;
+//            }
             if($model->isShared){//如果该普通目录向上或者向下有共享
                 if($model->isParentShared($path)){//如果是父目录被共享
                     if((int)$masterId!=$userId){//非共享者本人操作此文件
