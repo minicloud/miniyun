@@ -147,7 +147,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $path_info              = MUtils::pathinfo_utf($path);
             $path                   = MUtils::convertStandardPath($path_info['dirname']."/".$fileName);
         }
-        $response["path"]           = $path;
+        $response["path"]           = $this->_parentFilePath."/".$fileName;
         $response["is_dir"]         = true;
         $response["icon"]           = "folder";
         $response["root"]           = $root;
