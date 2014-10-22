@@ -101,7 +101,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         $miniPermission = new MiniPermission($permission);
         $canCreateFolder = $miniPermission->canCreateFolder();
         if(!$canCreateFolder){
-            throw new MFileopsException(MConst::HTTP_CODE_1132);
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_432);
         }
         // 查询其是否存在 信息
 
