@@ -190,7 +190,7 @@ class MFilesCommon extends MModel {
 //            $this->share_filter->hasPermissionExecute($this->file_path, MPrivilege::FILE_CREATE);
 //        }
         if($can_create_file==false){
-            throw new MFilesException ( Yii::t('api', "No Permission" ), MConst::HTTP_CODE_403 );
+            throw new MFilesException ( Yii::t('api', "No Permission" ), MConst::HTTP_CODE_432 );
         }
         $this->conflictFile ();
         $this->renameFile ();

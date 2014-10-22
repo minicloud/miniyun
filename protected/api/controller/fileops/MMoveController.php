@@ -63,6 +63,12 @@ implements MIController
         $this->_root        = $params["root"];
         $from_path          = $params["from_path"];
         $to_path            = $params["to_path"];
+        $to_parts   = explode('/', $to_path);
+        $from_parts = explode('/', $from_path);
+        if(count($to_parts) == 2){
+            $to_path = '/'.$this->_userId.$to_path;
+        }
+        $to_parts   = explode('/', $to_path);
         $file                        = MiniFile::getInstance()->getByPath($from_path);
         $isSelfFile = false;
         if(!empty($file) && ($file['user_id'] == $this->_userId)){
@@ -87,8 +93,7 @@ implements MIController
         // 当拷贝到共享目录的时候，目标目录的用户id设置为共享用户id
 //        $this->to_share_filter->handlerCheck($this->_userId, $to_path);
         
-        $to_parts   = explode('/', $to_path);
-        $from_parts = explode('/', $from_path);
+
         $isSharedPath = true;
         $this->rename = false;
         if ($isSharedPath && count($to_parts) == count($from_parts)) {
@@ -218,12 +223,12 @@ implements MIController
             if((!$canRenameFile || !$canRenameFolder) && !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
-                    MConst::HTTP_CODE_404);
+                    MConst::HTTP_CODE_432);
             }
             if((!$canRenameFile2 || !$canRenameFolder2) && !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
-                    MConst::HTTP_CODE_404);
+                    MConst::HTTP_CODE_432);
             }
         }else{
             $canModifyFile = $fromFilter->canModifyFile();
@@ -231,12 +236,12 @@ implements MIController
             if((!$canModifyFile2) || (!$canModifyFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
-                    MConst::HTTP_CODE_404);
+                    MConst::HTTP_CODE_432);
             }
             if((!$canModifyFile2) && (!$isSelfFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
-                    MConst::HTTP_CODE_404);
+                    MConst::HTTP_CODE_432);
             }
         }
         // 先检查源目录是否存在，如果不存在抛出404错误
@@ -475,7 +480,7 @@ implements MIController
         foreach ($this->versions as $vid) {
             MiniVersion::getInstance()->updateRefCount($vid);
         }
-        
+
         //
         // 更新该对象元数据
         //
@@ -488,7 +493,7 @@ implements MIController
             MConst::HTTP_CODE_500);
         }
         $updates = array();
-        if($file['file_type'] == 2){
+        if(($file['file_type'] == 2) || ($file['file_type'] == 4)){
             if($to_parent['dirname'] != $from_parent['dirname']){
                 $updates['file_type'] = 1;
                 $updates['user_id'] = $this->_userId;
