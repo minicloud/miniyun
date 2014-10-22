@@ -493,7 +493,7 @@ implements MIController
             MConst::HTTP_CODE_500);
         }
         $updates = array();
-        if($file['file_type'] == 2){
+        if(($file['file_type'] == 2) || ($file['file_type'] == 4)){
             if($to_parent['dirname'] != $from_parent['dirname']){
                 $updates['file_type'] = 1;
                 $updates['user_id'] = $this->_userId;
