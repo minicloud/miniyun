@@ -877,6 +877,12 @@ class MiniUser extends MiniCache{
         $value                 = array();
         if(isset($items)){
             foreach($items as $item) {
+                $group = MiniGroup::getInstance()->findById($item->group_id);
+                if(isset($group)){
+                    if($group['user_id']>1){
+                        continue;
+                    }
+                }
                 $value[]           = $item->user_id;
             }
         }
