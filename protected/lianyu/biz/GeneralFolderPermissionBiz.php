@@ -62,7 +62,7 @@ class GeneralFolderPermissionBiz extends  MiniBiz{
         $userPrivilege = MiniUserPrivilege::getInstance()->getSpecifyPrivilege($userId,$path);
         if(empty($userPrivilege)){//如果不存在user_privilege，则向上查找group_privilege和department_privilege
             $groupPrivilege = new GroupPermissionBiz($path,$userId);
-            $groupPermission = $groupPrivilege->permission2;
+            $groupPermission = $groupPrivilege->authority;
             $departmentPrivilege = new DepartmentPermissionBiz();
             $departmentPermission = $departmentPrivilege->getPermission($userId,$path);
             if(empty($groupPermission)){
