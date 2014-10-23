@@ -184,7 +184,7 @@ class MDeleteController extends MApplicationComponent implements MIController
 
                 }
             }
-            if($file_detail->file_type==1||$file_detail->file_type==2){
+            if($file_detail->file_type==1||$file_detail->file_type==2||$file_detail->file_type==4){
                 $can_folder_delete = substr($permission,3,1);
                 if($can_folder_delete==0){
                     throw new MFileopsException(
