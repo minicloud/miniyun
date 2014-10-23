@@ -43,17 +43,12 @@ class UserPermissionBiz extends MiniBiz{
                         $permission = '';
                         $total = $groupPermission+$departmentPermission;
                         for($i=0;$i<$privilegeLength;$i++){
-                            $can = false;
                             $value = substr($total,$i,1);
                             if($value == '1'||$value == '2'){
-                                $can = true;
-                                break;
+                                $permission .='1';
+                            }else{
+                                $permission .='0';
                             }
-                        }
-                        if($can){
-                            $permission .='1';
-                        }else{
-                            $permission .='0';
                         }
                     }
                     if(empty($groupPermission)&&empty($departmentPermission)){
