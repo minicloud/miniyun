@@ -11,15 +11,15 @@ class DepartmentPermissionBiz  extends MiniBiz{
      */
     public function getPermission($userId,$path){
         $department = MiniUserGroupRelation::getInstance()->getDepartment($userId);
-        $departmentPermission = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($department['group_id'],$path);
+        $departmentPermission = MiniGroupPrivilege::getInstance()->getSpecifyPrivilege($department['id'],$path);
         if(empty($departmentPermission)){
-            $departmentPermission =  $this->searchPermission($path,$department['group_id']);
+            $departmentPermission =  $this->searchPermission($path,$department['id']);
         }
         if(empty($departmentPermission)){
             return NULL;
         }
         $permission= $departmentPermission['permission'];
-        return MiniPermission($permission);
+        return $permission;
     }
     /**
      * 根据groupId,filePath一级一级往上查，查询groupId最小数据

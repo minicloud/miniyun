@@ -57,9 +57,9 @@ class MiniGroup extends MiniCache{
         if(empty($item)) return NULL;
         $value                     = array();
         $value["id"]           = $item->id;
-        if($item->user_id!=-1){
+//        if($item->user_id!=-1){
             $value["user_id"]      = $item->user_id;
-        }
+//        }
         $value["group_name"]    = $item->name;
         return $value;
     }
