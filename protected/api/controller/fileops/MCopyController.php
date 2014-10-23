@@ -91,7 +91,9 @@ class MCopyController extends MApplicationComponent implements MIController{
         $root               = $params["root"];
         $this->_from_path   = $params["from_path"];
         $this->_to_path     = $params["to_path"];
-
+        if($params['is_root']){
+            $this->_to_path     = '/'.$user['id'].$this->_to_path;
+        }
         //
         // 检查文件名是否有效
         //
@@ -155,9 +157,6 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 检查目标路径是否在复制目录下
         //
-        if($params['is_root']){
-            $this->_to_path = "/".$user['id'].$this->_to_path;
-        }
         if (strpos($this->_to_path, $this->_from_path."/") === 0)
         {
             throw new MFileopsException(
