@@ -179,8 +179,8 @@ class MDeleteController extends MApplicationComponent implements MIController
                 $can_file_delete = substr($permission,7,1);
                 if($can_file_delete==0){
                     throw new MFileopsException(
-                        Yii::t('api','Internal Server Error'),
-                        MConst::HTTP_CODE_500);
+                        Yii::t('api','no permission'),
+                        MConst::HTTP_CODE_432);
 
                 }
             }
@@ -244,7 +244,11 @@ class MDeleteController extends MApplicationComponent implements MIController
             MiniGroupPrivilege::getInstance()->deleteByFilePath($file_detail->file_path);
         }
         //并且将file_type改为1
-        MiniFile::getInstance()->togetherShareFile($file_detail->file_path,Mconst::OBJECT_TYPE_DIRECTORY);
+        if($file_detail->file_type==0){
+            MiniFile::getInstance()->togetherShareFile($file_detail->file_path,Mconst::OBJECT_TYPE_FILE);
+        }else{
+            MiniFile::getInstance()->togetherShareFile($file_detail->file_path,Mconst::OBJECT_TYPE_DIRECTORY);
+        }
         if ($filter !== true && $share_filter->_is_shared_path
             && $share_filter->operator == $share_filter->master) {
             $file = MFiles::queryFilesByPath("/".$share_filter->operator . $path, true);
