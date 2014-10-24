@@ -236,7 +236,7 @@ class MiniGroup extends MiniCache{
         $criteria->params = array('group_id'=> $groupId,);
         $group = Group::model()->find($criteria);
         if(!empty($group)){
-            return $group;
+            return $this->db2Item($group);
         }else{
             return false;
         }
