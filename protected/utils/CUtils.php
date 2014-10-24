@@ -859,7 +859,7 @@ class CUtils{
         fclose($dstStream);
         fclose ( $fp );
         exit ();
-    }
+    } 
     /**
      *
      * 随机生成key secret
@@ -1161,8 +1161,6 @@ class CUtils{
             return true;
         return false;
     }
-
-
     /**
      * @param $url
      * @return bool

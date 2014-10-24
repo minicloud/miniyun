@@ -110,7 +110,11 @@ class MiniUser extends MiniCache{
                     $user["is_admin"] = ($value==="1"?true:false);
                 }
                 if($key==="avatar"){
-                    $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
+                    if(strpos($value,"http")==0){
+                        $user["avatar"] = $value;
+                    }else{
+                        $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
+                    }
                 }
             }
             return  $user;
@@ -766,7 +770,7 @@ class MiniUser extends MiniCache{
         $criteria->condition="user_status = 0";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id";
+        $criteria->order="id desc";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $data = array();
@@ -886,12 +890,14 @@ class MiniUser extends MiniCache{
         return $this->db2list($data);
 
     }
-    public function getById($id){
-        $criteria                = new CDbCriteria();
-        $criteria->condition="id = :id";
-        $criteria->params    = array('id'=>$id);
-        $data =  User::model()->find($criteria);
-        return $this->db2Item($data);
-
+    /**
+     *通过OpenId获得用户
+     */
+    public function getUserByOpenId($openId){
+        $user = User::model()->find("user_uuid=?",array(trim($openId)));
+        if(isset($user)){
+            return $this->db2Item($user);
+        }
+        return NULL;
     }
 }

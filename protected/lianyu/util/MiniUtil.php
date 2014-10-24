@@ -360,7 +360,16 @@ class MiniUtil{
 
         $dataObj = Yii::app()->data;
         $size = $dataObj->size( $filePath );
-        // 输入文件标签
+        //兼容iPhone/iPad直接打开
+        if($contentType==="application/mspowerpoint"){
+            $contentType = "application/powerpoint";
+        }
+        if($contentType==="application/msexcel"){
+            $contentType = "application/excel";
+        }
+        if($contentType==="application/msword"){
+            $contentType = "application/msword";
+        }
         Header ( "Content-type: $contentType" );
         Header ( "Cache-Control: public" );
         Header ( "Content-length: " . $size );

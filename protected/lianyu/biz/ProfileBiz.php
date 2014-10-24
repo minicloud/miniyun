@@ -78,6 +78,25 @@ class ProfileBiz  extends MiniBiz{
         return $data;
     }
     /**
+     * 保存微信头像与昵称
+     */
+    public function saveWxAvatar($avatar,$nick){
+        //如果用户已设置了头像，则不替换为微信的头像
+        $needReplace = true;
+        $meta = MiniUserMeta::getInstance()->getUserMetas($this->user["id"]);
+        if(array_key_exists("avatar",$meta)){
+            $value = $meta["avatar"];
+            if(!(strpos($value,"http")==0)){
+                $needReplace = false;
+            }
+        }
+        if($needReplace){
+            MiniUserMeta::getInstance()->updateMeta($this->user["id"],"avatar",$avatar);
+        }
+        MiniUserMeta::getInstance()->updateMeta($this->user["id"],"nick",$nick);
+        return $avatar;
+    }
+    /**
      * 保存头像
      * @param $url
      * @return string

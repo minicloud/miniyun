@@ -27,14 +27,14 @@ class PrivilegeService extends MiniService
     public function create()
     {
         $filePath = MiniHttp::getParam("file_path", '');
-        $data = MiniHttp::getParam("slaves", array());
+        $data = MiniHttp::getParam("data", array());
+
         if(count($data)<1){
             return false;
         }
         $privilege = new PrivilegeBiz();
-        $result = $privilege->save($filePath, $data);
-//        return array('success'=>true);
-        return $result;
+        $privilege->save($filePath, $data);
+        return array('success'=>true);
     }
     /**
      * 根据文件路径查找对应用户权限
@@ -53,23 +53,5 @@ class PrivilegeService extends MiniService
         $privilege = new PrivilegeBiz();
         $privilege ->delete($filePath);
         return array('success'=>true);
-    }
-    /**
-     * 获取共享文件的根目录文件
-     */
-    public function getSharedParentPath(){
-        $sharedPath = MiniHttp::getParam('shared_path','');
-        $privilege = new PrivilegeBiz();
-        return $privilege ->getSharedParentPath($sharedPath);
-    }
-
-    /**
-     * 用户对应某个文件的权限
-     * @return mixed
-     */
-    public function getUserPermission(){
-        $sharedPath = MiniHttp::getParam('shared_path','');
-        $privilege = new PrivilegeBiz();
-        return $privilege ->getUserPermission($sharedPath);
     }
 }

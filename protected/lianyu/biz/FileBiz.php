@@ -308,34 +308,5 @@ class FileBiz  extends MiniBiz{
         $editors = unserialize($editors);
         return $editors;
     }
-    /**
-     * 判断迷你文档插件是否打开
-     */
-    public function validMiniDocPlugin(){
-        $result = MiniOption::getInstance()->getOptionValue('active_plugins');;
-        $result = unserialize($result);
-        return $result;
-    }
-    /**
-     *获取文件信息
-     */
-    public function getFileInfo($filePath){
-        $userId = $this->user['id'];
-        $filePath = MiniUtil::joinPath($userId, $filePath);
-        $file = MiniFile::getInstance()->getByPath($filePath);
-        $versionId = $file['version_id'];
-        $fileId = $file['id'];
-        $fileSize = $file['file_size'];
-        $data = array('file_id'=>$fileId,'version_id'=>$versionId,'file_size'=>$fileSize);
-        return $data;
-    }
-    /**
-     * 获取文本文档文本大小
-     */
-    public function limitPolicy(){
-       $data = MiniOption::getInstance()->getOptionValue('mini_doc_limit_file_size');
-       $data = unserialize($data);
-       return $data;
-    }
 }
 
