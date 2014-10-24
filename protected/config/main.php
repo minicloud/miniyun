@@ -96,6 +96,7 @@ $config = array(
         'application.models.install.*',
         'application.components.*',
         'application.models.chooser.*',
+        'application.models.message.*',
         'application.utils.*',
         'application.common.*',
         'application.common.api.*',
