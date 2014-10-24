@@ -5,7 +5,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class PrivilegeService extends MiniService
@@ -27,14 +27,14 @@ class PrivilegeService extends MiniService
     public function create()
     {
         $filePath = MiniHttp::getParam("file_path", '');
-        $data = MiniHttp::getParam("data", array());
-
+        $data = MiniHttp::getParam("slaves", array());
         if(count($data)<1){
             return false;
         }
         $privilege = new PrivilegeBiz();
-        $privilege->save($filePath, $data);
-        return array('success'=>true);
+        $result = $privilege->save($filePath, $data);
+//        return array('success'=>true);
+        return $result;
     }
     /**
      * 根据文件路径查找对应用户权限
@@ -53,5 +53,23 @@ class PrivilegeService extends MiniService
         $privilege = new PrivilegeBiz();
         $privilege ->delete($filePath);
         return array('success'=>true);
+    }
+    /**
+     * 获取共享文件的根目录文件
+     */
+    public function getSharedParentPath(){
+        $sharedPath = MiniHttp::getParam('shared_path','');
+        $privilege = new PrivilegeBiz();
+        return $privilege ->getSharedParentPath($sharedPath);
+    }
+
+    /**
+     * 用户对应某个文件的权限
+     * @return mixed
+     */
+    public function getUserPermission(){
+        $sharedPath = MiniHttp::getParam('shared_path','');
+        $privilege = new PrivilegeBiz();
+        return $privilege ->getUserPermission($sharedPath);
     }
 }

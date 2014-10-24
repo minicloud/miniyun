@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hengwei
- * Date: 14-9-10
- * Time: 上午10:08
+ * 部门权限
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.7
  */
 class FrontDepartmentBiz extends MiniBiz{
     /**

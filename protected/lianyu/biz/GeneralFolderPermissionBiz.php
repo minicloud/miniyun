@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: gly
- * Date: 14-10-15
- * Time: 上午9:56
+ * 普通目录权限
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.7
  */
 class GeneralFolderPermissionBiz extends  MiniBiz{
     public $permission;

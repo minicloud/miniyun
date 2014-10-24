@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hengwei
- * Date: 14-10-15
- * Time: 上午11:39
+ * 用户权限控制
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.7
  */
 class UserPermissionBiz extends MiniBiz{
     private $shareRootPath;
