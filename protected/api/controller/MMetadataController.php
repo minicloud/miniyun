@@ -126,8 +126,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
             {
                 $mimeType = $version["mime_type"];
                 $signature = $version["file_signature"];
+                $file["signature"] = $signature;
             }
-            $file["signature"] = $signature;
+
             $item = $this->assembleResponse($item, $file, $mimeType);
             if(!empty($item)){
                 array_push($contents, $item);
@@ -162,8 +163,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $user = MUserManager::getInstance()->getCurrentUser();
         // 组装子文件数据
         $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
-            $parentFileId=$currentFile['id'],
-            $includeDeleted);
+        $parentFileId  = $currentFile['id'],
+        $includeDeleted);
         $contents = array();
         if(!empty($childrenFiles)){
             foreach($childrenFiles as $childrenFile){
@@ -172,7 +173,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 $mimeType = null;
                 if ($version != NULL){
                     $mimeType = $version["mime_type"];
-                    $file["signature"] = $version["file_signature"];
+                    $childrenFile["signature"] = $version["file_signature"];
                 }
                 $content = $this->assembleResponse($content, $childrenFile, $mimeType);
                 if(!empty($content) && $childrenFile['is_deleted'] == 0){
@@ -199,7 +200,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["revision"]               = intval($file["version_id"]);
         $response["rev"]                    = strval($file["version_id"]);
         $response["root"]                   = $this->root;
-        $response["hash"]                   = isset($file["signature"])? $file["signature"] : "";
+        $response["hash"]                   = !empty($file["signature"])? $file["signature"] : "";
         $response["event"]                  = $file["event_uuid"];
         $response["sort"]                   = (int)$file["sort"];
         //外链Key
