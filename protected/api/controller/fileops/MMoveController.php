@@ -161,12 +161,12 @@ class MMoveController
             if((!$canRenameFile || !$canRenameFolder) && !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
-                    MConst::HTTP_CODE_432);
+                    MConst::HTTP_CODE_409);
             }
             if((!$canRenameFile2 || !$canRenameFolder2) && !$isSelfFile){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
-                    MConst::HTTP_CODE_432);
+                    MConst::HTTP_CODE_409);
             }
         }else{
             $canModifyFile = $fromFilter->canModifyFile();
@@ -174,12 +174,12 @@ class MMoveController
             if((!$canModifyFile2) || (!$canModifyFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
-                    MConst::HTTP_CODE_432);
+                    MConst::HTTP_CODE_409);
             }
             if((!$canModifyFile2) && (!$isSelfFile)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
-                    MConst::HTTP_CODE_432);
+                    MConst::HTTP_CODE_409);
             }
         }
         // 先检查源目录是否存在，如果不存在抛出404错误

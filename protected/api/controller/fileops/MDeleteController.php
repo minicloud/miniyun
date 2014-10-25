@@ -180,7 +180,7 @@ class MDeleteController extends MApplicationComponent implements MIController
                 if($can_file_delete==0){
                     throw new MFileopsException(
                         Yii::t('api','no permission'),
-                        MConst::HTTP_CODE_432);
+                        MConst::HTTP_CODE_409);
 
                 }
             }
@@ -189,7 +189,7 @@ class MDeleteController extends MApplicationComponent implements MIController
                 if($can_folder_delete==0){
                     throw new MFileopsException(
                         Yii::t('api','no permission'),
-                        MConst::HTTP_CODE_432);
+                        MConst::HTTP_CODE_409);
                 }
             }
         }

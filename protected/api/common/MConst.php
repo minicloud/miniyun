@@ -342,7 +342,6 @@ class MConst
     const HTTP_CODE_500 = "500";
     const HTTP_CODE_503 = "503";
     const HTTP_CODE_507 = "507";
-    const HTTP_CODE_432 = "432";      //无操作权限
     /*
      * ============================================================
      * 请求链接地址，开放api

@@ -185,12 +185,8 @@ class MFilesCommon extends MModel {
             $this->event_uuid = $file_detail->event_uuid;
         }
 
-        //如果是属于创建文件则进行权限判断
-//        if ($this->share_filter->is_shared && ($this->create_file == true || $this->create_event == false)) {
-//            $this->share_filter->hasPermissionExecute($this->file_path, MPrivilege::FILE_CREATE);
-//        }
         if($can_create_file==false){
-            throw new MFilesException ( Yii::t('api', "No Permission" ), MConst::HTTP_CODE_432 );
+            throw new MFilesException ( Yii::t('api', "No Permission" ), MConst::HTTP_CODE_409 );
         }
         $this->conflictFile ();
         $this->renameFile ();
