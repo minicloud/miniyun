@@ -31,7 +31,7 @@ class MiniUtil{
      */
     public static function getRelativePath($path){
         $parts = explode("/",$path);
-        $path = "/".implode("/",array_slice($parts,2));
+        $path = "/".implode("/",array_slice($parts,1));
         return $path;
     }
     /**
@@ -51,7 +51,7 @@ class MiniUtil{
      * @return string
      */
     public static function getAbsolutePath($userId,$path){
-       return self::joinPath($userId,$path);
+       return self::joinPath($path);
     }
     /**
      * 根据文件名获得扩展名

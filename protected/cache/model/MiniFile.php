@@ -890,7 +890,7 @@ class MiniFile extends MiniCache{
             return;
         }
 
-        $filePath = MiniUtil::getPathBySplitStr ( $signature );
+        $filePath = MiniUtil::getPathBySplitStr ($signature);
         //data源处理对象
         $dataObj = Yii::app()->data;
         if ($dataObj->exists( $filePath ) === false) {

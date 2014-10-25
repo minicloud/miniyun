@@ -39,7 +39,7 @@ class LinkCreateBiz extends MiniBiz{
         $this->originDomain = $originDomain;
         $this->appKey  = $chooserAppKey;
         $this->session = $session;
-        $path          = MiniUtil::joinPath($this->user["id"],$path);
+        $path          = MiniUtil::joinPath($path);
         $this->file    = MiniFile::getInstance()->getByPath($path);
     }
 

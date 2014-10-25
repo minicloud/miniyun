@@ -14,8 +14,7 @@ class HistoryBiz extends MiniBiz{
      * @return mixed
      */
     public function getList($path){
-        $userId = $this->user['id'];
-        $path = MiniUtil::joinPath($userId, $path);
+        $path = MiniUtil::joinPath($path);
         $file = MiniFile::getInstance()->getByPath($path);
         $version_id = $file['version_id'];
         $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,"version");
