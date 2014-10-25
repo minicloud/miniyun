@@ -1078,6 +1078,20 @@ class MiniFile extends MiniCache{
             return $this->db2list($items);
         }
     }
+    //根据filePath和mine_type获取图片
+    public function searchFileByPathType($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->select   ='*';
+        $criteria->condition     = "is_deleted=0 and  mime_type like 'image%' and file_path like '%".$filePath."%'";
+        $criteria->order    ='file_create_time desc';
+        $items              	 =UserFile::model()->findAll($criteria);
+        $total              	 =UserFile::model()->count($criteria);
+        if($total == 0){
+            return null;
+        }else{
+            return $this->db2list($items);
+        }
+    }
     /**
      *
      * 历史版本恢复
