@@ -76,7 +76,6 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                                         Yii::t('api','The folder name is invalid'),
                                         MConst::HTTP_CODE_400);
         }
-        
         // 检查是否在共享目录
         $this->share_filter = MSharesFilter::init();
         if ($this->share_filter->handlerCheck($this->_user_id, $path, MConst::CREATE_DIRECTORY)) {
@@ -87,7 +86,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $path               = "/".$this->_user_id.$path;
         }
         $parentPath        = dirname($path);
-        if(dirname(MiniUtil::getRelativePath($path)) == "/"){
+        if(dirname(MiniUtil::getRelativePath($path)) == "/".$this->_user_id){
             $permission = "111111111";
         }else{
             $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
@@ -104,12 +103,12 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_432);
         }
         // 查询其是否存在 信息
-
         $file               = MiniFile::getInstance()->getByPath($path);
 
         
         // 是否存在相同文件路径, 且被删除的记录
         $hadFileDelete    = false;
+
         if (isset($file))
         {
             if ($file["is_deleted"] == false)

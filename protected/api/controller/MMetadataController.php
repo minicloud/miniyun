@@ -55,17 +55,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         }
         echo json_encode($response) ;
     }
-    private function getGroupIds($groupId,$ids){
-        $group = MiniGroupRelation::getInstance()->getByGroupId($groupId);
-        if(isset($group)){
-            if($group['parent_group_id']!=-1){
-                array_push($ids,$group['parent_group_id']);
-                return $this->getGroupIds($group['parent_group_id'],$ids);
-            }else{
-                return $ids;
-            }
-        }
-    }
+
     /**
      * 处理根目录下文件查询
      */
