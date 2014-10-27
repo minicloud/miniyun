@@ -392,13 +392,13 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 创建版本信息
         //
-        $ret = MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
-        if ($ret === false)
-        {
-            throw new MFileopsException(
-                                        Yii::t('api','Internal Server Error'),
-                                        MConst::HTTP_CODE_500);
-        }
+//        $ret = MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
+//        if ($ret === false)
+//        {
+//            throw new MFileopsException(
+//                                        Yii::t('api','Internal Server Error'),
+//                                        MConst::HTTP_CODE_500);
+//        }
         //
         // 更新版本
         //
