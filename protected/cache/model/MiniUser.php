@@ -897,7 +897,7 @@ class MiniUser extends MiniCache{
             foreach($items as $item) {
                 $group = MiniGroup::getInstance()->findById($item->group_id);
                 if(isset($group)){
-                    if($group['user_id']>1){
+                    if($group['user_id']>0){
                         continue;
                     }
                 }
