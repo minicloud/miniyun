@@ -98,7 +98,6 @@ class AlbumBiz  extends MiniBiz{
         $user      = $this->user;
         $filePaths = $this->getAllSharedPath($user['id']);
         $albumList = MiniFile::getInstance()->getFileByUserType($user["id"],"image");
-
         //获取当前文件夹下的子文件
         foreach($filePaths as $filePath){
             $images = MiniFile::getInstance()->searchFileByPathType($filePath);
@@ -107,20 +106,25 @@ class AlbumBiz  extends MiniBiz{
             }
         }
         $sharedImgTotal = count($imageArr);
+        $fileList["total"]=count($albumList)+$sharedImgTotal;
         if( $pageSet>=$sharedImgTotal){
             $pageSet = $pageSet-$sharedImgTotal;
             $albums = MiniFile::getInstance()->getFileListPage( $pageSet,$pageSize,$user["id"],"image");
         }else{
-            if($page*$pageSize<=$sharedImgTotal){
-                 for($index=$pageSet;$index<$page*$pageSize-1;$index++){
+            if($page*$pageSize<$sharedImgTotal){
+                 for($index=$pageSet;$index<=$page*$pageSize-1;$index++){
                      $albums[] = $imageArr[$index];
                  }
             }else{
                 for($index=$pageSet;$index<$sharedImgTotal;$index++){
                     $albumShared[] = $imageArr[$index];
                 }
-                $albumList =   $albums = MiniFile::getInstance()->getFileListPage(0,$pageSize*$page-$sharedImgTotal,$user["id"],"image");
-                $albums = array_merge($albumList,$albumShared);
+                $albumList =  MiniFile::getInstance()->getFileListPage(0,$pageSize*$page-$sharedImgTotal,$user["id"],"image");
+                if(count($albumList)!=0){
+                    $albums = array_merge($albumList,$albumShared);
+                }else{
+                    $albums = $albumShared;
+                }
             }
         }
         foreach($albums as $value){
@@ -131,7 +135,6 @@ class AlbumBiz  extends MiniBiz{
             $list[]=$data;
         }
         $fileList['list']=$list;
-        $fileList["total"]=count($albumList)+$sharedImgTotal;
         return $fileList;
     }
 

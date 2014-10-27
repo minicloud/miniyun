@@ -615,6 +615,14 @@ class MiniUser extends MiniCache{
     public function getEnableCount(){
         return User::model()->count('user_status=1');
     }
+    public function getById($id){
+        $criteria                = new CDbCriteria();
+        $criteria->condition="id = :id";
+        $criteria->params    = array('id'=>$id);
+        $data =  User::model()->find($criteria);
+        return $this->db2Item($data);
+
+    }
     /**
      * 网页版显示好友列表，对其进行分页
      * @param mixed $userId 用户ID，用于排除自己
@@ -897,7 +905,7 @@ class MiniUser extends MiniCache{
             foreach($items as $item) {
                 $group = MiniGroup::getInstance()->findById($item->group_id);
                 if(isset($group)){
-                    if($group['user_id']>1){
+                    if($group['user_id']>0){
                         continue;
                     }
                 }
