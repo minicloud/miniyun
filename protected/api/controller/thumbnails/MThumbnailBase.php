@@ -68,10 +68,10 @@ class MThumbnailBase extends MModel {
         $path                            = MUtils::convertStandardPath($path);
         // 用户信息
         $user                            = MUserManager::getInstance()->getCurrentUser();
-//        if (!empty($_REQUEST["userId"]) && $_REQUEST["userId"] != 'undefined' && $user['user_name'] == 'admin') {
-//            $userId = $_REQUEST["userId"];
-//            $user = MiniUser::getInstance()->getUser($userId);
-//        }
+        if (!empty($_REQUEST["userId"]) && $_REQUEST["userId"] != 'undefined' && $user['user_name'] == 'admin') {
+            $userId = $_REQUEST["userId"];
+            $user = MiniUser::getInstance()->getUser($userId);
+        }
         if(dirname($path)=="/"){
             $path = "/".$user['id'].$path;
         }
