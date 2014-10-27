@@ -226,7 +226,7 @@ class MiniUserGroupRelation extends MiniCache{
             $result = MiniGroup::getInstance()->findById($groupId);
             $group['id'] = $result['id'];
             $group['user_id'] = $result['user_id'];
-            $group['group_name'] = $result['name'];
+            $group['group_name'] = $result['group_name'];
             array_push($list,$group);
         }
         return $list;
