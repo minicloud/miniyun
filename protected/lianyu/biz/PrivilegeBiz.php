@@ -21,6 +21,7 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege = array();
             $privilege['id'] = $user['user_id'];
             $privilege['name'] = $user['user_name'];
+            $privilege['nick'] = $user['nick'];
             $privilege['avatar'] = $user['avatar'];
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
@@ -43,6 +44,7 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege = array();
             $privilege['id']=$item['group_id'];
             $privilege['name']=$group['group_name'];
+            $privilege['nick']=$group['group_name'];
             $privilege['avatar'] = MiniHttp::getMiniHost()."static/images/icon_group.png";
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
