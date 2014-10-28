@@ -98,14 +98,17 @@ class MSearchController extends MApplicationComponent implements MIController {
                 $includeDeleted);
             $currentFileParts  = explode('/',$path);
             $currentFileUserId = $currentFileParts[1];
-            $query = str_replace("%", "\\%", $query);
-            $sql = ' file_name like "%' . $query . '%"';
-            $files = array();
-            foreach($childrenFiles as $childrenFile){
-                $condition = $sql . 'and file_path="' . $childrenFile['file_path'] . '" ';
-                $file = MFiles::findAll($condition);
-                $files = array_merge($files,$file);
-            }
+            $files = $childrenFiles;
+//            $query = str_replace("%", "\\%", $query);
+//            $sql = ' file_name like "%' . $query . '%"';
+//            $sql = '';
+//            $files = array();
+//            foreach($childrenFiles as $childrenFile){
+//                $condition = $sql . 'file_path="' . $childrenFile['file_path'] . '" ';
+//                $file = MFiles::findAll($condition);
+//                $files = array_merge($files,$file);
+//            }
+
 //            $contents = array();
 //            if(!empty($childrenFiles)){
 //                foreach($childrenFiles as $childrenFile){
@@ -123,6 +126,17 @@ class MSearchController extends MApplicationComponent implements MIController {
 //                }
 //            }
 //            $response['contents'] = $contents;
+        }
+        $result = array();
+        $query = str_replace("%", "\\%", $query);
+        $sql = ' file_name like "%' . $query . '%"';
+        foreach($files as $file) {
+            $condition = $sql . 'and file_path like"' . $file['file_path'] . '%" ';
+            $file = MFiles::findAll($condition);
+            if(empty($file)) {
+                continue;
+            }
+            $result = array_merge($result, $file);
         }
 //        $path        = "/{$this->_user_id}{$path}";
 //        $path        = MUtils::convertStandardPath($path) . "/";
@@ -164,8 +178,13 @@ class MSearchController extends MApplicationComponent implements MIController {
         // }
 //        $keys = array();
         $response = array();
-        if(!empty($files)){
-            foreach($files as $file){
+        $filePaths = array();
+        if(!empty($result)){
+            foreach($result as $file){
+                if(in_array($file['file_path'],$filePaths)){
+                    continue;
+                }
+                array_push($filePaths,$file['file_path']);
                 $item = array();
                 $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
                 $mimeType = null;
@@ -183,7 +202,6 @@ class MSearchController extends MApplicationComponent implements MIController {
                 }
             }
         }
-
 //        foreach($query_db_file as $key => $db_file) {
 //            if ($key >= $file_limit)
 //                break;
@@ -230,10 +248,11 @@ class MSearchController extends MApplicationComponent implements MIController {
 //        $access = new SharesAccessFilter();
 //        $sharedpaths = $access->handleGetAllSharesFolder($this->_user_id);
         $query = str_replace("%", "\\%", $query);
-        $sql = ' file_name like "%' . $query . '%"';
+//        $sql = ' file_name like "%' . $query . '%"';
+        $sql = '';
         $retval = array();
         foreach($sharedpaths as $sharedpath) {
-            $condition = $sql . ' and parent_file_id=0 and file_path="' . $sharedpath . '" ';
+            $condition = $sql . 'parent_file_id=0 and file_path="' . $sharedpath . '" ';
             $files = MFiles::findAll($condition);
             if(empty($files)) {
                 continue;
