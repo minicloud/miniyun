@@ -344,11 +344,29 @@ class MiniBox{
         $this->webApp = Yii::createWebApplication($config);
         MiniAppParam::getInstance()->load();
         MiniPlugin::getInstance()->load();
-
-        //根据物理路径判断网页客户端本地是否存在
-        $this->offline = $this->isOffline();
         //根据外部的参数判断是什么客户端
         $this->isWeb = !Util::isPCClient();
+        //初始化cookie等信息
+        $accessToken = Util::getParam("accessToken");
+        if(!empty($accessToken)){
+            Yii::app()->session["accessToken"] = $accessToken;
+            setcookie("accessToken",$accessToken,time()+10*24*3600,"/");
+        }
+        $version = Util::getParam("cloudVersion");
+        if(!empty($version)){
+            setcookie("cloudVersion",$version,time()+10*24*3600,"/");
+        }
+        $appKey = Util::getParam("appKey");
+        if(!empty($appKey)){
+            setcookie("appKey",$appKey,time()+10*24*3600,"/");
+        }
+        $appSecret = Util::getParam("appSecret");
+        if(!empty($appSecret)){
+            setcookie("appSecret",$appSecret,time()+10*24*3600,"/");
+        }
+        //根据物理路径判断网页客户端本地是否存在
+        $this->offline = $this->isOffline();
+
         $port = $_SERVER["SERVER_PORT"];
         if($port=="443"){
             $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
@@ -382,19 +400,21 @@ class MiniBox{
             $actionInfo   = explode("?",$uriInfo[2]);
             $this->action = $actionInfo[0];
         }
-        if(empty($this->controller)){
-            $accessToken = $this->getCookie("accessToken");
-            if(!empty($accessToken)){
-                //根目录访问
-                if($this->offline){
-                    $url = Util::getMiniHost()."index.php/netdisk/index";
+        if($this->isWeb){
+            if(empty($this->controller)){
+                $accessToken = $this->getCookie("accessToken");
+                if(!empty($accessToken)){
+                    //根目录访问
+                    if($this->offline){
+                        $url = Util::getMiniHost()."index.php/netdisk/index";
+                    }else{
+                        $url = Util::getMiniHost()."index.php/box/index";
+                    }
                 }else{
-                    $url = Util::getMiniHost()."index.php/box/index";
+                    $url = Util::getMiniHost()."index.php/site/login";
                 }
-            }else{
-                $url = Util::getMiniHost()."index.php/site/login";
+                $this->redirectUrl($url);
             }
-            $this->redirectUrl($url);
         }
     }
 
@@ -457,13 +477,7 @@ class MiniBox{
             //兼容老版本逻辑
             $oldVersion = new OldVersion($this->offline);
             $oldVersion->load($this->webApp);
-        }else{
-            $accessToken = Util::getParam("accessToken");
-            if(!empty($accessToken)){
-                setcookie("accessToken",$accessToken,time()+10*24*3600,"/");
-            }
         }
-
         $this->appInfo = new SiteAppInfo();
         //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
         if($this->isWeb){
@@ -475,6 +489,7 @@ class MiniBox{
         $language = $this->getCookie("language");
         if(empty($language)){
             $language = "zh_cn";
+            setcookie("language",$language,time()+10*24*3600,"/");
         }
         $this->language = $language;
         $v = $this->getCookie("cloudVersion");

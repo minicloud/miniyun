@@ -62,7 +62,6 @@ class UserIdentity extends CUserIdentity
         Yii::app()->session["appId"] = $device["user_device_type"];
         $user["appId"] = $device["user_device_type"];
         Yii::app()->session["user"] = $user;
-
         $deviceId = 0;
         if(!empty($device)){
             $deviceId = $device["id"];
@@ -77,7 +76,12 @@ class UserIdentity extends CUserIdentity
         if(!array_key_exists("accessToken",$_COOKIE)){
             return NULL;
         }
-        $accessToken  = $_COOKIE['accessToken'];
+        //当accessToken在session中的时候，他的优先级最高，然后cookie里面的accessToken
+        //这里解决新版客户端网页加载的问题
+        $accessToken = Yii::app()->session["accessToken"];
+        if(empty($accessToken)){
+            $accessToken  = $_COOKIE['accessToken'];
+        }
         if(empty($accessToken)){
             return NULL;
         }
@@ -96,24 +100,20 @@ class UserIdentity extends CUserIdentity
      */
     private function getCurrentDevice($user){
         $deviceType = 1;
-        $deviceName = "web";
         if(MiniHttp::isPCClient()){
             if(MiniHttp::isWindowsOS()){
                 $deviceType = 2;//Windows 客户端
-                $deviceName = "Windows PC";
             }else if(MiniHttp::isMacOS()){
                 $deviceType = 3;//Mac 客户端
-                $deviceName = "Mac PC";
             }else{
-                $deviceType = 4;//Linux 客户端
-                $deviceName = "Linux PC";
+                $deviceType = 5;//Linux 客户端
             }
         }
         //对设备进行检测
         if($deviceType==1){
             $device = DeviceManager::getDevice($user["id"], MConst::DEVICE_WEB, "web", $_SERVER['HTTP_USER_AGENT']);
         }else{
-            $device = MiniUserDevice::getInstance()->getFirstByDeviceTypeAndDeviceName($user["id"],$deviceType,$deviceName);
+            $device = MiniUserDevice::getInstance()->getFirstByDeviceTypeAndDeviceName($user["id"],$deviceType);
         }
         return $device;
     }

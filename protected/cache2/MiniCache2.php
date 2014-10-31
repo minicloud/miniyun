@@ -13,7 +13,7 @@ class MiniCache2{
 	 * 是否启用2级缓存
 	 * @var boolean
 	 */
-	protected   $hasCache2    = true;
+	protected   $hasCache2    = false;
 	
 	public function MiniCache2(){
 		 

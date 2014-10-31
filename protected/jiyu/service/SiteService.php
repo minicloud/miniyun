@@ -9,6 +9,17 @@
  */
 class SiteService extends MiniService{
     /**
+     * 用户是否登录信息
+     */
+    public function userInfo(){
+        $data = array();
+        $data['user_name'] = 'admin';
+        $data['used_space'] = '1024';
+        $data['total_space'] = '1024';
+        $data['is_login'] = false;
+        return $data;
+    }
+    /**
      * 站点信息
      * @return array
      */
