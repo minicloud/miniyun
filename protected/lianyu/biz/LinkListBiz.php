@@ -24,8 +24,13 @@ class LinkListBiz extends MiniBiz {
         $fileList=null;
         $key=0;
         $listShare =$this->do2vo($fileList,$shareList,$key);
-        $list['listShare'] = $listShare;
-        $list['total']     = $total;
+        if(!empty($listShare)){
+            $list['listShare'] = $listShare;
+        }else{
+            $list['listShare'] = array();
+        }
+
+        $list['total']     = count($listShare);
         return $list;
     }
 
@@ -101,8 +106,11 @@ class LinkListBiz extends MiniBiz {
                 $shareData['file_name'] = null;
             }else{
                 $share= $value;
-                $fileList= MiniFile::getInstance()->getById($share['file_id']);
+                $fileList= MiniFile::getInstance()->getUndeleteFile($share['file_id']);
                 $file=$fileList;
+            }
+            if(empty($file)){
+                return NULL;
             }
             $shareData['file_name']   = $file['file_name'];
             $shareData['path']        = MiniUtil::getRelativePath($file['file_path']);

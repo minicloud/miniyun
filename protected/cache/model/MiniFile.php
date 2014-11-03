@@ -1087,7 +1087,16 @@ class MiniFile extends MiniCache{
         MiniVersion::getInstance()->updateRefCountByIds(array($version["id"]), TRUE);
         return true;
     }
-
+    public function getUnDeleteFile($id){
+        $criteria  =new CDbCriteria();
+        $criteria->select     = '*';
+        $criteria ->condition = "is_deleted=0 and id=:id";
+        $criteria->params=array(
+            "id"=>$id
+        );
+        $item=UserFile::model()->find($criteria);
+        return $this->db2Item($item);
+    }
 
     /**
      * 获得加删除文件分页列表
