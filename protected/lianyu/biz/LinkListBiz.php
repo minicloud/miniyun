@@ -110,7 +110,7 @@ class LinkListBiz extends MiniBiz {
                 $file=$fileList;
             }
             if(empty($file)){
-                return NULL;
+                break;
             }
             $shareData['file_name']   = $file['file_name'];
             $shareData['path']        = MiniUtil::getRelativePath($file['file_path']);
