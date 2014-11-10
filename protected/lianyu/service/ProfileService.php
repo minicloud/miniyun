@@ -37,10 +37,11 @@ class ProfileService extends MiniService{
      * @return array
      */
     public function devices(){
+        $deviceInfo = MiniHttp::getParam('device_info','');
         $currentPage = MiniHttp::getParam("current_page","1");
         $pageSize = MiniHttp::getParam("page_size","15");
         $biz = new ProfileBiz();
-        $data = $biz->getDevices($currentPage,$pageSize);
+        $data = $biz->getDevices($currentPage,$pageSize,$deviceInfo);
         return $data;
     }
     /**

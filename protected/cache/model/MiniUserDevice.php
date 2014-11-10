@@ -187,9 +187,13 @@ class MiniUserDevice extends MiniCache{
     /**
      *获取数据的分页(排除自己的设备)
      */
-    public function getDevices($userId,$offset,$limit){
+    public function getDevices($userId,$offset,$limit,$deviceInfo){
         $criteria            = new CDbCriteria;
-        $criteria->condition = "user_id =:user_id and user_device_type!=1";
+        if(!empty($deviceInfo)){
+            $criteria->condition = "user_id =:user_id and user_device_info!='".$deviceInfo."'";
+        }else{
+            $criteria->condition = "user_id =:user_id and user_device_type!=1";
+        }
         $criteria->params    = array('user_id' => $userId);
         $criteria->offset = $offset;
         $criteria->limit = $limit;

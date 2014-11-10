@@ -35,9 +35,9 @@ class ProfileBiz  extends MiniBiz{
      * 设备相关数据
      *
      */
-    public function getDevices($currentPage,$pageSize){
+    public function getDevices($currentPage,$pageSize,$deviceInfo){
         $userId = $this->user['user_id'];
-        $devices = MiniUserDevice::getInstance()->getDevices($userId,($currentPage-1)*$pageSize,$pageSize);
+        $devices = MiniUserDevice::getInstance()->getDevices($userId,($currentPage-1)*$pageSize,$pageSize,$deviceInfo);
         $deviceList = array();
         foreach($devices as $device){
             $item = array();
@@ -48,7 +48,8 @@ class ProfileBiz  extends MiniBiz{
             $deviceList[] = $item;
         }
         $data['devices'] = $deviceList;
-        $data['deviceCount'] = ceil((MiniUserDevice::getInstance()->count($userId))/$pageSize);
+        $data['deviceCount'] = count($deviceList);
+//        $data['deviceCount'] = ceil((MiniUserDevice::getInstance()->count($userId))/$pageSize);
         return $data;
     }
     /**
