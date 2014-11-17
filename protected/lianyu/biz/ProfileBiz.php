@@ -14,14 +14,43 @@ class ProfileBiz  extends MiniBiz{
      * @return array
      */
     public function getProfile(){
-       $user['user_name'] = $this->user['user_name'];
-       $user['avatar']    = $this->user['avatar'];
-       $user['avatar']    = $this->user['avatar'];
-       $user['nick']      = $this->user['nick'];
-       $user['email']     = $this->user['email'];
-       $user['space']     = $this->user['space'];
-       $user['usedSpace'] = $this->user['usedSpace'];
-       return $user;
+        $user['display_name'] = $this->user['nick'];
+        $user['user_name']    = $this->user['user_name'];
+        $user['avatar']       = $this->user['avatar'];
+        $user['nick']         = $this->user['nick'];
+        $user['email']        = $this->user['email'];
+        $user['space']        = $this->user['space'];
+        $user['usedSpace']    = $this->user['usedSpace'];
+        $user['used_space']   = $this->user['usedSpace'];
+        $user['email']        = $this->user['email'];
+        $user['phone']        = $this->user['phone'];
+        //这里的信息比较冗余，把站点的逻辑融入到用户信息获得的地方，是为了不让PC客户端发送多次请求
+        //打印用户是否是管理员
+        $info = array("success"=>false);
+        if(!empty($user)){
+            if($user["is_admin"]){
+                $info = array("success"=>true);
+            }
+        }
+        $user['is_admin'] = $info;
+        //输出服务器时间
+        $info = array("time"=>time());
+        $user['time'] = $info;
+        //获得站点信息
+        $app = new SiteService();
+        $user['app_info'] = $app->info();
+        //是否系统只有默认账号
+        $user['only_default_account'] = $app->onlyDefaultAccount();
+        //迷你存储或第3方存储系统
+        $thirdStoreInfo = MiniHttp::getThirdStoreInfo();
+        $user['third_store'] = $thirdStoreInfo;
+        //获得授权码信息
+        $code = MiniOption::getInstance()->getOptionValue("code");
+        if(empty($code)){
+            $code = "";
+        }
+        $user['code']          = $code;
+        return $user;
     }
     /**
      * 修改昵称

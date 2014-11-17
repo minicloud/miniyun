@@ -80,7 +80,12 @@ class UserIdentity extends CUserIdentity
         //这里解决新版客户端网页加载的问题
         $accessToken = Yii::app()->session["accessToken"];
         if(empty($accessToken)){
-            $accessToken  = $_COOKIE['accessToken'];
+            //PC客户端从Post参数获得access_token
+            if(MiniHttp::isPCClient()){
+                $accessToken = MiniHttp::getParam("access_token","");
+            }else{
+                $accessToken  = $_COOKIE['accessToken'];
+            }
         }
         if(empty($accessToken)){
             return NULL;
