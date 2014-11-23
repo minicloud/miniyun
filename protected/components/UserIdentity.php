@@ -73,9 +73,6 @@ class UserIdentity extends CUserIdentity
      * 根据cookie中的accessToken获得用户信息
      */
     private function getUserByAccessToken(){
-        if(!array_key_exists("accessToken",$_COOKIE)){
-            return NULL;
-        }
         //当accessToken在session中的时候，他的优先级最高，然后cookie里面的accessToken
         //这里解决新版客户端网页加载的问题
         $accessToken = Yii::app()->session["accessToken"];
@@ -84,6 +81,9 @@ class UserIdentity extends CUserIdentity
             if(MiniHttp::isPCClient()){
                 $accessToken = MiniHttp::getParam("access_token","");
             }else{
+                if(!array_key_exists("accessToken",$_COOKIE)){
+                    return NULL;
+                }
                 $accessToken  = $_COOKIE['accessToken'];
             }
         }
