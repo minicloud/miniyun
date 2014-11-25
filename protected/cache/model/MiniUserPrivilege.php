@@ -18,7 +18,7 @@ class MiniUserPrivilege extends MiniCache
      * Cache Key的前缀
      * @var string
      */
-    private static $CACHE_KEY = "cache.model.UserPrivilege";
+    private static $CACHE_KEY = "cache.model.UserPrivileges";
 
     /**
      *  静态成品变量 保存全局实例
