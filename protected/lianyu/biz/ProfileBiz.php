@@ -77,8 +77,7 @@ class ProfileBiz  extends MiniBiz{
             $deviceList[] = $item;
         }
         $data['devices'] = $deviceList;
-        $data['deviceCount'] = count($deviceList);
-//        $data['deviceCount'] = ceil((MiniUserDevice::getInstance()->count($userId))/$pageSize);
+        $data['deviceCount'] = ceil((MiniUserDevice::getInstance()->count($userId))/$pageSize);
         return $data;
     }
     /**
