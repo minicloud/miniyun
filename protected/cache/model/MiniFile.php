@@ -257,9 +257,9 @@ class MiniFile extends MiniCache{
         $item->mime_type         = $file["mime_type"];//有存在NULL的情况
         $item->save();
         //修复sort值为id值，确保唯一
-        $item->sort              = $item->id;
-        $item->save();
-        $file["id"] = $item->id;
+        $update = array();
+        $update['sort'] = $item->id;
+        $this->update($item->id,$update);
         return $file;
 
     }
