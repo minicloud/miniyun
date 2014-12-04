@@ -18,7 +18,16 @@ class ProfileService extends MiniService{
         $data  = $model->getProfile();
         return $data;
     }
-
+    /**
+     * 解锁，判断用户密码是否正确
+     * @return array
+     */
+    public function unlock(){
+        $model = new ProfileBiz();
+        $password = MiniHttp::getParam("password","");
+        $data  = $model->unlock($password);
+        return $data;
+    }
     /**
      * 修改昵称
      * @return bool

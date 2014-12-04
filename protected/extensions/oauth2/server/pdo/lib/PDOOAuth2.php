@@ -196,10 +196,7 @@ class PDOOAuth2 extends OAuth2 {
         //如是网页版，则把前一个Token删除，确保系统只有一个用户登录网页版
         //如果是在pc客户端解锁页面的时候，不用删除设备
         if(MiniHttp::clientIsBrowser()){
-            $source  = $_REQUEST['source'];
-            if(empty($source) || $source!="unlock"){
-                MiniToken::getInstance()->deleteByDeviceId($deviceId);
-            }
+            MiniToken::getInstance()->deleteByDeviceId($deviceId);
         }
         $tokenOauth = MiniToken::getInstance()->getToken4Login($clientId,$deviceId);
         if (!isset($tokenOauth)) {

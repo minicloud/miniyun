@@ -53,6 +53,16 @@ class ProfileBiz  extends MiniBiz{
         return $user;
     }
     /**
+     * 解锁，判断当前用户的密码是否正确
+     * @password 用户密码
+     */
+    public function unlock($password){
+        $user = $this->user;
+        $isPass = MiniUser::getInstance()->valid($user["user_name"],$password);
+        return array("success"=>$isPass);
+
+    }
+    /**
      * 修改昵称
      */
     public function editNick($nick){
