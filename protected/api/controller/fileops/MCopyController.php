@@ -392,7 +392,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 创建版本信息
         //
-//        $ret = MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
+        MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
 //        if ($ret === false)
 //        {
 //            throw new MFileopsException(

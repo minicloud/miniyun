@@ -334,12 +334,11 @@ class MiniUser extends MiniCache{
 
     /**
      * @param $userId
-     * @param $oldPassword
      * @param $newPassword
      * @return array|bool|mixed|null|string
      * 增加判断老密码是否正确
      */
-    public function updatePassword2($userId,$oldPassword,$newPassword){
+    public function updatePassword2($userId,$newPassword){
         if($newPassword == ""){
             return false;
         }
@@ -348,13 +347,8 @@ class MiniUser extends MiniCache{
         if(!$user){
             return false;
         }
-        $dbPassword = $user['user_pass'];
-        if($dbPassword==MiniUtil::signPassword($oldPassword, $user["salt"])){
             $user["user_pass"] = MiniUtil::signPassword($newPassword, $user["salt"]);
             $user->save();
-        }else{
-            return 'oldPassWrong';
-        }
         //删除用户自身的缓存
         $this->cleanCache($userId);
         //清空与当前用户相关的Token
