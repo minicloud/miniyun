@@ -701,7 +701,11 @@ class MiniUser extends MiniCache{
         }
         return array();
     }
-
+    public function getAll(){
+        $criteria                = new CDbCriteria();
+        $data =  User::model()->findAll($criteria);
+        return $this->db2list($data);
+    }
     /**
      * 搜索所有用户
      */

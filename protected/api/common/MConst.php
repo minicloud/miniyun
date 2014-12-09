@@ -292,6 +292,7 @@ class MConst
     const DEFAULT_PERMISSION_CHANGE_TO_CAN_NOT_READ = 15; // 默认权限从能读变化为不能读
     const SHARED_ICON            = 16; // 共享或者公共目录创建事件，客户端只修改图标
     const GROUP_MOVE             = 17; // 用户组移动目录、文件,或者重命名
+    const CANCEL_PUBLIC          = 18; // 用户取消公共目录
     const COPY                   = 128;
     const RENAME                 = 256; // 重命名---数据库不记录该值
      

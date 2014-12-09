@@ -8,6 +8,7 @@
  * @since 1.7
  */
 class DepartmentPermissionBiz  extends MiniBiz{
+    public $ids = array();
     /**
      * 获取部门权限
      */
@@ -44,5 +45,30 @@ class DepartmentPermissionBiz  extends MiniBiz{
         }else{
             return NULL;
         }
+    }
+    private function getGroups($departmentId){
+        $departments = MiniGroupRelation::getInstance()->getByParentId($departmentId);
+        if(count($departments)>0){
+            foreach($departments as $department){
+                $userGroups = MiniUserGroupRelation::getInstance()->getByGroupId($department['group_id']);
+                if(count($userGroups)>0){
+                    foreach($userGroups as $userGroup){
+                        $this->ids[] = $userGroup['user_id'];
+                    }
+                }
+                $this->getGroups($department['id']);
+            }
+
+        }
+
+    }
+    public function getUserByDepartmentId($departmentId){
+        $userGroups = MiniUserGroupRelation::getInstance()->getByGroupId($departmentId);
+        if(count($userGroups)>0){
+            foreach($userGroups as $userGroup){
+                $this->ids[] = $userGroup['user_id'];
+            }
+        }
+        $this->getGroups($departmentId);
     }
 }

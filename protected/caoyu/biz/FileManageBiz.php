@@ -136,13 +136,53 @@ class FileManageBiz extends MiniBiz{
      */
     public function setToPublic($filePath){
         Minifile::getInstance()->setToPublic($filePath);//设置目录file_type为4(公共目录)
+        $this->share_filter = MSharesFilter::init();
+        $event_action = MConst::SHARED_ICON;
+        $this->createPublicEvent($event_action,$filePath);
         MiniGroupPrivilege::getInstance()->create(-1,$filePath,'111111111');
         return array('success'=>true);
+    }
+    private function createPublicEvent($event_action,$filePath){
+        $device                   = MUserManager::getInstance()->getCurrentDevice();
+        $userDeviceId             = $device["device_id"];
+        $users = MiniUser::getInstance()->getAll();
+        foreach($users as $user){
+            if($user['id']!=$this->user['id']){
+                $this->share_filter->slaves[$user['id']] = $user['id'];
+            }
+
+        }
+        $this->share_filter->is_shared = true;
+        if($event_action == MConst::SHARED_ICON){
+            $type = $event_action;
+        }else{
+            $type = 0 ;
+        }
+        $ret_value                       = MiniEvent::getInstance()->createEvent(
+            $this->user['id'],
+            $userDeviceId,
+            $event_action,
+            $filePath,
+            $filePath,
+            MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID),
+            $type
+        );
+        if ($ret_value === false)
+        {
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_500);
+        }
+        // 为每个共享用户创建事件
+        $this->share_filter->handlerAction($event_action, $userDeviceId,$filePath,$filePath);
     }
     /**
      * 设置为公共目录
      */
     public function cancelPublic($filePath){
+        $this->share_filter = MSharesFilter::init();
+        $event_action = MConst::CANCEL_PUBLIC;
+        $this->createPublicEvent($event_action,$filePath);
         Minifile::getInstance()->cancelPublic($filePath);//设置目录file_type为1(变成普通目录)
         MiniGroupPrivilege::getInstance()->deletePrivilege(-1, $filePath);
         return array('success'=>true);

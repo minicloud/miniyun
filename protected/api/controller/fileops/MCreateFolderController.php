@@ -95,6 +95,9 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                 $permission = "111111111";
             }else{
                 $permission = $permissionArr['permission'];
+                $privilegeModel = new PrivilegeBiz();
+                $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                $this->share_filter->is_shared = true;
             }
         }
         $miniPermission = new MiniPermission($permission);

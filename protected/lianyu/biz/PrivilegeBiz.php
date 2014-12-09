@@ -8,6 +8,7 @@
  * @since 1.6
  */
 class PrivilegeBiz  extends MiniBiz{
+    public $share_filter      = null;
     /**
      * 获得拥有权限的用户列表
      */
@@ -71,6 +72,9 @@ class PrivilegeBiz  extends MiniBiz{
      * @return bool
      */
     public function save($filePath,$slaves){
+        $device                   = MUserManager::getInstance()->getCurrentDevice();
+        $userDeviceId             = $device["device_id"];
+        $this->share_filter = MSharesFilter::init();
         //delete privilege
         $oldGroupPrivileges = MiniGroupPrivilege::getInstance()->getPrivilegeList($filePath);
         $oldUserPrivileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
@@ -111,24 +115,57 @@ class PrivilegeBiz  extends MiniBiz{
                 }
             }
         }
+        $userIds = array();
         //创建权限
         foreach($slaves as $privilege){
             $permission = $privilege['privilege'];
             $privilegeType = $privilege['type'];
             if($privilegeType=='0'){
                 MiniUserPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
+                $userIds[] = $privilege['id'];
+
             }
             if($privilegeType=='1'){
                 MiniGroupPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
+                $groups = MiniUserGroupRelation::getInstance()->getByGroupId($privilege['id']);
+                foreach($groups as $group){
+                    $userIds[] = $group['user_id'];
+                }
             }
             if($privilegeType=='2'){
                 MiniGroupPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
             }
         }
+        $departmentPrivilege = new DepartmentPermissionBiz();
+        $departmentPrivilege->getUserByDepartmentId($privilege['id']);
+        $ids = array_unique(array_merge($departmentPrivilege->ids,$userIds));
+        foreach($ids as $id){
+            $this->share_filter->slaves[$id] = $id;
+        }
 //        $meta_key = MConst::SHARED_FOLDERS;
 //        $meta_value = MConst::SHARE_FOLDER;
 //        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
         //todo创建共享事件
+
+        $event_action                    = MConst::SHARE_FOLDER;
+        $ret_value                       = MiniEvent::getInstance()->createEvent(
+            $this->user['id'],
+            $userDeviceId,
+            $event_action,
+            $filePath,
+            $filePath,
+            MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID),
+            $this->share_filter->type
+        );
+        if ($ret_value === false)
+        {
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_500);
+        }
+        $this->share_filter->is_shared = true;
+        // 为每个共享用户创建事件
+        $this->share_filter->handlerAction($event_action, $userDeviceId, $filePath, $filePath);
         /**
          * 存储权限之后更新被分享文件的file_type = 2，出现分享图标
          */
@@ -145,13 +182,61 @@ class PrivilegeBiz  extends MiniBiz{
         $privilege = MiniUserPrivilege::getInstance()->getFolderPrivilege($filePath);
         return $privilege;
     }
+    public function getSlaveIdsByPath($filePath){
+        $slaveIds = array();
+        $users = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
+        $fileItem = explode('/',$filePath);
+        $slaveIds[] = $fileItem[1];
+        if(count($users)>0){
+            foreach($users as $user){
+                    $slaveIds[] = $user['user_id'];
+            }
+        }
+        $groups = MiniGroupPrivilege::getInstance()->getByPath($filePath);
+        $departmentPrivilege = new DepartmentPermissionBiz();
+        foreach($groups as $group){
+            $departmentPrivilege->getUserByDepartmentId($group['id']);
+        }
+        $ids =  array_unique(array_merge($departmentPrivilege->ids,$slaveIds));
+        $userIds = array();
+        foreach($ids as $id){
+            if($id!=$this->user['id']){
+                $userIds[$id] = $id;
+            }
+        }
+       return $userIds;
+    }
     /**
      * 取消共享，删除权限
      */
     public function delete($filePath){
+        $this->share_filter = MSharesFilter::init();
+        $device                   = MUserManager::getInstance()->getCurrentDevice();
+        $userDeviceId             = $device["device_id"];
+        $this->share_filter->slaves = $this->getSlaveIdsByPath($filePath);
         MiniUserPrivilege::getInstance()->deleteByFilePath($filePath);
         MiniGroupPrivilege::getInstance()->deleteByFilePath($filePath);
         MiniFile::getInstance()->cancelPublic($filePath);
+        $event_action                    = MConst::CANCEL_SHARED;
+        $ret_value                       = MiniEvent::getInstance()->createEvent(
+            $this->user['id'],
+            $userDeviceId,
+            $event_action,
+            $filePath,
+            $filePath,
+            MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID),
+            $this->share_filter->type
+        );
+        $this->share_filter->is_shared = true;
+        if ($ret_value === false)
+        {
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_500);
+        }
+
+        // 为每个共享用户创建事件
+        $this->share_filter->handlerAction($event_action, $userDeviceId, $filePath, $filePath);
         return true;
     }
     /**
