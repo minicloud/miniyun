@@ -252,8 +252,8 @@ class UserInfoBiz extends MiniBiz{
     /**
      * 更新用户密码
      */
-    public function updatePassword($id,$oldPassword,$password){
-        $data =MiniUser::getInstance()->updatePassword2($id,$oldPassword,$password);
+    public function updatePassword($id,$password){
+        $data =MiniUser::getInstance()->updatePassword2($id,$password);
         return $data;
     }
 
