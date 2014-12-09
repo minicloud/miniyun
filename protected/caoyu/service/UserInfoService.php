@@ -181,10 +181,9 @@ class UserInfoService extends MiniService{
      */
     public function updatePassword(){
         $id = MiniHttp::getParam('id',"");
-        $oldPassword = MiniHttp::getParam('old_password',"");
         $password = MiniHttp::getParam('password',"");
         $model = new UserInfoBiz();
-        $data  = $model->updatePassword($id,$oldPassword,$password);
+        $data  = $model->updatePassword($id,$password);
         $status = array();
         $status['success']=$data;
         return $status;
