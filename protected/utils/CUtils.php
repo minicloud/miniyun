@@ -1184,27 +1184,6 @@ class CUtils{
     }
     /**
      *
-     * 递归删除目录
-     */
-    public  static function deleteDir($dirPath) {
-        if (! is_dir($dirPath)) {
-            return;
-        }
-        if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-            $dirPath .= '/';
-        }
-        $files = glob($dirPath . '*', GLOB_MARK);
-        foreach ($files as $file) {
-            if (is_dir($file)) {
-                self::deleteDir($file);
-            } else {
-                unlink($file);
-            }
-        }
-        rmdir($dirPath);
-    }
-    /**
-     *
      * 根据操作类型翻译
      * @param integer $action   操作类型
      * @param string $message

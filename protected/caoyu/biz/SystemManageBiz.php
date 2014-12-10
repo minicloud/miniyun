@@ -206,33 +206,9 @@ class SystemManageBiz extends MiniBiz{
             //清除缓存文件的hook
             do_action("cache_clean_version_delete", $version, $files);
         }
-        $this->deldir(BASE.'temp');
+        MiniUtil::deleteDir(BASE.'temp');
     }
-    /**
-     * 删除temp目录下文件
-     */
-    function deldir($dir) {
-        //先删除目录下的文件：
-        $dh=opendir($dir);
-        while ($file=readdir($dh)) {
-            if($file!="." && $file!="..") {
-                $fullpath=$dir."/".$file;
-                if(!is_dir($fullpath)) {
-                    unlink($fullpath);
-                } else {
-                    $this->deldir($fullpath);
-                }
-            }
-        }
 
-        closedir($dh);
-        //删除当前文件夹：
-        if(rmdir($dir)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
     /**
      * 计算错误日志条数
      */
