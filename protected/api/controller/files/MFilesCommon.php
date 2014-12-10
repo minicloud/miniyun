@@ -8,6 +8,8 @@
  * @since 1.6
  */
 class MFilesCommon extends MModel {
+    private  $currentUserId;
+    private $share_filter=null;
     /**
      * 初始化需要的参数
      */
@@ -122,8 +124,10 @@ class MFilesCommon extends MModel {
      * @since 1.0.7
      */
     public function saveFileMeta() {
+        $this->share_filter = MSharesFilter::init();
         $parentPath = $this->parent_path;
         $currentUserId = $this->user_id;
+        $this->currentUserId = $currentUserId;
         if($parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
             $can_create_file = true;
             $this->path = "/".$currentUserId.$this->path;
@@ -131,11 +135,18 @@ class MFilesCommon extends MModel {
             $can_create_file = false;
             $arr = explode('/',$parentPath);
             $masterId= $arr[1];
+            $authority = new UserPermissionBiz($parentPath,$currentUserId);
+            $permissionArr = $authority->authority;
+            if(!empty($permissionArr)){
+                $privilegeModel = new PrivilegeBiz();
+                $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                $this->share_filter->is_shared = true;
+
+            }
             if($masterId == $currentUserId){//自己目录下皆有创建权限
                 $can_create_file = true;
             }else{//别人共享目录下判断有无创建权限
-                $authority = new UserPermissionBiz($parentPath,$currentUserId);
-                $permissionArr = $authority->authority;
+
                 $this->user_id = $masterId;
                 $permission = $permissionArr['permission'];
                 $create_file_num = substr($permission,4,1);
@@ -385,7 +396,7 @@ class MFilesCommon extends MModel {
                           "update_time" => (int)$this->file_update_time,
                           "create_time" => (int)$this->file_create_time );
         
-        $retval = MiniEvent::getInstance()->createEvent (  $this->user_id,
+        $retval = MiniEvent::getInstance()->createEvent (  $this->currentUserId,
                                            $this->user_device_id, 
                                            $this->action, 
                                            $this->file_path,
@@ -396,6 +407,8 @@ class MFilesCommon extends MModel {
         if ($retval === false) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
         }
+
+        $this->share_filter->handlerAction($this->action, $this->user_device_id, $this->file_path, $this->context);
         if ($meta_value){
             if (MUtils::isExistReversion ( $this->version_id, $meta_value ) == false) {
                 // 文件版本引用次数更新 
@@ -507,7 +520,7 @@ class MFilesCommon extends MModel {
                   "bytes"       => (int)$this->size,
                   "update_time" => (int)$this->file_update_time,
                   "create_time" => (int)$this->file_create_time);
-        $retval = MiniEvent::getInstance()->createEvent ( $this->user_id,
+        $retval = MiniEvent::getInstance()->createEvent ( $this->currentUserId,
                                           $this->user_device_id, 
                                           $this->action,
                                           $file_detail->file_path,
@@ -518,6 +531,7 @@ class MFilesCommon extends MModel {
         if ($retval === false) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
         }
+        $this->share_filter->handlerAction($this->action, $this->user_device_id, $file_detail->file_path, $this->context);
         //
         // 只有版本历史中不存在的时候才更新
         //
@@ -643,27 +657,28 @@ class MFilesCommon extends MModel {
         // 保存文件元数据
         //
         $retval = MFiles::CreateFileDetail ( $file_detail, $this->user_id, $this->user_nick );
-
         if ($retval === false) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
         }
         //
         // 保存事件
         //
-        $this->context = array( 
+        $this->context = array(
                   "hash"        => $this->file_hash,
                   "rev"         => (int)$this->version_id,
                   "bytes"       => (int)$this->size,
                   "update_time" => (int)$this->file_update_time,
                   "create_time" => (int)$this->file_create_time);
-        $retval = MiniEvent::getInstance()->createEvent ( $this->user_id,
+        $retval = MiniEvent::getInstance()->createEvent ( $this->currentUserId,
                                           $this->user_device_id,
                                           $this->action,
                                           $this->file_path,
                                           serialize($this->context),
-                                          $file_detail->event_uuid
-//                                          $this->share_filter->type
+                                          $file_detail->event_uuid,
+                                          $this->share_filter->type
                                           );
+        // 为每个共享用户创建事件
+        $this->share_filter->handlerAction($this->action, $this->user_device_id, $this->file_path, $this->context);
         if (isset($file_detail->event_uuid)) {
             $this->event_uuid = $file_detail->event_uuid;
         }

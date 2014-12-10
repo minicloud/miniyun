@@ -16,6 +16,8 @@ class MMoveController
     public $_userId  = null;
     private $_locale = null;
     private $_root   = null;
+    private $to_share_filter = null;
+    private $from_share_filter = null;
     public $master   = null;
     private $_user_device_name = null;
     public  $result  = array();
@@ -86,7 +88,7 @@ class MMoveController
         }
 
         // 检查共享
-//        $from_share_filter       = MSharesFilter::init();
+        $this->from_share_filter       = MSharesFilter::init();
         $this->to_share_filter   = MSharesFilter::init();
 
         $isSharedPath = true;
@@ -136,19 +138,36 @@ class MMoveController
         $from_parent = CUtils::pathinfo_utf($from_path);
         $to_parent   = CUtils::pathinfo_utf($to_path);
         $fromPermission = new UserPermissionBiz($from_path,$this->_userId);
+        $privilegeModel = new PrivilegeBiz();
         if(!(count($to_parts)==3)){
             $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
             $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
             if(empty($toPrivilege)){
                 $toPrivilege['permission'] = '111111111';
+            }else{
+
+                $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
+                $this->to_share_filter->is_shared = true;
+
             }
             $toFilter      = new MiniPermission($toPrivilege['permission']);
         }else{
+            if ($to_parent['dirname'] == $from_parent['dirname']) {
+                $toPermission  = new UserPermissionBiz($from_path,$this->_userId);
+                $toPrivilege   = $toPermission->getPermission($from_path,$this->_userId);
+                if(!empty($toPrivilege)){
+                    $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
+                    $this->to_share_filter->is_shared = true;
+                }
+            }
             $toFilter      = new MiniPermission('111111111');
         }
         $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
         if(empty($fromPrivilege)){
             $fromPrivilege['permission'] = '111111111';
+        }else{
+            $this->from_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($fromPrivilege['share_root_path']);
+            $this->from_share_filter->is_shared = true;
         }
         $fromFilter    = new MiniPermission($fromPrivilege['permission']);
         if ($to_parent['dirname'] == $from_parent['dirname']) {
@@ -328,7 +347,6 @@ class MMoveController
             //
             array_push($this->versions, $file_meta->version_id);
         }
-
         if(($file['file_type'] == 2) || ($file['file_type'] == 4)){
             MiniUserPrivilege::getInstance()->updateByPath($from_path,$to_path);
             MiniGroupPrivilege::getInstance()->updateByPath($from_path,$to_path);
@@ -413,6 +431,22 @@ class MMoveController
                 Yii::t('api','Internal Server Error'),
                 MConst::HTTP_CODE_500);
         }
+        if($file['type']!=0){
+            $eventAction = MConst::CREATE_DIRECTORY;
+        }else{
+            $eventAction = MConst::CREATE_FILE ;
+        }
+        if ($to_parent['dirname'] == $from_parent['dirname']) {
+            $this->to_share_filter->handlerAction($event_action, $user_device_id,  $file_detail->from_path,$file_detail->file_path);
+        }else{
+            if ($this->to_share_filter->is_shared) {
+                $this->to_share_filter->handlerAction($eventAction, $user_device_id, $file_detail->file_path, $file_detail->file_path);
+            }
+            if ($this->from_share_filter->is_shared) {
+                $this->from_share_filter->handlerAction(MConst::DELETE, $user_device_id, $file_detail->from_path, $file_detail->from_path);
+            }
+        }
+
         $query_db_file[0]["file_path"]  = $file_detail->file_path;
         $query_db_file[0]["event_uuid"] = $file_detail->event_uuid;
         if (!empty($deleted)) {

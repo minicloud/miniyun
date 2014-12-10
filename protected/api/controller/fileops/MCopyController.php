@@ -225,7 +225,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             }
         }
         //目标路径
-        if ($toId!=$user['id']){
+//        if ($toId!=$user['id']){
             //拷贝到 （目标路径的创建权限）  的判断
 //            if ($query_from_path_db_file[0]["file_type"] == 0){  //文件
 //                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FILE_CREATE);
@@ -238,13 +238,16 @@ class MCopyController extends MApplicationComponent implements MIController{
                 $permission = "111111111";
             }else{
                 $permission = $permissionArr['permission'];
+                $privilegeModel = new PrivilegeBiz();
+                $this->to_share_filter ->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                $this->to_share_filter ->is_shared = true;
             }
             $miniPermission = new MiniPermission($permission);
             $canCopy = $miniPermission->canCopy();
             if(!$canCopy){
                 throw new MFileopsException(MConst::HTTP_CODE_1132);
             }
-        }
+//        }
 
         //
         // 查询目标路径父目录信息

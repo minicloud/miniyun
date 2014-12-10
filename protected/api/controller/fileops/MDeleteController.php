@@ -175,6 +175,9 @@ class MDeleteController extends MApplicationComponent implements MIController
         $permissionArr = $authority->authority;
         $permission = $permissionArr['permission'];
         if(!empty($permission)){
+            $privilegeModel = new PrivilegeBiz();
+            $share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+            $share_filter->is_shared = true;
             if($file_detail->file_type==0){//删除文件
                 $can_file_delete = substr($permission,7,1);
                 if($can_file_delete==0){
