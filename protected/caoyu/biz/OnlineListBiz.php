@@ -21,6 +21,7 @@ class OnlineListBiz extends MiniBiz{
                     "name"=>$user ["user_name"],
                     "appname"=>$appId,
                     "deviceName"=>$device["user_device_name"],
+                    "deviceType"=>$device["user_device_type"],
                     "lastLoginTime"=>$item["updated_at"],
                     "avatar"=>$user["avatar"]
                 );
