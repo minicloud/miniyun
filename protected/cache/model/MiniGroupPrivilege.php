@@ -356,4 +356,20 @@ class MiniGroupPrivilege extends MiniCache
         $items = GroupPrivilege::model()->findAll($criteria);
         return $this->db2list($items);
     }
+    /**
+     * 根据path查询
+     * return array
+     */
+    public function getByPublicPath($filePath){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_path = :file_path";
+        $criteria->params = array(':file_path'=>$filePath);
+        $item = GroupPrivilege::model()->find($criteria);
+        $item = $this->db2Item($item);
+        $privilege = $item['permission'];
+        if(empty($privilege)){
+            $privilege = '000000000';
+        }
+        return $privilege;
+    }
 }

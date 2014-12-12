@@ -200,6 +200,12 @@ class FileManageBiz extends MiniBiz{
     public function getFolders(){
         $userId = $this->user['id'];
         $folders = MiniFile::getInstance()->getChildrenFolderByParentId($userId,0,0);
-        return $folders;
+        $folderArr = array();
+        foreach($folders as $folder){
+            $publicFolderPrivilege = MiniGroupPrivilege::getInstance()->getByPublicPath($folder['file_path']);
+            $folder['privilege'] = $publicFolderPrivilege;
+            array_push($folderArr,$folder);
+        }
+        return $folderArr;
     }
 }
