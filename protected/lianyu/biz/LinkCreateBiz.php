@@ -30,7 +30,7 @@ class LinkCreateBiz extends MiniBiz{
     /**
      *
      * @param $path
-     * @param $originDomain
+     * @param $originDomain口
      * @param $chooserAppKey
      * @param $session
      */
@@ -39,7 +39,7 @@ class LinkCreateBiz extends MiniBiz{
         $this->originDomain = $originDomain;
         $this->appKey  = $chooserAppKey;
         $this->session = $session;
-        $path          = MiniUtil::joinPath($this->user["id"],$path);
+        $path          = MiniUtil::joinPath($path);
         $this->file    = MiniFile::getInstance()->getByPath($path);
     }
 
@@ -55,10 +55,10 @@ class LinkCreateBiz extends MiniBiz{
             throw new MiniException(1100);
         }
         //判断用户是否有访问该文件的权限
-        if($this->user["id"]!=$file["user_id"]){
+//        if($this->user["id"]!=$file["user_id"]){
             //当前判断的是用户是否文件拥有者进行判断
-            throw new MiniException(1101);
-        }
+//            throw new MiniException(1101);
+//        }
         //本域自身使用无限制
         $currentHost = MiniHttp::getMiniHost();
         if(strpos($currentHost,$this->originDomain)===false){

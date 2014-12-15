@@ -64,12 +64,16 @@ class MThumbnailBase extends MModel {
         $root        = $parts[0];  // 检索的根路径
         // 解析路径
         $path                            = "/" . $path;
+
         $path                            = MUtils::convertStandardPath($path);
         // 用户信息
         $user                            = MUserManager::getInstance()->getCurrentUser();
         if (!empty($_REQUEST["userId"]) && $_REQUEST["userId"] != 'undefined' && $user['user_name'] == 'admin') {
             $userId = $_REQUEST["userId"];
             $user = MiniUser::getInstance()->getUser($userId);
+        }
+        if(dirname($path)=="/"){
+            $path = "/".$user['id'].$path;
         }
         $device                          = MUserManager::getInstance()->getCurrentDevice();
         $thumbnailBase->user_id          = $user["user_id"];

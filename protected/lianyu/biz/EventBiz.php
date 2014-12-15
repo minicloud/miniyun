@@ -29,7 +29,7 @@ class EventBiz extends MiniBiz
         $userId = $user['id'];
         $time = $this->getTime($time);
         if ($path != "") {
-            $path = MiniUtil::joinPath($userId, $path) . "/%";
+            $path = MiniUtil::joinPath($path) . "/%";
         }
         $total = MiniEvent::getInstance()->getTotal($path, $time, $userId, $deviceUuid);
         $totalPage = ceil($total / $pageSize);
@@ -39,14 +39,17 @@ class EventBiz extends MiniBiz
         foreach ($events as $event) {
             $item = array();
             $device = MiniUserDevice::getInstance()->getUserDevice($event['user_device_id']);
+            $item['create_user_id'] = $device['user_id'];
             $item['file_path'] = MiniUtil::getRelativePath($event['file_path']);
             $item['action'] = $event['action'];
             $item ['user_name'] = $user['user_name'];
             $item ['user_device_type'] = $device['user_device_type'];
-            if ($event['user_id'] == $userId) {
+            if ($device['user_id'] == $userId) {
                 $item ['user_self'] = true;
             } else {
                 $item ['user_self'] = false;
+                $user = MiniUser::getInstance()->getById($device['user_id']);
+                $item['user_name'] = $user['user_name'];
             }
             $item ['created_at'] = MiniUtil::formatTime(strtotime($event['created_at']));
             $item ['user_device_name'] = $device['user_device_name'];

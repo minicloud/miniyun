@@ -258,6 +258,7 @@ class SiteAppInfo{
         if(!empty($user)){
             $user = MiniUser::getInstance()->getUser($user["id"]);
             $data = array();
+            $data['id']                = $user["id"];
             $data['user_uuid']         = $user["user_uuid"];
             $data['user_name']         = $user["user_name"];
             $data['display_name']      = $user["nick"];

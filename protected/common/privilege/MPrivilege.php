@@ -156,7 +156,7 @@ class MPrivilege extends CApplicationComponent
      * @since 1.0.7
      */
     public function getUserAllPrivilege($user_id){
-        $privileges = MUserPrivilege::model()->findAll(array(
+        $privileges = UserPrivilege::model()->findAll(array(
                  'condition' => 'user_id=:user_id',
                  'params'    => array(':user_id'=>$user_id),
                  'order'     => "file_path desc",
@@ -257,7 +257,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function createPrivilege($user_id, $file_path, $permission)
     {
-        $privilege = MUserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
+        $privilege = UserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
         if (empty($privilege)){
             $privilege = new MUserPrivilege();
         }
@@ -279,7 +279,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function updatedPrivilege($user_id, $file_path, $permission)
     {
-        $privilege = MUserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
+        $privilege =UserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
         if (empty($privilege)){
             return false;
         }
@@ -299,7 +299,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function updatedFilePath($user_id, $file_path, $new_file_path)
     {
-        $privilege = MUserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
+        $privilege = UserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
         if (empty($privilege)){
             return false;
         }
@@ -316,7 +316,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function updatedUserAllFilePath($user_id, $file_path, $new_file_path)
     {
-        $privileges = MUserPrivilege::model()->findAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
+        $privileges =UserPrivilege::model()->findAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
         if (empty($privileges)){
             return false;
         }
@@ -336,7 +336,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function updatedAllFilePath($file_path, $new_file_path)
     {
-        $privileges = MUserPrivilege::model()->findAll('file_path like :file_path', array(':file_path'=>$file_path.'%'));
+        $privileges =UserPrivilege::model()->findAll('file_path like :file_path', array(':file_path'=>$file_path.'%'));
         if (empty($privileges)){
             return false;
         }
@@ -356,7 +356,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function deleteUserPrivilege($user_id)
     {
-        MUserPrivilege::model()->deleteAll('user_id=:user_id', array(':user_id'=>$user_id));
+        UserPrivilege::model()->deleteAll('user_id=:user_id', array(':user_id'=>$user_id));
     }
 
     /**
@@ -367,7 +367,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function deletePrivilege($user_id, $file_path)
     {
-        MUserPrivilege::model()->deleteAll('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
+        UserPrivilege::model()->deleteAll('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
     }
 
     /**
@@ -378,7 +378,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function deleteAllUserPrivilege($user_id, $file_path)
     {
-        MUserPrivilege::model()->deleteAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
+        UserPrivilege::model()->deleteAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
     }
 
     /**
@@ -389,7 +389,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function deleteAllPrivilege($file_path)
     {
-        MUserPrivilege::model()->deleteAll('file_path like :file_path', array(':file_path'=>$file_path.'%'));
+        UserPrivilege::model()->deleteAll('file_path like :file_path', array(':file_path'=>$file_path.'%'));
     }
 
     /**
@@ -465,7 +465,7 @@ class MPrivilege extends CApplicationComponent
         if (key_exists($user_id, $this->userPrivilegeCache)){
             $privileges = $this->userPrivilegeCache[$user_id];
         } else {
-            $privileges = MUserPrivilege::model()->findAll(array(
+            $privileges = UserPrivilege::model()->findAll(array(
                  'condition' => 'user_id=:user_id',
                  'params'    => array(':user_id'=>$user_id),
                  'order'     => "file_path desc",
@@ -762,7 +762,7 @@ class MPrivilege extends CApplicationComponent
      * @since 1.0.7
      */
     private function isDeleteChildFolder($user_id, $file_path){
-        $privileges = MUserPrivilege::model()->findAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
+        $privileges =UserPrivilege::model()->findAll('user_id=:user_id and file_path like :file_path', array(':user_id'=>$user_id,':file_path'=>$file_path.'%'));
         foreach ($privileges as $privilege){
             $path = $privilege["file_path"];
             if ($path == $file_path){
@@ -843,7 +843,7 @@ class MPrivilege extends CApplicationComponent
      */
     public function getUserFilePrivilegeOnly($user_id, $file_path)
     {
-        $pri = MUserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
+        $pri = UserPrivilege::model()->find('user_id=:user_id and file_path=:file_path', array(':user_id'=>$user_id,':file_path'=>$file_path));
         if (!empty($pri)){
             return unserialize($pri["permission"]);
         }
@@ -890,7 +890,7 @@ class MPrivilege extends CApplicationComponent
      * @since 1.0.7
      */
     public function createUserPrivilegeDb($user_id, $file_path, $permission){
-        $privilege = new MUserPrivilege();
+        $privilege = new UserPrivilege();
         $privilege["user_id"]    = $user_id;
         $privilege["file_path"]  = $file_path;
         $privilege["permission"] = serialize($permission);

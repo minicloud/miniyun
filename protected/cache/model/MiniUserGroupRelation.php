@@ -67,6 +67,16 @@ class MiniUserGroupRelation extends MiniCache{
         return $this->db2list($item);
     }
     /**
+     * 根据用户user_id获取用户与群组的关系
+     */
+    public function getByUserId($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id";
+        $criteria->params = array('user_id'=> $groupId);
+        $items = UserGroupRelation::model()->findAll($criteria);
+        return $this->db2List($items);
+    }
+    /**
      * 新建用户与群组的关系
      */
     public function create($userId,$groupId){
@@ -98,6 +108,15 @@ class MiniUserGroupRelation extends MiniCache{
         }else{
             return array('success'=>false,'msg'=>'not existed');
         }
+    }
+    /**
+     * 删除该群组所有的用户关联信息
+     */
+    public function deleteRelatedRelations($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "group_id=:group_id";
+        $criteria->params = array('group_id'=>$groupId);
+        UserGroupRelation::model()->deleteAll($criteria);
     }
     /**
      * 更改用户与群组的关系
@@ -207,9 +226,25 @@ class MiniUserGroupRelation extends MiniCache{
             $result = MiniGroup::getInstance()->findById($groupId);
             $group['id'] = $result['id'];
             $group['user_id'] = $result['user_id'];
-            $group['group_name'] = $result['name'];
+            $group['group_name'] = $result['group_name'];
             array_push($list,$group);
         }
         return $list;
+    }
+    /**
+     * 根据userId获取部门
+     */
+    public function getDepartment($userId){
+        $relations = $this->getByUserId($userId);
+        if(empty($relations)){
+            return NULL;
+        }
+        foreach($relations as $relation){
+            $group = MiniGroup::getInstance()->getById($relation['group_id']);
+            if($group['user_id']==-1){
+                return $group;
+            }
+        }
+        return NULL;
     }
 }

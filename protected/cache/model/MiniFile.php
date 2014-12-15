@@ -123,13 +123,22 @@ class MiniFile extends MiniCache{
      * 获得系统公共目录
      */
     public function getPublics(){
-        $items = UserFile::model()->findAll('file_type=:file_type ', array('file_type' => 16));
+        $items = UserFile::model()->findAll('file_type=:file_type ', array('file_type' => 4));
         return  $this->db2list($items);
     }
+    public function getByFilePath($filePath){
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "file_path = :file_path";
+        $criteria->params    = array("file_path"=>$filePath);
+        $criteria->order     = "id DESC";
+        $item               = UserFile::model()->find($criteria);
+        return  $this->db2Item($item);
+    }
+
     /**
      * 根据条件获得子文件记录
      */
-    public function getChildrenByFileID($parentFileId, $includeDeleted = false, $user=null,$userId=null) {
+    public function getChildrenByFileID($parentFileId, $includeDeleted = false, $user=null,$userId=null,$filePaths=null) {
         $criteria                 = new CDbCriteria();
         $params                   = array();
         $sql                      = "parent_file_id = :parent_file_id";
@@ -145,12 +154,22 @@ class MiniFile extends MiniCache{
             $var                  = apply_filters('file_list_filter', $var);
             $sql                 .= ' AND ' .$var['condition'];
         }
+        if(isset($filePaths)){
+            $files = array();
+           foreach($filePaths as $filePath){
+            $value =    $this->getByFilePath($filePath);
+               $value['file_type'] = 3;
+               array_push($files,$value);
+           }
+        }
         $order                    = 'file_type desc,id DESC ';
         $criteria->condition      = $sql;
         $criteria->params         = $params;
         $criteria->order          = $order;
         $items                    = UserFile::model()->findAll($criteria);
+
         $items                    = $this->db2list($items);
+        array_splice($items,0,0,$files);
         if(!empty($user)){
             $data = array();
             foreach($items as $file){
@@ -211,6 +230,22 @@ class MiniFile extends MiniCache{
         return  $this->db2list($items);
     }
     /**
+     * 根据Parent_file_id获得该目录下的普通和公共目录
+     */
+    public  function getChildrenFolderByParentId($userId,$parentFileId,$isDeleted) {
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "user_id=:user_id and parent_file_id=:parent_file_id and is_deleted=:is_deleted and file_type = 1 or file_type = 4";
+        $criteria->params    = array(
+            "user_id"        => $userId,
+            "parent_file_id" => $parentFileId,
+            "is_deleted"     => $isDeleted,
+        );
+        $criteria->order    = "file_type desc, id desc";
+        $items              = UserFile::model()->findAll($criteria);
+        return  $this->db2list($items);
+    }
+
+    /**
      * 根据Parent_file_id获得该目录下的所有子文件
      */
     public  function getAllChildrenByParentId($userId,$parentFileId,$pageSize,$currentPage) {
@@ -238,7 +273,7 @@ class MiniFile extends MiniCache{
      * 创建File对象
      * 这里使用了引用传值，确保event_uuid可传递到外面
      */
-    public function create(&$file,$userId){
+    public function create($file,$userId){
         if (!isset($file["version_id"])){
             $file["version_id"] = 0;
         }
@@ -379,11 +414,21 @@ class MiniFile extends MiniCache{
         $model               = $this->getModelByPath($path);
         if(isset($model)){
             foreach ($values as $key=>$value){
+//                return $key;
                 if($key==="share_key"||$key==="privilege"){
                     continue;
                 }
                 $model->$key = $value;
             }
+            $model->save();
+            return true;
+        }
+        return false;
+    }
+    public function togetherShareFile($path,$fileType){
+        $model               = $this->getModelByPath($path);
+        if(isset($model)){
+            $model->file_type = $fileType;
             $model->save();
             return true;
         }
@@ -845,7 +890,7 @@ class MiniFile extends MiniCache{
             return;
         }
 
-        $filePath = MiniUtil::getPathBySplitStr ( $signature );
+        $filePath = MiniUtil::getPathBySplitStr ($signature);
         //data源处理对象
         $dataObj = Yii::app()->data;
         if ($dataObj->exists( $filePath ) === false) {
@@ -1025,6 +1070,20 @@ class MiniFile extends MiniCache{
         $criteria->params        = array(
             "user_id"=>$userId
         );
+        $items              	 =UserFile::model()->findAll($criteria);
+        $total              	 =UserFile::model()->count($criteria);
+        if($total == 0){
+            return null;
+        }else{
+            return $this->db2list($items);
+        }
+    }
+    //根据filePath和mine_type获取图片
+    public function searchFileByPathType($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->select   ='*';
+        $criteria->condition     = "is_deleted=0 and  mime_type like 'image%' and file_path like '%".$filePath."%'";
+        $criteria->order    ='file_create_time desc';
         $items              	 =UserFile::model()->findAll($criteria);
         $total              	 =UserFile::model()->count($criteria);
         if($total == 0){
@@ -1297,5 +1356,40 @@ class MiniFile extends MiniCache{
         $data['recycleNum'] = $recycleNum;
         return $data;
     }
-
+    /**
+     * 设置为公共目录
+     */
+    public function  setToPublic($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "file_path=:file_path";
+        $criteria->params        = array(
+            "file_path"=>$filePath
+        );
+        $item = UserFile::model()->find($criteria);
+        if(!empty($item)){
+            $item->file_type='4';
+            $item->save();
+            return array('success'=>true);
+        }else{
+            return array('success'=>false);
+        }
+    }
+    /**
+     * 取消设置为公共目录
+     */
+    public function  cancelPublic($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "file_path=:file_path";
+        $criteria->params        = array(
+            "file_path"=>$filePath
+        );
+        $item = UserFile::model()->find($criteria);
+        if(!empty($item)){
+            $item->file_type='1';
+            $item->save();
+            return array('success'=>true);
+        }else{
+            return array('success'=>false);
+        }
+    }
 }

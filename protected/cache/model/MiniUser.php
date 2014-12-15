@@ -613,6 +613,14 @@ class MiniUser extends MiniCache{
     public function getEnableCount(){
         return User::model()->count('user_status=1');
     }
+    public function getById($id){
+        $criteria                = new CDbCriteria();
+        $criteria->condition="id = :id";
+        $criteria->params    = array('id'=>$id);
+        $data =  User::model()->find($criteria);
+        return $this->db2Item($data);
+
+    }
     /**
      * 网页版显示好友列表，对其进行分页
      * @param mixed $userId 用户ID，用于排除自己
@@ -655,6 +663,18 @@ class MiniUser extends MiniCache{
         foreach($items as $item){
             $aimIds[$item["id"]] = $item["id"];
         }
+        //根据拼音搜索
+        $condition     = "user_status=1 and id<>:userId and user_name_pinyin like :userName";
+        $params        = array('userId'=>$userId, ':userName'=>"%" . $key . "%");
+        $items         = User::model()->findAll(
+            array(
+                'condition' => $condition,
+                'params'    => $params,
+            )
+        );
+        foreach($items as $item){
+            $aimIds[$item["id"]] = $item["id"];
+        }
         //通过Nick进行检索
         $condition     = "meta_key='nick' and meta_value like :userNick";
         $params        = array('userNick'=>"%" . $key . "%");
@@ -679,7 +699,11 @@ class MiniUser extends MiniCache{
         }
         return array();
     }
-
+    public function getAll(){
+        $criteria                = new CDbCriteria();
+        $data =  User::model()->findAll($criteria);
+        return $this->db2list($data);
+    }
     /**
      * 搜索所有用户
      */
@@ -856,6 +880,8 @@ class MiniUser extends MiniCache{
                 $userMeta["meta_key"]="space";
                 $userMeta["meta_value"]=$userData["space"];
                 $userMeta->save();
+                //更新用户的拼音信息
+                MiniUser::getInstance()->updateUserNamePinYin($user["id"]);
                 return true;
             }
         return 'exist';
@@ -879,6 +905,12 @@ class MiniUser extends MiniCache{
         $value                 = array();
         if(isset($items)){
             foreach($items as $item) {
+                $group = MiniGroup::getInstance()->findById($item->group_id);
+                if(isset($group)){
+                    if($group['user_id']>0){
+                        continue;
+                    }
+                }
                 $value[]           = $item->user_id;
             }
         }
@@ -897,5 +929,70 @@ class MiniUser extends MiniCache{
             return $this->db2Item($user);
         }
         return NULL;
+    }
+
+    /**
+     * 更新用户名的拼音信息
+     * @param $id
+     */
+    public function updateUserNamePinYin($id){
+        $item  = User::model()->findByPk($id);
+        if(!empty($item)){
+            //把登陆名转化为拼音
+            $name = $item->user_name;
+            //把昵称转化为拼音
+            $nick = "";
+            $criteria            = new CDbCriteria();
+            $criteria->condition = "user_id=:user_id and meta_key='nick'";
+            $criteria->params    = array(":user_id"=>$item->id);
+            $meta = UserMeta::model()->find($criteria);
+            if(!empty($meta)){
+                $nick = $meta->meta_value;
+            }
+            $item->user_name_pinyin = $this->getPinYinByName($name,$nick);
+            $item->save();
+        }
+    }
+    /**
+     * 根据用户名与昵称获得拼音　
+     * @param $name
+     * @param $nick
+     * @return string
+     */
+    private function getPinYinByName($name,$nick){
+        $py = new PinYin();
+        $allPY = $py->getAllPY($name);
+        $firstPY = $py->getFirstPY($name);
+        $namePY = $allPY."|".$firstPY;
+        $allPY = $py->getAllPY($nick);
+        $firstPY = $py->getFirstPY($nick);
+        $nickPY = $allPY."|".$firstPY;
+        return $namePY."|".$nickPY;
+    }
+    /**
+     * 把系统中的中文用户名转化为拼音
+     */
+    public function updateAllUserNamePinyin(){
+        $criteria            = new CDbCriteria();
+        $criteria->order     = "id desc";
+        $items               = User::model()->findAll($criteria);
+
+        foreach($items as $item){
+            if(empty($item->user_name_pinyin)){
+                //把登陆名转化为拼音
+                $name = $item->user_name;
+                //把昵称转化为拼音
+                $nick = "";
+                $criteria            = new CDbCriteria();
+                $criteria->condition = "user_id=:user_id and meta_key='nick'";
+                $criteria->params    = array(":user_id"=>$item->id);
+                $meta = UserMeta::model()->find($criteria);
+                if(!empty($meta)){
+                    $nick = $meta->meta_value;
+                }
+                $item->user_name_pinyin = $this->getPinYinByName($name,$nick);
+                $item->save();
+            }
+        }
     }
 }

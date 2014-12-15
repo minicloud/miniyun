@@ -23,7 +23,8 @@ class DepartmentBiz extends MiniBiz{
         $result = MiniGroup::getInstance()->deleteByDepartmentId($departmentId,$userId);
         if($result['success']==true){
             $result = MiniGroupRelation::getInstance()->getByGroupId($departmentId);
-            if(isset($result)){
+            if(!empty($result)){
+                MiniGroupPrivilege::getInstance()->deleteRelatedPrivilegeById($departmentId);
                 $result = MiniGroupRelation::getInstance()->delete($departmentId);
             }
         }
@@ -49,8 +50,13 @@ class DepartmentBiz extends MiniBiz{
     /**
      * 移动部门
      */
-    public function move($parentDepartmentId,$departmentId){
-        $data = MiniGroupRelation::getInstance()->update($parentDepartmentId,$departmentId);
+    public function move($parentDepartmentId,$sourceId,$sourceType){
+        if($sourceType == "group"){
+            $data = MiniGroupRelation::getInstance()->update($parentDepartmentId,$sourceId);
+        }
+        if($sourceType == "user"){
+            $data = MiniUserGroupRelation::getInstance()->update($sourceId,$parentDepartmentId);
+        }
         return $data;
     }
     /**

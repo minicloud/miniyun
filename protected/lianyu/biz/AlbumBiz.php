@@ -37,22 +37,104 @@ class AlbumBiz  extends MiniBiz{
         $timeLine['total']=count($albumList);
         return $timeLine;
     }
-
+    private function getGroupIds($groupId,$ids){
+        $group = MiniGroupRelation::getInstance()->getByGroupId($groupId);
+        if(isset($group)){
+            if($group['parent_group_id']!=-1){
+                array_push($ids,$group['parent_group_id']);
+                return $this->getGroupIds($group['parent_group_id'],$ids);
+            }else{
+                return $ids;
+            }
+        }
+    }
+    public function getAllSharedPath($userId){
+        $userPrivileges = MiniUserPrivilege::getInstance()->getByUserId($userId);
+        $filePaths = array();
+        foreach($userPrivileges as $userPrivilege){
+            array_push($filePaths,$userPrivilege['file_path']);
+        }
+        $groupPrivileges = MiniGroupPrivilege::getInstance()->getAllGroups();
+        $publicPrivileges = MiniGroupPrivilege::getInstance()->getPublic();
+        foreach($publicPrivileges as $publicPrivilege){
+            array_push($filePaths,$publicPrivilege['file_path']);
+        }
+        $groupIds = array();
+        foreach($groupPrivileges as $groupPrivilege){
+            array_push($groupIds,$groupPrivilege['group_id']);
+        }
+        $groupIdsArr = array();
+        $userGroupRelations =MiniUserGroupRelation::getInstance()->findUserGroup($userId);
+        if(isset($userGroupRelations)){
+            foreach($userGroupRelations as $userRelation){
+                $groupId = $userRelation['id'];
+                $arr = array();
+                array_push($arr,$groupId);
+                $result = MiniGroup::getInstance()->findById($groupId);
+                if($result['user_id']>0){
+                    array_push($groupIdsArr,$groupId);
+                }else{
+                    $ids = $this->getGroupIds($groupId,$arr);
+                }
+            }
+            array_splice($groupIdsArr,0,0,$ids);
+            $commonGroupIds = array_intersect($groupIdsArr,$groupIds);
+            foreach($commonGroupIds as $commonGroupId){
+                $groupInfos = MiniGroupPrivilege::getInstance()->getByGroupId($commonGroupId);
+                foreach($groupInfos as $groupInfo){
+                    $paths[] = $groupInfo['file_path'];
+                }
+            }
+            if($paths){
+                array_splice($filePaths,0,0,$paths);
+            }
+        }
+        $filePaths = array_unique($filePaths);
+        return $filePaths;
+    }
     public function getPage($page,$pageSize){
         $list=array();
         $pageSet=($page-1)*$pageSize;
         $user      = $this->user;
-        $albumList = MiniFile::getInstance()->getFileListPage( $pageSet,$pageSize,$user["id"],"image");
-        foreach($albumList as $value){
+        $filePaths = $this->getAllSharedPath($user['id']);
+        $albumList = MiniFile::getInstance()->getFileByUserType($user["id"],"image");
+        //获取当前文件夹下的子文件
+        foreach($filePaths as $filePath){
+            $images = MiniFile::getInstance()->searchFileByPathType($filePath);
+            foreach($images as $image){
+                $imageArr[] = $image;
+            }
+        }
+        $sharedImgTotal = count($imageArr);
+        $fileList["total"]=count($albumList)+$sharedImgTotal;
+        if( $pageSet>=$sharedImgTotal){
+            $pageSet = $pageSet-$sharedImgTotal;
+            $albums = MiniFile::getInstance()->getFileListPage( $pageSet,$pageSize,$user["id"],"image");
+        }else{
+            if($page*$pageSize<$sharedImgTotal){
+                 for($index=$pageSet;$index<=$page*$pageSize-1;$index++){
+                     $albums[] = $imageArr[$index];
+                 }
+            }else{
+                for($index=$pageSet;$index<$sharedImgTotal;$index++){
+                    $albumShared[] = $imageArr[$index];
+                }
+                $albumList =  MiniFile::getInstance()->getFileListPage(0,$pageSize*$page-$sharedImgTotal,$user["id"],"image");
+                if(count($albumList)!=0){
+                    $albums = array_merge($albumList,$albumShared);
+                }else{
+                    $albums = $albumShared;
+                }
+            }
+        }
+        foreach($albums as $value){
             $data["filename"]=$value['file_name'];
             $data["fileSize"]=$value['file_size'];
             $data["path"]= MiniUtil::getRelativePath($value['file_path']);
             $data["createTime"]=$value['file_create_time'];
             $list[]=$data;
         }
-        $albumList = MiniFile::getInstance()->getFileByUserType($user["id"],"image");
         $fileList['list']=$list;
-        $fileList["total"]=count($albumList);
         return $fileList;
     }
 

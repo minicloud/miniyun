@@ -71,7 +71,7 @@ class LinkListBiz extends MiniBiz {
      */
     public function delete($path){
         $userId      = $this->user["id"];
-        $absolutePath = MiniUtil::joinPath($userId ,$path);
+        $absolutePath = MiniUtil::joinPath($path);
         $file=MiniFile::getInstance()->getByPath($absolutePath);
         $id=$file['id'];
         $link  = MiniLink::getInstance()->getByFileId($id);

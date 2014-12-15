@@ -198,8 +198,10 @@ class MAPIController extends MApplicationComponent implements MIController{
      */
     private function metadata()
     {
-        $metadataController = new MMetadataController();
-        $metadataController -> invoke($this->commonUri);
+        $service = new MetaDataService();
+        $result = $service->invoke($this->commonUri);
+//        $metadataController = new MMetadataController();
+//        $metadataController -> invoke($this->commonUri);
     }
 
     /**
@@ -236,6 +238,11 @@ class MAPIController extends MApplicationComponent implements MIController{
     private function link() {
 
         $service = new LinkService();
+        $result = $service->invoke($this->commonUri);
+        echo(json_encode($result));
+    }
+    private function message() {
+        $service = new MessageService();
         $result = $service->invoke($this->commonUri);
         echo(json_encode($result));
     }
@@ -395,7 +402,15 @@ class MAPIController extends MApplicationComponent implements MIController{
         $result = $service->invoke($this->commonUri);
         echo(json_encode($result));
     }
-    
+    /**
+     * 部门
+     */
+    private function department() {
+
+        $service = new FrontDepartmentService();
+        $result = $service->invoke($this->commonUri);
+        echo(json_encode($result));
+    }
     /**
      * 自定义异常处理
      * @see common/MApplicationComponent::handleException()

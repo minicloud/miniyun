@@ -131,6 +131,10 @@ class MiniUserMeta extends MiniCache{
         // 针对特殊数据表zly的meta更新
         //
         apply_filters("ascync_user_spcial_meta", $userMeta, $userId, 1);
+        if($key==="nick"){
+            //如修改昵称，则将用户的拼音信息一起更换
+            MiniUser::getInstance()->updateUserNamePinYin($userId);
+        }
          return $userMeta;
 	}
 	/**

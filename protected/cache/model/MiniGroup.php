@@ -57,9 +57,9 @@ class MiniGroup extends MiniCache{
         if(empty($item)) return NULL;
         $value                     = array();
         $value["id"]           = $item->id;
-        if($item->user_id!=-1){
+//        if($item->user_id!=-1){
             $value["user_id"]      = $item->user_id;
-        }
+//        }
         $value["group_name"]    = $item->name;
         return $value;
     }
@@ -112,6 +112,21 @@ class MiniGroup extends MiniCache{
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id and name =:group_name";
         $criteria->params = array('user_id'=> $userId,'group_name'=>$groupName);
+        $item = Group::model()->find($criteria);
+        if(!empty($item)){
+            $item->delete();
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'not existed');
+        }
+    }
+    /**
+     * 根据groupId删除群组
+     */
+    public function deleteByGroupId($groupId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $groupId);
         $item = Group::model()->find($criteria);
         if(!empty($item)){
             $item->delete();
@@ -221,7 +236,7 @@ class MiniGroup extends MiniCache{
         $criteria->params = array('group_id'=> $groupId,);
         $group = Group::model()->find($criteria);
         if(!empty($group)){
-            return $group;
+            return $this->db2Item($group);
         }else{
             return false;
         }

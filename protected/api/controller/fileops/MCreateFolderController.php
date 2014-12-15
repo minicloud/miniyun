@@ -76,21 +76,42 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                                         Yii::t('api','The folder name is invalid'),
                                         MConst::HTTP_CODE_400);
         }
-        
         // 检查是否在共享目录
         $this->share_filter = MSharesFilter::init();
         if ($this->share_filter->handlerCheck($this->_user_id, $path, MConst::CREATE_DIRECTORY)) {
             $this->_user_id = $this->share_filter->master;
             $path           = $this->share_filter->_path;
         }
-        
-        $path               = "/".$this->_user_id.$path;
-        // 查询其是否存在 信息
+        if($params['is_root']=="/"){
+            $path               = "/".$this->_user_id.$path;
+        }
         $parentPath        = dirname($path);
+        if(dirname(MiniUtil::getRelativePath($path)) == "/".$this->_user_id){
+            $permission = MConst::SUPREME_PERMISSION;
+        }else{
+            $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
+            $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
+            if(!isset($permissionArr)){
+                $permission = MConst::SUPREME_PERMISSION;
+            }else{
+                $permission = $permissionArr['permission'];
+                $privilegeModel = new PrivilegeBiz();
+                $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                $this->share_filter->is_shared = true;
+            }
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canCreateFolder = $miniPermission->canCreateFolder();
+        if(!$canCreateFolder){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_432);
+        }
+        // 查询其是否存在 信息
         $file               = MiniFile::getInstance()->getByPath($path);
+
         
         // 是否存在相同文件路径, 且被删除的记录
         $hadFileDelete    = false;
+
         if (isset($file))
         {
             if ($file["is_deleted"] == false)
@@ -128,7 +149,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $path_info              = MUtils::pathinfo_utf($path);
             $path                   = MUtils::convertStandardPath($path_info['dirname']."/".$fileName);
         }
-        $response["path"]           = $path;
+        $response["path"]           = $this->_parentFilePath."/".$fileName;
         $response["is_dir"]         = true;
         $response["icon"]           = "folder";
         $response["root"]           = $root;
@@ -261,6 +282,10 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         }
         else 
         {
+            $pathArr =explode("/",$path);
+            if($this->_user_id!=$pathArr[1]){
+                $this->_user_id = $pathArr;
+            }
             // 不存在数据，添加
             $ret_value                    = MiniFile::getInstance()->create($file_detail, $this->_user_id);
         }

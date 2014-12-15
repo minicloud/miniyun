@@ -1,34 +1,19 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: hengwei
- * Date: 14-9-10
- * Time: 上午10:08
+ * 部门权限
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.7
  */
-class GroupBiz extends MiniBiz{
+class FrontDepartmentBiz extends MiniBiz{
     /**
      * 群组列表
      */
     public function getList(){
-        $user = $this->user;
-        $userId = $user['user_id'];
-        $items = MiniGroup::getInstance()->getList($userId);
-        if($items['success']==true){
-            $list = $items['list'];
-            $groupList = array();
-            foreach($list as $item){
-                $arr = array();
-                $arr['id'] = $item['id'];
-                $arr['user_id'] = $item['user_id'];
-                $arr['group_name'] = $item['group_name'];
-                $arr['count'] = MiniUserGroupRelation::getInstance()->count($item['id']);
-                array_push($groupList,$arr);
-            }
-            $items['list'] = $groupList;
-            return $items;
-        }else{
-            return $items;
-        }
+        $data = MiniGroup::getInstance()->getTreeNodes(-1);
+        return $data;
     }
     /**
      * 用户与群组关联关系列表
@@ -55,14 +40,11 @@ class GroupBiz extends MiniBiz{
     }
     /**
      * 删除群组
-     * 删除群组时，对应的group_privilege 和 user_group_relations的内容也一并删除
      */
-    public function delete($groupId){
-        MiniGroup::getInstance()->deleteByGroupId($groupId);//删除群组
-        MiniGroupPrivilege::getInstance()->deleteRelatedPrivilegeById($groupId);//删除群组对应group_privilege的所有信息
-        MiniUserGroupRelation::getInstance()->deleteRelatedRelations($groupId);
-        return true;
-//        return MiniGroup::getInstance()->delete($groupName,$userId);
+    public function delete($groupName){
+        $user = $this->user;
+        $userId = $user['user_id'];
+        return MiniGroup::getInstance()->delete($groupName,$userId);
     }
     /**
      * 群组更名
