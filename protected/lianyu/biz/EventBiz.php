@@ -50,7 +50,7 @@ class EventBiz extends MiniBiz
                 $item ['user_self'] = false;
                 $user = MiniUser::getInstance()->getById($device['user_id']);
                 $userMetas = MiniUserMeta::getInstance()->getUserMetas($device['user_id']);
-                if(isset($userMetas)&&isset($userMetas['nick'])){
+                if(isset($userMetas['nick'])){
                     $item['user_name'] = $userMetas['nick'];
                 }else{
                     $item['user_name'] = $user['user_name'];
