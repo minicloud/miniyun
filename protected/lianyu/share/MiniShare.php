@@ -1,10 +1,10 @@
 <?php
 /**
- * 迷你云共享 
+ * 迷你云共享
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class MiniShare
@@ -29,11 +29,12 @@ class MiniShare
      * @param $relativePath
      * @return Array|NULL
      */
-    public function getMinFileMetaByPath($absolutePath){
+    public function getMinFileMetaByPath($relativePath){
         $data = array();
-        if(empty($absolutePath)){
-            //如果是根目錄
-            $absolutePath = MiniUtil::getAbsolutePath($this->user["id"], $absolutePath);
+        //如果是根目錄
+        $relativePath = rawurldecode($relativePath);
+        $absolutePath = MiniUtil::joinPath($this->user["id"], rawurldecode($relativePath));
+        if(empty($relativePath)){
             $data["ori_path"] = $absolutePath;
             return $data;
         }

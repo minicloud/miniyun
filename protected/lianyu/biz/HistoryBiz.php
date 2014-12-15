@@ -4,7 +4,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class HistoryBiz extends MiniBiz{
@@ -14,7 +14,8 @@ class HistoryBiz extends MiniBiz{
      * @return mixed
      */
     public function getList($path){
-        $path = MiniUtil::joinPath($path);
+        $userId = $this->user['id'];
+        $path = MiniUtil::joinPath($userId, $path);
         $file = MiniFile::getInstance()->getByPath($path);
         $version_id = $file['version_id'];
         $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,"version");
