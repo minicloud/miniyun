@@ -139,7 +139,7 @@ class FileManageBiz extends MiniBiz{
         $this->share_filter = MSharesFilter::init();
         $event_action = MConst::SHARED_ICON;
         $this->createPublicEvent($event_action,$filePath);
-        MiniGroupPrivilege::getInstance()->create(-1,$filePath,'111111111');
+        MiniGroupPrivilege::getInstance()->create(-1,$filePath,MConst::SUPREME_PERMISSION);
         return array('success'=>true);
     }
     private function createPublicEvent($event_action,$filePath){

@@ -143,7 +143,7 @@ class MMoveController
             $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
             $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
             if(empty($toPrivilege)){
-                $toPrivilege['permission'] = '111111111';
+                $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
             }else{
 
                 $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
@@ -160,11 +160,11 @@ class MMoveController
                     $this->to_share_filter->is_shared = true;
                 }
             }
-            $toFilter      = new MiniPermission('111111111');
+            $toFilter      = new MiniPermission(MConst::SUPREME_PERMISSION);
         }
         $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
         if(empty($fromPrivilege)){
-            $fromPrivilege['permission'] = '111111111';
+            $fromPrivilege['permission'] = MConst::SUPREME_PERMISSION;
         }else{
             $this->from_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($fromPrivilege['share_root_path']);
             $this->from_share_filter->is_shared = true;

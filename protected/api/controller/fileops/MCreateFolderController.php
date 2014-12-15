@@ -87,12 +87,12 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         }
         $parentPath        = dirname($path);
         if(dirname(MiniUtil::getRelativePath($path)) == "/".$this->_user_id){
-            $permission = "111111111";
+            $permission = MConst::SUPREME_PERMISSION;
         }else{
             $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
             $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
             if(!isset($permissionArr)){
-                $permission = "111111111";
+                $permission = MConst::SUPREME_PERMISSION;
             }else{
                 $permission = $permissionArr['permission'];
                 $privilegeModel = new PrivilegeBiz();

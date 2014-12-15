@@ -64,13 +64,13 @@ class UserPermissionBiz extends MiniBiz{
                 }
                 return $this->authority = array("permission"=>$permission,"share_root_path"=>$path,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
             }
-            return $this->authority = array("permission"=>"111111111","share_root_path"=>$path,"share_user_nick"=>$shareUserNick,'can_set_share'=>1);
+            return $this->authority = array("permission"=>MConst::SUPREME_PERMISSION,"share_root_path"=>$path,"share_user_nick"=>$shareUserNick,'can_set_share'=>1);
         }
         if($fileType==1||$fileType==0){//普通目录情况
             $model = new GeneralFolderPermissionBiz($path);
 //            if($model->permission == null){
                 if($model->isChildrenShared($path)){
-                    $permission = "111111111";
+                    $permission = MConst::SUPREME_PERMISSION;
                     return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,'children_shared'=>true,'can_set_share'=>0);
                 }
 //                return $this->authority = null;
@@ -81,7 +81,7 @@ class UserPermissionBiz extends MiniBiz{
                         $permission = $model->permission;
                         return $this->authority = array("permission"=>$permission,"share_root_path"=>$model->shareRootPath,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
                     }else{//本人操作文件
-                        $permission = "111111111";
+                        $permission = MConst::SUPREME_PERMISSION;
                         return $this->authority = array("permission"=>$permission,"share_root_path"=>$model->shareRootPath,"share_user_nick"=>$shareUserNick,"is_share_folder"=>true,'can_set_share'=>0);
                     }
                 }
@@ -98,7 +98,7 @@ class UserPermissionBiz extends MiniBiz{
             if((int)$masterId!=$userId){//非共享者本人操作此文件
                 return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_public_folder"=>true,'can_set_share'=>0);
             }else{
-                $permission = '111111111';
+                $permission = MConst::SUPREME_PERMISSION;
                 return $this->authority = array("permission"=>$permission,"share_user_nick"=>$shareUserNick,"is_public_folder"=>true,'can_set_share'=>0);
             }
         }

@@ -425,5 +425,11 @@ class MConst
     // time限制
     const ERROR_TIME_LIMIT       = 7;
     //smtp连接错误
-    const ERROR_SMTP_CONNECT     = 101; 
+    const ERROR_SMTP_CONNECT     = 101;
+    /*
+     * ============================================================
+     * 权限
+     * ============================================================
+     */
+    const SUPREME_PERMISSION = "111111111";
 }

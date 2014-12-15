@@ -214,7 +214,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             $permissionModel = new UserPermissionBiz($this->_from_path,$user['id']);
             $permissionArr = $permissionModel->getPermission($this->_from_path,$user['id']);
             if(!isset($permissionArr)){
-                $permission = "111111111";
+                $permission = MConst::SUPREME_PERMISSION;
             }else{
                 $permission = $permissionArr['permission'];
             }
@@ -235,7 +235,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             $permissionModel = new UserPermissionBiz(dirname($this->_to_path),$user['id']);
             $permissionArr = $permissionModel->getPermission(dirname($this->_to_path),$user['id']);
             if(!isset($permissionArr)){
-                $permission = "111111111";
+                $permission = MConst::SUPREME_PERMISSION;
             }else{
                 $permission = $permissionArr['permission'];
                 $privilegeModel = new PrivilegeBiz();
