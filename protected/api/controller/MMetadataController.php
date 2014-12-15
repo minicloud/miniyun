@@ -47,13 +47,14 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if($path===false){
         	$path = "/";
         }
+        $pathPart = explode('/',$path);
         // 根目录
-        if ($path == "/"){
+        if (count($pathPart) <= 2){
             $response = $this->handleRootPath($includeDeleted);
         }else{
             $response = $this->handleNotRootPath($path,$includeDeleted);
         }
-        echo json_encode($response) ;
+        echo json_encode($response);
     }
 
     /**
@@ -194,7 +195,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["event"]                  = $file["event_uuid"];
         $response["sort"]                   = (int)$file["sort"];
         //外链Key
-        $response["share_key"]              = $file["share_key"];
+        $link = MiniLink::getInstance()->getByFileId($file['id']);
+        if(empty($link['share_key'])){
+            $response["share_key"] = '';
+        }else{
+            $response["share_key"] = $link['share_key'];
+        }
         $response['is_dir'] = false;
 //        if($file['file_type'] != 0){
             $permissionModel = new UserPermissionBiz($filePath,$this->userId);
