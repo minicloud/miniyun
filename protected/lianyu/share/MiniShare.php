@@ -29,11 +29,11 @@ class MiniShare
      * @param $relativePath
      * @return Array|NULL
      */
-    public function getMinFileMetaByPath($relativePath){
+    public function getMinFileMetaByPath($absolutePath){
         $data = array();
         //如果是根目錄
-        $relativePath = rawurldecode($relativePath);
-        $absolutePath = MiniUtil::joinPath($this->user["id"], rawurldecode($relativePath));
+        $relativePath = rawurldecode($absolutePath);
+//        $absolutePath = MiniUtil::joinPath($this->user["id"], rawurldecode($relativePath));
         if(empty($relativePath)){
             $data["ori_path"] = $absolutePath;
             return $data;
