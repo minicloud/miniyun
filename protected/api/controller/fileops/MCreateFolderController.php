@@ -267,11 +267,12 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         $file_detail["file_size"]        = 0;
         $file_detail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
         $file_detail["parent_file_id"]   = $parent_file_id;
+        $file_detail["event_uuid"]    = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
         $file_detail["mime_type"]        = NULL;
         // 保存文件元数据
         if ($had_file_delete)
         {
-            $file_detail["event_uuid"]    = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+
             $updates                      = array();
             $updates["file_update_time"]  = time();
             $updates["is_deleted"]        = intval(false);
