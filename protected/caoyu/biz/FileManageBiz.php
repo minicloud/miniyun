@@ -137,8 +137,8 @@ class FileManageBiz extends MiniBiz{
     public function setToPublic($filePath){
         Minifile::getInstance()->setToPublic($filePath);//设置目录file_type为4(公共目录)
         $this->share_filter = MSharesFilter::init();
-        $event_action = MConst::SHARED_ICON;
-        $this->createPublicEvent($event_action,$filePath);
+//        $event_action = MConst::SHARED_ICON;
+//        $this->createPublicEvent($event_action,$filePath);
         MiniGroupPrivilege::getInstance()->create(-1,$filePath,MConst::ONLY_READ);
         return array('success'=>true);
     }
