@@ -49,7 +49,13 @@ class EventBiz extends MiniBiz
             } else {
                 $item ['user_self'] = false;
                 $user = MiniUser::getInstance()->getById($device['user_id']);
-                $item['user_name'] = $user['user_name'];
+                $userMetas = MiniUserMeta::getInstance()->getUserMetas($device['user_id']);
+                if(isset($userMetas['nick'])){
+                    $item['user_name'] = $userMetas['nick'];
+                }else{
+                    $item['user_name'] = $user['user_name'];
+                }
+
             }
             $item ['created_at'] = MiniUtil::formatTime(strtotime($event['created_at']));
             $item ['user_device_name'] = $device['user_device_name'];
