@@ -192,10 +192,10 @@ class PrivilegeBiz  extends MiniBiz{
                     $slaveIds[] = $user['user_id'];
             }
         }
-        $groups = MiniGroupPrivilege::getInstance()->getByPath($filePath);
+        $groups = MiniGroupPrivilege::getInstance()->getPrivilegeList($filePath);
         $departmentPrivilege = new DepartmentPermissionBiz();
         foreach($groups as $group){
-            $departmentPrivilege->getUserByDepartmentId($group['id']);
+            $departmentPrivilege->getUserByDepartmentId($group['group_id']);
         }
         $ids =  array_unique(array_merge($departmentPrivilege->ids,$slaveIds));
         $userIds = array();

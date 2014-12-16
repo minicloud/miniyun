@@ -99,15 +99,15 @@ class MiniGroupPrivilege extends MiniCache
         $permission['file_path'] = $newPath;
         $permission->save();
     }
-    public function getByPath($path){
-        $criteria = new CDbCriteria();
-        $criteria->condition = "file_path=:file_path";
-        $criteria->params = array(
-            "file_path" => $path
-        );
-        $item = GroupPrivilege::model()->find($criteria);
-        return $this->db2Item($item);
-    }
+//    public function getByPath($path){
+//        $criteria = new CDbCriteria();
+//        $criteria->condition = "file_path=:file_path";
+//        $criteria->params = array(
+//            "file_path" => $path
+//        );
+//        $item = GroupPrivilege::model()->find($criteria);
+//        return $this->db2Item($item);
+//    }
     /**
      * 获得权限列表
      * @param $filePath
