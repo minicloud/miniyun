@@ -83,7 +83,8 @@ class ProfileBiz  extends MiniBiz{
             $item["user_device_uuid"] = $device["user_device_uuid"];
             $item["user_device_type"] = $device["user_device_type"];
             $item["user_device_name"] = $device["user_device_name"];
-            $item['updated_at'] = strtotime($device['updated_at']);
+            $item['updated_at'] = MiniUtil::formatTime(strtotime($device['updated_at']));
+            $item['update_time'] = strtotime($device['updated_at']);
             $deviceList[] = $item;
         }
         $data['devices'] = $deviceList;
