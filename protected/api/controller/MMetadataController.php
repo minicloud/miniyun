@@ -106,6 +106,11 @@ class MMetadataController extends MApplicationComponent implements MIController{
             }
         }
         $filePaths = array_unique($filePaths);
+        $userMetaData = MiniUserMeta::getInstance()->getUserMetas($this->userId);
+        $userHidePaths = '';
+        if(!empty($userMetaData['user_hide_path'])){
+            $userHidePaths = unserialize($userMetaData['user_hide_path']);
+        }
         // 组装子文件数据
         foreach($filePaths as $filePath){
             $file = MiniFile::getInstance()->getByFilePath($filePath);
@@ -119,9 +124,13 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 $signature = $version["file_signature"];
                 $file["signature"] = $signature;
             }
-
             $item = $this->assembleResponse($item, $file, $mimeType);
             if(!empty($item)){
+                if(in_array($filePath,$userHidePaths)){
+                    $item['is_hide_path'] = true;
+                }else{
+                    $item['is_hide_path'] = false;
+                }
                 array_push($contents, $item);
             }
         }
