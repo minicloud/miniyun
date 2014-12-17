@@ -23,7 +23,24 @@ class FileBiz  extends MiniBiz{
     /**
      * 目录打包下载
      */
-    public function downloadToPackage($paths){
+    public function downloadToPackage($paths,$filePath){
+        $arr = explode('/',$filePath);
+        $isRoot = false;
+        $isMine = false;
+        if(count($arr)==3){
+            $isRoot = true;
+        }
+        $fileOwnerId = $arr[1];
+        $currentUser = $this->user;
+        $currentUserId = $currentUser['user_id'];
+        if($fileOwnerId==$currentUserId ){
+            $isMine = true;
+        }
+        if($isRoot&&!$isMine){//如果是在根目录下且不是自己的目录 则后台控制不准取消共享
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_409);
+        }
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
         $limit = new DownloadPackageLimit();

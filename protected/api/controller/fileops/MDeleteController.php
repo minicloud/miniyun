@@ -56,7 +56,26 @@ class MDeleteController extends MApplicationComponent implements MIController
         }
         $root = $params["root"];
         $path = $params["path"];
-        
+        $isDir= $params["is_dir"];
+        if($isDir){//避免人为添加删除目录
+            $arr = explode('/',$path);
+            $isRoot = false;
+            $isMine = false;
+            if(count($arr)==3){
+                $isRoot = true;
+            }
+            $fileOwnerId = $arr[1];
+            $currentUserId = $this->_user_id;
+            if($fileOwnerId==$currentUserId ){
+                $isMine = true;
+            }
+            if($isRoot&&!$isMine){//如果是在根目录下且不是自己的目录 则后台控制不准取消共享
+                throw new MFileopsException(
+                    Yii::t('api','Internal Server Error'),
+                    MConst::HTTP_CODE_409);
+            }
+        }
+
         //
         // 转换路径分隔符，便于以后跨平台，如：将 "\"=>"/"
         //
