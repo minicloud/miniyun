@@ -61,7 +61,7 @@ class GroupBiz extends MiniBiz{
         MiniGroup::getInstance()->deleteByGroupId($groupId);//删除群组
         MiniGroupPrivilege::getInstance()->deleteRelatedPrivilegeById($groupId);//删除群组对应group_privilege的所有信息
         MiniUserGroupRelation::getInstance()->deleteRelatedRelations($groupId);
-        return true;
+        return array('success'=>true);
 //        return MiniGroup::getInstance()->delete($groupName,$userId);
     }
     /**

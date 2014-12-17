@@ -23,7 +23,24 @@ class FileBiz  extends MiniBiz{
     /**
      * 目录打包下载
      */
-    public function downloadToPackage($paths){
+    public function downloadToPackage($paths,$filePath){
+        $arr = explode('/',$filePath);
+        $isRoot = false;
+        $isMine = false;
+        if(count($arr)==3){
+            $isRoot = true;
+        }
+        $fileOwnerId = $arr[1];
+        $currentUser = $this->user;
+        $currentUserId = $currentUser['user_id'];
+        if($fileOwnerId==$currentUserId ){
+            $isMine = true;
+        }
+        if($isRoot&&!$isMine){//如果是在根目录下且不是自己的目录 则后台控制不准取消共享
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_409);
+        }
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
         $limit = new DownloadPackageLimit();
@@ -186,6 +203,12 @@ class FileBiz  extends MiniBiz{
      * @param $filePath .文件路径
      */
     public function downloadBySignature($filePath,$signature){
+        $item = explode("/",$filePath);
+        $permissionModel = new UserPermissionBiz($filePath,$this->user['id']);
+        $permissionArr = $permissionModel->getPermission($filePath,$this->user['id']);
+        if($item[1]!==$this->user['id']&&count($permissionArr)==0){
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+        }
         $this->content($filePath,$signature,true);
     }
 
