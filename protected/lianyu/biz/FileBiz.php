@@ -186,6 +186,12 @@ class FileBiz  extends MiniBiz{
      * @param $filePath .文件路径
      */
     public function downloadBySignature($filePath,$signature){
+        $item = explode("/",$filePath);
+        $permissionModel = new UserPermissionBiz($filePath,$this->user['id']);
+        $permissionArr = $permissionModel->getPermission($filePath,$this->user['id']);
+        if($item[1]!==$this->user['id']&&count($permissionArr)==0){
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+        }
         $this->content($filePath,$signature,true);
     }
 

@@ -14,6 +14,12 @@ class HistoryBiz extends MiniBiz{
      * @return mixed
      */
     public function getList($path){
+        $item = explode("/",$path);
+        $permissionModel = new UserPermissionBiz($path,$this->user['id']);
+        $permissionArr = $permissionModel->getPermission($path,$this->user['id']);
+        if($item[1]!==$this->user['id']&&count($permissionArr)==0){
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+        }
         $file = MiniFile::getInstance()->getByPath($path);
         $version_id = $file['version_id'];
         $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,"version");
