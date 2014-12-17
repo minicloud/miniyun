@@ -132,4 +132,13 @@ class ProfileService extends MiniService{
         return array('success'=>$result);
     }
 
+    /**
+     * 转换隐藏文件名单状态
+     */
+    public function  updateFileHideStatus(){
+        $filePath = MiniHttp::getParam('path','');
+        $isHide   = MiniHttp::getParam('is_hide',true);
+        $model = new ProfileBiz();
+        return $model->updateFileHideStatus($filePath,$isHide);
+    }
 }

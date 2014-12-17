@@ -215,4 +215,30 @@ class ProfileBiz  extends MiniBiz{
         MiniUserDevice::getInstance()->deleteDeviceByUuid($deviceUUid);
         return true;
     }
+    /**
+     * 转换隐藏文件名单状态
+     */
+    public function updateFileHideStatus($filePath,$isHide){
+        $data    = array();
+        $meta    = array();
+        $extends = array();
+        $userId = $this->user['id'];
+        $userMetaData = MiniUserMeta::getInstance()->getUserMetas($userId);
+        if($isHide == "true"){
+            if(empty($userMetaData['user_hide_path'])){
+                array_push($data,$filePath);
+            }else{
+                $data = unserialize($userMetaData['user_hide_path']);
+                array_push($data,$filePath);
+            }
+        }else{
+            $data = unserialize($userMetaData['user_hide_path']);
+            $key = array_search($filePath, $data);
+            unset($data[$key]);
+        }
+        $extends['user_hide_path'] = serialize($data);
+        $meta['extend'] = $extends;
+        MiniUserMeta::getInstance()->create($this->user,$meta);
+        return true;
+    }
 }
