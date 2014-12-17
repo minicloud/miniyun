@@ -65,6 +65,22 @@ class MMoveController
         $this->_root        = $params["root"];
         $from_path          = $params["from_path"];
         $to_path            = $params["to_path"];
+        $arr = explode('/',$from_path);
+        $isRoot = false;
+        $isMine = false;
+        if(count($arr)==3){
+            $isRoot = true;
+        }
+        $fileOwnerId = $arr[1];
+        $currentUserId = $this->_userId;
+        if($fileOwnerId==$currentUserId ){
+            $isMine = true;
+        }
+        if($isRoot&&!$isMine){//如果是在根目录下且不是自己的目录 则后台控制不准取消共享
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_409);
+        }
         $to_parts   = explode('/', $to_path);
         $from_parts = explode('/', $from_path);
         if(count($to_parts) == 2){
