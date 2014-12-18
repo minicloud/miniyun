@@ -36,6 +36,23 @@ class LinkCreateBiz extends MiniBiz{
      */
     public function LinkCreateBiz($path,$originDomain,$chooserAppKey,$session) {
         parent::MiniBiz();
+        $arr = explode('/',$path);
+        $isRoot = false;
+        $isMine = false;
+        if(count($arr)==3){
+            $isRoot = true;
+        }
+        $fileOwnerId = $arr[1];
+        $currentUser = $this->user;
+        $currentUserId = $currentUser['user_id'];
+        if($fileOwnerId==$currentUserId ){
+            $isMine = true;
+        }
+        if($isRoot&&!$isMine){//如果是在根目录下且不是自己的目录 则后台控制不准取消共享
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_409);
+        }
         $this->originDomain = $originDomain;
         $this->appKey  = $chooserAppKey;
         $this->session = $session;

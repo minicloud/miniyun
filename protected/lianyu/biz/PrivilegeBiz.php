@@ -135,9 +135,10 @@ class PrivilegeBiz  extends MiniBiz{
             if($privilegeType=='2'){
                 MiniGroupPrivilege::getInstance()->create($privilege['id'],$filePath,$permission);
             }
+            $departmentPrivilege = new DepartmentPermissionBiz();
+            $departmentPrivilege->getUserByDepartmentId($privilege['id']);
         }
-        $departmentPrivilege = new DepartmentPermissionBiz();
-        $departmentPrivilege->getUserByDepartmentId($privilege['id']);
+
         $ids = array_unique(array_merge($departmentPrivilege->ids,$userIds));
         foreach($ids as $id){
             $this->share_filter->slaves[$id] = $id;
