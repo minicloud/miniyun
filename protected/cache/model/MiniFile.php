@@ -273,7 +273,7 @@ class MiniFile extends MiniCache{
      * 创建File对象
      * 这里使用了引用传值，确保event_uuid可传递到外面
      */
-    public function create($file,$userId){
+    public function create(&$file,$userId){
         if (!isset($file["version_id"])){
             $file["version_id"] = 0;
         }
@@ -291,12 +291,7 @@ class MiniFile extends MiniCache{
         $item->event_uuid        = $file["event_uuid"];
         $item->mime_type         = $file["mime_type"];//有存在NULL的情况
         $item->save();
-        $result=$this->getByPath($file["file_path"]);
-        $file['id']=$result['id'];
-        //修复sort值为id值，确保唯一
-//        $update = array();
-//        $update['sort'] = $item->id;
-//        $this->update($item->id,$update);
+        $file["id"] = $item->id;
         return $file;
 
     }
