@@ -291,6 +291,8 @@ class MiniFile extends MiniCache{
         $item->event_uuid        = $file["event_uuid"];
         $item->mime_type         = $file["mime_type"];//有存在NULL的情况
         $item->save();
+        $result=$this->getByPath($file["file_path"]);
+        $file['id']=$result['id'];
         //修复sort值为id值，确保唯一
 //        $update = array();
 //        $update['sort'] = $item->id;
