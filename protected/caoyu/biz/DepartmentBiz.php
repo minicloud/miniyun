@@ -69,7 +69,7 @@ class DepartmentBiz extends MiniBiz{
         $data = array();
         foreach($users as $user){
             $item['id'] = $user['id'];
-            $item['user_name'] = $user['user_name'];
+            $item['user_name'] = $user['nick'];
             $data[] = $item;
         }
         return array('success'=>true,'msg'=>'success','unbindUsers'=>$data,'total'=>$total);
