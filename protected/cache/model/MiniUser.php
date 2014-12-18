@@ -699,6 +699,66 @@ class MiniUser extends MiniCache{
         }
         return array();
     }
+    public function searchUnbindUsers($offset,$limit,$key){
+        $items=UserGroupRelation::model()->findAll();
+        $value                 = array();
+        if(isset($items)){
+            foreach($items as $item) {
+                $group = MiniGroup::getInstance()->findById($item->group_id);
+                if(isset($group)){
+                    if($group['user_id']>0){
+                        continue;
+                    }
+                }
+                $value[]           = $item->user_id;
+            }
+        }
+        $criteria                = new CDbCriteria();
+        $aimIds        = array();
+        //通过UserName进行检索
+        $criteria->condition     = "user_status=1 and user_name like :userName";
+        $criteria->params        = array( 'userName'=>"%" . $key . "%");
+        $items         = User::model()->findAll($criteria);
+        foreach($items as $item){
+            $aimIds[$item["id"]] = $item["id"];
+        }
+
+        //根据拼音搜索
+        $criteria                = new CDbCriteria();
+        $criteria->condition      = "user_status=1 and user_name_pinyin like :userName";
+        $criteria->params       = array( ':userName'=>"%" . $key . "%");
+        $items         = User::model()->findAll($criteria);
+        foreach($items as $item){
+            $aimIds[$item["id"]] = $item["id"];
+        }
+
+        //通过Nick进行检索
+        if($key!=""){
+            $criteria                = new CDbCriteria();
+            $criteria->condition    = "meta_key='nick' and meta_value like :userNick";
+            $criteria->params        = array('userNick'=>"%" . $key . "%");
+            $items         = UserMeta::model()->findAll($criteria);
+            foreach($items as $item){
+                $aimIds[$item["user_id"]] = $item["user_id"];
+            }
+        }
+        if(count($aimIds)>0){
+            //最后的用户
+            $criteria            = new CDbCriteria();
+            $criteria->condition = 'user_status=1';
+            $criteria->addInCondition('id',array_keys($aimIds));
+            $criteria->addNotInCondition('id',$value);
+            $count = User::model()->count($criteria);
+            $criteria->limit = $limit;
+            $criteria->offset = $offset;
+            $users = User::model()->findAll($criteria);
+            $data = array();
+            $data['users'] = $this->db2list($users);
+            $data['total'] = $count;
+            return $data;
+        }
+        return array();
+    }
     public function getAll(){
         $criteria                = new CDbCriteria();
         $data =  User::model()->findAll($criteria);
@@ -900,7 +960,7 @@ class MiniUser extends MiniCache{
     /**
      * 查询未分组的用户
      */
-    public function unbindUsers(){
+    public function unbindUsers($offset,$limit){
         $items=UserGroupRelation::model()->findAll();
         $value                 = array();
         if(isset($items)){
@@ -916,8 +976,14 @@ class MiniUser extends MiniCache{
         }
         $criteria                = new CDbCriteria();
         $criteria->addNotInCondition('id',$value);
-        $data = User::model()->findAll($criteria);
-        return $this->db2list($data);
+        $count = User::model()->count($criteria);
+        $criteria->limit = $limit;
+        $criteria->offset = $offset;
+        $users = User::model()->findAll($criteria);
+        $data = array();
+        $data['users'] = $this->db2list($users);
+        $data['total'] = $count;
+        return $data;
 
     }
     /**

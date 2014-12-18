@@ -58,8 +58,11 @@ class DepartmentService extends MiniService{
      * 未绑定用户列表
      */
     public function unBindUserList(){
+        $key = MiniHttp::getParam('key','');
+        $currentPage = MiniHttp::getParam('current_page','1');
+        $pageSize = MiniHttp::getParam('page_size','10');
         $biz = new DepartmentBiz();
-        $result = $biz->unBindUserList();
+        $result = $biz->unBindUserList($currentPage,$pageSize,$key);
         return $result;
     }
     /**
