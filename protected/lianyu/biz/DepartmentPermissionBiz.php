@@ -56,7 +56,7 @@ class DepartmentPermissionBiz  extends MiniBiz{
                         $this->ids[] = $userGroup['user_id'];
                     }
                 }
-                $this->getGroups($department['id']);
+                $this->getGroups($department['group_id']);
             }
 
         }else{
