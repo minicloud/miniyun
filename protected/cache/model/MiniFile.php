@@ -773,6 +773,9 @@ class MiniFile extends MiniCache{
             $file["file_path"] = MiniUtil::joinPath($aimFolder["file_path"],$aimName);
         }
         $file["parent_file_id"]=$aimFolderId;
+        if($file['file_type']!=0){
+            $file['file_type']=1;
+        }
         //set file.id = null
         unset($file["id"]);
         $newFile = $this->create($file,$userId);
