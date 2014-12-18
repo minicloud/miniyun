@@ -220,6 +220,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 }else{
                     $response['share'] = $permission;
                 }
+                $filePermission = new MiniPermission($permission['permission']);
+                $response['canDelete'] = $filePermission->canDeleteFile();
                 if(empty($permission['permission'])){
                     return null;
                 }

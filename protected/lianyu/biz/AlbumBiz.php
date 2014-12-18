@@ -128,6 +128,14 @@ class AlbumBiz  extends MiniBiz{
             }
         }
         foreach($albums as $value){
+            $permissionModel = new UserPermissionBiz($value['file_path'],$this->user['user_id']);
+            $permission = $permissionModel->getPermission($value['file_path'],$this->user['user_id']);
+            if(!empty($permission)){
+                $filePermission = new MiniPermission($permission['permission']);
+                $data['canDelete'] = $filePermission->canDeleteFile();
+            }else{
+                $data['canDelete'] = true;
+            }
             $data["filename"]=$value['file_name'];
             $data["fileSize"]=$value['file_size'];
             $data["path"]= MiniUtil::getRelativePath($value['file_path']);
