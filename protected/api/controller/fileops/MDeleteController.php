@@ -57,6 +57,10 @@ class MDeleteController extends MApplicationComponent implements MIController
         $root = $params["root"];
         $path = $params["path"];
         $isDir= $params["is_dir"];
+        $pathArr = explode('/',$path);
+        if($path == '/' || empty($pathArr[2]) || empty($pathArr[1])){
+            return;
+        }
         if($isDir){//避免人为添加删除目录
             $arr = explode('/',$path);
             $isRoot = false;
