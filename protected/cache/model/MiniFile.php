@@ -1392,4 +1392,88 @@ class MiniFile extends MiniCache{
             return array('success'=>false);
         }
     }
+
+    /**
+     * 处理创建文件信息及事件
+     */
+    private function createFileMeta($folderPath, $parentFileId, $hadFileDelete,$userId){
+        $file_name                       = MUtils::get_basename($folderPath);
+        // 组装对象信息
+        $file_detail                     = array();
+        $file_detail["file_create_time"] = time();
+        $file_detail["file_update_time"] = time();
+        $file_detail["file_name"]        = $file_name;
+        $file_detail["file_path"]        = $folderPath;
+        $file_detail["file_size"]        = 0;
+        $file_detail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
+        $file_detail["parent_file_id"]   = $parentFileId;
+        $file_detail["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+        $file_detail["mime_type"]        = NULL;
+        // 保存文件元数据
+        if ($hadFileDelete)
+        {
+            $updates                      = array();
+            $updates["file_update_time"]  = time();
+            $updates["is_deleted"]        = intval(false);
+            $updates["file_type"]         = MConst::OBJECT_TYPE_DIRECTORY;
+            $updates["event_uuid"]        = $file_detail["event_uuid"];
+            // 存在已被删除的数据，只需更新
+            $ret_value                    = $this->updateByPath($folderPath, $updates);
+        }
+        else
+        {
+            // 不存在数据，添加
+            $file = $this->getByPath($folderPath);
+            if(empty($file)){
+                $this->create($file_detail, $userId);
+            }
+        }
+        // TODO  保存事件
+        return $file_detail;
+    }
+    /**
+     * 处理检查文件父目录是否存在，不存在将递归依次创建
+     */
+    private function handlerParentFolder($folderPath,$userId){
+        $file = $this->getByPath($folderPath);
+        $hadFileDelete  = false;
+        if (!empty($file))
+        {
+            // 检查该记录是否已被删除
+            if ($file["is_deleted"] == false)
+            {
+                return $file["id"];
+            }
+            // 记录已被删除
+            $hadFileDelete = true;
+        }
+        if(count(explode('/',$folderPath)) <= 3){
+            $parentFileId = 0;
+        }else{
+            $parentPath = dirname($folderPath);
+            $parentFileId = $this->handlerParentFolder($parentPath,$userId);
+        }
+        $this->createFileMeta($folderPath, $parentFileId, $hadFileDelete,$userId);
+        $file   = $this->getByPath($folderPath);
+        if ($file === NULL)
+        {
+            throw new MFileopsException(
+                Yii::t('api','Internal Server Error'),
+                MConst::HTTP_CODE_500);
+        }
+        return $file["id"];
+    }
+    /**
+     * 创建目录
+     */
+    public function createFolder($folderPath,$userId){
+        $hadFileDelete       = false;
+        if(count(explode('/',$folderPath)) <= 3){
+            $parentFileId =  0;
+        }else{
+            $parentFileId = $this->handlerParentFolder($folderPath,$userId);
+        }
+        $fileDetail          = $this->createFileMeta($folderPath, $parentFileId, $hadFileDelete,$userId);
+        return $fileDetail;
+    }
 }
