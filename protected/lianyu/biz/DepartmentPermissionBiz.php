@@ -47,22 +47,21 @@ class DepartmentPermissionBiz  extends MiniBiz{
         }
     }
     private function getGroups($departmentId){
-        $department = MiniGroupRelation::getInstance()->getByGroupId($departmentId);
-        if(count($department)>0){
+        $departments = MiniGroupRelation::getInstance()->getByParentId($departmentId);
+        if(count($departments)>0){
+            foreach($departments as $department){
                 $userGroups = MiniUserGroupRelation::getInstance()->getByGroupId($department['group_id']);
                 if(count($userGroups)>0){
                     foreach($userGroups as $userGroup){
                         $this->ids[] = $userGroup['user_id'];
                     }
                 }
-                if($department['parent_group_id']!=-1){
-                    $this->getGroups($department['parent_group_id']);
-                }else{
-                    return;
-                }
-
+                $this->getGroups($department['group_id']);
             }
 
+        }else{
+            return;
+        }
     }
     public function getUserByDepartmentId($departmentId){
         $userGroups = MiniUserGroupRelation::getInstance()->getByGroupId($departmentId);

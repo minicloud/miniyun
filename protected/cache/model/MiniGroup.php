@@ -210,7 +210,7 @@ class MiniGroup extends MiniCache{
                 $user = array();
                 $userInfo = MiniUser::getInstance()->getById($userRelation['user_id']);
                 $user['id'] = $userInfo['id'];
-                $user['user_name']= $userInfo['user_name'];
+                $user['user_name']= $userInfo['nick'];
                 $user['group_id']=$parentGroupId;
                 $groups[] = $user;
             }

@@ -62,15 +62,17 @@ class DepartmentBiz extends MiniBiz{
     /**
      * 未绑定用户列表
      */
-    public function unBindUserList(){
-        $users = MiniUser::getInstance()->unbindUsers();
+    public function unBindUserList($currentPage,$pageSize,$key){
+        $items = MiniUser::getInstance()->searchUnbindUsers(($currentPage-1)*$pageSize,$pageSize,$key);
+        $total = $items['total'];
+        $users = $items['users'];
         $data = array();
         foreach($users as $user){
             $item['id'] = $user['id'];
-            $item['user_name'] = $user['user_name'];
+            $item['user_name'] = $user['nick'];
             $data[] = $item;
         }
-        return array('success'=>true,'msg'=>'success','unbindUsers'=>$data);
+        return array('success'=>true,'msg'=>'success','unbindUsers'=>$data,'total'=>$total);
     }
 
     /**
