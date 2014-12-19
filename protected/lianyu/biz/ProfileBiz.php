@@ -14,6 +14,7 @@ class ProfileBiz  extends MiniBiz{
      * @return array
      */
     public function getProfile(){
+        $user['id'] = $this->user['id'];
         $user['display_name'] = $this->user['nick'];
         $user['user_name']    = $this->user['user_name'];
         $user['avatar']       = $this->user['avatar'];
