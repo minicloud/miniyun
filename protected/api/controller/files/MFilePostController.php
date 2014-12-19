@@ -58,8 +58,17 @@ class MFilePostController extends MApplicationComponent  implements MIController
         $signature = MiniUtil::getFileHash($tmp_name);
         // 解析路径
         $parent_path = "/" . $url_manager->parsePathFromUrl($uri);
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $folderPath = MiniFile::getInstance()->getByPath($parent_path);
+        //如果目录不存在，则创建
+        if(!empty($folderPath)){
+            $values = array();
+            $values['is_deleted'] = false;
+            MiniFile::getInstance()->updateByPath($parent_path.$values);
+        }else{
+            MiniFile::getInstance()->createFolder($parent_path,$user['id']);
+        }
         $path        = $parent_path . "/" . $file_name;
-
         $createFileHandler->size           = $size;
         $createFileHandler->parent_path    = MUtils::convertStandardPath($parent_path);
         $createFileHandler->file_name      = $file_name;
