@@ -395,8 +395,8 @@ class MConst
     const DEVICE_MAC     = 2;
     const DEVICE_WINDOWS = 3;
     const DEVICE_ANDROID = 4;
-    const DEVICE_IPHONE  = 5;
-    const DEVICE_IPAD    = 6;
+    const DEVICE_IPHONE  = 6;
+    const DEVICE_IPAD    = 7;
 
     //
     // 登陆注销
