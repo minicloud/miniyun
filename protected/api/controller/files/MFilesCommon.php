@@ -128,9 +128,10 @@ class MFilesCommon extends MModel {
         $parentPath = $this->parent_path;
         $currentUserId = $this->user_id;
         $this->currentUserId = $currentUserId;
-        if($parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
+        if(empty($parentPath) || $parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
             $can_create_file = true;
             $this->path = "/".$currentUserId.$this->path;
+            $parentPath = "/";
         }else{//非根目录情况
             $can_create_file = false;
             $arr = explode('/',$parentPath);
