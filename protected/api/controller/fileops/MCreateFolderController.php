@@ -85,6 +85,11 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         if($params['is_root']=="/"){
             $path               = "/".$this->_user_id.$path;
         }
+        $item = explode("/",$path);
+        if(!preg_match("/^[0-9]+$/",$item[1]))
+        {
+            $path               = "/".$user["user_id"].$path;
+        }
         $parentPath        = dirname($path);
         if(dirname(MiniUtil::getRelativePath($path)) == "/".$this->_user_id){
             $permission = MConst::SUPREME_PERMISSION;
