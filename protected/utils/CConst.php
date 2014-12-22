@@ -380,7 +380,7 @@ class CConst
     const DEVICE_SYSTEM                   = 2; // SYSTEM
     const DEVICE_CLIENT                   = 3; // 客户端
     const DEVICE_ANDROID                  = 4; // android
-    const DEVICE_IOS                      = 5; // iphone/ipad
+    const DEVICE_IOS                      = 6; // iphone/ipad
     //
     // 应用中心远程地址
     //

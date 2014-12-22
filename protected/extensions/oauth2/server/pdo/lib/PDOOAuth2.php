@@ -288,6 +288,10 @@ class PDOOAuth2 extends OAuth2 {
     private function judgeDevice()
     {
         $deviceType  = $_REQUEST['device_type'];
+        //这里对iPhone/iPad做了一个补偿操作，此前的绑定设备类型出了错误。因为类型是6而不是5
+        if(MiniHttp::isiPhone()){
+            $deviceType = 6;
+        }
         $deviceName  = urldecode($_REQUEST['device_name']);
         $deviceInfo  = $_REQUEST['device_info'];
 

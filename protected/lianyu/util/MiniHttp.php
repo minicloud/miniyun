@@ -31,6 +31,19 @@ class MiniHttp{
         return false;
     }
     /**
+     * 判断是否是iPhone客户端
+     */
+    public static function isiPhone(){
+        if(MiniHttp::isPCClient()){
+            return false;
+        }
+        $pos = strpos($_SERVER["HTTP_USER_AGENT"],"Darwin");
+        if($pos){
+            return true;
+        }
+        return false;
+    }
+    /**
      * 判断是否windows电脑
      */
     public static function isWindowsOS(){
