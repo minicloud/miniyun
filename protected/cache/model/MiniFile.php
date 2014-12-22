@@ -1425,10 +1425,22 @@ class MiniFile extends MiniCache{
             // 不存在数据，添加
             $file = $this->getByPath($folderPath);
             if(empty($file)){
-                $this->create($file_detail, $userId);
+                if(!empty($file_detail["file_name"])){
+                    $this->create($file_detail, $userId);
+                    $device                   = MUserManager::getInstance()->getCurrentDevice();
+                    $event_action             = MConst::CREATE_DIRECTORY;
+                    MiniEvent::getInstance()->createEvent(
+                        $userId,
+                        $device["device_id"],
+                        $event_action,
+                        $file_detail["file_path"],
+                        $file_detail["file_path"],
+                        $file_detail["event_uuid"],
+                        0
+                    );
+                }
             }
         }
-        // TODO  保存事件
         return $file_detail;
     }
     /**

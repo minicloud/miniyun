@@ -64,7 +64,7 @@ class MFilePostController extends MApplicationComponent  implements MIController
         if(!empty($folderPath)){
             $values = array();
             $values['is_deleted'] = false;
-            MiniFile::getInstance()->updateByPath($parent_path.$values);
+            MiniFile::getInstance()->updateByPath($parent_path,$values);
         }else{
             MiniFile::getInstance()->createFolder($parent_path,$user['id']);
         }
