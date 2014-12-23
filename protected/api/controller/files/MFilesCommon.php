@@ -128,6 +128,21 @@ class MFilesCommon extends MModel {
         $parentPath = $this->parent_path;
         $currentUserId = $this->user_id;
         $this->currentUserId = $currentUserId;
+
+        // 检查文件名是否有效
+        if (MUtils::checkNameInvalid($this->file_name)){
+            throw new MFileopsException(Yii::t('api','bad request'), MConst::HTTP_CODE_400);
+        }
+        // 获取父目录信息
+        $parent_check_handler                  = new MCreateFolderController();
+        $parent_check_handler->_user_id        = $this->user_id;
+        $parent_check_handler->_user_device_id = $this->user_device_id;
+//        $parent_check_handler->share_filter    = $this->share_filter;
+        if(empty($parentPath) || $parentPath=="/"){
+            $this->parent_file_id = 0;
+        }else{
+            $this->parent_file_id                  = $parent_check_handler->handlerParentFolder($this->parent_path);
+        }
         if(empty($parentPath) || $parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
             $can_create_file = true;
             $this->path = "/".$currentUserId.$this->path;
@@ -142,7 +157,6 @@ class MFilesCommon extends MModel {
                 $privilegeModel = new PrivilegeBiz();
                 $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
                 $this->share_filter->is_shared = true;
-
             }
             if($masterId == $currentUserId){//自己目录下皆有创建权限
                 $can_create_file = true;
@@ -155,20 +169,6 @@ class MFilesCommon extends MModel {
                     $can_create_file = true;
                 }
             }
-        }
-        // 检查文件名是否有效
-        if (MUtils::checkNameInvalid($this->file_name)){
-            throw new MFileopsException(Yii::t('api','bad request'), MConst::HTTP_CODE_400);
-        }
-        // 获取父目录信息
-        $parent_check_handler                  = new MCreateFolderController();
-        $parent_check_handler->_user_id        = $this->user_id;
-        $parent_check_handler->_user_device_id = $this->user_device_id;
-//        $parent_check_handler->share_filter    = $this->share_filter;
-        if($parentPath=="/"){
-            $this->parent_file_id = 0;
-        }else{
-            $this->parent_file_id                  = $parent_check_handler->handlerParentFolder($this->parent_path);
         }
         // 保存到数据库中的地址
         $this->file_path                       = $this->path;
