@@ -1164,17 +1164,22 @@ class MiniFile extends MiniCache{
      * @param $pageSet
      * @return array
      */
-    public function getDeleteFile($userId,$pageSize,$pageSet,$parentFileId){
+    public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
-        $criteria ->condition = "is_deleted=1 and user_id=:user_id and parent_file_id=:parent_file_id";
-        $criteria->limit      = $pageSize;
-        $criteria->offset     = $pageSet;
-        $criteria->order="file_create_time desc";
+        $criteria ->condition = "is_deleted=1 and user_id=:user_id";
+        if($pageSize!=null&&$pageSet=null){
+            $criteria->limit      = $pageSize;
+            $criteria->offset     = $pageSet;
+        }
         $criteria->params=array(
             "user_id"=>$userId,
-            "parent_file_id"=>$parentFileId
         );
+        if($parentFileId!=null){
+            $criteria->addCondition("parent_file_id =:parent_file_id","and");
+            $criteria->params[':parent_file_id']=$parentFileId;
+        }
+        $criteria->order="file_create_time desc";
         $items=UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
@@ -1201,28 +1206,41 @@ class MiniFile extends MiniCache{
      */
 
     public function recoverDelete($path,$userId,$device) {
-
-        /**
-         * 解决目录里文件恢复
-         */
-        $searchPath = $path.'/';
-        $criteria            = new CDbCriteria();
-        $criteria->condition = "file_path like :path";
-        $criteria->params    = array(":path"=>$searchPath.'/%');
-        $items = UserFile::model()->findAll($criteria);
-        foreach($items as $item){
+        if(strlen($path)!=0){
+            /**
+             * 解决目录里文件恢复
+             */
+            $path = "/" . $userId.$path;
+            $searchPath = $path.'/';
+            $criteria            = new CDbCriteria();
+            $criteria->condition = "file_path like :path";
+            $criteria->params    = array(":path"=>$searchPath.'/%');
+            $items = UserFile::model()->findAll($criteria);
+            foreach($items as $item){
+                $item->is_deleted=0;
+                $item->save();
+            }
+            /**
+             * 解决目录本身以及单独文件的恢复
+             */
+            $criteria            = new CDbCriteria();
+            $criteria->condition = "file_path = :path";
+            $criteria->params    = array(":path"=>$path);
+            $item = UserFile::model()->find($criteria);
             $item->is_deleted=0;
             $item->save();
+        }else{
+            $items = $this->getDeleteFile($userId);
+            foreach($items as $item){
+                $criteria            = new CDbCriteria();
+                $criteria->condition = "file_path = :path";
+                $criteria->params    = array(":path"=>$item['file_path']);
+                $item = UserFile::model()->find($criteria);
+                $item->is_deleted=0;
+                $item->save();
+            }
         }
-        /**
-         * 解决目录本身以及单独文件的恢复
-         */
-        $criteria            = new CDbCriteria();
-        $criteria->condition = "file_path = :path";
-        $criteria->params    = array(":path"=>$path);
-        $item = UserFile::model()->find($criteria);
-        $item->is_deleted=0;
-        $item->save();
+
 
         /**
          * 为创建事件做准备

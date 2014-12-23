@@ -50,7 +50,7 @@ class RecycleBiz extends MiniBiz
         $userId = $sessionUser["id"];
         $filePath = "/" . $userId;
         $arrPath = explode("/", $path);
-        $path = "/" . $userId.$path;
+
         return MiniFile::getInstance()->recoverDelete($path,$userId,$device);
     }
 
