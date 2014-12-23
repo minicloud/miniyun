@@ -1207,8 +1207,8 @@ class MiniFile extends MiniCache{
          */
         $searchPath = $path.'/';
         $criteria            = new CDbCriteria();
-        $criteria->condition = "file_path like '".$searchPath."%'";
-        $criteria->params    = array("path"=>$searchPath);
+        $criteria->condition = "file_path like :path";
+        $criteria->params    = array(":path"=>$searchPath.'/%');
         $items = UserFile::model()->findAll($criteria);
         foreach($items as $item){
             $item->is_deleted=0;
@@ -1218,8 +1218,8 @@ class MiniFile extends MiniCache{
          * 解决目录本身以及单独文件的恢复
          */
         $criteria            = new CDbCriteria();
-        $criteria->condition = "file_path = '".$path."'";
-        $criteria->params    = array("path"=>$searchPath);
+        $criteria->condition = "file_path = :path";
+        $criteria->params    = array(":path"=>$path);
         $item = UserFile::model()->find($criteria);
         $item->is_deleted=0;
         $item->save();

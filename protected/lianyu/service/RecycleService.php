@@ -31,7 +31,7 @@ class RecycleService extends MiniService
     {
         $path = MiniHttp::getParam("path", "");
         $arr = new RecycleBiz;
-        $arr->recover($path);
+        return $arr->recover($path);
     }
 
     /**永久删除文件
