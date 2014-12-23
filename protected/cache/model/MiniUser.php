@@ -578,6 +578,7 @@ class MiniUser extends MiniCache{
             $user["user_pass"]   = MiniUtil::signPassword($password, $salt);
             $user["user_status"] = 1;
             $user->save();
+            $this->updateUserNamePinYin($user->id);
             if(array_key_exists('group', $userData)){
                 do_action("add_user_to_group",$userData['group'],$user['id']);
             }
@@ -590,6 +591,7 @@ class MiniUser extends MiniCache{
             //更新扩展信息
             MiniUserMeta::getInstance()->create($user, $userData);
             $userData['user_id'] = $user['id'];
+            $this->updateUserNamePinYin($user['id']);
             do_action('analyze_add_group', $userData);
             return $this->db2Item($user);
         }
