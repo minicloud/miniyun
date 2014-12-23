@@ -7,7 +7,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class MiniFile extends MiniCache{
@@ -156,11 +156,11 @@ class MiniFile extends MiniCache{
         }
         if(isset($filePaths)){
             $files = array();
-           foreach($filePaths as $filePath){
-            $value =    $this->getByFilePath($filePath);
-               $value['file_type'] = 3;
-               array_push($files,$value);
-           }
+            foreach($filePaths as $filePath){
+                $value =    $this->getByFilePath($filePath);
+                $value['file_type'] = 3;
+                array_push($files,$value);
+            }
         }
         $order                    = 'file_type desc,id DESC ';
         $criteria->condition      = $sql;
@@ -1114,10 +1114,10 @@ class MiniFile extends MiniCache{
         $action = CConst::MODIFY_FILE;
         $file->file_update_time = time();
         $context = array('hash'=>$signature,
-                         'rev'=>(int)$version["id"],
-                         'bytes'=>(int)$version['file_size'],
-                         'update_time' => (int)$file->file_update_time,
-                         'create_time' => (int)$file['file_create_time']);
+            'rev'=>(int)$version["id"],
+            'bytes'=>(int)$version['file_size'],
+            'update_time' => (int)$file->file_update_time,
+            'create_time' => (int)$file['file_create_time']);
 
 
         $filePath             = $file['file_path'];
@@ -1133,12 +1133,12 @@ class MiniFile extends MiniCache{
         // meta表相关操作
         $fileMeta = FileMeta::model()->find('file_path = ?', array($filePath));
         $versions = CUtils::getFileVersions($userDeviceName,
-                                            $version['file_size'],
-                                            $version["id"],
-                                            CConst::WEB_RESTORE,
-                                            $userId,
-                                            $userNick,
-                                            $fileMeta['meta_value']
+            $version['file_size'],
+            $version["id"],
+            CConst::WEB_RESTORE,
+            $userId,
+            $userNick,
+            $fileMeta['meta_value']
         );
         $fileMeta->meta_value = $versions;
         $fileMeta->save();
@@ -1164,18 +1164,16 @@ class MiniFile extends MiniCache{
      * @param $pageSet
      * @return array
      */
-    public function getDeleteFile($userId,$pageSize=null,$pageSet=null){
+    public function getDeleteFile($userId,$pageSize,$pageSet,$parentFileId){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
-        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type=0";
-        if($pageSize!=null&&$pageSet!=null){
-            $criteria->limit      = $pageSize;
-            $criteria->offset     = $pageSet;
-        }
-
+        $criteria ->condition = "is_deleted=1 and user_id=:user_id and parent_file_id=:parent_file_id";
+        $criteria->limit      = $pageSize;
+        $criteria->offset     = $pageSet;
         $criteria->order="file_create_time desc";
         $criteria->params=array(
-            "user_id"=>$userId
+            "user_id"=>$userId,
+            "parent_file_id"=>$parentFileId
         );
         $items=UserFile::model()->findAll($criteria);
         return $this->db2list($items);
@@ -1202,14 +1200,57 @@ class MiniFile extends MiniCache{
      * @return bool
      */
 
-    public function recoverDelete($path) {
+    public function recoverDelete($path,$userId,$device) {
+
+        /**
+         * 解决目录里文件恢复
+         */
+        $searchPath = $path.'/';
         $criteria            = new CDbCriteria();
-        $criteria->condition = 'file_path=:path';
-        $criteria->params    = array("path"=>$path);
-        $attributes          = array(
-            'is_deleted'=>0
+        $criteria->condition = "file_path like '".$searchPath."%'";
+        $criteria->params    = array("path"=>$searchPath);
+        $items = UserFile::model()->findAll($criteria);
+        foreach($items as $item){
+            $item->is_deleted=0;
+            $item->save();
+        }
+        /**
+         * 解决目录本身以及单独文件的恢复
+         */
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "file_path = '".$path."'";
+        $criteria->params    = array("path"=>$searchPath);
+        $item = UserFile::model()->find($criteria);
+        $item->is_deleted=0;
+        $item->save();
+
+        /**
+         * 为创建事件做准备
+         */
+        $file    = MiniFile::getInstance()->getByPath($path);
+        $version = FileVersion::model()->findByPk($file["version_id"]);
+        $context = array(
+            "hash"        => $version["file_signature"],
+            "rev"         => (int)$file['version_id'],
+            "bytes"       => (int)$file['file_size'],
+            "update_time" => (int)$file['file_update_time'],
+            "create_time" => (int)$file['file_create_time']
         );
-        UserFile::model()->updateAll($attributes,$criteria);
+        $action = 3;
+        $context = serialize($context);
+        if($file['file_type'] == 1){
+            $context = $path;
+            $action  = 0;
+        }
+        MiniEvent::getInstance()->createEvent(
+            $userId,
+            $device['device_id'],
+            $action,
+            $path,
+            $context,
+            MiniUtil::getEventRandomString( MConst::LEN_EVENT_UUID ),
+            MSharesFilter::init()
+        );
         return true;
     }
 

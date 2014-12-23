@@ -4,7 +4,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class RecycleBiz extends MiniBiz
@@ -14,12 +14,14 @@ class RecycleBiz extends MiniBiz
      * @param $pageSize
      * @return mixed
      */
-    public function getFileList($page, $pageSize)
-    {
+    public function getFileList($page, $pageSize,$currentPath){
         $pageSet = ($page - 1) * $pageSize;
         $sessionUser = $this->user;
         $userId = $sessionUser["id"];
-        $deleteList = MiniFile::getInstance()->getDeleteFile($userId, $pageSize, $pageSet);
+        if($currentPath==""){
+            $parentFileId = 0;
+        }
+        $deleteList = MiniFile::getInstance()->getDeleteFile($userId, $pageSize, $pageSet ,$parentFileId);
         $deleteCount = MiniFile::getInstance()->getDeleteFileCount($userId);
         $list = array();
         $data = array();
@@ -45,48 +47,11 @@ class RecycleBiz extends MiniBiz
     {
         $sessionUser = $this->user;
         $device                   = MUserManager::getInstance()->getCurrentDevice();
-        $paths = array();
         $userId = $sessionUser["id"];
-        if(strlen($path)==0){
-            $paths = MiniFile::getInstance()->getDeleteFile($userId);
-        }else{
-            $data['file_path'] = $path;
-            $paths[] = $data;
-        }
-        for($i=0;$i<count($paths);$i++){
-            $path = $paths[$i]['file_path'];
-//            $filePath = "";
-//            $arrPath = explode("/", $path);
-//            for ($i = 1; $i < count($arrPath); $i++) {
-                $filePath = $path;
-                $file    = MiniFile::getInstance()->getByPath($filePath);
-                $version = FileVersion::model()->findByPk($file["version_id"]);
-                $context = array(
-                    "hash"        => $version["file_signature"],
-                    "rev"         => (int)$file['version_id'],
-                    "bytes"       => (int)$file['file_size'],
-                    "update_time" => (int)$file['file_update_time'],
-                    "create_time" => (int)$file['file_create_time']
-                );
-                $action = 3;
-                $context = serialize($context);
-                MiniFile::getInstance()->recoverDelete($filePath);
-                if($file['file_type'] == 1){
-                    $context = $filePath;
-                    $action  = 0;
-                }
-                MiniEvent::getInstance()->createEvent(
-                    $userId,
-                    $device['device_id'],
-                    $action,
-                    $filePath,
-                    $context,
-                    MiniUtil::getEventRandomString( MConst::LEN_EVENT_UUID ),
-                    MSharesFilter::init()
-                );
-//            }
-        }
-
+        $filePath = "/" . $userId;
+        $arrPath = explode("/", $path);
+        $path = "/" . $userId.$path;
+        return MiniFile::getInstance()->recoverDelete($path,$userId,$device);
     }
 
     /** 永久删除文件

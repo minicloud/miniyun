@@ -18,8 +18,9 @@ class RecycleService extends MiniService
     {
         $page = MiniHttp::getParam("page", "");
         $pageSize = MiniHttp::getParam("page_size", "");
+        $currentPath = MiniHttp::getParam("current_page", "");
         $biz = new RecycleBiz();
-        $deleteList = $biz->getFileList($page, $pageSize);
+        $deleteList = $biz->getFileList($page, $pageSize,$currentPath);
         return $deleteList;
     }
 
