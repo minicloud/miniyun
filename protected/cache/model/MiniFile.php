@@ -1164,12 +1164,15 @@ class MiniFile extends MiniCache{
      * @param $pageSet
      * @return array
      */
-    public function getDeleteFile($userId,$pageSize,$pageSet){
+    public function getDeleteFile($userId,$pageSize=null,$pageSet=null){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
         $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type=0";
-        $criteria->limit      = $pageSize;
-        $criteria->offset     = $pageSet;
+        if($pageSize!=null&&$pageSet!=null){
+            $criteria->limit      = $pageSize;
+            $criteria->offset     = $pageSet;
+        }
+
         $criteria->order="file_create_time desc";
         $criteria->params=array(
             "user_id"=>$userId
