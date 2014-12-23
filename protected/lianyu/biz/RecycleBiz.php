@@ -45,37 +45,48 @@ class RecycleBiz extends MiniBiz
     {
         $sessionUser = $this->user;
         $device                   = MUserManager::getInstance()->getCurrentDevice();
+        $paths = array();
         $userId = $sessionUser["id"];
-        $filePath = "/" . $userId;
-        $arrPath = explode("/", $path);
-        for ($i = 1; $i < count($arrPath); $i++) {
-            $filePath .= "/" . $arrPath[$i];
-            $file    = MiniFile::getInstance()->getByPath($filePath);
-            $version = FileVersion::model()->findByPk($file["version_id"]);
-            $context = array(
-                "hash"        => $version["file_signature"],
-                "rev"         => (int)$file['version_id'],
-                "bytes"       => (int)$file['file_size'],
-                "update_time" => (int)$file['file_update_time'],
-                "create_time" => (int)$file['file_create_time']
-            );
-            $action = 3;
-            $context = serialize($context);
-            MiniFile::getInstance()->recoverDelete($filePath);
-            if($file['file_type'] == 1){
-                $context = $filePath;
-                $action  = 0;
-            }
-            MiniEvent::getInstance()->createEvent(
-                $userId,
-                $device['device_id'],
-                $action,
-                $filePath,
-                $context,
-                MiniUtil::getEventRandomString( MConst::LEN_EVENT_UUID ),
-                MSharesFilter::init()
-            );
+        if(strlen($path)==0){
+            $paths = MiniFile::getInstance()->getDeleteFile($userId);
+        }else{
+            $data['file_path'] = $path;
+            $paths[] = $data;
         }
+        for($i=0;$i<count($paths);$i++){
+            $path = $paths[$i]['file_path'];
+//            $filePath = "";
+//            $arrPath = explode("/", $path);
+//            for ($i = 1; $i < count($arrPath); $i++) {
+                $filePath = $path;
+                $file    = MiniFile::getInstance()->getByPath($filePath);
+                $version = FileVersion::model()->findByPk($file["version_id"]);
+                $context = array(
+                    "hash"        => $version["file_signature"],
+                    "rev"         => (int)$file['version_id'],
+                    "bytes"       => (int)$file['file_size'],
+                    "update_time" => (int)$file['file_update_time'],
+                    "create_time" => (int)$file['file_create_time']
+                );
+                $action = 3;
+                $context = serialize($context);
+                MiniFile::getInstance()->recoverDelete($filePath);
+                if($file['file_type'] == 1){
+                    $context = $filePath;
+                    $action  = 0;
+                }
+                MiniEvent::getInstance()->createEvent(
+                    $userId,
+                    $device['device_id'],
+                    $action,
+                    $filePath,
+                    $context,
+                    MiniUtil::getEventRandomString( MConst::LEN_EVENT_UUID ),
+                    MSharesFilter::init()
+                );
+//            }
+        }
+
     }
 
     /** 永久删除文件
