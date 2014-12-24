@@ -194,30 +194,44 @@ class MDeleteController extends MApplicationComponent implements MIController
                                   $file_detail->file_size
                                   );
         }
-        $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
-        $permissionArr = $authority->authority;
-        $permission = $permissionArr['permission'];
-        if(!empty($permission)){
-            $privilegeModel = new PrivilegeBiz();
-            $share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
-            $share_filter->is_shared = true;
-            if($file_detail->file_type==0){//删除文件
-                $can_file_delete = substr($permission,7,1);
-                if($can_file_delete==0){
-                    throw new MFileopsException(
-                        Yii::t('api','no permission'),
-                        MConst::HTTP_CODE_409);
+        $isSharedPath = false;
+        $pathArr = explode('/',$file_detail->file_path);
+        $masterId = $pathArr[1];
+        if($masterId!=$this->_user_id){
+            $isSharedPath = true;
+        }else{
+            $model = new GeneralFolderPermissionBiz($file_detail->file_path);
+            if($model->isParentShared($file_detail->file_path)){//如果是父目录被共享
+                $isSharedPath = true;
+            }
+        }
+        if($isSharedPath){
+            $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
+            $permissionArr = $authority->authority;
+            $permission = $permissionArr['permission'];
+            if(!empty($permission)){
+                $privilegeModel = new PrivilegeBiz();
+                $share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                $share_filter->is_shared = true;
+                if($file_detail->file_type==0){//删除文件
+                    $can_file_delete = substr($permission,7,1);
+                    if($can_file_delete==0){
+                        throw new MFileopsException(
+                            Yii::t('api','no permission'),
+                            MConst::HTTP_CODE_409);
 
+                    }
+                }
+                if($file_detail->file_type==1||$file_detail->file_type==2||$file_detail->file_type==4){
+                    $can_folder_delete = substr($permission,3,1);
+                    if($can_folder_delete==0){
+                        throw new MFileopsException(
+                            Yii::t('api','no permission'),
+                            MConst::HTTP_CODE_409);
+                    }
                 }
             }
-            if($file_detail->file_type==1||$file_detail->file_type==2||$file_detail->file_type==4){
-                $can_folder_delete = substr($permission,3,1);
-                if($can_folder_delete==0){
-                    throw new MFileopsException(
-                        Yii::t('api','no permission'),
-                        MConst::HTTP_CODE_409);
-                }
-            }
+
         }
 
         //

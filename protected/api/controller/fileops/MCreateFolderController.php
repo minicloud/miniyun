@@ -91,19 +91,35 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             $path               = "/".$user["user_id"].$path;
         }
         $parentPath        = dirname($path);
+        $isSharedPath = false;//主要用于判断是否为被共享文件
         if(dirname(MiniUtil::getRelativePath($path)) == "/".$this->_user_id){
             $permission = MConst::SUPREME_PERMISSION;
         }else{
-            $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
-            $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
-            if(!isset($permissionArr)){
-                $permission = MConst::SUPREME_PERMISSION;
+            $pathArr = explode('/',$path);
+            $masterId = $pathArr[1];
+            if($masterId!=$this->_user_id){
+                $isSharedPath = true;
             }else{
-                $permission = $permissionArr['permission'];
-                $privilegeModel = new PrivilegeBiz();
-                $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
-                $this->share_filter->is_shared = true;
+                $model = new GeneralFolderPermissionBiz($parentPath);
+                if($model->isParentShared($parentPath)){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
             }
+            if($isSharedPath){
+                $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
+                $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
+                if(!isset($permissionArr)){
+                    $permission = MConst::SUPREME_PERMISSION;
+                }else{
+                    $permission = $permissionArr['permission'];
+                    $privilegeModel = new PrivilegeBiz();
+                    $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                    $this->share_filter->is_shared = true;
+                }
+            }else{
+                $permission = MConst::SUPREME_PERMISSION;
+            }
+
         }
         $miniPermission = new MiniPermission($permission);
         $canCreateFolder = $miniPermission->canCreateFolder();
