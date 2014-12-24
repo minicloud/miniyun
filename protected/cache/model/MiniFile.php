@@ -1222,12 +1222,17 @@ class MiniFile extends MiniCache{
         }else{
             $items = $this->getDeleteFile($userId);
             foreach($items as $item){
-                $criteria            = new CDbCriteria();
-                $criteria->condition = "file_path = :path";
-                $criteria->params    = array(":path"=>$item['file_path']);
-                $item = UserFile::model()->find($criteria);
-                $item->is_deleted=0;
-                $item->save();
+                $pathArr = explode('/',$item['file_path']);
+                $jointPath = '/'.$userId;
+                for($i=2;$i<count($pathArr);$i++){
+                    $jointPath .= '/'.$pathArr[$i];
+                    $criteria            = new CDbCriteria();
+                    $criteria->condition = "file_path = :path";
+                    $criteria->params    = array(":path"=>$jointPath);
+                    $item = UserFile::model()->find($criteria);
+                    $item->is_deleted=0;
+                    $item->save();
+                }
             }
         }
 
