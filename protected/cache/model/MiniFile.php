@@ -1167,7 +1167,7 @@ class MiniFile extends MiniCache{
     public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
-        $criteria ->condition = "is_deleted=1 and user_id=:user_id";
+        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type = 0";
         if($pageSize!=null&&$pageSet=null){
             $criteria->limit      = $pageSize;
             $criteria->offset     = $pageSet;
@@ -1207,28 +1207,18 @@ class MiniFile extends MiniCache{
 
     public function recoverDelete($path,$userId,$device) {
         if(strlen($path)!=0){
-            /**
-             * 解决目录里文件恢复
-             */
             $path = "/" . $userId.$path;
-            $searchPath = $path.'/';
-            $criteria            = new CDbCriteria();
-            $criteria->condition = "file_path like :path";
-            $criteria->params    = array(":path"=>$searchPath.'/%');
-            $items = UserFile::model()->findAll($criteria);
-            foreach($items as $item){
+            $pathArr = explode('/',$path);
+            $jointPath = '/'.$userId;
+            for($i=2;$i<count($pathArr);$i++){
+                $jointPath .= '/'.$pathArr[$i];
+                $criteria            = new CDbCriteria();
+                $criteria->condition = "file_path = :path";
+                $criteria->params    = array(":path"=>$jointPath);
+                $item = UserFile::model()->find($criteria);
                 $item->is_deleted=0;
                 $item->save();
             }
-            /**
-             * 解决目录本身以及单独文件的恢复
-             */
-            $criteria            = new CDbCriteria();
-            $criteria->condition = "file_path = :path";
-            $criteria->params    = array(":path"=>$path);
-            $item = UserFile::model()->find($criteria);
-            $item->is_deleted=0;
-            $item->save();
         }else{
             $items = $this->getDeleteFile($userId);
             foreach($items as $item){
