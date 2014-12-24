@@ -156,35 +156,85 @@ class MMoveController
         $fromPermission = new UserPermissionBiz($from_path,$this->_userId);
         $privilegeModel = new PrivilegeBiz();
         if(!(count($to_parts)==3)){
-            $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
-            $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
-            if(empty($toPrivilege)){
-                $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+            $isSharedPath = false;
+            $toPathArr = explode('/',$to_path);
+            $masterId =   $toPathArr[1];
+            if($masterId!=$this->_userId){
+                $isSharedPath = true;
             }else{
-
-                $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
-                $this->to_share_filter->is_shared = true;
-
+                $model = new GeneralFolderPermissionBiz($to_parent['dirname']);
+                if($model->isParentShared($to_parent['dirname'])){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
             }
+            if($isSharedPath){
+                $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
+                $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
+                if(empty($toPrivilege)){
+                    $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+                }else{
+
+                    $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
+                    $this->to_share_filter->is_shared = true;
+
+                }
+            }else{
+                $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+            }
+
             $toFilter      = new MiniPermission($toPrivilege['permission']);
         }else{
             if ($to_parent['dirname'] == $from_parent['dirname']) {
-                $toPermission  = new UserPermissionBiz($from_path,$this->_userId);
-                $toPrivilege   = $toPermission->getPermission($from_path,$this->_userId);
-                if(!empty($toPrivilege)){
-                    $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
-                    $this->to_share_filter->is_shared = true;
+                $isSharedPath = false;
+                $fromPathArr = explode('/',$from_path);
+                $masterId =  $fromPathArr[1];
+                if($masterId!=$this->_userId){
+                    $isSharedPath = true;
+                }else{
+                    $model = new GeneralFolderPermissionBiz($from_path);
+                    if($model->isParentShared($from_path)){//如果是父目录被共享
+                        $isSharedPath = true;
+                    }
                 }
+                if($isSharedPath){
+                    $toPermission  = new UserPermissionBiz($from_path,$this->_userId);
+                    $toPrivilege   = $toPermission->getPermission($from_path,$this->_userId);
+                    if(!empty($toPrivilege)){
+                        $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
+                        $this->to_share_filter->is_shared = true;
+                    }else{
+                        $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+                    }
+                }else{
+                    $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+                }
+
             }
             $toFilter      = new MiniPermission(MConst::SUPREME_PERMISSION);
         }
-        $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
-        if(empty($fromPrivilege)){
-            $fromPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+        $isSharedPath = false;
+        $fromPathArr = explode('/',$from_path);
+        $masterId =  $fromPathArr[1];
+        if($masterId!=$this->_userId){
+            $isSharedPath = true;
         }else{
-            $this->from_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($fromPrivilege['share_root_path']);
-            $this->from_share_filter->is_shared = true;
+            $model = new GeneralFolderPermissionBiz($from_path);
+            if($model->isParentShared($from_path)){//如果是父目录被共享
+                $isSharedPath = true;
+            }
         }
+        if($isSharedPath){
+            $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
+            if(empty($fromPrivilege)){
+                $fromPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+            }else{
+                $this->from_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($fromPrivilege['share_root_path']);
+                $this->from_share_filter->is_shared = true;
+            }
+        }else{
+            $fromPrivilege['permission'] = MConst::SUPREME_PERMISSION;
+        }
+
         $fromFilter    = new MiniPermission($fromPrivilege['permission']);
         if ($to_parent['dirname'] == $from_parent['dirname']) {
             $this->setAction(MConst::RENAME);

@@ -143,6 +143,7 @@ class MFilesCommon extends MModel {
         }else{
             $this->parent_file_id                  = $parent_check_handler->handlerParentFolder($this->parent_path);
         }
+        $isSharedPath = false;//主要用于判断是否为被共享文件
         if(empty($parentPath) || $parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
             $can_create_file = true;
             $this->path = "/".$currentUserId.$this->path;
@@ -151,23 +152,34 @@ class MFilesCommon extends MModel {
             $can_create_file = false;
             $arr = explode('/',$parentPath);
             $masterId= $arr[1];
-            $authority = new UserPermissionBiz($parentPath,$currentUserId);
-            $permissionArr = $authority->authority;
-            if(!empty($permissionArr)){
-                $privilegeModel = new PrivilegeBiz();
-                $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
-                $this->share_filter->is_shared = true;
-            }
             if($masterId == $currentUserId){//自己目录下皆有创建权限
-                $can_create_file = true;
+                $model = new GeneralFolderPermissionBiz($parentPath);
+                if($model->isParentShared($parentPath)){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
             }else{//别人共享目录下判断有无创建权限
 
                 $this->user_id = $masterId;
-                $permission = $permissionArr['permission'];
-                $create_file_num = substr($permission,4,1);
-                if($create_file_num==1){
+                $isSharedPath = true;
+
+            }
+            if($isSharedPath){
+                $authority = new UserPermissionBiz($parentPath,$currentUserId);
+                $permissionArr = $authority->authority;
+                if(!empty($permissionArr)){
+                    $privilegeModel = new PrivilegeBiz();
+                    $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                    $this->share_filter->is_shared = true;
+                    $permission = $permissionArr['permission'];
+                    $create_file_num = substr($permission,4,1);
+                    if($create_file_num==1){
+                        $can_create_file = true;
+                    }
+                }else{
                     $can_create_file = true;
                 }
+            }else{
+                $can_create_file = true;
             }
         }
         // 保存到数据库中的地址

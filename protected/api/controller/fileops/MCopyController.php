@@ -224,14 +224,23 @@ class MCopyController extends MApplicationComponent implements MIController{
                 throw new MFileopsException(MConst::HTTP_CODE_1132);
             }
         }
+        $isSharedPath = false;//主要用于判断是否为被共享文件
         //目标路径
-//        if ($toId!=$user['id']){
+        if ($toId!=$user['id']){
+            $isSharedPath = true;
             //拷贝到 （目标路径的创建权限）  的判断
 //            if ($query_from_path_db_file[0]["file_type"] == 0){  //文件
 //                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FILE_CREATE);
 //            } else {                                           //文件夹
 //                $this->to_share_filter->hasPermissionExecute($this->_to_path, MPrivilege::FOLDER_CREATE);
 //            }
+        }else{
+            $model = new GeneralFolderPermissionBiz($this->_to_path);
+            if($model->isParentShared($this->_to_path)){//如果是父目录被共享
+                $isSharedPath = true;
+            }
+        }
+        if($isSharedPath){
             $permissionModel = new UserPermissionBiz(dirname($this->_to_path),$user['id']);
             $permissionArr = $permissionModel->getPermission(dirname($this->_to_path),$user['id']);
             if(!isset($permissionArr)){
@@ -247,7 +256,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             if(!$canCopy){
                 throw new MFileopsException(MConst::HTTP_CODE_1132);
             }
-//        }
+        }
 
         //
         // 查询目标路径父目录信息
