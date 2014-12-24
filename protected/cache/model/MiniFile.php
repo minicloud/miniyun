@@ -1164,16 +1164,17 @@ class MiniFile extends MiniCache{
      * @param $pageSet
      * @return array
      */
-    public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null){
+    public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null,$fileType=0){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
-        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type = 0";
+        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type <= :file_type";
         if($pageSize!=null&&$pageSet=null){
             $criteria->limit      = $pageSize;
             $criteria->offset     = $pageSet;
         }
         $criteria->params=array(
             "user_id"=>$userId,
+            "file_type"=>$fileType
         );
         if($parentFileId!=null){
             $criteria->addCondition("parent_file_id =:parent_file_id","and");
@@ -1220,7 +1221,7 @@ class MiniFile extends MiniCache{
                 $item->save();
             }
         }else{
-            $items = $this->getDeleteFile($userId);
+            $items = $this->getDeleteFile($userId,null,null,null,1);
             foreach($items as $item){
                 $pathArr = explode('/',$item['file_path']);
                 $jointPath = '/'.$userId;
