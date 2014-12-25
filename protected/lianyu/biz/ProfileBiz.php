@@ -66,6 +66,8 @@ class ProfileBiz  extends MiniBiz{
         $user = $this->user;
         $userId = $user['user_id'];
         MiniUserMeta::getInstance()->updateMeta($userId,"nick",$nick);
+        //更新用户的拼音信息
+        MiniUser::getInstance()->updateUserNamePinYin($userId);
     }
     /**
      * 设备相关数据
