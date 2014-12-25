@@ -127,11 +127,12 @@ class UserInfoBiz extends MiniBiz{
         return $data;
     }
     public function searchUsers($name,$currentPage,$pageSize){
-        $list = MiniUser::getInstance()->searchUsers($name,$currentPage,$pageSize);
+        $userId = $this->user["id"];
+        $list = MiniUser::getInstance()->searchByName($userId,$name);
         $data = array();
         $data['list']=array();
-        $data['total'] = $list['total'];
-        foreach($list['list'] as $item){
+        $data['total'] = count($list);
+        foreach($list as $item){
             $arr = array();
             $arr['user_id']=$item['id'];
             $arr['user_name']=$item['user_name'];
