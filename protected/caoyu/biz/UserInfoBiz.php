@@ -230,7 +230,7 @@ class UserInfoBiz extends MiniBiz{
         $userMetas['extend']=$metas;
         MiniUserMeta::getInstance()->create($user,$userMetas);
         //更新用户的拼音信息
-        MiniUser::getInstance()->updateUserNamePinYin($user->id);
+        MiniUser::getInstance()->updateUserNamePinYin($id);
         return true;
     }
     /**
