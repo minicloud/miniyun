@@ -77,8 +77,13 @@ class MiniPermission extends MiniCache{
         }
     }
     //能否复制权限
-    public function canCopy(){
-        return true;
+    public function canCopy($type){
+        if($type == 0){
+            return $this->canCreateFile();
+        }
+        if($type>0){
+            return $this->canCreateFolder();
+        }
     }
     //序列化
     public function serialize($permission){
