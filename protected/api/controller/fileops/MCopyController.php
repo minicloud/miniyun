@@ -200,7 +200,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         }
         $fromArr = explode('/',$this->_from_path);
         $fromId = $fromArr[1];
-        if($params['is_root']){
+        if($params['root']){
             $toArr = explode('/',$this->_to_path);
             $toId = $toArr[1];
         }else{
@@ -208,6 +208,7 @@ class MCopyController extends MApplicationComponent implements MIController{
        }
         //权限判断
         //当属于共享目录时才进行权限控制(源路径)
+        $fromFile = MiniFile::getInstance()->getByFilePath($this->_from_path);
         if ($fromId!=$user['id']){
             //判断文件重命名是否有权限操作
 //            $from_share_filter->hasPermissionExecute($this->_from_path, MPrivilege::RESOURCE_READ);
@@ -219,9 +220,11 @@ class MCopyController extends MApplicationComponent implements MIController{
                 $permission = $permissionArr['permission'];
             }
             $miniPermission = new MiniPermission($permission);
-            $canCopy = $miniPermission->canCopy();
+            $canCopy = $miniPermission->canCopy($fromFile['file_type']);
             if(!$canCopy){
-                throw new MFileopsException(MConst::HTTP_CODE_1132);
+                throw new MFileopsException(
+                    Yii::t('api','no permission'),
+                    MConst::HTTP_CODE_409);
             }
         }
         $isSharedPath = false;//主要用于判断是否为被共享文件
@@ -252,12 +255,14 @@ class MCopyController extends MApplicationComponent implements MIController{
                 $this->to_share_filter ->is_shared = true;
             }
             $miniPermission = new MiniPermission($permission);
-            $canCopy = $miniPermission->canCopy();
+            $toFile = MiniFile::getInstance()->getByFilePath(dirname($this->_to_path));
+            $canCopy = $miniPermission->canCopy($toFile['file_type']);
             if(!$canCopy){
-                throw new MFileopsException(MConst::HTTP_CODE_1132);
+                throw new MFileopsException(
+                    Yii::t('api','no permission'),
+                    MConst::HTTP_CODE_409);
             }
         }
-
         //
         // 查询目标路径父目录信息
         //
