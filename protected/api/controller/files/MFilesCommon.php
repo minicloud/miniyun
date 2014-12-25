@@ -138,7 +138,7 @@ class MFilesCommon extends MModel {
         $parent_check_handler->_user_id        = $this->user_id;
         $parent_check_handler->_user_device_id = $this->user_device_id;
 //        $parent_check_handler->share_filter    = $this->share_filter;
-        if(empty($parentPath) || $parentPath=="/"){
+        if(empty($parentPath) || $parentPath=="/"||$parentPath=="/".$currentUserId){
             $this->parent_file_id = 0;
         }else{
             $this->parent_file_id                  = $parent_check_handler->handlerParentFolder($this->parent_path);
