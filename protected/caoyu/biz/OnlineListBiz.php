@@ -19,6 +19,7 @@ class OnlineListBiz extends MiniBiz{
                 $user                  = MiniUser::getInstance()->getUser($device["user_id"]);
                 $online                = array(
                     "name"=>$user ["user_name"],
+                    "nick"=>$user ['nick'],
                     "appname"=>$appId,
                     "deviceName"=>$device["user_device_name"],
                     "deviceType"=>$device["user_device_type"],
