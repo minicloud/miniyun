@@ -1164,16 +1164,17 @@ class MiniFile extends MiniCache{
      * @param $pageSet
      * @return array
      */
-    public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null){
+    public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null,$fileType=0){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
-        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type = 0";
+        $criteria ->condition = "is_deleted=1 and user_id=:user_id and file_type <= :file_type";
         if($pageSize!=null&&$pageSet=null){
             $criteria->limit      = $pageSize;
             $criteria->offset     = $pageSet;
         }
         $criteria->params=array(
             "user_id"=>$userId,
+            "file_type"=>$fileType
         );
         if($parentFileId!=null){
             $criteria->addCondition("parent_file_id =:parent_file_id","and");
@@ -1220,14 +1221,19 @@ class MiniFile extends MiniCache{
                 $item->save();
             }
         }else{
-            $items = $this->getDeleteFile($userId);
+            $items = $this->getDeleteFile($userId,null,null,null,1);
             foreach($items as $item){
-                $criteria            = new CDbCriteria();
-                $criteria->condition = "file_path = :path";
-                $criteria->params    = array(":path"=>$item['file_path']);
-                $item = UserFile::model()->find($criteria);
-                $item->is_deleted=0;
-                $item->save();
+                $pathArr = explode('/',$item['file_path']);
+                $jointPath = '/'.$userId;
+                for($i=2;$i<count($pathArr);$i++){
+                    $jointPath .= '/'.$pathArr[$i];
+                    $criteria            = new CDbCriteria();
+                    $criteria->condition = "file_path = :path";
+                    $criteria->params    = array(":path"=>$jointPath);
+                    $item = UserFile::model()->find($criteria);
+                    $item->is_deleted=0;
+                    $item->save();
+                }
             }
         }
 
