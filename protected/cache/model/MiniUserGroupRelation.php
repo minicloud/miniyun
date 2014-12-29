@@ -213,7 +213,7 @@ class MiniUserGroupRelation extends MiniCache{
     /**
      * 通过user_id查出用户所在的好友组(需要排除部门)
      */
-    public function findUserGroup($userId){
+    public function findUserGroup($masterId,$userId){
         $criteria = new CDbCriteria();
         $criteria->condition = "user_id=:user_id";
         $criteria->params = array('user_id'=> $userId);
@@ -227,7 +227,9 @@ class MiniUserGroupRelation extends MiniCache{
             $group['id'] = $result['id'];
             $group['user_id'] = $result['user_id'];
             $group['group_name'] = $result['group_name'];
-            array_push($list,$group);
+            if($group['user_id'] == $masterId){
+                array_push($list,$group);
+            }
         }
         return $list;
     }

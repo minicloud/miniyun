@@ -66,7 +66,7 @@ class UserBiz  extends MiniBiz{
             $friend["nick"] = $item["nick"];
             $friend["name"] = $item["user_name"];
             $friend["avatar"] = $item['avatar'];
-            $arr = MiniUserGroupRelation::getInstance()->findUserGroup($item["id"]);
+            $arr = MiniUserGroupRelation::getInstance()->findUserGroup($userId,$item["id"]);
             $friend["user_group"]= $arr;
             array_push($users,$friend);
         }
