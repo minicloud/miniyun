@@ -108,7 +108,7 @@ class MUserManager
         if($needSetOnline){
             $appId    = Yii::app()->session["appId"];
             $deviceId = Yii::app()->session["deviceId"];
-            $userId   = $this->_current_user['user_id'];
+            $userId   = $this->_current_user['id'];
             MiniOnlineDevice::getInstance()->setOnlineDeviceValue($userId,$appId,$deviceId);
         }
         return $this->_current_user;
