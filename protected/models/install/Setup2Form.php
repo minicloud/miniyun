@@ -85,16 +85,69 @@ class Setup2Form extends CFormModel
             $this->addError('base', Yii::t("front_common", "install_setup2_dir_not_writable"));
             return false;
         }
-        
+
         return true;
     }
     /**
-     * 数据库信息检测
+     * PHP 5.5导入数据库
      */
-    private function baseValidate(){
-        if($this->checkPath()==false){
-            return false;
+    private function php55Import(){
+        $success = true;
+        $this->_db = mysqli_connect(trim($this->dbHost), $this->userName, $this->password,"",trim($this->dbPort));
+        if (!$this->_db) {
+            // 连接失败，打印错误日志到application.log
+            Yii::log(mysqli_error(), CLogger::LEVEL_ERROR, 'mysql');
+            $success = false;
         }
+        if($this->hasErrors()==false){
+            if(!mysqli_select_db($this->_db,$this->dbName)){
+                if (mysqli_errno($this->_db) == Setup2Form::DATABASE_NOT_EXISTS) {
+                    // 创建对应数据库
+                    $sql = "create database IF NOT EXISTS ".$this->dbName." default charset utf8 COLLATE utf8_general_ci";
+                    mysqli_query($this->_db,$sql);
+                    // 创建数据库失败 --无权限错误
+                    if (mysqli_errno($this->_db) == Setup2Form::DENIED_FOR_USER) {
+                        $this->addError("dbName", Yii::t("front_common", "install_setup2_create_denied"));
+                        $success = false;
+                    }
+
+                    // 创建数据库失败 --其他未知错误
+                    elseif(mysqli_errno($this->_db) != 0) {
+                        $this->addError("dbName", Yii::t("front_common", "install_setup2_create_error", array("{dbname}"=>$this->dbName)));
+                        $success = false;
+                    }
+                }
+
+                // 当前用户没有访问数据库的权限
+                elseif (mysqli_errno($this->_db) == Setup2Form::DENIED_FOR_USER) {
+                    $this->addError("dbName", Yii::t("front_common", "install_setup2_access_denied", array("{dbname}"=>$this->dbName)));
+                    $success = false;
+                } else {
+                    $this->addError("dbName", Yii::t("front_common", "install_setup2_access_error", array("{dbname}"=>$this->dbName)));
+                    $success = false;
+                }
+            }
+        }
+        if($this->hasErrors()==false){
+            mysqli_select_db($this->_db,$this->dbName);
+            $sql = "show tables";
+            $result = mysqli_query($this->_db,$sql);
+            while ($row = mysqli_fetch_row($result)) {
+                $tableName = $row[0];
+                $pos = strpos($tableName,$this->tablePrefix);
+                if(!is_bool($pos) && $pos==0){
+                    $this->addError("dbName", Yii::t("front_common", "install_setup2_table_is_exist"));
+                    $success = false;
+                    break;
+                }
+            }
+        }
+        return $success;
+    }
+    /**
+     * PHP 5.3导入数据库
+     */
+    private function php53Import(){
         $success = true;
         $this->_db = mysql_connect(trim($this->dbHost).':'.trim($this->dbPort), $this->userName, $this->password,true);
         if (!$this->_db) {
@@ -148,17 +201,30 @@ class Setup2Form extends CFormModel
         return $success;
     }
     /**
+     * 数据库信息检测
+     */
+    private function baseValidate(){
+        if($this->checkPath()==false){
+            return false;
+        }
+        if(function_exists('mysqli_connect')){
+            return $this->php55Import();
+        }else{
+            return $this->php53Import();
+        }
+    }
+    /**
      * 初始化DB配置文件
      */
     private function initDbConfigFile(){
         $filePath   = dirname(__FILE__).'/../../config/miniyun-config-simple.php';
-        
+
         $content = "";
         $fileHandle = fopen($filePath, "rb");
         while (!feof($fileHandle) ) {
             $content = $content.fgets($fileHandle);
         }
-        
+
         $this->base = str_replace("\\", "/", $this->base);
         fclose($fileHandle);
         $content = str_replace("#dBType#", "mysql", $content);
@@ -174,14 +240,14 @@ class Setup2Form extends CFormModel
         $fh = fopen($filePath, 'w');
         fwrite($fh, $content);
         fclose($fh);
-         
+
     }
     public function save(){
         $success = false;
         if($this->validate()){
             if($this->baseValidate()){
                 if(!$this->hasErrors()){//如果校驗没有错误
-                    
+
                     $dbComponent = Yii::createComponent(array(
                         'class'=>'CDbConnection',
                         'connectionString'=>'mysql:host='.trim($this->dbHost).';port='.trim($this->dbPort).';dbname='.$this->dbName,
@@ -204,7 +270,11 @@ class Setup2Form extends CFormModel
             }
         }
         if(isset($this->_db)){
-            mysql_close($this->_db);
+            if(function_exists('mysqli_close')) {
+                mysqli_close($this->_db);
+            }else{
+                mysql_close($this->_db);
+            }
         }
         return $success;
     }
