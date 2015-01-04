@@ -4,16 +4,40 @@
  * 文件锁业务
  */
 class LockBiz extends MiniBiz{
-
+     private function quickSort($array){
+        $len = count($array);
+        if($len <= 1)
+        {
+            return $array;
+        }
+        $key = strtotime($array[0]['open_time']);
+        $left = array();
+        $right = array();
+        for($i=1; $i<$len; $i++)
+        {
+            if(strtotime($array[$i]['open_time']) < $key)
+            {
+                $left[] = $array[$i];
+            }
+            else
+            {
+                $right[] = $array[$i];
+            }
+        }
+        $left = $this->quickSort($left);
+        $right = $this->quickSort($right);
+        return array_merge($left, array($array[0]), $right);
+    }
     /**
      * 查找文件是否被锁定
      */
     public function search($filePath){
-        $fileMeta = MiniFileMeta::getInstance()->getMetaByPath($filePath);
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');
         $isLock = false;
         $userId = $this->user['id'];
         $isSelf = false;//判断是否自己去操作修改
         $index = 0;
+        $minArray = array();
         if(count($fileMeta)!=0){
             $metaValues = unserialize($fileMeta['meta_value']);
             $nowTime = time();
@@ -27,11 +51,16 @@ class LockBiz extends MiniBiz{
                    $index++;
                 }
             }
+
+            $sortArray = $this->quickSort($metaValues);
+            $minArray = $sortArray[count($sortArray)-1];
+            $user = MiniUser::getInstance()->getById($minArray['user_id']);
+            $minArray['user_name'] = $user['nick'];
         }
         if(!$isSelf&&$index>0){
             $isLock = true;
         }
-        return array('success'=>$isLock);
+        return array('success'=>$isLock,'data'=>$minArray);
     }
 
     /**
@@ -39,7 +68,8 @@ class LockBiz extends MiniBiz{
      * @return mixed
      */
     public function create($filePath){
-        $fileMeta = MiniFileMeta::getInstance()->getMetaByPath($filePath);
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');;
+        $device                = MUserManager::getInstance ()->getCurrentDevice();
         $metaValues = array();
         $userId = $this->user['id'];
         if(count($fileMeta)!=0){
@@ -54,10 +84,10 @@ class LockBiz extends MiniBiz{
                 $metaValues[] = $value;
             }
             if(!$isDouble){
-                $metaValues[] = array('user_id'=>$userId,'open_time'=>date('Y-m-d H:i:s'));
+                $metaValues[] = array('user_id'=>$userId,'device_name'=>$device['user_device_name'],'open_time'=>date('Y-m-d H:i:s'));
             }
         }else{
-            $metaValues[] = array('user_id'=>$userId,'open_time'=>date('Y-m-d H:i:s'));
+            $metaValues[] = array('user_id'=>$userId,'device_name'=>$device['user_device_name'],'open_time'=>date('Y-m-d H:i:s'));
         }
         return MiniFileMeta::getInstance()->createFileMeta($filePath,'lock',serialize($metaValues));
     }

@@ -129,19 +129,6 @@ class MiniFileMeta extends MiniCache{
         }
     }
     /**
-     * 根据文件查找正在被编辑锁定文件
-     */
-    public function getMetaByPath($filePath){
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "meta_key=:meta_key and file_path=:file_path";
-        $criteria->params        = array(
-            "meta_key"=>'lock',
-            "file_path"=>$filePath
-        );
-        $item              	 =FileMeta::model()->find($criteria);
-        return $this->db2Item($item);
-    }
-    /**
 	 * 更新Meta
 	 * @param string $filePath
 	 * @param string $key
