@@ -311,7 +311,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
             // 不存在数据，添加
             $ret_value                    = MiniFile::getInstance()->create($file_detail,$pathArr[1]);
             $user     = Yii::app()->session["user"];
-            if($pathArr[1]!=$user['user_id']){//只有当被共享者在共享目录下创建目录时，才会记录create_id
+            if((int)$pathArr[1]!==(int)$user['user_id']){//只有当被共享者在共享目录下创建目录时，才会记录create_id
                 MFileMetas::createFileMeta ( $path, 'create_id', $user['user_id'] );
             }
         }
