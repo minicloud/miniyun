@@ -31,7 +31,7 @@ class LockBiz extends MiniBiz{
     /**
      * 查找文件是否被锁定
      */
-    public function search($filePath){
+    public function status($filePath){
         $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');
         $isLock = false;
         $userId = $this->user['id'];

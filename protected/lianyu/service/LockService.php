@@ -5,10 +5,10 @@ class LockService extends MiniService{
      * 查找文件是否被锁定
      * @return array
      */
-    public function search(){
+    public function status(){
        $filePath = MiniHttp::getParam('file_path','');
        $lock = new LockBiz();
-       $result = $lock->search($filePath);
+       $result = $lock->status($filePath);
        return $result;
    }
    public function create(){
