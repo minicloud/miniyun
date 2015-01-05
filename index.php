@@ -9,6 +9,7 @@
  * @license http://www.miniyun.cn/license.html 
  * @since 1.7
  */
+define('YII_DEBUG',true);
 function isWeixin(){
     $agent = $_SERVER["HTTP_USER_AGENT"];
     if(strpos($agent,"MicroMessenger")>0){

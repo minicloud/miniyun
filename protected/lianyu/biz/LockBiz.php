@@ -38,24 +38,27 @@ class LockBiz extends MiniBiz{
         $isSelf = false;//判断是否自己去操作修改
         $index = 0;
         $minArray = array();
+        $effectArray = array();
         if(count($fileMeta)!=0){
             $metaValues = unserialize($fileMeta['meta_value']);
             $nowTime = time();
             foreach($metaValues as $metaValue){
-                if($metaValue['user_id']==$userId){
+                $openTime = strtotime($metaValue['open_time']);
+                if($metaValue['user_id']==$userId&&$nowTime-$openTime<1800){
                     $isSelf = true;
                     break;
                 }
-                $openTime = strtotime($metaValue['open_time']);
                 if($nowTime-$openTime<1800){
-                   $index++;
+                    $effectArray[] = $metaValue;
+                    $index++;
                 }
             }
-
-            $sortArray = $this->quickSort($metaValues);
-            $minArray = $sortArray[count($sortArray)-1];
-            $user = MiniUser::getInstance()->getById($minArray['user_id']);
-            $minArray['user_name'] = $user['nick'];
+            $sortArray = $this->quickSort($effectArray);
+            if(count($sortArray)!=0){
+                $minArray = $sortArray[count($sortArray)-1];
+                $user = MiniUser::getInstance()->getById($minArray['user_id']);
+                $minArray['user_name'] = $user['nick'];
+            }
         }
         if(!$isSelf&&$index>0){
             $isLock = true;
@@ -68,7 +71,7 @@ class LockBiz extends MiniBiz{
      * @return mixed
      */
     public function create($filePath){
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');;
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');
         $device                = MUserManager::getInstance ()->getCurrentDevice();
         $metaValues = array();
         $userId = $this->user['id'];
@@ -97,7 +100,7 @@ class LockBiz extends MiniBiz{
      * @return mixed
      */
     public function delete($filePath){
-        $fileMeta = MiniFileMeta::getInstance()->getMetaByPath($filePath);
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');
         $items = array();
         $userId = $this->user['id'];
         $metaValues = unserialize($fileMeta['meta_value']);
