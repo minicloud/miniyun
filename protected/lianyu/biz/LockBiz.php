@@ -65,7 +65,6 @@ class LockBiz extends MiniBiz{
         }
         return array('success'=>$isLock,'data'=>$minArray);
     }
-
     /**
      * @param $filePath
      * @return mixed
