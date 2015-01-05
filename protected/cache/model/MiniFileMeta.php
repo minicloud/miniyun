@@ -199,4 +199,51 @@ class MiniFileMeta extends MiniCache{
         $fileMeta->save();
         return array('success'=>true);
     }
+    /**
+     * 根据from_path和meta_key=‘create_id’改file_path
+     * @param $fromPath
+     * @param $key
+     * @param $toPath
+     */
+    public function modifyFilePath($fromPath,$key,$toPath,$fileType){
+        if($fileType == 0){//文件时候meta信息如下处理
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "meta_key=:meta_key and file_path=:file_path";
+            $criteria->params        = array(
+                "meta_key"=>$key,
+                "file_path"=>$fromPath
+            );
+            $item              	 =FileMeta::model()->find($criteria);
+            $item->file_path = $toPath;
+            $item->save();
+            return true;
+        }else{//目录时meta信息如下处理
+            $fromPathArr = explode('/',$fromPath);
+            $toPathArr = explode('/',$toPath);
+            $fromPathArrCount = count($fromPathArr);
+            $toPathArrCount = count($toPathArr);
+            $toFolderName = $toPathArr[$toPathArrCount-1];
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "meta_key=:meta_key and file_path like :file_path";
+            $criteria->params        = array(
+                "meta_key"=>$key,
+                "file_path"=>$fromPath.'%'
+            );
+            $items              	 =FileMeta::model()->findAll($criteria);
+            foreach($items as $item){
+                $itemPath = $item->file_path;
+                $itemPathArr = explode('/',$itemPath);
+                $itemPathArr[$fromPathArrCount-1] = $toFolderName;
+                $itemPathArrCount = count($itemPathArr);
+                $newPath = "";
+                for($i=1;$i<$itemPathArrCount;$i++){
+                    $newPath .= '/'.$itemPathArr[$i];
+                }
+                $item->file_path = $newPath;
+                $item->save();
+            }
+
+        }
+
+    }
 }

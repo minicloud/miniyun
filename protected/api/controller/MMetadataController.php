@@ -168,6 +168,18 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $contents = array();
         if(!empty($childrenFiles)){
             foreach($childrenFiles as $childrenFile){
+                $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($childrenFile['file_path'],'create_id');
+                $filePathArr = explode('/',$childrenFile['file_path']);
+                $fileOwnerId = $filePathArr[1];
+                $childrenFileCreateId = $childrenFileMeta['meta_value'];
+                $currentUser     = Yii::app()->session["user"];
+                if($fileOwnerId != $currentUser['user_id']){//当前目录不为当前用户所有（共享目录/公共目录）
+                    if($response['share']['permission']=='011111111'||$response['share']['permission']=='000000000'){//如果父目录没有只读权限
+                        if($childrenFileCreateId!=$currentUser['user_id']){//当没有只读权限时，过滤(用户只能看见共享目录中自己的文件)
+                            continue;
+                        }
+                    }
+                }
                 $content = array();
                 $version = MiniVersion::getInstance()->getVersion($childrenFile["version_id"]);
                 $mimeType = null;
@@ -218,6 +230,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 if(isset($permission['children_shared'])){
                     $response['children_shared'] = true;
                 }else{
+                    $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
+                    $childrenFileCreateId = $childrenFileMeta['meta_value'];
+                    $currentUser     = Yii::app()->session["user"];
+                    if($childrenFileCreateId==$currentUser['user_id']){
+                        $permission['permission']=MConst::SUPREME_PERMISSION;
+                    }
                     $response['share'] = $permission;
                 }
                 $filePermission = new MiniPermission($permission['permission']);
