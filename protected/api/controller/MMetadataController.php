@@ -191,6 +191,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
     private function assembleResponse($response, $file, $mimeType)
     {
         $filePath                           = $file["file_path"];
+        $lock = new LockBiz();
+        $result = $lock->status($filePath);
+        $response['lock']                   = $result['success'];
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
