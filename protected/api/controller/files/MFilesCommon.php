@@ -706,6 +706,11 @@ class MFilesCommon extends MModel {
             $retval = MFileMetas::updateFileMeta ( $this->file_path, MConst::VERSION, $version );
         } else {
             $retval = MFileMetas::createFileMeta ( $this->file_path, MConst::VERSION, $version );
+            $pathArr = explode('/',$this->file_path);
+            $user     = Yii::app()->session["user"];
+            if((int)$pathArr[1]!==(int)$user['user_id']){//只有当被共享者在共享目录下创建文件时，才会记录create_id
+                MFileMetas::createFileMeta ( $this->file_path, 'create_id', $user['user_id'] );
+            }
         }
         if ($retval === false) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
