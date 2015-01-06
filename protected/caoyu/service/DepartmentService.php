@@ -145,6 +145,37 @@ class DepartmentService extends MiniService{
                 $parentGroupId = $groupInfo['id'];
             }
             MiniGroup::getInstance()->create($groupName,-1,$parentGroupId);
+            for($i=2;$i<count($department);$i++){
+                if(strlen($department[$i])==0){
+                    continue;
+                }
+                $user = MiniUser::getInstance()->getUserByName($department[$i]);
+                if(empty($user)){
+                    continue;
+                }
+                $userGroupRelations = MiniUserGroupRelation::getInstance()->getByUserId($user['id']);
+                $isExist = false;//判断用户是否已经被导入，存在则修改
+                if(!empty($userGroupRelations)){
+                    foreach($userGroupRelations as $userGroupRelation){
+                       $group = MiniGroup::getInstance()->getById($userGroupRelation['group_id']);
+                       if(!empty($group)){
+                           if($group['user_id']>0){
+                               continue;
+                           }else{
+                               $isExist = true;
+                               break;
+                           }
+                       }
+                    }
+                }
+                $group = MiniGroup::getInstance()->getByGroupName($groupName);
+                if($isExist){
+                    MiniUserGroupRelation::getInstance()->update($user['id'],$group['id']);
+                }else{
+                    MiniUserGroupRelation::getInstance()->create($user['id'],$group['id']);
+                }
+
+            }
             $successList[] = $department;
         }
         $userList['success'] = $successList;
