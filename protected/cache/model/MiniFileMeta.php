@@ -178,9 +178,11 @@ class MiniFileMeta extends MiniCache{
      * 删除meta信息
      */
     public function deleteFileMetaByPath($filePath){
-        $modal = FileMeta::model()->find("file_path=:file_path", array(":file_path" => $filePath));
+        $modal = FileMeta::model()->findAll("file_path=:file_path", array(":file_path" => $filePath));
         if(!empty($modal)){
-            $modal->delete();
+            foreach($modal as $item){
+                $item->delete();
+            }
         }
         return true;
     }
