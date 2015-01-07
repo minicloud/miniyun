@@ -127,7 +127,7 @@ class DepartmentService extends MiniService{
                     }
                     sort($addUsers);
                     sort($searchUser);
-                    $diffUsers = array_diff($searchUser,$addUsers);
+                    $diffUsers = array_diff($searchUsers,$addUsers);
                     if($addUsers==$searchUsers){
                         $count++;
                         $department[] = "数据库中已经有相同的数据出现";
