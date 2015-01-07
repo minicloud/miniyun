@@ -72,17 +72,6 @@ class DepartmentService extends MiniService{
         $departmentData = MiniHttp::getParam('department_data',"");
         $errorList = array();
         $successList = array();
-//        foreach($departmentData as $department){//简单验证数据是否符合标准
-//            if(count($department)<2){
-//                $department[]="为空的数据请以“”填充";
-//                $errorList[] = $department;
-//            }elseif($department[0]==$department[1]){
-//                $department[]="部门与分部门不能相同";
-//                $errorList[] = $department;
-//            }else{
-//                    $successList[] = $department;
-//            }
-//        }
         $userList = array();
         $count = 0;
         $isTrue = false;//用来判断父名称是否有'|';
@@ -119,15 +108,49 @@ class DepartmentService extends MiniService{
             if(!$isTrue){
                 $parentGroupName = $department[0];
             }
-
             if(isset($result)){
                 $parentGroup= MiniGroupRelation::getInstance()->getByGroupId($result['id']);
                 $firstGroupName = MiniGroup::getInstance()->getById($parentGroup['parent_group_id']);
-                if($parentGroupName==$firstGroupName){
-                    $count++;
-                    $department[] = "数据库中已经有相同的数据出现";
-                    $errorList[] = $department;
-                    continue;
+                if($parentGroupName==$firstGroupName['group_name']){
+                    $addUsers = array();
+                    $searchUsers = array();
+                    for($j=2;$j<count($department);$j++){
+                        if(strlen($department[$j])==0){
+                           continue;
+                       }
+                       $addUsers[] = $department[$j];
+                    }
+                    $userGroups = MiniUserGroupRelation::getInstance()->getByGroupId($result['id']);
+                    foreach($userGroups as $userGroup){
+                       $searchUser =  MiniUser::getInstance()->getById($userGroup['user_id']);
+                       $searchUsers[] = $searchUser['user_name'];
+                    }
+                    sort($addUsers);
+                    sort($searchUser);
+                    $diffUsers = array_diff($searchUser,$addUsers);
+                    if($addUsers==$searchUsers){
+                        $count++;
+                        $department[] = "数据库中已经有相同的数据出现";
+                        $errorList[] = $department;
+                        continue;
+                    }else{
+                        //删除数据库中存入的与部门相关的用户
+                       foreach($diffUsers as $diffUser){
+                           $deleteUser = MiniUser::getInstance()->getUserByName($diffUser);
+                           MiniUserGroupRelation::getInstance()->delete($deleteUser['id'],$result['id']);
+                       }
+                       $sameUsers = array_intersect($addUsers,$searchUsers);
+                        for($j=2;$j<count($department);$j++){
+                            foreach($sameUsers as $sameUser){
+                                if($department[$j]==$sameUser){
+                                    unset($department[$j]);
+                                    break;
+                                }
+                            }
+                        }
+                        $this->saveUser($department,$groupName);
+                        continue;
+                    }
                 }
             }
             $groupInfo = MiniGroup::getInstance()->getByGroupName($parentGroupName);
@@ -145,37 +168,7 @@ class DepartmentService extends MiniService{
                 $parentGroupId = $groupInfo['id'];
             }
             MiniGroup::getInstance()->create($groupName,-1,$parentGroupId);
-            for($i=2;$i<count($department);$i++){
-                if(strlen($department[$i])==0){
-                    continue;
-                }
-                $user = MiniUser::getInstance()->getUserByName($department[$i]);
-                if(empty($user)){
-                    continue;
-                }
-                $userGroupRelations = MiniUserGroupRelation::getInstance()->getByUserId($user['id']);
-                $isExist = false;//判断用户是否已经被导入，存在则修改
-                if(!empty($userGroupRelations)){
-                    foreach($userGroupRelations as $userGroupRelation){
-                       $group = MiniGroup::getInstance()->getById($userGroupRelation['group_id']);
-                       if(!empty($group)){
-                           if($group['user_id']>0){
-                               continue;
-                           }else{
-                               $isExist = true;
-                               break;
-                           }
-                       }
-                    }
-                }
-                $group = MiniGroup::getInstance()->getByGroupName($groupName);
-                if($isExist){
-                    MiniUserGroupRelation::getInstance()->update($user['id'],$group['id']);
-                }else{
-                    MiniUserGroupRelation::getInstance()->create($user['id'],$group['id']);
-                }
-
-            }
+            $this->saveUser($department,$groupName);
             $successList[] = $department;
         }
         $userList['success'] = $successList;
@@ -191,6 +184,39 @@ class DepartmentService extends MiniService{
         fclose($fp);
         $userList['duplicateCount']=$count;
         return $userList;
+    }
+    public function saveUser($department,$groupName){
+        for($i=2;$i<count($department);$i++){
+            if(strlen($department[$i])==0){
+                continue;
+            }
+            $user = MiniUser::getInstance()->getUserByName($department[$i]);
+            if(empty($user)){
+                continue;
+            }
+            $userGroupRelations = MiniUserGroupRelation::getInstance()->getByUserId($user['id']);
+            $isExist = false;//判断用户是否已经被导入，存在则修改
+            if(!empty($userGroupRelations)){
+                foreach($userGroupRelations as $userGroupRelation){
+                    $group = MiniGroup::getInstance()->getById($userGroupRelation['group_id']);
+                    if(!empty($group)){
+                        if($group['user_id']>0){
+                            continue;
+                        }else{
+                            $isExist = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            $group = MiniGroup::getInstance()->getByGroupName($groupName);
+            if($isExist){
+                MiniUserGroupRelation::getInstance()->update($user['id'],$group['id']);
+            }else{
+                MiniUserGroupRelation::getInstance()->create($user['id'],$group['id']);
+            }
+
+        }
     }
     /**
      * 将用户绑定到部门
