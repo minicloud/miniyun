@@ -206,6 +206,8 @@ class MiniFileMeta extends MiniCache{
      * @param $fromPath
      * @param $key
      * @param $toPath
+     * @param $fileType
+     * @return bool
      */
     public function modifyFilePath($fromPath,$key,$toPath,$fileType){
         if($fileType == 0){//文件时候meta信息如下处理
@@ -244,7 +246,7 @@ class MiniFileMeta extends MiniCache{
                 $item->file_path = $newPath;
                 $item->save();
             }
-
+            return true;
         }
 
     }
