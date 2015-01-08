@@ -110,8 +110,8 @@ class DepartmentService extends MiniService{
             }
             if(isset($result)){
                 $parentGroup= MiniGroupRelation::getInstance()->getByGroupId($result['id']);
-                $firstGroupName = MiniGroup::getInstance()->getById($parentGroup['parent_group_id']);
-                if($parentGroupName==$firstGroupName['group_name']){
+                $firstGroup = MiniGroup::getInstance()->getById($parentGroup['parent_group_id']);
+                if($parentGroupName==$firstGroup['group_name']){
                     $addUsers = array();
                     $searchUsers = array();
                     for($j=2;$j<count($department);$j++){
