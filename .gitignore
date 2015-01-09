@@ -10,3 +10,6 @@ protected/config/miniyun_offline.php
 protected/modules/ipAccessControl/config/
 .idea/
 static/views/
+protected/runtime/sql.log
+static/thumbnails
+upload

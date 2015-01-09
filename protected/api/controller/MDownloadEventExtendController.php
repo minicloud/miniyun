@@ -9,7 +9,7 @@
  * @since 1.6
  */
 
-class MDownloadEventController extends MApplicationComponent implements MIController {
+class MDownloadEventExtendController extends MApplicationComponent implements MIController {
 	private $cache;
 	/**
 	 * (non-PHPdoc)
