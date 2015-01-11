@@ -874,7 +874,7 @@ class MiniFile extends MiniCache{
      * @param $forceDownload
      * @throws MFilesException
      */
-    private function getContentBySignature($signature,$fileName,$contentType,$forceDownload=true){
+    public function getContentBySignature($signature,$fileName,$contentType,$forceDownload=true){
         //下载文件的hook
         $data = array();
         $data["hash"]         = $signature;

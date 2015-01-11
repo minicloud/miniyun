@@ -28,6 +28,7 @@ class ConsoleController extends AnonymousController{
             "plugin",
             "systemManage",
             "userInfo",
+            "docConvert",
         );
         return array_merge($list,$newList);
     }

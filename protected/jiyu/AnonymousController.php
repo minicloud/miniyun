@@ -16,7 +16,8 @@ class AnonymousController{
            "linkAccess",
            "site",
            "plugin",
-            "module",
+           "module",
+           "docConvert",
         );
     }
     public function invoke()

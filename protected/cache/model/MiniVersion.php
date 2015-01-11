@@ -217,20 +217,20 @@ class MiniVersion extends MiniCache{
     }
 
     /**
-     * 获得迷你搜索需要的文件列表，每次返回最多10条记录
-     * status:1
+     * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
+     * doc_convert_status:-1
      * mime_type:
      * application/msword
+     * application/mspowerpoint
      * application/msexcel
      * application/pdf
-     * text/plain
      */
-    public function getSearchIndexFileList(){
+    public function getReadyDocConvertList(){
 
-        $mimeTypeList = array("application/msword","application/msexcel","application/pdf","text/plain");
+        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
-            $criteria->condition     = "status=1  and  mime_type=:mime_type";
+            $criteria->condition     = "doc_convert_status=0  and  mime_type=:mime_type";
             $criteria->limit         = 10;
             $criteria->offset        = 0;
             $criteria->params        = array(
@@ -244,41 +244,25 @@ class MiniVersion extends MiniCache{
         return NULL;
 
     }
-
     /**
-     * 更新version的状态值
-     * @param $signature
-     * @param int $status
+     * 更改文档转换状态
+     * doc_convert_status:-1 表示转换失败
+     * doc_convert_status:0 表示尚未转换
+     * doc_convert_status:1 表示正在转换
+     * doc_convert_status:2 表示转换成功
+     * @param $hash 文件内容hash值
+     * @param $status 文件转换状态值
+     * @return boolean
      */
-    public function updateStatus($signature, $status = 2) {
-        $version         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+    public function updateDocConvertStatus($hash,$status){
+		$version         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$hash));
         if(isset($version)){
-            $version["status"] = $status;
+            $version["doc_convert_status"] = $status;
             $version->save();
+            return true;
         }
-    }
-    /**
-     * 根据状态获得总数
-     */
-    public function getCountByStatus($status) {
-        $criteria            = new CDbCriteria();
-        $criteria->select ="*";
-        $criteria->condition = "status=".$status;
-        
-        return FileVersion::model()->count($criteria);
-    }
-    /**
-     * 根据状态获得记录
-     */
-    public function getListByStatus($status,$pageSet,$pageSize) {
-        $criteria            = new CDbCriteria();
-        $criteria->select ="*";
-        $criteria->condition = "status=".$status;
-        $criteria->limit=$pageSize;
-    	$criteria->offset=$pageSet;
-        
-        $items = FileVersion::model()->findAll($criteria);
-        return $this->db2list($items);
+        return false;
+
     }
     /**
      * 删除记录
@@ -293,6 +277,8 @@ class MiniVersion extends MiniCache{
     }
     /**
      * 获得要删除的记录
+     * @param $limit
+     * @return array
      */
     public function getCleanFiles($limit=100){
         $criteria                = new CDbCriteria();
