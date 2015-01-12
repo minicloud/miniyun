@@ -69,6 +69,16 @@ class MiniGroupRelation extends MiniCache{
         }
         return $this->db2Item($item);
     }
+    public function getById($id){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $id);
+        $item = GroupRelation::model()->find($criteria);
+        if(empty($item)){
+            return NULL;
+        }
+        return $this->db2Item($item);
+    }
     /**
      * 根据用户组parent_group_id获取group_id
      */

@@ -478,6 +478,9 @@ class MMoveController
         }
         MiniFile::getInstance()->updateByPath($to_path, $updates);
 
+        //被共享者更改文件名更新file_meta记录
+            MiniFileMeta::getInstance()->modifyFilePath($from_path,'create_id', $to_path,$file['file_type']);
+
         //
         // 保存移动事件 
         // by Kindac;
