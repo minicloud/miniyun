@@ -10,7 +10,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-class m150108_161355_v170 extends EDbMigration{
+class m150108_161355_v171 extends EDbMigration{
     /**
      * 更新系统
      * @return bool|void
