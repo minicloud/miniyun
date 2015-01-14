@@ -53,7 +53,11 @@ class DocConvertBiz extends MiniBiz{
             //文件转换成功
             if($status==="1"){ 
                 MiniVersion::getInstance()->updateDocConvertStatus($fileHash,2);
-                $this->cache($fileHash);
+                $type = null;
+                if($version['type']!='application/pdf'){
+                    $type = 'pdf';
+                }
+                $this->cache($fileHash,$type);
             }
             //文件转换失败
             if($status==="0"){
