@@ -411,6 +411,16 @@ class MAPIController extends MApplicationComponent implements MIController{
         $result = $service->invoke($this->commonUri);
         echo(json_encode($result));
     }
+
+    /**
+     * 文档
+     */
+    private function doc() {
+
+        $service = new DocService();
+        $result = $service->invoke($this->commonUri);
+        echo(json_encode($result));
+    }
     /**
      * 自定义异常处理
      * @see common/MApplicationComponent::handleException()

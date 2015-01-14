@@ -68,6 +68,8 @@ class MiniVersion extends MiniCache{
 		$value["block_ids"]      = $item->block_ids;
 		$value["ref_count"]      = $item->ref_count;
 		$value["mime_type"]      = $item->mime_type;
+		$value["updated_at"]      = $item->updated_at;
+		$value["createTime"]      = strtotime($item->created_at);
 		return  $value;
 	}
 	/**
@@ -243,6 +245,17 @@ class MiniVersion extends MiniCache{
         }
         return NULL;
 
+    }
+    public function getConvertListByType($type,$limit=10,$offset=0){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "doc_convert_status=0  and  mime_type=:mime_type";
+        $criteria->limit         = $limit;
+        $criteria->offset        = $offset;
+        $criteria->params        = array(
+            "mime_type"=>$type
+        );
+        $list = FileVersion::model()->findAll($criteria);
+        return $this->db2list($list);
     }
     /**
      * 更改文档转换状态

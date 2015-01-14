@@ -24,7 +24,23 @@ class DocConvertBiz extends MiniBiz{
                 404);
         }
         
-   } 
+   }
+    public function cache($fileHash,$type=null){
+        $typeList = array("txt","png");
+        if(!empty($type)){
+            $typeList[] = $type;
+        }
+        foreach($typeList as $type){
+            $url = "http://minidoc.miniyun.cn/".$fileHash."/".$fileHash.".".$type;
+            $confContent    =  file_get_contents($url);
+            $savePath = MINIYUN_PATH. DS .'temp';
+            if(!file_exists($savePath.DS .$fileHash)){
+                mkdir($savePath.DS .$fileHash);
+            }
+            file_put_contents($savePath.DS .$fileHash.DS .$fileHash.".".$type, $confContent);
+        }
+        return $savePath.DS .$fileHash.DS .$fileHash.".txt";
+    }
    /**
     *给迷你云报告文件转换过程
     * @param $fileHash 文件hash值
@@ -37,6 +53,7 @@ class DocConvertBiz extends MiniBiz{
             //文件转换成功
             if($status==="1"){ 
                 MiniVersion::getInstance()->updateDocConvertStatus($fileHash,2);
+                $this->cache($fileHash);
             }
             //文件转换失败
             if($status==="0"){
@@ -44,5 +61,6 @@ class DocConvertBiz extends MiniBiz{
             } 
         }
         return array("success"=>true);
-   } 
+   }
+
 }
