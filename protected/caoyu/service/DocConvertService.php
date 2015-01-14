@@ -27,9 +27,6 @@ class DocConvertService extends MiniService{
         $status = MiniHttp::getParam('status',"");
         $biz = new DocConvertBiz();
         $result = $biz->report($fileHash,$status);
-        if($status==="1"){
-            //TODO 把转换的文本内容放入数据库中
-        }
         return $result;
     } 
 }

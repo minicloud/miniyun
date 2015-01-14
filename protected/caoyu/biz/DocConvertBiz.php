@@ -47,11 +47,11 @@ class DocConvertBiz extends MiniBiz{
     * @param $status 文件状态
     * @return array
     */
-   public function report($fileHash,$status){ 
-        $version = MiniVersion::getInstance()->getBySignature($fileHash); 
+   public function report($fileHash,$status){
+        $version = MiniVersion::getInstance()->getBySignature($fileHash);
         if(!empty($version)){
             //文件转换成功
-            if($status==="1"){ 
+            if($status==="1"){
                 MiniVersion::getInstance()->updateDocConvertStatus($fileHash,2);
                 $type = null;
                 if($version['type']!='application/pdf'){
