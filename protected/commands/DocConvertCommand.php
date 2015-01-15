@@ -14,12 +14,13 @@ class DocConvertCommand extends CConsoleCommand
 	private function getReadyConvertList($versions){
         //TODO 获得迷你云地址
 		$miniHost = "gitserver.miniyun.cn";
+        $port = 80;
     	//报俊地址
     	$reportUrl = $miniHost;
     	//下载文件地址
     	$downloadUrl ="http://".$miniHost."/a.php/1/docConvert/download";
         if(count($versions)>0){
-        	$data = array("report_success_url"=>$reportUrl);
+        	$data = array("report_success_url"=>$reportUrl,'port'=>$port);
         	$items = array();
         	foreach ($versions as $version) {
         	 	$item = array(
@@ -68,7 +69,6 @@ class DocConvertCommand extends CConsoleCommand
     	if(empty($versions)) return;
     	$params = $this->getReadyConvertList($versions);
     	echo(json_encode($params));
-
     	//TODO 向迷你文档服务器发送转换请求
         $url = 'http://minidoc.miniyun.cn:8090/convert';
         $result = $this->post($url,$params);
