@@ -17,7 +17,7 @@ class DocConvertCommand extends CConsoleCommand
     	//报俊地址
     	$reportUrl = $miniHost;
     	//下载文件地址
-    	$downloadUrl = $miniHost."/a.php/1/docConvert/download"; 
+    	$downloadUrl ="http://".$miniHost."/a.php/1/docConvert/download";
         if(count($versions)>0){
         	$data = array("report_success_url"=>$reportUrl);
         	$items = array();
