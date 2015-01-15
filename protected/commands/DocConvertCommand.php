@@ -13,7 +13,7 @@ class DocConvertCommand extends CConsoleCommand
 	 */
 	private function getReadyConvertList($versions){
         //TODO 获得迷你云地址
-		$miniHost = "http://gitserver.miniyun.cn";
+		$miniHost = "gitserver.miniyun.cn";
     	//报俊地址
     	$reportUrl = $miniHost;
     	//下载文件地址
