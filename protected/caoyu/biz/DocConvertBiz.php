@@ -34,6 +34,9 @@ class DocConvertBiz extends MiniBiz{
             $url = "http://minidoc.miniyun.cn/".$fileHash."/".$fileHash.".".$type;
             $confContent    =  file_get_contents($url);
             $savePath = MINIYUN_PATH. DS .'temp';
+            if($type == "txt"){
+                MiniSearchFile::getInstance()->saveTxt($confContent,$fileHash);
+            }
             if(!file_exists($savePath.DS .$fileHash)){
                 mkdir($savePath.DS .$fileHash);
             }
