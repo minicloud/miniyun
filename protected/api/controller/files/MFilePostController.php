@@ -9,6 +9,18 @@
  */
 class MFilePostController extends MApplicationComponent  implements MIController {
     /**
+     * 判断目录是否是用户的根目录
+     * @param $folderPath
+     * @param $userId
+     * @return boolean
+     */
+    private function isRoot($folderPath,$userId){
+        if($folderPath==="/".$userId || $folderPath==="/".$userId."/"){
+            return ture;
+        }
+        return false;
+    }
+    /**
      * 控制器执行主逻辑函数
      */
     public function invoke($uri=null)
@@ -57,20 +69,23 @@ class MFilePostController extends MApplicationComponent  implements MIController
         }
         $signature = MiniUtil::getFileHash($tmp_name);
         // 解析路径
-        $parent_path = "/" . $url_manager->parsePathFromUrl($uri);
+        $parentPath = "/" . $url_manager->parsePathFromUrl($uri);
         $user = MUserManager::getInstance()->getCurrentUser();
-        $folderPath = MiniFile::getInstance()->getByPath($parent_path);
+        $folderPath = MiniFile::getInstance()->getByPath($parentPath);
         //如果目录不存在，则创建
         if(!empty($folderPath)){
             $values = array();
             $values['is_deleted'] = false;
-            MiniFile::getInstance()->updateByPath($parent_path,$values);
+            MiniFile::getInstance()->updateByPath($parentPath,$values);
         }else{
-            MiniFile::getInstance()->createFolder($parent_path,$user['id']);
+            //如果在非根目录下，如果目录不存在，则递归创建目录
+            if(!$this->isRoot($parentPath,$user['id'])){
+                MiniFile::getInstance()->createFolder($parentPath,$user['id']);
+            }
         }
-        $path        = $parent_path . "/" . $file_name;
+        $path        = $parentPath . "/" . $file_name;
         $createFileHandler->size           = $size;
-        $createFileHandler->parent_path    = MUtils::convertStandardPath($parent_path);
+        $createFileHandler->parent_path    = MUtils::convertStandardPath($parentPath);
         $createFileHandler->file_name      = $file_name;
         $createFileHandler->root           = $root;
         $createFileHandler->path           = MUtils::convertStandardPath($path);;
