@@ -15,7 +15,7 @@ class DocConvertCommand extends CConsoleCommand
         //TODO 获得迷你云地址
 		$miniHost = "http://gitserver.miniyun.cn";
     	//报俊地址
-    	$reportUrl = $miniHost."/a.php/1/docConvert/report";
+    	$reportUrl = $miniHost;
     	//下载文件地址
     	$downloadUrl = $miniHost."/a.php/1/docConvert/download"; 
         if(count($versions)>0){
@@ -66,17 +66,19 @@ class DocConvertCommand extends CConsoleCommand
     {
     	$versions = MiniVersion::getInstance()->getReadyDocConvertList();
     	if(empty($versions)) return;
-
     	$params = $this->getReadyConvertList($versions);
     	echo(json_encode($params));
 
     	//TODO 向迷你文档服务器发送转换请求
         $url = 'http://minidoc.miniyun.cn:8090/convert';
         $result = $this->post($url,$params);
-        echo json_encode($result);
-    	//修改文档的转换状态为转换中
-    	foreach ($versions as $version) {
-    		MiniVersion::getInstance()->updateDocConvertStatus($version["file_signature"],1);
-    	}
+        $result = json_decode($result,true);
+        if($result['task']=='received'){
+            //修改文档的转换状态为转换中
+            foreach ($versions as $version) {
+                MiniVersion::getInstance()->updateDocConvertStatus($version["file_signature"],1);
+            }
+        }
+
     }
 }
