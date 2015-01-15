@@ -23,17 +23,6 @@ class FileMeta extends CMiniyunModel
     }
 
     /**
-     * 
-     * 删除file_meta元素
-     * @param string $file_path
-     * @param string $meta_key
-     * @since 1.0.7
-     */
-    public function deleteFileMetaPath($file_path, $meta_key){
-        $this->deleteAll("file_path=:file_path and meta_key=:meta_key", array(":file_path"=>$file_path, ":meta_key"=>$meta_key));
-    }
-
-    /**
      * 把用户的文件元数据删除
      */
     public function deleteFileMeta($userIds){
@@ -44,37 +33,8 @@ class FileMeta extends CMiniyunModel
             }
         }
     }
-    /**
-     * 把用户的文件元数据删除
-     */
-    public function deleteFileMetaByPath($idsArray){
-        if(count($idsArray)>0){
-            foreach($idsArray as $key=>$item){
-                $this->deleteAll("file_path like '".$item."%'");
-            }
-        }
-    }
-    /**
-     *
-     * 获得文档基本的Mate的数据，版本信息
-     */
-    public function getFileBaseMate($ids){
-        if($ids=="") return array();
-        return $this->findAll(array('condition'=>"file_path in(".$ids.")"));
-    }
 
-    /**
-     *
-     * 获取共享的meta属性
-     */
-    public function getShareMeta($filePath){
-        $version  = $this->getFileMeta($filePath, "shared_folders");
-        if (empty($version) || empty($version["meta_value"])) {
-            return false;
-        }
-        $versionData = unserialize($version["meta_value"]);
-        return $versionData;
-    }
+
 
     /**
      *

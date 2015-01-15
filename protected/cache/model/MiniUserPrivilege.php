@@ -575,46 +575,6 @@ class MiniUserPrivilege extends MiniCache
         }
         return $privilege;
     }
-
-   /**
-     * 取消共享，删除权限
-     */
-    public function cancelPrivilege($filePath){
-
-    }
-//    public function cancelPrivilege($filePath)
-//    {
-//        $temp = explode("/", $filePath);
-//        $masterId = $temp[1];
-//        $key = MConst::SHARED_FOLDERS;
-//        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath, $key); //根据共享文件路径查到file_meta信息
-//        $metaValue = unserialize($fileMeta['meta_value']); //得到metaValue 下一步根据value查得被共享者文件路径
-//        $slaves = $metaValue['slaves']; //得到被共享者文件路径集合
-//        foreach ($slaves as $slavePath) {
-//            $file = MiniFile::getInstance()->getByPath($slavePath);
-//            $fileId = $file['id'];
-//            $userId = $file['user_id'];
-//            //删除文件夹
-//            MiniFile::getInstance()->deleteFile($fileId);
-//            //创建slaves取消共享事件
-//            $this->createEvent($userId, 1, MConst::DELETE, $slavePath, $slavePath);
-//            //删除slaves的file_meta信息
-//            MiniFileMeta::getInstance()->deleteFileMetaByPath($slavePath);
-//            //删除privilege信息
-//            $this->deletePrivilege($userId, $filePath);
-//        }
-//        //删除master的file_meta信息
-//        MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath);
-//        //删除master的privilege信息
-//        $this->deletePrivilege($masterId, $filePath);
-//        //创建master取消共享事件
-//        $this->createEvent($masterId, 1, MConst::CANCEL_SHARED, $filePath, $filePath);
-//        // 取消共享后被共享文件file_type = 2，出现分享图标
-//        $beSharedFile = MiniFile::getInstance()->getByPath($filePath);
-//        $beSharedFile['file_type'] = MConst::OBJECT_TYPE_DIRECTORY;
-//        MiniFile::getInstance()->updateByPath($filePath, $beSharedFile);
-//        return true;
-//    }
     public function searchFilePath($filePath){
         $criteria = new CDbCriteria();
         $criteria->condition = "file_path like :file_path";
