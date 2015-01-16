@@ -1,13 +1,13 @@
 
 <?php
 /**
- * @author 南京恒为网络科技
- * @copyright 版权所有 2011南京恒为网络科技有限公司
- * @license http://www.miniyun.cn/license/
- * User: hcp
- * Date: 13-10-16
- * Time: 上午10:47
- * To change this template use File | Settings | File Templates.
+ * 部门导入添加冗余字段
+ *
+* @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.6
  */
 
 class m150108_161355_v171 extends EDbMigration{

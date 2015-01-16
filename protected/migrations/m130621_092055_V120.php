@@ -1,10 +1,12 @@
 <?php
 /**
- * @author 南京恒为网络科技
- * @copyright 版权所有 2011南京恒为网络科技有限公司
- * @license http://www.miniyun.cn/license/
- * @create_time 2012-12-14
- * @version 1.0.0
+ * 基础版本数据库文件
+ *
+* @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.6
  */
 class m130621_092055_V120 extends EDbMigration
 {
