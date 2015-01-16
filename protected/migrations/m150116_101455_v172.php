@@ -36,7 +36,10 @@ class m150116_101455_v172 extends EDbMigration{
             $file = MiniFile::getInstance()->getByPath($path);
             if(!empty($file)){
                 if($user["id"]===$file["user_id"]){
-                    MiniFile::getInstance()->deleteFile($file["id"]);
+                    try {
+                        MiniFile::getInstance()->deleteFile($file["id"]);
+                    } catch (Exception $e) {
+                    }
                 }
             }
         }
