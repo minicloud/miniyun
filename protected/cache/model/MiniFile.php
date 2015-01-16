@@ -459,7 +459,7 @@ class MiniFile extends MiniCache{
             MiniTag::getInstance()->deleteByFileId($id);
             //Version数据减一
             $versionId = $file["version_id"];
-            MiniVersion::getInstance()->updateRefCountByIds($versionId,false);
+            MiniVersion::getInstance()->updateRefCountByIds(array($versionId),false);
             //删除share_files
             MiniLink::getInstance()->unlink($id);
             //删除user_privilege
