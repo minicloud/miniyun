@@ -25,13 +25,19 @@ class DocConvertBiz extends MiniBiz{
         }
         
    }
-    public function cache($fileHash,$type=null){
+   /**
+    *根据文件的Hash值下载内容
+    * @param $fileHash 文件hash值
+    * @throws $type 文件类型
+    */
+    private function cacheFile($fileHash,$type=null){
         $typeList = array("txt","png");
         if(!empty($type)){
             $typeList[] = $type;
         }
         foreach($typeList as $type){
-            $url = "http://minidoc.miniyun.cn/".$fileHash."/".$fileHash.".".$type;
+            //MINIDOC_HOST来源{protected/config/miniyun-backup.php}
+            $url = MINIDOC_HOST."/".$fileHash."/".$fileHash.".".$type;
             $confContent    =  file_get_contents($url);
             $savePath = MINIYUN_PATH. DS .'temp';
             if($type == "txt"){
@@ -60,7 +66,7 @@ class DocConvertBiz extends MiniBiz{
                 if($version['type']!='application/pdf'){
                     $type = 'pdf';
                 }
-                $this->cache($fileHash,$type);
+                $this->cacheFile($fileHash,$type);
             }
             //文件转换失败
             if($status==="0"){

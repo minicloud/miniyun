@@ -2,6 +2,8 @@
 define('NAME_ZH', '迷你云');
 define('NAME_EN', 'MyCloud');
 define('APP_VERSION',"1.7.0");
+//读取迷你云后台服务IP或域名访问地址
+include dirname(__FILE__)."/miniyun-backup.php";
 //
 // 适配无REQUEST_URI的情况
 //
