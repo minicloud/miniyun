@@ -236,10 +236,12 @@ class MiniFileMeta extends MiniCache{
             $criteria->params        = array(
                 "meta_key"=>$key,
                 "file_path"=>$fromPath
-            );
+            ); 
             $item              	 =FileMeta::model()->find($criteria);
-            $item->file_path = $toPath;
-            $item->save();
+            if(!empty($item)){
+                $item->file_path = $toPath;
+                $item->save();
+            } 
             return true;
         }else{//目录时meta信息如下处理
             $fromPathArr = explode('/',$fromPath);
