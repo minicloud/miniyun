@@ -43,7 +43,7 @@ class DocBiz extends MiniBiz
                 }
                 $fileList =  MiniFile::getInstance()->getByMimeType($userId,$mimeTypeList[$mimeType],0,$pageSize*$page-$sharedTotal);
                 if(count($fileList)!=0){
-                    $files = array_merge($fileList,$fileArr);
+                    $files = array_merge($fileArr,$fileList);
                 }else{
                     $files = $fileArr;
                 }
@@ -58,7 +58,11 @@ class DocBiz extends MiniBiz
             $item['signature'] = $version['file_signature'];
             $item['mime_type'] = $version['mime_type'];
             $item['createTime'] = $version['createTime'];
-            $item['updated_at'] = $version['updated_at'];
+            $item['type'] = $file['file_type'];
+            if($file['user_id']!=$userId){
+                $item['type'] = 2;
+            }
+            $item['updated_at'] = $version['created_at'];
             $item['doc_convert_status'] = $version['doc_convert_status'];
             if($version['doc_convert_status']==2){
                 $url = "http://".$_SERVER['HTTP_HOST']."/temp/".$version['file_signature'].'/'.$version['file_signature'].".png" ;
@@ -82,7 +86,7 @@ class DocBiz extends MiniBiz
         }
         file_put_contents($savePath.DS .$fileHash.DS .$fileHash.".".$type, $confContent);
     }
-    public function convert($fileHash){
+    public function convert($fileHash,$filePath){
         $version = MiniVersion::getInstance()->getBySignature($fileHash);
         if(empty($version)){
             throw new MFileopsException(
