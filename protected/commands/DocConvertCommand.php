@@ -13,18 +13,13 @@ class DocConvertCommand extends CConsoleCommand
 	 */
 	private function getReadyConvertList($versions){ 
         //MINIYUN_HOST来源{protected/config/miniyun-backup.php}
-		$miniHost = MINIYUN_HOST; 
-        $urlInfo = parse_url($miniHost);
-        $port = 80;
-        if(array_key_exists("port", $urlInfo)){
-            $port = $urlInfo['port'];
-        }
+		$miniHost = MINIYUN_HOST;
     	//报俊地址
-    	$reportUrl = $miniHost;
+    	$reportUrl = $miniHost."/a.php/1/docConvert/report";
     	//下载文件地址
     	$downloadUrl =$miniHost."/a.php/1/docConvert/download";
         if(count($versions)>0){
-        	$data = array("report_success_url"=>$reportUrl,'port'=>$port);
+        	$data = array("report_success_url"=>$reportUrl);
         	$items = array();
         	foreach ($versions as $version) {
         	 	$item = array(
@@ -46,20 +41,12 @@ class DocConvertCommand extends CConsoleCommand
      * @param $params
      * @return string
      */
-    private function post($url,$params){
+    private function pushFileList($url,$params){
         $data = array ('task' =>json_encode($params));
-        $data = http_build_query($data);
-        $opts = array (
-            'http' => array (
-                'method' => 'POST',
-                'header'=> "Content-type: application/x-www-form-urlencodedrn" .
-                    "Content-Length: " . strlen($data) . "rn",
-                'content' => $data
-            )
-        );
-        $context = stream_context_create($opts);
-        $result = file_get_contents($url, false, $context);
-        return $result;
+        $http = new HttpClient();
+        $http->post($url,$data);
+
+        return $http->get_body();
     }
     /**
      * 定时任务入口
@@ -69,16 +56,15 @@ class DocConvertCommand extends CConsoleCommand
      */
     public function actionIndex()
     { 
-    	$versions = MiniVersion::getInstance()->getReadyDocConvertList();
+    	$versions = MiniVersion::getInstance()->getDocConvertList();
         if(empty($versions)) {
-            echo("no doc to convert!");
+            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
             return;
         }
     	$params = $this->getReadyConvertList($versions);
-    	echo(json_encode($params));
     	//MINIDOC_HOST来源{protected/config/miniyun-backup.php}
         $url = MINIDOC_HOST.'/convert';
-        $result = $this->post($url,$params);
+        $result = $this->pushFileList($url,$params);
         $result = json_decode($result,true);
         if($result['task']=='received'){
             //修改文档的转换状态为转换中

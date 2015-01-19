@@ -220,6 +220,8 @@ class MiniVersion extends MiniCache{
 
     /**
      * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
+     * @param $status
+     * @return array
      * doc_convert_status:-1
      * mime_type:
      * application/msword
@@ -227,16 +229,17 @@ class MiniVersion extends MiniCache{
      * application/msexcel
      * application/pdf
      */
-    public function getReadyDocConvertList(){
+    public function getDocConvertList($status=0){
 
         $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
-            $criteria->condition     = "doc_convert_status=0  and  mime_type=:mime_type";
+            $criteria->condition     = "doc_convert_status=:doc_convert_status  and  mime_type=:mime_type";
             $criteria->limit         = 10;
             $criteria->offset        = 0;
             $criteria->params        = array(
-                "mime_type"=>$mimeType
+                "mime_type"=>$mimeType,
+                "doc_convert_status"=>$status
             );
             $list = FileVersion::model()->findAll($criteria);
             if(count($list)>0){

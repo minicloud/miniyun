@@ -186,6 +186,12 @@ $config = array(
             'routes' => array(
                 array(
                     'class' => 'CFileLogRoute',
+                    'levels' => 'error, warning,info',
+                    'categories' => 'doc.convert',
+                    'logFile' => 'doc.convert.log',
+                ),
+                array(
+                    'class' => 'CFileLogRoute',
                     'levels' => 'error, warning',
                     'logFile' => 'error.log',
                 ),
