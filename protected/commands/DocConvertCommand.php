@@ -13,18 +13,13 @@ class DocConvertCommand extends CConsoleCommand
 	 */
 	private function getReadyConvertList($versions){ 
         //MINIYUN_HOST来源{protected/config/miniyun-backup.php}
-		$miniHost = MINIYUN_HOST; 
-        $urlInfo = parse_url($miniHost);
-        $port = 80;
-        if(array_key_exists("port", $urlInfo)){
-            $port = $urlInfo['port'];
-        }
+		$miniHost = MINIYUN_HOST;
     	//报俊地址
-    	$reportUrl = $miniHost;
+    	$reportUrl = $miniHost."/a.php/1/docConvert/report";
     	//下载文件地址
     	$downloadUrl =$miniHost."/a.php/1/docConvert/download";
         if(count($versions)>0){
-        	$data = array("report_success_url"=>$reportUrl,'port'=>$port);
+        	$data = array("report_success_url"=>$reportUrl);
         	$items = array();
         	foreach ($versions as $version) {
         	 	$item = array(
