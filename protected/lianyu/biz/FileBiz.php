@@ -346,7 +346,7 @@ class FileBiz  extends MiniBiz{
         //获得文件当前版本对应的version
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]); 
         $signature = $version["file_signature"];
-        $signature = "48a6fe3e2dd674ff5fa72009c0bca6c7f686e47f"; 
+        //$signature = "48a6fe3e2dd674ff5fa72009c0bca6c7f686e47f";
         $localPath = MINIDOC_CACHE_PATH.$signature."/".$signature.".".$type;  
         if(!file_exists($localPath)){  
             if($version["doc_convert_status"]===0){
