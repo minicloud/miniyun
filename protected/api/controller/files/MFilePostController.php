@@ -42,41 +42,41 @@ class MFilePostController extends MApplicationComponent  implements MIController
             throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
         }
 
-        $file_name = $_FILES[$key]["name"];
-        $type      = CUtils::mime_content_type($file_name);
-        $size      = $_FILES[$key]["size"];
-        $tmp_name  = $_FILES[$key]["tmp_name"];
+        $fileName = $_FILES[$key]["name"];
+        $type     = CUtils::mime_content_type($fileName);
+        $size     = $_FILES[$key]["size"];
+        $tmpName  = $_FILES[$key]["tmp_name"];
         // 验证文件是否已经上传成功
-        if (file_exists($tmp_name) === false) {
+        if (file_exists($tmpName) === false) {
             throw new MFilesException(Yii::t('api',MConst::INTERNAL_SERVER_ERROR), MConst::HTTP_CODE_500);
         }
         
         // 检查文件上传错误
-        if (filesize($tmp_name) != $size) {
+        if (filesize($tmpName) != $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
-        $signature = MiniUtil::getFileHash($tmp_name);
+        $signature = MiniUtil::getFileHash($tmpName);
         // 解析路径
-        $parent_path = "/" . $url_manager->parsePathFromUrl($uri);
+        $parentPath = "/" . $url_manager->parsePathFromUrl($uri);
         $user = MUserManager::getInstance()->getCurrentUser();
-        $folderPath = MiniFile::getInstance()->getByPath($parent_path);
+        $folderPath = MiniFile::getInstance()->getByPath($parentPath);
         //如果目录不存在，则创建
         if(!empty($folderPath)){
             $values = array();
             $values['is_deleted'] = false;
-            MiniFile::getInstance()->updateByPath($parent_path,$values);
+            MiniFile::getInstance()->updateByPath($parentPath,$values);
         }else{
-            MiniFile::getInstance()->createFolder($parent_path,$user['id']);
+            MiniFile::getInstance()->createFolder($parentPath,$user['id']);
         }
-        $path        = $parent_path . "/" . $file_name;
+        $path        = $parentPath . "/" . $fileName;
         $createFileHandler->size           = $size;
-        $createFileHandler->parent_path    = MUtils::convertStandardPath($parent_path);
-        $createFileHandler->file_name      = $file_name;
+        $createFileHandler->parent_path    = MUtils::convertStandardPath($parentPath);
+        $createFileHandler->file_name      = $fileName;
         $createFileHandler->root           = $root;
         $createFileHandler->path           = MUtils::convertStandardPath($path);;
         $createFileHandler->type           = $type;
         // 文件不存在,保存文件
-        $createFileHandler->saveFile($tmp_name, $signature, $size);
+        $createFileHandler->saveFile($tmpName, $signature, $size);
         // 保存文件meta
         $createFileHandler->saveFileMeta();
         // 处理不同端，不同返回值

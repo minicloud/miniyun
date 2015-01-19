@@ -73,51 +73,51 @@ class MFilesCommon extends MModel {
     /**
      * 保存文件版本
      */
-    public function saveFile($tmp_name, $signature, $size, $move = true) {
+    public function saveFile($tmpName, $signature, $size, $move = true) {
         //data源处理对象
         $dataObj = Yii::app()->data;
         //
         // 文件内容保存路径
         //
-        $store_path = MiniUtil::getPathBySplitStr ( $signature );
-        if ($dataObj->exists( dirname ( $store_path ) ) === false) {
-            MUtils::MkDirs ( dirname ( $store_path ) );
+        $storePath = MiniUtil::getPathBySplitStr ( $signature );
+        if ($dataObj->exists( dirname ( $storePath ) ) === false) {
+            MUtils::MkDirs ( dirname ( $storePath ) );
         }
-        $file_version = MiniVersion::getInstance()->getBySignature( $signature );
-        if ($file_version != null) {
+        $version = MiniVersion::getInstance()->getBySignature( $signature );
+        if ($version != null) {
             //
             // 文件版本id
             //
-            $this->version_id = $file_version["id"];
-            $this->file_hash  = $file_version["file_signature"];
-            if ($dataObj->exists( $store_path ) == false) {
-                if ($dataObj->put($tmp_name, $store_path, true) == false) {
+            $this->version_id = $version["id"];
+            $this->file_hash  = $version["file_signature"];
+            if ($dataObj->exists( $storePath ) == false) {
+                if ($dataObj->put($tmpName, $storePath, true) == false) {
                     throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
                 }
             }
             if ($move === true) {
-                unlink($tmp_name);
+                unlink($tmpName);
             }
             return;
         }
         // 移动临时文件到保存路径中
         if ($move === true) {
-            if ($dataObj->put( $tmp_name, $store_path, true) == false) {
+            if ($dataObj->put( $tmpName, $storePath, true) == false) {
                 throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
             }
         }
         //
         // 创建version
         //
-        $file_version = MiniVersion::getInstance()->create($signature, $size, $this->type);
-        if ($file_version == null) {
+        $version = MiniVersion::getInstance()->create($signature, $size, $this->type);
+        if ($version == null) {
             throw new MFilesException ( Yii::t('api', MConst::INTERNAL_SERVER_ERROR ), MConst::HTTP_CODE_500 );
         }
         //
         // 文件版本id
         //
-        $this->version_id = $file_version["id"];
-        $this->file_hash  = $file_version["file_signature"];
+        $this->version_id = $version["id"];
+        $this->file_hash  = $version["file_signature"];
     }
     /**
      * 创建文件详情
