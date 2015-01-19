@@ -76,34 +76,5 @@ class DocBiz extends MiniBiz
         $data['list'] = $items;
         $data['totalPage'] = ceil(($fileTotal+$sharedTotal)/$pageSize);
         return $data;
-    }
-    public function cache($fileHash,$type){
-        $url = "http://minidoc.miniyun.cn/".$fileHash."/".$fileHash.".".$type;
-        $savePath = MINIYUN_PATH. DS .'temp';
-        $confContent    =  file_get_contents($url);
-        if(!file_exists($savePath.DS .$fileHash)){
-            mkdir($savePath.DS .$fileHash);
-        }
-        file_put_contents($savePath.DS .$fileHash.DS .$fileHash.".".$type, $confContent);
-    }
-    public function convert($fileHash,$filePath){
-        $version = MiniVersion::getInstance()->getBySignature($fileHash);
-        if(empty($version)){
-            throw new MFileopsException(
-                Yii::t('api','File Not Found'),
-                404);
-        }
-        if($version['doc_convert_status']==0||$version['doc_convert_status']==1||$version['doc_convert_status']==-1){
-            return array('success'=>false,'doc_convert_status'=>$version['doc_convert_status']);
-        }else{
-             if($version['doc_convert_status']==2){
-                 $url = "http://".$_SERVER['HTTP_HOST']."/temp/".$version['file_signature'].'/'.$version['file_signature'].".pdf" ;
-                 if(!file_exists($url)){
-                     $this->cache($fileHash,'pdf');
-                 }
-                 return array('success'=>true,'doc_convert_status'=>$version['doc_convert_status']);
-             }
-        }
-
-    }
+    } 
 }

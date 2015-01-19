@@ -27,13 +27,12 @@ class DocConvertBiz extends MiniBiz{
    }
    /**
     *根据文件的Hash值下载内容
-    * @param $signature 文件hash值
-    * @param $type 文件类型
+    * @param $signature 文件hash值 
     * @return array
     *
     */
-    private function cacheFile($signature,$type){
-        $url = MINIDOC_HOST."/".$signature."/".$signature.".".$type;
+    private function cacheFile($signature){
+        $url = MINIDOC_HOST."/".$signature."/".$signature.".txt";
         $http = new HttpClient();
         $http->get($url);
         $status = $http->get_status();
@@ -57,7 +56,7 @@ class DocConvertBiz extends MiniBiz{
             //文件转换成功
             if($status==="1"){
                 MiniVersion::getInstance()->updateDocConvertStatus($fileHash,2);
-                $this->cacheFile($fileHash,"txt");
+                $this->cacheFile($fileHash);
             }
             //文件转换失败
             if($status==="0"){

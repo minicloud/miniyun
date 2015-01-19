@@ -331,5 +331,76 @@ class FileBiz  extends MiniBiz{
         $editors = unserialize($editors);
         return $editors;
     }
+    /**
+     * 在线浏览文件获得内容
+     * @param $path 文件当前路径
+     * @param $type 文件类型，可选择pdf/png
+     * @return NULL
+     */
+    public function previewContent($path,$type){
+        $file = MiniFile::getInstance()->getByPath($path);
+        //TODO 1 权限处理
+        if(empty($file)){ 
+            return array('success' =>false ,'msg'=>'file not existed');
+        } 
+        //获得文件当前版本对应的version
+        $version = MiniVersion::getInstance()->getVersion($file["version_id"]); 
+        $signature = $version["file_signature"];
+        //$signature = "48a6fe3e2dd674ff5fa72009c0bca6c7f686e47f";
+        $localPath = MINIDOC_CACHE_PATH.$signature."/".$signature.".".$type;  
+        if(!file_exists($localPath)){  
+            if($version["doc_convert_status"]===0){
+                //TODO 执行文档转换脚本
+            }
+            if($version["doc_convert_status"]===-1){
+                //TODO 文档转换失败
+            }
+            //根据情况判断是否需要向迷你文档拉取内容
+            $needPull = false;
+            //ppt/excel/word的pdf/png需要向迷你文档拉取
+            $mimeTypes = array("application/mspowerpoint","application/msword","application/msexcel");
+            foreach ($mimeTypes as $mimeType) {
+                if($mimeType===$version["mime_type"]){
+                    $needPull = true;
+                }
+            }
+            //pdf的png需要向迷你文档拉取
+            if("application/pdf"===$version["mime_type"] && $type==="png"){
+                $needPull = true;
+            } 
+            //TODO 如这里接管了文本文件在线浏览，这里还要处理其他mime_type,当前暂时未处理
+            if($needPull){
+                    $parentPath = dirname($localPath); 
+                    //如果缓存目录不存在，则需要创建
+                    if(!file_exists($parentPath)){
+                        MUtils::MkDirsLocal($parentPath);
+                    }
+                    //文件不存在，则需要从迷你文档拉取文件内容
+                    $url = MINIDOC_HOST."/".$signature."/".$signature.".".$type; 
+                    $http = new HttpClient();
+                    $http->get($url);
+                    $status = $http->get_status();
+                    if($status=="200"){
+                        $content = $http->get_body();
+                        //把文件内容存储到本地硬盘
+                        file_put_contents($localPath, $content);
+                        Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
+                    }else{
+                        Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
+                    }
+            } 
+        }
+
+        if(file_exists($localPath)){
+            if($type==="png"){
+                $contentType = "image/png";
+            }
+            if($type==="pdf"){
+                $contentType = "Content-type: application/pdf";
+            }
+            Header ( "Content-type: ".$contentType);
+            echo(file_get_contents($localPath));
+        } 
+    }
 }
 
