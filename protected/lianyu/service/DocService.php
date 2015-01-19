@@ -4,18 +4,19 @@ class DocService extends MiniService{
     /**
      * download file
      */
-    public function word() {
-        $pageSize = MiniHttp::getParam("pageSize","");
-        $page = MiniHttp::getParam("page","");
+    public function getList() {
+        $pageSize = MiniHttp::getParam("pageSize","14");
+        $page = MiniHttp::getParam("page","1");
+        $mimeType = MiniHttp::getParam('mime_type','');
         $biz = new DocBiz();
-        $list=$biz->word($page,$pageSize);
-        return array('list'=>$list);
+        $list=$biz->getList($page,$pageSize,$mimeType);
+        return $list;
     }
 
     public function convert(){
         $signature = MiniHttp::getParam("signature","");
         $biz = new DocBiz();
-        $url = $biz->convert($signature);
-        return array('url'=>$url);
+        $result = $biz->convert($signature);
+        return $result;
     }
 }
