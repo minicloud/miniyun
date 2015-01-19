@@ -27,28 +27,23 @@ class DocConvertBiz extends MiniBiz{
    }
    /**
     *根据文件的Hash值下载内容
-    * @param $fileHash 文件hash值
-    * @throws $type 文件类型
+    * @param $signature 文件hash值
+    * @param $type 文件类型
+    * @return array
+    *
     */
-    private function cacheFile($fileHash,$type=null){
-        $typeList = array("txt","png");
-        if(!empty($type)){
-            $typeList[] = $type;
+    private function cacheFile($signature,$type){
+        $url = MINIDOC_HOST."/".$signature."/".$signature.".".$type;
+        $http = new HttpClient();
+        $http->get($url);
+        $status = $http->get_status();
+        if($status=="200"){
+            $content = $http->get_body();
+            MiniSearchFile::getInstance()->create($signature,$content);
+            Yii::log($signature." get txt success",CLogger::LEVEL_INFO,"doc.convert");
+        }else{
+            Yii::log($signature." get txt error",CLogger::LEVEL_ERROR,"doc.convert");
         }
-        foreach($typeList as $type){
-            //MINIDOC_HOST来源{protected/config/miniyun-backup.php}
-            $url = MINIDOC_HOST."/".$fileHash."/".$fileHash.".".$type;
-            $confContent    =  file_get_contents($url);
-            $savePath = MINIYUN_PATH. DS .'temp';
-            if($type == "txt"){
-                MiniSearchFile::getInstance()->saveTxt($confContent,$fileHash);
-            }
-            if(!file_exists($savePath.DS .$fileHash)){
-                mkdir($savePath.DS .$fileHash);
-            }
-            file_put_contents($savePath.DS .$fileHash.DS .$fileHash.".".$type, $confContent);
-        }
-        return $savePath.DS .$fileHash.DS .$fileHash.".txt";
     }
    /**
     *给迷你云报告文件转换过程
@@ -62,11 +57,7 @@ class DocConvertBiz extends MiniBiz{
             //文件转换成功
             if($status==="1"){
                 MiniVersion::getInstance()->updateDocConvertStatus($fileHash,2);
-                $type = null;
-                if($version['type']!='application/pdf'){
-                    $type = 'pdf';
-                }
-                $this->cacheFile($fileHash,$type);
+                $this->cacheFile($fileHash,"txt");
             }
             //文件转换失败
             if($status==="0"){

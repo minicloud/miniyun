@@ -46,7 +46,7 @@ class DocConvertCommand extends CConsoleCommand
      * @param $params
      * @return string
      */
-    private function post($url,$params){
+    private function pushFileList($url,$params){
         $data = array ('task' =>json_encode($params));
         $http = new HttpClient();
         $http->post($url,$data);
@@ -61,16 +61,15 @@ class DocConvertCommand extends CConsoleCommand
      */
     public function actionIndex()
     { 
-    	$versions = MiniVersion::getInstance()->getReadyDocConvertList();
+    	$versions = MiniVersion::getInstance()->getDocConvertList();
         if(empty($versions)) {
-            echo("no doc to convert!");
+            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
             return;
         }
     	$params = $this->getReadyConvertList($versions);
-    	echo(json_encode($params));
     	//MINIDOC_HOST来源{protected/config/miniyun-backup.php}
         $url = MINIDOC_HOST.'/convert';
-        $result = $this->post($url,$params);
+        $result = $this->pushFileList($url,$params);
         $result = json_decode($result,true);
         if($result['task']=='received'){
             //修改文档的转换状态为转换中
