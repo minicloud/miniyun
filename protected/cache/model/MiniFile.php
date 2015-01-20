@@ -1078,6 +1078,40 @@ class MiniFile extends MiniCache{
             return $this->db2list($items);
         }
     }
+    public function getByMimeType($userId,$mimeType,$offset=null,$pageSize=null){
+        $criteria                = new CDbCriteria();
+        $criteria->select   ='*';
+        $criteria->condition     = "is_deleted=0 and user_id=:user_id and (mime_type=:mime_type)";
+        $criteria->order    =     'file_create_time desc';
+        $criteria->params        = array(
+            "user_id"=>$userId,'mime_type'=>$mimeType
+        );
+        if(isset($offset)&&isset($pageSize)){
+            $criteria->limit = $pageSize;
+            $criteria->offset = $offset;
+        }
+        $items              	 =UserFile::model()->findAll($criteria);
+        return $this->db2list($items);
+    }
+    public function getTotalByMimeType($userId,$mimeType){
+        $criteria                = new CDbCriteria();
+        $criteria->select   ='*';
+        $criteria->condition     = "is_deleted=0 and user_id=:user_id and (mime_type=:mime_type)";
+        $criteria->params        = array(
+            "user_id"=>$userId,'mime_type'=>$mimeType
+        );
+        $total              	 =UserFile::model()->count($criteria);
+        return $total;
+    }
+    public function getSharedDocByPathType($path,$mimeType){
+        $criteria                = new CDbCriteria();
+        $criteria->select   ='*';
+        $criteria->condition     = "is_deleted=0 and mime_type =:mime_type and file_path like '%".$path."%'";;
+        $criteria->params        = array('mime_type'=>$mimeType);
+        $criteria->order    =     'file_create_time desc';
+        $items                   =UserFile::model()->findAll($criteria);
+        return $this->db2list($items);
+    }
     //根据filePath和mine_type获取图片
     public function searchFileByPathType($filePath){
         $criteria                = new CDbCriteria();
