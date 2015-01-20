@@ -103,14 +103,7 @@ class MiniSearchFile extends MiniCache{
         }
         $criteria->addInCondition('id', $intId);
         $items = SearchFile::model()->findAll($criteria);
-        $docs = array();
-        foreach($items as $item){
-            $file['signature']=$item->file_signature;
-            $file['content']=$item->content;
-            array_push($docs,$file);
-        }
-        var_dump($docs);exit;
-        return $docs;
+        return $items;
     }
 
 }
