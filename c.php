@@ -25,7 +25,7 @@ defined('YII_TRACE_LEVEL') or define('YII_TRACE_LEVEL',8);
 defined('CLIENT_REQUEST_API') or define('CLIENT_REQUEST_API', TRUE);
 require_once($yii);
 Yii::createWebApplication($config);
-header('Access-Control-Allow-Origin: static.miniyun.cn,wxstatic.miniyun.cn');
+header('Access-Control-Allow-Origin: http://static.miniyun.cn');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Methods: GET');
 MiniAppParam::getInstance()->load();//初始化APP静态数据 

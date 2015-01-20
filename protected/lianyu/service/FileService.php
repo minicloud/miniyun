@@ -114,4 +114,15 @@ class FileService extends MiniService{
         $biz = new FileBiz();
         return $biz->contentSearch($key);
     }
+    /**
+     * 在线浏览文件获得内容
+     * path文件当前路径
+     * type文件类型，可选择pdf/png
+     */
+    public function previewContent(){
+        $path = MiniHttp::getParam("path","");
+        $type = MiniHttp::getParam("type","pdf");
+        $biz = new FileBiz();
+        $biz->previewContent($path,$type); 
+    }
 }

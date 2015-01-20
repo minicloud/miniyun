@@ -9,3 +9,5 @@ define('MINIYUN_HOST', 'http://t.miniyun.cn');
 define('SPHINX_HOST', '127.0.0.1:9932');
 /** 迷你文档服务器地址 */
 define('MINIDOC_HOST', 'http://minidoc.miniyun.cn');
+/** 迷你文档服务器地址 */
+define('MINIDOC_CACHE_PATH', dirname(__FILE__)."/../../upload/temp/doc/");
