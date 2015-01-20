@@ -134,22 +134,22 @@ class MFilesCommon extends MModel {
             throw new MFileopsException(Yii::t('api','bad request'), MConst::HTTP_CODE_400);
         }
         // 获取父目录信息
-        $parent_check_handler                  = new MCreateFolderController();
-        $parent_check_handler->_user_id        = $this->user_id;
-        $parent_check_handler->_user_device_id = $this->user_device_id;
+        $parentCheckHandler                  = new MCreateFolderController();
+        $parentCheckHandler->_user_id        = $this->user_id;
+        $parentCheckHandler->_user_device_id = $this->user_device_id;
 //        $parent_check_handler->share_filter    = $this->share_filter;
         if(empty($parentPath) || $parentPath=="/"||$parentPath=="/".$currentUserId){
             $this->parent_file_id = 0;
         }else{
-            $this->parent_file_id                  = $parent_check_handler->handlerParentFolder($this->parent_path);
+            $this->parent_file_id                  = $parentCheckHandler->handlerParentFolder($this->parent_path);
         }
         $isSharedPath = false;//主要用于判断是否为被共享文件
         if(empty($parentPath) || $parentPath=="/"){//说明此时在根目录下创建文件，有创建权限
-            $can_create_file = true;
+            $canCreateFile = true;
             $this->path = "/".$currentUserId.$this->path;
             $parentPath = "/";
         }else{//非根目录情况
-            $can_create_file = false;
+            $canCreateFile = false;
             $arr = explode('/',$parentPath);
             $masterId= $arr[1];
             if($masterId == $currentUserId){//自己目录下皆有创建权限
@@ -173,13 +173,13 @@ class MFilesCommon extends MModel {
                     $permission = $permissionArr['permission'];
                     $create_file_num = substr($permission,4,1);
                     if($create_file_num==1){
-                        $can_create_file = true;
+                        $canCreateFile = true;
                     }
                 }else{
-                    $can_create_file = true;
+                    $canCreateFile = true;
                 }
             }else{
-                $can_create_file = true;
+                $canCreateFile = true;
             }
         }
         // 保存到数据库中的地址
@@ -187,34 +187,34 @@ class MFilesCommon extends MModel {
 
         // 从数据库中获取路径对应的文件，未删除的
         //
-        $file_detail = MFiles::queryFilesByPath ( $this->file_path );
+        $fileDetail = MFiles::queryFilesByPath ( $this->file_path );
         $this->create_file = false;
-        if ($file_detail == false || count ( $file_detail ) == 0) { // 创建文件 
+        if ($fileDetail == false || count ( $fileDetail ) == 0) { // 创建文件
             $this->create_file = true;
-            $file_detail = new MFiles ();
+            $fileDetail = new MFiles ();
         } else { // 文件存在判断为修改文件(如果按照正常逻辑)
-            $file_detail = MFiles::exchange2Object ( $file_detail );
+            $fileDetail = MFiles::exchange2Object ( $fileDetail );
             //
             // 判断指向的是未删除的非文件，否则返回错误
             //
-            if ($file_detail->file_type != MConst::OBJECT_TYPE_FILE) {
+            if ($fileDetail->file_type != MConst::OBJECT_TYPE_FILE) {
                 throw new MFilesException ( Yii::t('api', "There is already a folder at the given destination" ), MConst::HTTP_CODE_403 );
             }
         }
-        $this->modifyFile ( $file_detail );
-        if (isset($file_detail->is_deleted)) {
-            $this->spaceFilter ($this->size - $file_detail->file_size);   // 过滤器，空间大小计算
+        $this->modifyFile ( $fileDetail );
+        if (isset($fileDetail->is_deleted)) {
+            $this->spaceFilter ($this->size - $fileDetail->file_size);   // 过滤器，空间大小计算
         }
-        if (isset($file_detail->event_uuid)) {
-            $this->event_uuid = $file_detail->event_uuid;
+        if (isset($fileDetail->event_uuid)) {
+            $this->event_uuid = $fileDetail->event_uuid;
         }
 
-        if($can_create_file==false){
+        if($canCreateFile==false){
             throw new MFilesException ( Yii::t('api', "No Permission" ), MConst::HTTP_CODE_409 );
         }
         $this->conflictFile ();
         $this->renameFile ();
-        $this->createFile ( $file_detail );
+        $this->createFile ( $fileDetail );
 
         
         $this->success = true;

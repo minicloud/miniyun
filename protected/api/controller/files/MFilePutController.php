@@ -24,11 +24,16 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
         
         // 解析文件路径，若返回false，则错误处理
-        $url_manager = new MUrlManager();
-        $path = $url_manager->parsePathFromUrl($uri);
-        $root = $url_manager->parseRootFromUrl($uri);
+        $urlManager = new MUrlManager();
+        $path = $urlManager->parsePathFromUrl($uri);
+        $root = $urlManager->parseRootFromUrl($uri);
         if ($path == false || $root == false) {
-            throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);
+            //支持参数模式传递上传路径
+            $path = MiniHttp::getParam("path","");
+            $root = "miniyun";
+            if(empty($path)){
+                throw new MFilesException(Yii::t('api',$root), MConst::HTTP_CODE_411);
+            }
         }
         // web端上传零字节文件
         if (MUserManager::getInstance()->isWeb() === true) {
@@ -43,24 +48,24 @@ class MFilePutController extends MApplicationComponent implements MIController{
             $this->signature = $_SERVER['HTTP_IF_MATCH'];
             $btupload = new MBtUpload();
             $btupload->invoke();
-            $store_path = $btupload->cache;
+            $storePath = $btupload->cache;
             //清除缓存并再次检查文件大小
             clearstatcache();
             //data源处理对象
             $dataObj = Yii::app()->data;
-            $size = $dataObj->size($store_path);
+            $size = $dataObj->size($storePath);
             $this->_size = $size;
         }else {
             // 如果文件已经上传成功, 返回文件已经上传成功
             $this->handleSpikeFile($uri);
-            
             $hash   = isset($_REQUEST['hash']) ? $_REQUEST['hash'] : '';
             $size   = isset($_REQUEST['size']) ? $_REQUEST['size'] : NULL;
             $offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : 0;
             if (empty($hash) || $size === NULL || $size < 0)
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'Missing parameter'), MConst::HTTP_CODE_400);
             
-            $store_path = '';
+            $storePath = '';
+
             if ($offset < 0) {
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'error parameter'), MConst::HTTP_CODE_400);
             }
@@ -68,35 +73,34 @@ class MFilePutController extends MApplicationComponent implements MIController{
             // 处理分块上传逻辑部分，通过插件内部的
 
             if ($offset == 0) {
-                $store_path = $this->handleEntireFile($hash, $size);
+                $storePath = $this->handleEntireFile($hash, $size);
             } else {
-                $store_path = $this->handleBreakPointFile($hash, $size, $offset);
+                $storePath = $this->handleBreakPointFile($hash, $size, $offset);
             }
         }
+
         // 初始化创建文件公共类句柄
-        $create_handler = MFilesCommon::initMFilesCommon();
+        $createHandler = MFilesCommon::initMFilesCommon();
+        $pathInfo   = MUtils::pathinfo_utf($path);
+        $fileName   = $pathInfo["basename"];
+        $parentPath = $pathInfo["dirname"];
         
-        $path        = "/" . $path;
-        $path_info   = MUtils::pathinfo_utf($path);
-        $file_name   = $path_info["basename"];
-        $parent_path = $path_info["dirname"];
-        
-        $create_handler->size           = $this->_size;
-        $create_handler->parent_path    = MUtils::convertStandardPath($parent_path);;
-        $create_handler->file_name      = $file_name;
-        $create_handler->root           = $root;
-        $create_handler->path           = MUtils::convertStandardPath($path);
-        $create_handler->type           = CUtils::mime_content_type($file_name);
+        $createHandler->size           = $this->_size;
+        $createHandler->parent_path    = MUtils::convertStandardPath($parentPath);;
+        $createHandler->file_name      = $fileName;
+        $createHandler->root           = $root;
+        $createHandler->path           = MUtils::convertStandardPath($path);
+        $createHandler->type           = CUtils::mime_content_type($fileName);
         // 文件不存在,保存文件
-        $create_handler->saveFile($store_path, $this->signature, $this->_size, false);
+        $createHandler->saveFile($storePath, $this->signature, $this->_size, false);
         // 保存文件meta
-        $create_handler->saveFileMeta();
+        $createHandler->saveFileMeta();
         if (MUserManager::getInstance()->isWeb() === true)
         {
-            $create_handler->buildWebResponse();
+            $createHandler->buildWebResponse();
             return ;
         }
-        $create_handler->buildResult();
+        $createHandler->buildResult();
     }
     
     /**
@@ -228,30 +232,6 @@ class MFilePutController extends MApplicationComponent implements MIController{
         
         $this->signature = $hash;
         return $this->handleSave($hash, $cache);
-    }
-    
-    /**
-     * 
-     * 写入文件,替换对应位置内容
-     */
-    private function handleWriteBytes($handle, $cache, $offset) {
-        $dataObj = Yii::app()->data;
-
-        $mode   = 'wb';
-        if ($dataObj->exists($cache))
-            $mode = 'r+b';
-
-        $data = fread($handle, 8096);
-        fseek($file, $offset);
-        while ($data) {
-            fwrite($file, $data);
-            $data = fread($handle, 8096);
-        }
-        fclose($file);
-        fclose($handle);
-        clearstatcache();
-        if (isset($this->_temp) && file_exists($this->_temp)) 
-            @unlink($this->_temp);
     }
     
     /**
