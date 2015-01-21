@@ -89,8 +89,21 @@ class AlbumBiz  extends MiniBiz{
                 array_splice($filePaths,0,0,$paths);
             }
         }
+        $paths = array();
         $filePaths = array_unique($filePaths);
-        return $filePaths;
+        foreach($filePaths as $filePath){
+            $result = MiniFile::getInstance()->getByPath($filePath);
+            if(count($result)==0){
+                continue;
+            }
+            $fileBiz = new FileBiz();
+            $canRead = $fileBiz->privilege($filePath);
+            if(!$canRead){
+                continue;
+            }
+            $paths[] = $filePath;
+        }
+        return $paths;
     }
     public function getPage($page,$pageSize){
         $list=array();

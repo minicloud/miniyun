@@ -82,9 +82,13 @@ class UserIdentity extends CUserIdentity
                 $accessToken = MiniHttp::getParam("access_token","");
             }else{
                 if(!array_key_exists("accessToken",$_COOKIE)){
-                    return NULL;
+                    $accessToken = MiniHttp::getParam("access_token","");
+                    if(empty($accessToken)){
+                        return NULL;
+                    }
+                }else{
+                    $accessToken  = $_COOKIE['accessToken'];
                 }
-                $accessToken  = $_COOKIE['accessToken'];
             }
         }
         if(empty($accessToken)){

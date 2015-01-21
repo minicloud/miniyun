@@ -14,6 +14,7 @@ class MiniPermission extends MiniCache{
     const    FILE__MODIFY   = 5;
     const    FILE__RENAME   = 6;
     const    FILE__DELETE   = 7;
+    const    FILE__READ     = 0;
     public   $permission;
     //构造函数
     public   function __construct($permission){
@@ -83,6 +84,13 @@ class MiniPermission extends MiniCache{
         }
         if($type>0){
             return $this->canCreateFolder();
+        }
+    }
+    public function canRead(){
+        if($this->permission[self::FILE__READ] == 1){
+            return true;
+        }else{
+            return false;
         }
     }
     //序列化

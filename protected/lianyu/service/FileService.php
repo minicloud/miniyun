@@ -123,6 +123,6 @@ class FileService extends MiniService{
         $path = MiniHttp::getParam("path","");
         $type = MiniHttp::getParam("type","pdf");
         $biz = new FileBiz();
-        $biz->previewContent($path,$type); 
+        return $biz->previewContent($path,$type);
     }
 }
