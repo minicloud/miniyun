@@ -350,7 +350,7 @@ class FileBiz  extends MiniBiz{
         $index='main1';
         $res = $cl->Query($key, $index);
         if((int)$res['total']===0){
-            echo 'no content';exit;
+            return array();
         }
         $err = $cl->GetLastError();
         $ids = array_keys($res['matches']);
@@ -386,6 +386,7 @@ class FileBiz  extends MiniBiz{
                 }
                 $file['file_name'] = $unit['file_name'];
                 $file['file_path'] = $filePath;
+                $file['type'] =
                 $file['content']=$item->content;
                 array_push($docs,$item->content);
                 foreach ( array(0) as $exact ){//获取$entry即文件内容摘要
