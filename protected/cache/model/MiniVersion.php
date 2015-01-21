@@ -59,22 +59,23 @@ class MiniVersion extends MiniCache{
         }
         return $data;
     }
-	private function db2Item($item){
-		if(!isset($item)) return NULL;
-		$value                   = array();
-		$value["id"]             = $item->id;
-		$value["file_signature"] = $item->file_signature;
-		$value["file_size"]      = $item->file_size;
-		$value["block_ids"]      = $item->block_ids;
-		$value["ref_count"]      = $item->ref_count;
-		$value["mime_type"]      = $item->mime_type;
-		$value["updated_at"]      = $item->updated_at;
-		$value["createTime"]      = strtotime($item->created_at);
-		return  $value;
-	}
-	/**
-	 * 通过id获得记录
-	 * @param string $id
+    private function db2Item($item){
+        if(!isset($item)) return NULL;
+        $value                   = array();
+        $value["id"]             = $item->id;
+        $value["file_signature"] = $item->file_signature;
+        $value["file_size"]      = $item->file_size;
+        $value["block_ids"]      = $item->block_ids;
+        $value["ref_count"]      = $item->ref_count;
+        $value["mime_type"]      = $item->mime_type;
+        $value["created_at"]      = $item->created_at;
+        $value["createTime"]      = strtotime($item->created_at);
+        $value['doc_convert_status'] = $item->doc_convert_status;
+        return  $value;
+    }
+    /**
+     * 通过id获得记录
+     * @param string $id
      * @return array
 	 */
 	private function get4DbById($id){
@@ -292,22 +293,21 @@ class MiniVersion extends MiniCache{
         }
     }
     /**
-     * 获得要删除的记录
-     * @param $limit
-     * @return array
+* 获得要删除的记录
+* @param $limit
+* @return array
      */
     public function getCleanFiles($limit=100){
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "ref_count<=0";
-        $criteria->limit         = $limit;
-        $criteria->offset        = 0;
-        $list = FileVersion::model()->findAll($criteria);
-        if(count($list)>0){
-            return $this->db2list($list);
-        }
-        return NULL;
+    $criteria                = new CDbCriteria();
+    $criteria->condition     = "ref_count<=0";
+    $criteria->limit         = $limit;
+    $criteria->offset        = 0;
+    $list = FileVersion::model()->findAll($criteria);
+    if(count($list)>0){
+        return $this->db2list($list);
     }
-
+    return NULL;
+  }
     public function getVersionIdBySignature($signature){
         $criteria                = new CDbCriteria();
         $criteria->condition     = "file_signature = :file_signature ";

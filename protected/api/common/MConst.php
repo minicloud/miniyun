@@ -333,6 +333,7 @@ class MConst
     const HTTP_CODE_407 = "407";        //  用户已禁用
     const HTTP_CODE_409 = "409";        //  用户无写入权限
     const HTTP_CODE_410 = "410";        //  用户设备不足
+    const HTTP_CODE_412 = "412";        //  转换失败
     const HTTP_CODE_440 = "440";        //  时间过期
     const HTTP_CODE_441 = "441";        //  域名错误
     const HTTP_CODE_442 = "442";        //  ministor错误

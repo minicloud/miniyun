@@ -331,6 +331,33 @@ class FileBiz  extends MiniBiz{
         $editors = unserialize($editors);
         return $editors;
     }
+    public function privilege($path){
+        $isSharedPath = false;
+        $pathArr = explode('/',$path);
+        $masterId = $pathArr[1];
+        if($masterId!=$this->user['id']){
+            $isSharedPath = true;
+        }else{
+            $model = new GeneralFolderPermissionBiz($path);
+            if($model->isParentShared($path)){//如果是父目录被共享
+                $isSharedPath = true;
+            }
+        }
+        if($isSharedPath){
+            $permissionModel = new UserPermissionBiz($path,$this->user['id']);
+            $permissionArr = $permissionModel->getPermission($path,$this->user['id']);
+            if(!isset($permissionArr)){
+                $permission = MConst::SUPREME_PERMISSION;
+            }else{
+                $permission = $permissionArr['permission'];
+            }
+        }else{
+            $permission = MConst::SUPREME_PERMISSION;
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canRead = $miniPermission->canRead();
+        return $canRead;
+    }
     /**
      * 全文检索
      */
@@ -415,10 +442,14 @@ class FileBiz  extends MiniBiz{
      */
     public function previewContent($path,$type){
         $file = MiniFile::getInstance()->getByPath($path);
-        //TODO 1 权限处理
-        if(empty($file)){ 
+        // 权限处理
+         if(empty($file)){
             return array('success' =>false ,'msg'=>'file not existed');
-        } 
+        }
+        $canRead = $this->privilege($path);
+        if(!$canRead){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         //获得文件当前版本对应的version
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]); 
         $signature = $version["file_signature"];
@@ -429,7 +460,7 @@ class FileBiz  extends MiniBiz{
                 //TODO 执行文档转换脚本
             }
             if($version["doc_convert_status"]===-1){
-                //TODO 文档转换失败
+                throw new MFileopsException( Yii::t('api','convert error'),MConst::HTTP_CODE_412);
             }
             //根据情况判断是否需要向迷你文档拉取内容
             $needPull = false;
@@ -464,7 +495,20 @@ class FileBiz  extends MiniBiz{
                     }else{
                         Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
                     }
-            } 
+            }else{
+                //pdf and type=pdf, download file content 
+                if("application/pdf"===$version["mime_type"] && $type==="pdf"){
+                    $filePath = MiniUtil::getPathBySplitStr ($signature);
+                    //data源处理对象
+                    $dataObj = Yii::app()->data;
+                    if ($dataObj->exists( $filePath ) === false) {
+                        throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
+                    }
+                    $content = $dataObj->get_contents($filePath);
+                    //把文件内容存储到本地硬盘
+                    file_put_contents($localPath, $content);
+                }
+            }
         }
 
         if(file_exists($localPath)){
@@ -476,7 +520,7 @@ class FileBiz  extends MiniBiz{
             }
             Header ( "Content-type: ".$contentType);
             echo(file_get_contents($localPath));
-        } 
+        }
     }
 }
 

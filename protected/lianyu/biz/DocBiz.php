@@ -55,7 +55,6 @@ class DocBiz extends MiniBiz
             $version = MiniVersion::getInstance()->getVersion($file['version_id']);
             $item['file_name'] = $file['file_name'];
             $item['path'] = $file['file_path'];
-            $item['signature'] = $version['file_signature'];
             $item['mime_type'] = $version['mime_type'];
             $item['createTime'] = $version['createTime'];
             $item['type'] = $file['file_type'];
@@ -64,13 +63,6 @@ class DocBiz extends MiniBiz
             }
             $item['updated_at'] = $version['created_at'];
             $item['doc_convert_status'] = $version['doc_convert_status'];
-            if($version['doc_convert_status']==2){
-                $url = "http://".$_SERVER['HTTP_HOST']."/temp/".$version['file_signature'].'/'.$version['file_signature'].".png" ;
-                if(!file_exists($url)){
-                    $this->cache($version['file_signature'],'png');
-                }
-                $item['url'] = $url;
-            }
             $items[] = $item;
         }
         $data['list'] = $items;
