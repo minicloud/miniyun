@@ -132,9 +132,8 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                 $filePath = BASE."upload_block/cache/".$storePath;
                 if (file_exists($filePath) == true) {
                     $data['offset'] = filesize($filePath);
-                    if($data['offset'] == false){
-                        $data['offset'] = 0;
-                    }
+                }else{
+                    $data['offset'] = 0;
                 }
                 echo json_encode($data);exit;
             }else{
