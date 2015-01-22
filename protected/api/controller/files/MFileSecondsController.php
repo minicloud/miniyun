@@ -124,9 +124,8 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         }else{
             //按http://doc.mini-inc.cn/?p=175接口文档实现新版本的处理
             //返回断点文件信息
-            if ($version == null) {
-                header("HTTP/1.1 200 part upload");
-                $data = array();
+            $data = array(); 
+            if (empty($version)) { 
                 $data['success'] = false;
                 $data['url'] =  MiniHttp::getMiniHost()."/api/1/file/upload";
                 $filePath = BASE."upload_block/cache/".$storePath;
@@ -134,13 +133,11 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                     $data['offset'] = filesize($filePath);
                 }else{
                     $data['offset'] = 0;
-                }
-                echo json_encode($data);exit;
+                } 
             }else{
-                $this->version_id = $version['id'];
-                $this->size       = $version['file_size'];
-                return true;
+                $data['success'] = true; 
             }
+            echo json_encode($data);exit;
         }
 
     }
