@@ -130,7 +130,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                 $data['success'] = false;
                 $data['url'] =  MiniHttp::getMiniHost()."api.php/1/file/upload";
                 $filePath = BASE."upload_block/cache/".$storePath;
-                if (file_exists($filePath) == true) {
+                if (file_exists($filePath)) {
                     $data['offset'] = filesize($filePath);
                     //如文件大小相同而且Hash值相同，说明流数据文件已经存在，直接生成元数据即可
                     $size = MiniHttp::getParam("size","");
