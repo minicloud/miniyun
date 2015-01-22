@@ -313,17 +313,17 @@ class MFilesystemDirect extends MFilesystemBase {
 
         //At this point its a folder, and we're in recursive mode
         $file = $this->trailingslashit($file);
-        $filelist = $this->dirlist($file, true);
+        $fileList = $this->dirlist($file, true);
 
-        $retval = true;
-        if ( is_array($filelist) ) //false if no files, So check first.
-        foreach ($filelist as $filename => $fileinfo)
+        $retVal = true;
+        if ( is_array($fileList) ) //false if no files, So check first.
+        foreach ($fileList as $filename => $fileinfo)
         if ( ! $this->delete($file . $filename, $recursive, $fileinfo['type']) )
-        $retval = false;
+        $retVal = false;
 
         if ( file_exists($file) && ! @rmdir($file) )
-        $retval = false;
-        return $retval;
+        $retVal = false;
+        return $retVal;
     }
 
     function exists($file) {
@@ -452,19 +452,23 @@ class MFilesystemDirect extends MFilesystemBase {
 
     /**
      * 将本地文件句柄内容插入到相对路径对应的文件制定的偏移量内
+     * @param $handle 文件句柄
+     * @param $path 本地路径
+     * @param $offset 文件偏移量
+     * @return boolean
      */
     public function AppendFile($handle, $path, $offset) {
-        $mode       = 'wb';
-        $local_size = 0;
+        $mode      = 'wb';
+        $localSize = 0;
         if ($this->exists($path)) {
             $mode       = 'r+b';
-            $local_size = $this->size($path);
+            $localSize = $this->size($path);
         }
 
         //
         // 不支持偏移量大于实际文件逻辑
         //
-        if ($local_size < $offset) {
+        if ($localSize < $offset) {
             return false;
         }
 
