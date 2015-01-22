@@ -257,6 +257,8 @@ class MFilesCommon extends MModel {
         $response ["mime_type"]    = $this->type;
         $response ["revision"]     = intval($this->version_id); // 版本
         $response ["hash"]         = $this->file_hash; // 版本
+        //当且仅当文件在upload_block下，version没有记录，将在这里处理相关的逻辑
+        $response ["success"]      = true; 
 		//
 		// dataserver 增加需要的返回值
 		// by Kindac 

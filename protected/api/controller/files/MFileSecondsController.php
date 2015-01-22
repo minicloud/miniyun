@@ -77,12 +77,13 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         $this->handler->file_hash      = $hash;
         $this->handler->version_id     = $this->version_id;
         
+        
         // 保存文件meta
         $this->handler->saveFileMeta();
         if (MUserManager::getInstance()->isWeb() === true)
         {
             $this->handler->buildWebResponse();
-            return ;
+            return;
         }
         $this->handler->buildResult();
         
@@ -131,13 +132,29 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                 $filePath = BASE."upload_block/cache/".$storePath;
                 if (file_exists($filePath) == true) {
                     $data['offset'] = filesize($filePath);
+                    //如文件大小相同而且Hash值相同，说明流数据文件已经存在，直接生成元数据即可
+                    $size = MiniHttp::getParam("size","");
+                    $signature = MiniHttp::getParam("hash","");
+                    if($data['offset']==$size){
+                        //生成version记录，为使用老逻辑代码，这里处理得很羞涩
+                        //理想的逻辑是在这里直接返回相关结果
+                        $fileName = MiniHttp::getParam("file_name","");
+                        $mimeType = CUtils::mime_content_type($fileName);
+                        $version = MiniVersion::getInstance()->create($signature,$size,$mimeType);
+                        $this->version_id = $version['id'];
+                        $this->size       = $version['file_size'];
+                        return true;
+                    }
                 }else{
                     $data['offset'] = 0;
                 } 
+                echo json_encode($data);exit;
             }else{
-                $data['success'] = true; 
+                //上传文件到其它目录下，支持秒传
+                $this->version_id = $version['id'];
+                $this->size       = $version['file_size'];
+                return true;
             }
-            echo json_encode($data);exit;
         }
 
     }
