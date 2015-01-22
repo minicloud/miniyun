@@ -71,7 +71,6 @@ class MFilePutController extends MApplicationComponent implements MIController{
             }
             
             // 处理分块上传逻辑部分，通过插件内部的
-
             if ($offset == 0) {
                 $storePath = $this->handleEntireFile($hash, $size);
             } else {
@@ -162,19 +161,23 @@ class MFilePutController extends MApplicationComponent implements MIController{
     
     /**
      * 使用put方法上传整文件
+     * @param $hash 文件hash值
+     * @param $size 文件大小
+     * @throws MFilesException
+     * @return array
      */
     private function handleEntireFile($hash, $size) {
         $dataObj = Yii::app()->data;
         $handle = $this->getInputFileHandle();
-        $cache = '/cache/' . MiniUtil::getPathBySplitStr($hash);
+        $cachePath = '/cache/' . MiniUtil::getPathBySplitStr($hash);
 
-        if ($dataObj->exists(dirname($cache)) === false) {
-            $dataObj->mkdir(dirname($cache));
+        if ($dataObj->exists(dirname($cachePath)) === false) {
+            $dataObj->mkdir(dirname($cachePath));
         }
 
         // 直接Append到对应文件块中
         // TODO: 文件流不支持Append操作处理逻辑
-        if ($dataObj->AppendFile($handle, $cache, 0) === false) {
+        if ($dataObj->AppendFile($handle, $cachePath, 0) === false) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
         
@@ -184,14 +187,14 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
 
         // 检查文件上传是否完整，如果不完整，则返回错误
-        $this->_size = $dataObj->size($cache);
+        $this->_size = $dataObj->size($cachePath);
         if ($this->_size > $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         } elseif ($this->_size < $size) {
             $this->ResponseRetryWith($hash, $size, $this->_size);
         }
         $this->signature = $hash;
-        return $this->handleSave($hash, $cache);
+        return $this->handleSave($hash, $cachePath);
     }
 
     /**
