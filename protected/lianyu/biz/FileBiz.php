@@ -384,8 +384,8 @@ class FileBiz  extends MiniBiz{
         $ids = join(',',$ids);
         $items = MiniSearchFile::getInstance()->search($ids);//将所有符合条件的做了索引的文件都取出来
         $opts = array(//摘要选项
-            "before_match"          => "<b>",
-            "after_match"           => "</b>",
+            "before_match"          => "<span style='background-color: #ffff00'><b>",
+            "after_match"           => "</b></span>",
             "chunk_separator"       => " ... ",
             "limit"                         => 100,
             "around"                        => 20,
