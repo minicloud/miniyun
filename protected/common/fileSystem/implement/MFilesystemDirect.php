@@ -84,11 +84,11 @@ class MFilesystemDirect extends MFilesystemBase {
         $dstStream = fopen('php://output', 'wb');
         $chunkSize = 4096;
         $offset = $resumePosition;
-        $file_size = $this->size($file);
-        while(!feof($fp) && $offset < $file_size) {
-            $last_size = $file_size - $offset;
-            if ($chunkSize > $last_size && $last_size > 0) {
-                $chunkSize = $last_size;
+        $fileSize = $this->size($file);
+        while(!feof($fp) && $offset < $fileSize) {
+            $lastSize = $fileSize - $offset;
+            if ($chunkSize > $lastSize && $lastSize > 0) {
+                $chunkSize = $lastSize;
             }
             $offset += stream_copy_to_stream($fp, $dstStream, $chunkSize, $offset);
         }
@@ -413,37 +413,37 @@ class MFilesystemDirect extends MFilesystemBase {
         $ret = array();
 
         while (false !== ($entry = $dir->read()) ) {
-            $struc = array();
-            $struc['name'] = $entry;
+            $data = array();
+            $data['name'] = $entry;
 
-            if ( '.' == $struc['name'] || '..' == $struc['name'] )
+            if ( '.' == $data['name'] || '..' == $data['name'] )
             continue;
 
-            if ( ! $include_hidden && '.' == $struc['name'][0] )
+            if ( ! $include_hidden && '.' == $data['name'][0] )
             continue;
 
-            if ( $limit_file && $struc['name'] != $limit_file)
+            if ( $limit_file && $data['name'] != $limit_file)
             continue;
 
-            $struc['perms'] 	= $this->gethchmod($path.'/'.$entry);
-            $struc['permsn']	= $this->getnumchmodfromh($struc['perms']);
-            $struc['number'] 	= false;
-            $struc['owner']    	= $this->owner($path.'/'.$entry);
-            $struc['group']    	= $this->group($path.'/'.$entry);
-            $struc['size']    	= $this->size($path.'/'.$entry);
-            $struc['lastmodunix']= $this->mtime($path.'/'.$entry);
-            $struc['lastmod']   = date('M j',$struc['lastmodunix']);
-            $struc['time']    	= date('h:i:s',$struc['lastmodunix']);
-            $struc['type']		= $this->is_dir($path.'/'.$entry) ? 'd' : 'f';
+            $data['perms'] 	= $this->gethchmod($path.'/'.$entry);
+            $data['permsn']	= $this->getnumchmodfromh($data['perms']);
+            $data['number'] 	= false;
+            $data['owner']    	= $this->owner($path.'/'.$entry);
+            $data['group']    	= $this->group($path.'/'.$entry);
+            $data['size']    	= $this->size($path.'/'.$entry);
+            $data['lastmodunix']= $this->mtime($path.'/'.$entry);
+            $data['lastmod']   = date('M j',$data['lastmodunix']);
+            $data['time']    	= date('h:i:s',$data['lastmodunix']);
+            $data['type']		= $this->is_dir($path.'/'.$entry) ? 'd' : 'f';
 
-            if ( 'd' == $struc['type'] ) {
+            if ( 'd' == $data['type'] ) {
                 if ( $recursive )
-                $struc['files'] = $this->dirlist($path . '/' . $struc['name'], $include_hidden, $recursive);
+                $data['files'] = $this->dirlist($path . '/' . $data['name'], $include_hidden, $recursive);
                 else
-                $struc['files'] = array();
+                $data['files'] = array();
             }
 
-            $ret[ $struc['name'] ] = $struc;
+            $ret[ $data['name'] ] = $data;
         }
         $dir->close();
         unset($dir);
