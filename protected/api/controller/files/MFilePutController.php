@@ -63,8 +63,6 @@ class MFilePutController extends MApplicationComponent implements MIController{
             $offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : 0;
             if (empty($hash) || $size === NULL || $size < 0)
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'Missing parameter'), MConst::HTTP_CODE_400);
-            
-            $storePath = '';
 
             if ($offset < 0) {
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'error parameter'), MConst::HTTP_CODE_400);
@@ -313,22 +311,22 @@ class MFilePutController extends MApplicationComponent implements MIController{
      */
     private function handleCheckFiles() {
         if (count($_FILES) == 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."1"), MConst::HTTP_CODE_400);
         }
         
         $keys = array_keys($_FILES);
         if (count($keys) != 1) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."2"), MConst::HTTP_CODE_400);
         }
         $key = $keys[0];
         // 检查请求参数$_FILES
         if (isset($_FILES[$key]) === false)
         {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."3"), MConst::HTTP_CODE_400);
         }
         // 检查文件上传过程是否有错
         if ($_FILES[$key]["error"] != 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."4"), MConst::HTTP_CODE_400);
         }
         return $_FILES[$key]["tmp_name"];
     }

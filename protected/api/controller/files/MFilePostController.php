@@ -58,21 +58,21 @@ class MFilePostController extends MApplicationComponent  implements MIController
         // 初始化创建文件公共类句柄
         $createFileHandler = MFilesCommon::initMFilesCommon();
         if (count($_FILES) == 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."5"), MConst::HTTP_CODE_400);
         }
         $keys = array_keys($_FILES);
         if (count($keys) != 1) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."6"), MConst::HTTP_CODE_400);
         }
         $key = $keys[0];
         // 检查请求参数$_FILES
         if (isset($_FILES[$key]) === false)
         {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."7"), MConst::HTTP_CODE_400);
         }
         // 检查文件上传过程是否有错
         if ($_FILES[$key]["error"] != 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."8"), MConst::HTTP_CODE_400);
         }
 
         $fileName = $_FILES[$key]["name"];
