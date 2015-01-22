@@ -127,7 +127,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
             $data = array(); 
             if (empty($version)) { 
                 $data['success'] = false;
-                $data['url'] =  MiniHttp::getMiniHost()."/api/1/file/upload";
+                $data['url'] =  MiniHttp::getMiniHost()."api/1/file/upload";
                 $filePath = BASE."upload_block/cache/".$storePath;
                 if (file_exists($filePath) == true) {
                     $data['offset'] = filesize($filePath);
