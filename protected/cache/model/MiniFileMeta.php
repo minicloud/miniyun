@@ -176,8 +176,25 @@ class MiniFileMeta extends MiniCache{
 	}
     /**
      * 删除meta信息
+     * @param $filePath 文件路径
+     * @param $key meta_key
+     * @return bool
      */
-    public function deleteFileMetaByPath($filePath){
+    public function deleteFileMetaByPath($filePath,$key){
+        $modal = FileMeta::model()->findAll("file_path=:file_path and meta_key=:meta_key", array(":file_path" => $filePath,":meta_key" => $key));
+        if(!empty($modal)){
+            foreach($modal as $item){
+                $item->delete();
+            }
+        }
+        return true;
+    }
+    /**
+     *清理meta的记录
+     * @param $filePath 文件路径
+     * @return boolean
+     */
+    public function cleanFileMetaByPath($filePath){
         $modal = FileMeta::model()->findAll("file_path=:file_path", array(":file_path" => $filePath));
         if(!empty($modal)){
             foreach($modal as $item){
@@ -188,6 +205,9 @@ class MiniFileMeta extends MiniCache{
     }
     /**
      * 设置公共目录权限
+     * @param $filePath 文件路径
+     * @param $privilege 权限
+     * @return array
      */
     public function setPublicPrivilege($filePath,$privilege){
         $meta_key=MConst::PUBLIC_FOLDER;
@@ -216,10 +236,12 @@ class MiniFileMeta extends MiniCache{
             $criteria->params        = array(
                 "meta_key"=>$key,
                 "file_path"=>$fromPath
-            );
+            ); 
             $item              	 =FileMeta::model()->find($criteria);
-            $item->file_path = $toPath;
-            $item->save();
+            if(!empty($item)){
+                $item->file_path = $toPath;
+                $item->save();
+            } 
             return true;
         }else{//目录时meta信息如下处理
             $fromPathArr = explode('/',$fromPath);

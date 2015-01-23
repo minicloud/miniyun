@@ -110,7 +110,7 @@ class LockBiz extends MiniBiz{
             $items[] = $metaValue;
         }
         if(count($items)==0){
-            return MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath);
+            return MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath,"lock");
         }
         return MiniFileMeta::getInstance()->updateFileMeta($filePath,'lock',serialize($items));
     }

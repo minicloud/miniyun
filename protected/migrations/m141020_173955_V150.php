@@ -1,6 +1,12 @@
 <?php
 /**
- * 把用户名或昵称由汉字转化为拼音,便于用户检索
+ * 把用户名或昵称由汉字转化为拼音,便于用户检索 
+ *
+* @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html 
+ * @since 1.6
  */
 ?>
 <?php
