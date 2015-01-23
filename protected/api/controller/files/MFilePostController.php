@@ -4,7 +4,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 class MFilePostController extends MApplicationComponent  implements MIController {
@@ -95,23 +95,28 @@ class MFilePostController extends MApplicationComponent  implements MIController
             //完整文件上传
             $signature = MiniUtil::getFileHash($tmpName);
             // 解析路径
-            $parentPath = "/" . $urlManager->parsePathFromUrl($uri);
+            $path = "/" . $urlManager->parsePathFromUrl($uri);
+            $parentPath = dirname($path);
             $user = MUserManager::getInstance()->getCurrentUser();
-            $folderPath = MiniFile::getInstance()->getByPath($parentPath);
-            //如果目录不存在，则创建
-            if(!empty($folderPath)){
+            $parentFile = MiniFile::getInstance()->getByPath($parentPath);
+
+            //如果目录存在，且该目录is_delete=1，则把目录状态删除状态修改为0
+            if(!empty($parentFile) && $parentFile['is_deleted']==1){
                 $values = array();
                 $values['is_deleted'] = false;
                 MiniFile::getInstance()->updateByPath($parentPath,$values);
             }else{
-                MiniFile::getInstance()->createFolder($parentPath,$user['id']);
+                //如果是根目录，则不用新建目录
+                //否则会创建文件名名称的文件夹出来，而且目标文件位于该文件夹的下面
+                if(!MiniUtil::isRootPath($parentPath,$user["id"])){
+                    MiniFile::getInstance()->createFolder($parentPath,$user['id']);
+                }
             }
-            $path        = $parentPath . "/" . $fileName;
             $createFileHandler->size           = $size;
             $createFileHandler->parent_path    = MUtils::convertStandardPath($parentPath);
             $createFileHandler->file_name      = $fileName;
             $createFileHandler->root           = $root;
-            $createFileHandler->path           = MUtils::convertStandardPath($path);;
+            $createFileHandler->path           = MUtils::convertStandardPath($path);
             $createFileHandler->type           = $type;
             // 文件不存在,保存文件
             $createFileHandler->saveFile($tmpName, $signature, $size);
