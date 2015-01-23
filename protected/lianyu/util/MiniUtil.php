@@ -545,8 +545,8 @@ class MiniUtil{
      * @return bool
      */
     public static function isRootPath($path,$userId){
-        if("/".$userId===$path){
-            return true;
+        if($path==="/".$userId || $path==="/".$userId."/"){
+            return ture;
         }
         return false;
     }

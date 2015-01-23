@@ -9,16 +9,34 @@
  */
 class MFilePostController extends MApplicationComponent  implements MIController {
     /**
-     * 判断目录是否是用户的根目录
-     * @param $folderPath
-     * @param $userId
-     * @return boolean
+     * 获得上传文件临时路径
      */
-    private function isRoot($folderPath,$userId){
-        if($folderPath==="/".$userId || $folderPath==="/".$userId."/"){
-            return ture;
+    private function getUploadFileTmpPath(){
+        $keys = array_keys($_FILES);
+        $key = $keys[0];
+        return $_FILES[$key]["tmp_name"];
+    }
+    /**
+     * 判断是否是断点上传文件
+     * 如果是网页上传，是没有文件的size与文件的hash值的
+     * 如果size/hash值不为空，则是客户端上传逻辑，包括移动客户端、PC客户端
+     * 如果size与临时文件的size一致，则认为是完整文件上传，而不是断点文件上传
+     */
+    private function isBreakpointUpload(){
+        $tmpPath = $this->getUploadFileTmpPath();
+        $clientFileSize = MiniHttp::getParam("size","");
+        $clientFileSignature = MiniHttp::getParam("hash","");
+        if(empty($clientFileSize)){
+            return false;
         }
-        return false;
+        if(empty($clientFileSignature)){
+            return false;
+        }
+        $tempFileSize = filesize($tmpPath);
+        if(intval($clientFileSize)==$tempFileSize){
+            return false;
+        }
+        return true;
     }
     /**
      * 控制器执行主逻辑函数
@@ -57,9 +75,9 @@ class MFilePostController extends MApplicationComponent  implements MIController
         }
 
         $fileName = $_FILES[$key]["name"];
-        $type = CUtils::mime_content_type($fileName);
-        $size = $_FILES[$key]["size"];
-        $tmpName = $_FILES[$key]["tmp_name"];
+        $type     = CUtils::mime_content_type($fileName);
+        $size     = $_FILES[$key]["size"];
+        $tmpName  = $_FILES[$key]["tmp_name"];
         // 验证文件是否已经上传成功
         if (file_exists($tmpName) === false) {
             throw new MFilesException(Yii::t('api', MConst::INTERNAL_SERVER_ERROR), MConst::HTTP_CODE_500);
