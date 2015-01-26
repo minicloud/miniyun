@@ -23,22 +23,20 @@ class MiniDocModule extends MiniPluginModule {
         $this->setImport(array(
             "miniDoc.biz.*",
             "miniDoc.cache.*",
-            "miniDoc.model.*",
             "miniDoc.service.*",
         ));
-        //附加磁盘空间大小显示
+        //文件上传成功后
         add_action("file_upload_after",array($this, "fileUploadAfter"));
     } 
 
 	/**
      * 
-     * 文件上传成功动作
-     * 
-     * @since 1.0.0
+     * 文件上传成功后，向迷你文档服务器发送文档转换请求
      */
     function fileUploadAfter(){
-        
-        return false;
+        $cmd = MINIYUN_PATH."/console PluginDocConvert";
+        shell_exec($cmd);
+        return true;
     }
 }
 
