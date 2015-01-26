@@ -2,8 +2,6 @@
 define('NAME_ZH', '迷你云');
 define('NAME_EN', 'MyCloud');
 define('APP_VERSION',"1.7.0");
-//读取迷你云后台服务IP或域名访问地址
-include dirname(__FILE__)."/miniyun-backup.php";
 //
 // 适配无REQUEST_URI的情况
 //
@@ -282,23 +280,5 @@ $config = array(
 
     ),
 );
-//读取memcache.php的配置文件
-if ($initialized) {
-    $openCache = false;
-    $memcacheConfigPath = MINIYUN_PATH . "/protected/config/memcache.php";
-    if (file_exists($memcacheConfigPath)) {
-        $memcacheConfig = include $memcacheConfigPath;
-        if (is_array($memcacheConfig) && count($memcacheConfig["servers"]) > 0) {
-            $config["components"]["memcache"] = $memcacheConfig;
-            $openCache = true;
-        }
-    }
-    if ($openCache) {
-        define('MEMCACHE_ENABLED', true);
-    } else {
-        define('MEMCACHE_ENABLED', false);
-    }
-} else {
-    define('MEMCACHE_ENABLED', false);
-}
+define('MEMCACHE_ENABLED', false);
 return $config;

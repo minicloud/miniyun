@@ -171,16 +171,16 @@ class MiniPlugin extends MiniCache
             }
             $pluginMeta = $this->getPluginMeta($pluginFile);
             $pluginMeta["logo"] = "";
-            //设置插件的logo.gif
-            $logoPath = $path . $file . DIRECTORY_SEPARATOR . "logo.gif";
+            //设置插件的logo.png
+            $logoPath = $path . $file . DIRECTORY_SEPARATOR . "logo.png"; 
             if (file_exists($logoPath)) {
                 $aimPath = $path . ".." . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "assets" . DIRECTORY_SEPARATOR . "plugin" . DIRECTORY_SEPARATOR;
                 if (!file_exists($aimPath)) {
                     mkdir($aimPath);
                 }
-                $pluginLogoPath = $aimPath . $file . ".gif";
+                $pluginLogoPath = $aimPath . $file . ".png"; 
                 if (copy($logoPath, $pluginLogoPath)) {
-                    $pluginMeta["logo"] = MiniHttp::getMiniHost() . "assets/plugin/" . $file . ".gif";
+                    $pluginMeta["logo"] = MiniHttp::getMiniHost() . "assets/plugin/" . $file . ".png";
                 }
             }
             // 屏蔽插件
@@ -218,16 +218,16 @@ class MiniPlugin extends MiniCache
             $plugins[] = $meta;
         }
         //把迷你云主系统加入到列表中
-        $plugins[] = array(
-            "id"=>"miniyun",
-            "type"=>"miniyun",
-            "name"=>NAME_ZH,
-            "url"=>"http://www.miniyun.cn",
-            "description"=>Yii::t("common", "plugin_miniyun_description", array("{app_name}"=>NAME_ZH)),
-            "version"=>APP_VERSION,
-            "logo"=>"http://static.miniyun.cn/static/mini-box/images/logo.png",
-            "enabled"=>true,
-        );
+        // $plugins[] = array(
+        //     "id"=>"miniyun",
+        //     "type"=>"miniyun",
+        //     "name"=>NAME_ZH,
+        //     "url"=>"http://www.miniyun.cn",
+        //     "description"=>Yii::t("common", "plugin_miniyun_description", array("{app_name}"=>NAME_ZH)),
+        //     "version"=>APP_VERSION,
+        //     "logo"=>"http://static.miniyun.cn/static/mini-box/images/logo.png",
+        //     "enabled"=>true,
+        // ); 
         return $plugins;
     }
 

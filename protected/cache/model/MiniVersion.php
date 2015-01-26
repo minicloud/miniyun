@@ -70,7 +70,6 @@ class MiniVersion extends MiniCache{
         $value["mime_type"]      = $item->mime_type;
         $value["created_at"]      = $item->created_at;
         $value["createTime"]      = strtotime($item->created_at);
-        $value['doc_convert_status'] = $item->doc_convert_status;
         return  $value;
     }
     /**
@@ -219,68 +218,7 @@ class MiniVersion extends MiniCache{
         return $usedSize;
     }
 
-    /**
-     * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
-     * @param $status
-     * @return array
-     * doc_convert_status:-1
-     * mime_type:
-     * application/msword
-     * application/mspowerpoint
-     * application/msexcel
-     * application/pdf
-     */
-    public function getDocConvertList($status=0){
 
-        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
-        foreach ($mimeTypeList as $mimeType){
-            $criteria                = new CDbCriteria();
-            $criteria->condition     = "doc_convert_status=:doc_convert_status  and  mime_type=:mime_type";
-            $criteria->limit         = 10;
-            $criteria->offset        = 0;
-            $criteria->params        = array(
-                "mime_type"=>$mimeType,
-                "doc_convert_status"=>$status
-            );
-            $list = FileVersion::model()->findAll($criteria);
-            if(count($list)>0){
-                return $this->db2list($list);
-            }
-        }
-        return NULL;
-
-    }
-    public function getConvertListByType($type,$limit=10,$offset=0){
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "doc_convert_status=0  and  mime_type=:mime_type";
-        $criteria->limit         = $limit;
-        $criteria->offset        = $offset;
-        $criteria->params        = array(
-            "mime_type"=>$type
-        );
-        $list = FileVersion::model()->findAll($criteria);
-        return $this->db2list($list);
-    }
-    /**
-     * 更改文档转换状态
-     * doc_convert_status:-1 表示转换失败
-     * doc_convert_status:0 表示尚未转换
-     * doc_convert_status:1 表示正在转换
-     * doc_convert_status:2 表示转换成功
-     * @param $hash 文件内容hash值
-     * @param $status 文件转换状态值
-     * @return boolean
-     */
-    public function updateDocConvertStatus($hash,$status){
-		$version         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$hash));
-        if(isset($version)){
-            $version["doc_convert_status"] = $status;
-            $version->save();
-            return true;
-        }
-        return false;
-
-    }
     /**
      * 删除记录
      * @param $id

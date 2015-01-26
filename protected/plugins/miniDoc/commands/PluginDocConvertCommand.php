@@ -4,20 +4,20 @@
  * 向迷你文档发送转换请求Convert
  * Class DocConvertCommand
  */
-class DocConvertCommand extends CConsoleCommand
+class PluginDocConvertCommand extends CConsoleCommand
 {
+
 	/**
 	 * 获得要转换文档列表
      * @param $versions 文件版本列表
      * @return array
 	 */
-	private function getReadyConvertList($versions){ 
-        //MINIYUN_HOST来源{protected/config/miniyun-backup.php}
-		$miniHost = MINIYUN_HOST;
+	private function getReadyConvertList($versions){
+		$miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
     	//报俊地址
-    	$reportUrl = $miniHost."/a.php/1/docConvert/report";
+    	$reportUrl = $miniHost."/a.php/1/module/miniDoc/report";
     	//下载文件地址
-    	$downloadUrl =$miniHost."/a.php/1/docConvert/download";
+    	$downloadUrl =$miniHost."/a.php/1/module/miniDoc/download";
         if(count($versions)>0){
         	$data = array("report_success_url"=>$reportUrl);
         	$items = array();
@@ -45,7 +45,6 @@ class DocConvertCommand extends CConsoleCommand
         $data = array ('task' =>json_encode($params));
         $http = new HttpClient();
         $http->post($url,$data);
-
         return $http->get_body();
     }
     /**
@@ -56,20 +55,19 @@ class DocConvertCommand extends CConsoleCommand
      */
     public function actionIndex()
     { 
-    	$versions = MiniVersion::getInstance()->getDocConvertList();
+    	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList();
         if(empty($versions)) {
             Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
             return;
         }
     	$params = $this->getReadyConvertList($versions);
-    	//MINIDOC_HOST来源{protected/config/miniyun-backup.php}
-        $url = MINIDOC_HOST.'/convert';
+        $url = PluginMiniDocOption::getInstance()->getMiniDocHost().'/convert';
         $result = $this->pushFileList($url,$params);
         $result = json_decode($result,true);
         if($result['task']=='received'){
             //修改文档的转换状态为转换中
             foreach ($versions as $version) {
-                MiniVersion::getInstance()->updateDocConvertStatus($version["file_signature"],1);
+                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($version["file_signature"],1);
             }
         }
 

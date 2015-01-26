@@ -4,7 +4,7 @@
  * 获得所有转换成功的word/excel/pdf的内容到数据库
  * Class PullTxtCommand
  */
-class DocPullTxtCommand extends CConsoleCommand
+class PluginDocPullTxtCommand extends CConsoleCommand
 {
 
     /**

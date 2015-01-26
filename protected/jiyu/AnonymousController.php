@@ -15,27 +15,53 @@ class AnonymousController{
         return array(
            "linkAccess",
            "site",
-           "plugin",
            "module",
-           "docConvert",
         );
+    }
+    /**
+     * 判断是否是App应用发送的请求
+     * 这类请求不用进行用户过滤
+     * @return bool
+     */
+    private function isPluginSendRequest(){
+        $uri = $_SERVER['REQUEST_URI'];
+        $key = "/module/";
+        $pos = strpos($uri,$key);
+        if($pos){
+            return true;
+        }
+        return false;
     }
     public function invoke()
     {
-        $uri = $this->getFilterUrl();
-        $info = explode("/",$uri);
-        $module = $info[3];
-        $whiteList = $this->getWhiteList();
-        foreach($whiteList as $item){
-            if($module===$item){
-                $newUri = "/".implode("/", array_slice($info,3));
-                $class = ucfirst($module)."Service";
-                $service = new $class;
-                $result = $service->invoke($newUri);
-                echo(json_encode($result));
+        //插件的接口访问形式如下
+        //{http://t.miniyun.cn/a.php/1/module/miniDoc/download?hash=xxx}
+        //执行该类的方式是PluginMiniDocService.download方法
+        if($this->isPluginSendRequest()){
+            //查询是否是来自插件的请求
+            $uri = $this->getFilterUrl();
+            $info = explode("/",$uri);
+            $pluginName = $info[4];
+            $className = "Plugin".ucfirst($pluginName)."Service";
+            $service = new $className;
+            $newUri = "/".implode("/", array_slice($info,4));
+            $result = $service->invoke($newUri);
+            echo(json_encode($result));exit;
+        }else{
+            $uri = $this->getFilterUrl();
+            $info = explode("/",$uri);
+            $module = $info[3];
+            $whiteList = $this->getWhiteList();
+            foreach($whiteList as $item){
+                if($module===$item){
+                    $newUri = "/".implode("/", array_slice($info,3));
+                    $class = ucfirst($module)."Service";
+                    $service = new $class;
+                    $result = $service->invoke($newUri);
+                    echo(json_encode($result));exit;
+                }
             }
         }
-
     }
 
     /**

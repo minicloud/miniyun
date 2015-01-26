@@ -29,5 +29,7 @@ else
 $env=@getenv('YII_CONSOLE_COMMANDS');
 if(!empty($env))
 	$app->commandRunner->addCommands($env);
-
+//迷你云在这里对Yii代码做了侵入，因为它在执行console的command之前尚未对插件完成初始化
+//如果YII要升级这里，要注意代码的的处理
+MiniPlugin::getInstance()->load();
 $app->run();
