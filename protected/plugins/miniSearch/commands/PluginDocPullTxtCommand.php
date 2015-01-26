@@ -12,7 +12,7 @@ class PluginDocPullTxtCommand extends CConsoleCommand
      */
     public function actionIndex()
     { 
-    	$versions = MiniVersion::getInstance()->getDocConvertList(2);
+    	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(2);
         if(empty($versions)) {
             echo("no doc to pull txt!");
             return;
@@ -25,7 +25,7 @@ class PluginDocPullTxtCommand extends CConsoleCommand
             if(!empty($searchFile)){
                 continue;
             }
-            $url = MINIDOC_HOST."/".$signature."/".$signature.".txt";
+            $url = PluginMiniSearchOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
             $http = new HttpClient();
             $http->get($url);
             $status = $http->get_status();
