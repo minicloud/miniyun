@@ -233,7 +233,7 @@ class MFilesCommon extends MModel {
         }
 
         // 异步文档转换
-        do_action('after_successful_upload', $this);
+        do_action('file_upload_after', $this);
     }
     
     /**
