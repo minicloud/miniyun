@@ -150,4 +150,12 @@ class PluginMiniDocVersion extends MiniCache{
     public function getVersion($id){
         return $this->get4DbById($id);
     }
+    /**
+     * 根据signature获得Version完整信息
+     * @param $signature
+     * @return array
+     */
+    public function getBySignature($signature){
+        return $this->get4DbBySignature($signature);
+    }
 }

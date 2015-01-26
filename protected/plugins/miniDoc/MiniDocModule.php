@@ -48,13 +48,31 @@ class MiniDocModule extends MiniPluginModule {
             ));
         return $plugins;
     }
-	/**
-     * 
+    /**
+     *
      * 文件上传成功后，向迷你文档服务器发送文档转换请求
+     * @param $signature 文件sha1编码
+     * @return bool
      */
-    function fileUploadAfter(){
-        $cmd = MINIYUN_PATH."/console PluginDocConvert";
-        shell_exec($cmd);
+    function fileUploadAfter($signature){
+        $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
+        if(isset($version)){
+            if("text/plain"===$version["mime_type"]){
+                //文本类文件直接把内容存储到数据库中，便于全文检索
+                do_action("pull_text_search",$signature);
+                return;
+            }
+            $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+            foreach ($mimeTypeList as $mimeType){
+                if($mimeType===$version["mime_type"]){
+                    //文件增量转换
+                    $cmd = MINIYUN_PATH."/console PluginDocConvert &";
+                    shell_exec($cmd);
+                    break;
+                }
+            }
+
+        }
         return true;
     }
 }

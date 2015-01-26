@@ -65,12 +65,17 @@ class MiniSearchFile extends MiniCache{
     }
     /**
      * 将文本内容存入数据库
+     * @param $signature 文件hash值
+     * @param $content 文本内容
+     * @return bool
      */
     public function  create($signature,$content){
         $item = SearchFile::model()->find("file_signature=:file_signature",
             array("file_signature"=>$signature));
-        if(!isset($mode)){
+        if(!isset($item)){
             $item = new SearchFile();
+        }else{
+            return true;
         }
         $item['content']=$content;
         $item['file_signature']=$signature;
@@ -93,6 +98,8 @@ class MiniSearchFile extends MiniCache{
     }
     /**
      * 搜索
+     * @param $ids 文件ID
+     * @return array
      */
     public function search($ids){
         $criteria = new CDbCriteria();
