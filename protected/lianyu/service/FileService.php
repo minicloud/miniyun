@@ -105,15 +105,7 @@ class FileService extends MiniService{
         $biz = new FileBiz();
         $data = $biz->getExtendTactics();
         return $data;
-    }
-    /**
-     * 根据关键词搜索全文内容
-     */
-    public function  contentSearch(){
-        $key = MiniHttp::getParam("key","");
-        $biz = new FileBiz();
-        return $biz->contentSearch($key);
-    }
+    } 
     /**
      * 在线浏览文件获得内容
      * path文件当前路径

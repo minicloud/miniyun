@@ -24,25 +24,6 @@ class PluginMiniDocBiz extends MiniBiz{
 
     }
     /**
-     *根据文件的Hash值下载内容
-     * @param $signature 文件hash值
-     * @return array
-     *
-     */
-    private function cacheFile($signature){
-        $url = PluginMiniDocOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
-        $http = new HttpClient();
-        $http->get($url);
-        $status = $http->get_status();
-        if($status=="200"){
-            $content = $http->get_body();
-            MiniSearchFile::getInstance()->create($signature,$content);
-            Yii::log($signature." get txt success",CLogger::LEVEL_INFO,"doc.convert");
-        }else{
-            Yii::log($signature." get txt error",CLogger::LEVEL_ERROR,"doc.convert");
-        }
-    }
-    /**
      *给迷你云报告文件转换过程
      * @param $fileHash 文件hash值
      * @param $status 文件状态
@@ -54,6 +35,8 @@ class PluginMiniDocBiz extends MiniBiz{
             //文件转换成功
             if($status==="1"){
                 PluginMiniDocVersion::getInstance()->updateDocConvertStatus($fileHash,2);
+                //通过回调方式让迷你搜索把文件文本内容编制索引到数据库中
+                do_action("pull_text_search",$fileHash);
             }
             //文件转换失败
             if($status==="0"){
