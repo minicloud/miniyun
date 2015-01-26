@@ -76,7 +76,7 @@ class MAPIController extends MApplicationComponent implements MIController{
      */
     private function info() {
         $response = CUtils::apiInfo();
-        $response = apply_filters("api_info_add", $response);
+        $response = apply_filters("plugin_info", $response);
         echo json_encode($response);
     }
     /**

@@ -50,21 +50,21 @@ class MiniPlugin extends MiniCache
         $value = MiniOption::getInstance()->getOptionValue("active_plugins");
         if ($value !== NULL) {
             $activePlugins = (array)unserialize($value);
-            $data = array();
+            $pluginNames = array();
             //判断插件的入口文件是否存在
-            foreach ($activePlugins as $id => $value) {
-                $path = Yii::getPathOfAlias('application.plugins') . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . ucfirst($id) . "Module.php";
+            foreach ($activePlugins as $pluginName => $value) {
+                $path = Yii::getPathOfAlias('application.plugins') . DIRECTORY_SEPARATOR . $pluginName . DIRECTORY_SEPARATOR . ucfirst($pluginName) . "Module.php";
                 if (file_exists($path)) {
-                    $data[] = $id;
+                    $pluginNames[] = $pluginName;
                 }
             }
             //设置Yii环境变量
             Yii::app()->setModulePath(PLUGIN_DIR);
-            Yii::app()->setModules($data);
+            Yii::app()->setModules($pluginNames);
             //引用模块，让其生效
-            foreach ($data as $item) {
+            foreach ($pluginNames as $pluginName) {
                 try {
-                    Yii::app()->getModule($item);
+                    Yii::app()->getModule($pluginName);
                 } catch (Exception $e) {
 
                 }

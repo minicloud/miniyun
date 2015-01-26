@@ -25,9 +25,11 @@ class SiteService extends MiniService{
      */
     public function info() {
         $biz = new SiteBiz();
-        $data = $biz->getSiteInfo();
-        $data = apply_filters("api_info_add", $data);
-        return $data;
+        $info = $biz->getSiteInfo();
+        $pluginInfo = array();
+        $pluginInfo = apply_filters("plugin_info", $pluginInfo);
+        $info["plugins"] = $pluginInfo;
+        return $info;
     }
     /**
      * 创建外联（1.6将会去掉）
