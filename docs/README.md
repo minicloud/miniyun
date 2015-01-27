@@ -1,5 +1,5 @@
 ## SDK
-* [node js](sdk/node/README.md)
+* [node js](sdk/nodejs.md)
 
 ## 插件API
 * [`迷你文档` 对象](api/plugin-minidoc.md)
