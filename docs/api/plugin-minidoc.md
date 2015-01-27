@@ -11,8 +11,18 @@
 
 管理员登录网页版，进入 管理后台，选中 插件管理，启用 迷你文档 插件
 
-# 获得文件列表
-* `event` Event
+# 获得指定类型的文件列表，并提供分页能力
+## 输入参数
+```html
+   {
+    route:'module/miniDoc/list',//接口路由地址
+    access_token:xxxx,当前登录的access_token
+    sign:yyyy,当前会话签名
+    page_size:16,//每页的大小，默认是每页展示16个文档
+    page:1,//当前页码，
+    mime_type:application/msword,//文档类型，4种类型分布式：application/msword application/mspowerpoint application/msexcel application/pdf
+   }
+  ```
 
 
 [pdf.js]:https://github.com/mozilla/pdf.js
