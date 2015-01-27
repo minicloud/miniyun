@@ -1,0 +1,11 @@
+{
+  "name": "miniyun_node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "example.js",
+  "dependencies": {
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": ""
+}
