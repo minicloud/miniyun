@@ -32,6 +32,45 @@ http://demo.miniyun.cn/api.php
     mime_type:application/msword,//文档类型，可选4种类型：application/msword application/mspowerpoint application/msexcel application/pdf
    }
   ```
+# 接口2：下载文件内容
+## 访问地址
+
+```html
+http://demo.miniyun.cn/api.php
+其中demo.miniyun.cn可替换为自己的迷你云地址
+
+```
 
 
+## 输入参数
+```html
+   {
+    route:'module/miniDoc/download',//接口路由地址
+    hash:xxxx,//文件hash值
+   }
+  ```
+## 输出
+
+文件流
+
+# 接口3：文件转换PDF成功消息报俊
+## 访问地址
+
+```html
+http://demo.miniyun.cn/api.php
+其中demo.miniyun.cn可替换为自己的迷你云地址
+
+```
+
+## 输入参数
+```html
+   {
+    route:'module/miniDoc/report',//接口路由地址
+    hash:xxxx,//文件hash值
+    status:0,//0表示文档转换失败，1表示文档转换成功
+   }
+  ```
+## 输出
+
+文件流
 [pdf.js]:https://github.com/mozilla/pdf.js

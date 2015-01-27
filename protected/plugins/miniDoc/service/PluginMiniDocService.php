@@ -11,7 +11,10 @@
  */
 class PluginMiniDocService extends MiniService{
     protected function anonymousActionList(){
-        return array();
+        return array(
+            "download",
+            "report"
+        );
     }
     /**
      * 根据文件hash值进行下载文件
