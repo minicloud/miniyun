@@ -42,11 +42,11 @@ var miniApi={
         return crypto.createHash('md5').update(url).digest("hex");
     },
     /**
-     * 访问服务器接口
+     * 以POST方式访问服务器接口
      * @param route
      * @param requestData
      */
-    request:function(route,requestData){
+    postRequest:function(route,requestData){
         //拼接要访问的服务器地址
         var url = miniApi.host+route;
         var boundaryKey = Math.random().toString(16);
@@ -85,6 +85,21 @@ var miniApi={
         postRequest.end();
     },
     /**
+     * 以GET方式访问服务器接口
+     * @param route
+     * @param requestData
+     */
+    getRequestUrl:function(route,requestData){
+        //拼接要访问的服务器地址
+        var url = miniApi.host+route; 
+        //如果不是登录操作，需补充sign与access_token参数
+        if(route!="/api.php/1/oauth2/token"){
+            requestData.params.sign = miniApi.sign(url);
+            requestData.params.access_token=miniApi.accessToken;
+        }
+        return url+"?"+require('querystring').stringify(requestData.params);
+    },
+    /**
      * 登录
      * @param host
      * @param name
@@ -112,7 +127,7 @@ var miniApi={
             },
             error:error
         };
-        miniApi.request(url,requestData);
+        miniApi.postRequest(url,requestData);
     },
 };
 module.exports = miniApi;
