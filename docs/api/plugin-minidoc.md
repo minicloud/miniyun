@@ -70,7 +70,6 @@ http://demo.miniyun.cn/api.php
     status:0,//0表示文档转换失败，1表示文档转换成功
    }
   ```
-## 输出
 
 文件流
 [pdf.js]:https://github.com/mozilla/pdf.js
