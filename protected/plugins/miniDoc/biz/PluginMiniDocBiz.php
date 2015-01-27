@@ -179,7 +179,7 @@ class PluginMiniDocBiz extends MiniBiz{
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
         //$signature = "48a6fe3e2dd674ff5fa72009c0bca6c7f686e47f";
-        $localPath = MINIDOC_CACHE_PATH.$signature."/".$signature.".".$type;
+        $localPath = PluginMiniDocOption::getInstance()->getMiniDocCachePath().$signature."/".$signature.".".$type;
         if(!file_exists($localPath)){
             if($version["doc_convert_status"]===0){
                 //TODO 执行文档转换脚本
@@ -208,7 +208,7 @@ class PluginMiniDocBiz extends MiniBiz{
                     MUtils::MkDirsLocal($parentPath);
                 }
                 //文件不存在，则需要从迷你文档拉取文件内容
-                $url = MINIDOC_HOST."/".$signature."/".$signature.".".$type;
+                $url = PluginMiniDocOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".".$type;
                 $http = new HttpClient();
                 $http->get($url);
                 $status = $http->get_status();

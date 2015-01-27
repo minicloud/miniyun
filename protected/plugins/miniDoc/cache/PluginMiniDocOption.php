@@ -53,6 +53,18 @@ class PluginMiniDocOption extends MiniVersion{
         return $value;
     }
     /**
+     * 获得MiniDoc缓存地址
+     * 如果用户在options表中定义了{mini_doc_host:xxxx}，优选它
+     * 否则默认为http://minidoc.miniyun.cn
+     */
+    public function getMiniDocCachePath(){
+        $value = MiniOption::getInstance()->getOptionValue("mini_doc_cache_path");
+        if(empty($value)){
+            $value = MINIYUN_PATH."/upload/cache/miniDoc";
+        }
+        return $value;
+    }
+    /**
      * 获得迷你云服务器地址
      * 如果用户在options表中定义了{miniyun_host:xxxx}，优选它
      * 否则默认为http://127.0.0.1
