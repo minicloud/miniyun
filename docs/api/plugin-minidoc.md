@@ -11,7 +11,7 @@
 
 管理员登录网页版，进入 管理后台，选中 插件管理，启用 迷你文档 插件
 
-# 接口1：分页获得指定类型的文件列表
+# 接口1：分页获得指定类型的文件列表(POST方式)
 ## 访问地址
 
 ```html
@@ -32,9 +32,9 @@ http://demo.miniyun.cn/api.php
     mime_type:application/msword,//文档类型，可选4种类型：application/msword application/mspowerpoint application/msexcel application/pdf
    }
   ```
-# 接口2：获得文档封面或文档的PDF稿件
+# 接口2：获得文档封面图片/文档的PDF稿件(GET方式)
 
-## 访问地址，获得文档封面/PDF稿件采用的是GET方式
+## 访问地址
 
 ```html
 http://demo.miniyun.cn/api.php?route=module/miniDoc/previewContent&path=/1/test.doc&type=png&access_token=xxxx&sign=xxxx
@@ -51,28 +51,24 @@ http://demo.miniyun.cn/api.php?route=module/miniDoc/previewContent&path=/1/test.
     type:"png",//文档类型，可选4种类型：png与pdf
    }
   ```
-# 接口3：下载文件内容
+# 接口3：下载文件内容(GET方式)
 ## 访问地址
 
 ```html
-http://demo.miniyun.cn/api.php
+http://demo.miniyun.cn/api.php&route=module/miniDoc/download&hash=xxxx
 其中demo.miniyun.cn可替换为自己的迷你云地址
 
 ```
-
-
-## 输入参数
+输入参数解释
 ```html
    {
     route:'module/miniDoc/download',//接口路由地址
     hash:xxxx,//文件hash值
    }
   ```
-## 输出
 
-文件流
 
-# 接口4：文件转换PDF成功消息报俊
+# 接口4：文件转换PDF成功消息报俊(POST方式)
 ## 访问地址
 
 ```html
@@ -90,5 +86,5 @@ http://demo.miniyun.cn/api.php
    }
   ```
 
-文件流
+
 [pdf.js]:https://github.com/mozilla/pdf.js
