@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: gly
- * Date: 15-1-13
- * Time: 上午10:25
+ * 迷你文档业务层
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html
+ * @since 1.7
  */
 class PluginMiniDocBiz extends MiniBiz{
     /**

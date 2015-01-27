@@ -8,7 +8,7 @@
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
- * @since 1.6
+ * @since 1.7
  */
 class MiniSearchFile extends MiniCache{
     /**

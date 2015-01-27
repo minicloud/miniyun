@@ -60,30 +60,41 @@ class MiniSearchModule extends MiniPluginModule {
     function pullText($signature){
         $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
         if(isset($version)){
-            if("text/plain"===$version["mime_type"]){
-                //文本类文件直接把内容存储到数据库中，便于全文检索
-                $filePath = MiniUtil::getPathBySplitStr ($signature);
-                //data源处理对象
-                $dataObj = Yii::app()->data;
-                if ($dataObj->exists( $filePath ) === false) {
-                    throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
-                }
-                $content = $dataObj->get_contents($filePath);
-                MiniSearchFile::getInstance()->create($signature,$content);
-            }else{
-                //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
-                $url = PluginMiniDocOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
-                $http = new HttpClient();
-                $http->get($url);
-                $status = $http->get_status();
-                if($status=="200"){
-                    $content = $http->get_body();
+            $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
+            foreach($mimeTypeList as $mimeType){
+                if($mimeType===$version["mime_type"]){
+                    //文本类文件直接把内容存储到数据库中，便于全文检索
+                    //文本类文件直接把内容存储到数据库中，便于全文检索
+                    $filePath = MiniUtil::getPathBySplitStr ($signature);
+                    //data源处理对象
+                    $dataObj = Yii::app()->data;
+                    if ($dataObj->exists( $filePath ) === false) {
+                        throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
+                    }
+                    $content = $dataObj->get_contents($filePath);
                     MiniSearchFile::getInstance()->create($signature,$content);
-                    Yii::log($signature." get txt success",CLogger::LEVEL_INFO,"doc.convert");
-                }else{
-                    Yii::log($signature." get txt error",CLogger::LEVEL_ERROR,"doc.convert");
+                    return;
                 }
             }
+            $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+            foreach ($mimeTypeList as $mimeType){
+                if($mimeType===$version["mime_type"]){
+                    //文档类增量转换
+                    //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
+                    $url = PluginMiniDocOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
+                    $http = new HttpClient();
+                    $http->get($url);
+                    $status = $http->get_status();
+                    if($status=="200"){
+                        $content = $http->get_body();
+                        MiniSearchFile::getInstance()->create($signature,$content);
+                        Yii::log($signature." get txt success",CLogger::LEVEL_INFO,"doc.convert");
+                    }else{
+                        Yii::log($signature." get txt error",CLogger::LEVEL_ERROR,"doc.convert");
+                    }
+                }
+            }
+
         }
 
     }

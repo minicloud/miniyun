@@ -151,11 +151,76 @@ class PluginMiniDocVersion extends MiniCache{
         return $this->get4DbById($id);
     }
     /**
+     * 通过signature获得记录
+     * @param string $signature
+     * @return array
+     */
+    private function get4DbBySignature($signature){
+        $item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+        return $this->db2Item($item);
+    }
+    /**
      * 根据signature获得Version完整信息
      * @param $signature
      * @return array
      */
     public function getBySignature($signature){
         return $this->get4DbBySignature($signature);
+    }
+    /**
+     * 获得要转换文档列表
+     * @param $versions 文件版本列表
+     * @return array
+     */
+    private function getReadyConvertList($versions){
+        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
+        //报俊地址
+        $reportUrl = $miniHost."api.php?route=module/miniDoc/report";
+        //下载文件地址
+        $downloadUrl =$miniHost."api.php?route=module/miniDoc/download";
+        if(count($versions)>0){
+            $data = array("report_success_url"=>$reportUrl);
+            $items = array();
+            foreach ($versions as $version) {
+                $item = array(
+                    'hash' => $version["file_signature"],
+                    'mime_type' => $version["mime_type"],
+                    'url' => $downloadUrl."&hash=".$version["file_signature"],
+                );
+                array_push($items, $item);
+            }
+            $data["list"] = $items;
+            return $data;
+        }
+        return NULL;
+    }
+    /**
+     * 单个提交转换请求
+     * @param $signature
+     */
+    public function pushConvertSignature($signature){
+        $version = $this->getBySignature($signature);
+        if(!empty($version)){
+            $this->pushConvert(array($version));
+        }
+    }
+    /**
+     * 批量提交提交转换请求
+     * @param $versions
+     */
+    public function pushConvert($versions){
+        $params = $this->getReadyConvertList($versions);
+        $url = PluginMiniDocOption::getInstance()->getMiniDocHost().'/convert';
+        $data = array ('task' =>json_encode($params));
+        $http = new HttpClient();
+        $http->post($url,$data);
+        $result =  $http->get_body();
+        $result = json_decode($result,true);
+        if($result['task']=='received'){
+            //修改文档的转换状态为转换中
+            foreach ($versions as $version) {
+                $this->updateDocConvertStatus($version["file_signature"],1);
+            }
+        }
     }
 }

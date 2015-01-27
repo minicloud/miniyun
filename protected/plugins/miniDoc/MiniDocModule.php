@@ -9,9 +9,12 @@
 * Author URI: http://www.miniyun.cn
 */
 /**
- *
  * 迷你文档插件
- *
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html
+ * @since 1.7
  */
 class MiniDocModule extends MiniPluginModule { 
     /**
@@ -56,18 +59,20 @@ class MiniDocModule extends MiniPluginModule {
      */
     function fileUploadAfter($signature){
         $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
-        if(isset($version)){
-            if("text/plain"===$version["mime_type"]){
-                //文本类文件直接把内容存储到数据库中，便于全文检索
-                do_action("pull_text_search",$signature);
-                return;
+        if(!empty($version)){
+            $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
+            foreach($mimeTypeList as $mimeType){
+                if($mimeType===$version["mime_type"]){
+                    //文本类文件直接把内容存储到数据库中，便于全文检索
+                    do_action("pull_text_search",$signature);
+                    return;
+                }
             }
             $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
             foreach ($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
-                    //文件增量转换
-                    $cmd = MINIYUN_PATH."/console PluginDocConvert &";
-                    shell_exec($cmd);
+                    //文档类增量转换
+                    PluginMiniDocVersion::getInstance()->pushConvertSignature($signature);
                     break;
                 }
             }

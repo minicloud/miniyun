@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * 迷你搜索命名行
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html
+ * @since 1.7
+ */
 /**
  * 获得所有转换成功的word/excel/pdf的内容到数据库
  * Class PullTxtCommand

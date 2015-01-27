@@ -1,7 +1,6 @@
 <?php
-
 /**
- * 文档在线预览列表
+ * 迷你文档接口
  *
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn

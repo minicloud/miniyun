@@ -1,5 +1,13 @@
 <?php
 /**
+ * 迷你搜索数据库
+ * @author app <app@miniyun.cn>
+ * @link http://www.miniyun.cn
+ * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
+ * @license http://www.miniyun.cn/license.html
+ * @since 1.7
+ */
+/**
  * 支持sphinx索引
  */
 ?>
