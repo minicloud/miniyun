@@ -4,7 +4,7 @@
 
 `迷你搜索` 工作原理是把文档提取出文本内容，通过后台定时任务把文本内容使用[sphinx]编制索引。
 
-用户输入关键字后，[sphinx]检索出文件与摘要信息，并输出到客户端
+用户输入关键字后，[sphinx]检索出文件与摘要信息，并输出到客户端。它需要[迷你文档]插件开启。
 
 
 # 开启插件
@@ -29,3 +29,6 @@ http://demo.miniyun.cn/api.php
     key:'迷你云',//关键字 
    }
   ```
+
+[sphinx]:http://sphinxsearch.com/
+[迷你文档]:https://github.com/MiniYun/php-server/blob/minidoc/docs/api/plugin-minidoc.md
