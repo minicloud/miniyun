@@ -11,7 +11,16 @@
 
 管理员登录网页版，进入 管理后台，选中 插件管理，启用 迷你文档 插件
 
-# 获得指定类型的文件列表，并提供分页能力
+# 接口1：分页获得指定类型的文件列表
+## 访问地址
+
+```html
+http://demo.miniyun.cn/api.php
+其中demo.miniyun.cn可替换为自己的迷你云地址
+
+```
+
+
 ## 输入参数
 ```html
    {
@@ -20,7 +29,7 @@
     sign:yyyy,当前会话签名
     page_size:16,//每页的大小，默认是每页展示16个文档
     page:1,//当前页码，
-    mime_type:application/msword,//文档类型，4种类型分布式：application/msword application/mspowerpoint application/msexcel application/pdf
+    mime_type:application/msword,//文档类型，可选4种类型：application/msword application/mspowerpoint application/msexcel application/pdf
    }
   ```
 
