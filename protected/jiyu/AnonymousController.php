@@ -24,10 +24,10 @@ class AnonymousController{
      * @return bool
      */
     private function isPluginSendRequest(){
-        $uri = $_SERVER['REQUEST_URI'];
-        $key = "/module/";
-        $pos = strpos($uri,$key);
-        if($pos){
+        $route = MiniHttp::getParam("route","");
+        $key = "module/";
+        $pos = strpos($route,$key);
+        if($pos==0){
             return true;
         }
         return false;
@@ -35,17 +35,16 @@ class AnonymousController{
     public function invoke()
     {
         //插件的接口访问形式如下
-        //{http://t.miniyun.cn/a.php/1/module/miniDoc/download?hash=xxx}
+        //{http://t.miniyun.cn/api.php?route=module/miniDoc/list&page_size=16&page=1&mime_type=application/msword}
         //执行该类的方式是PluginMiniDocService.download方法
         if($this->isPluginSendRequest()){
             //查询是否是来自插件的请求
-            $uri = $this->getFilterUrl();
-            $info = explode("/",$uri);
-            $pluginName = $info[4];
+            $route = MiniHttp::getParam("route","");
+            $info = explode("/",$route);
+            $pluginName = $info[1];
             $className = "Plugin".ucfirst($pluginName)."Service";
             $service = new $className;
-            $newUri = "/".implode("/", array_slice($info,4));
-            $result = $service->invoke($newUri);
+            $result = $service->invoke($info[2]);
             echo(json_encode($result));exit;
         }else{
             $uri = $this->getFilterUrl();

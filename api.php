@@ -29,5 +29,13 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Methods: GET');
 MiniAppParam::getInstance()->load();//初始化APP静态数据 
 MiniPlugin::getInstance()->load();//加载插件
-$meta = new MAPIController();//通过meta的控制器进行跳转处理逻辑
-$meta->invoke();
+$routePath = MiniHttp::getParam("route","");
+if(empty($routePath)){
+    //老接口
+    $meta = new MAPIController();//通过meta的控制器进行跳转处理逻辑
+    $meta->invoke();
+}else{
+    //新接口
+    $api = new APIController();
+    $api->invoke();
+}

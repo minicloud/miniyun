@@ -10,6 +10,9 @@
  * @since 1.6
  */
 class PluginMiniDocService extends MiniService{
+    protected function anonymousActionList(){
+        return array();
+    }
     /**
      * 根据文件hash值进行下载文件
      */
@@ -36,9 +39,9 @@ class PluginMiniDocService extends MiniService{
     public function getList() {
         $pageSize = MiniHttp::getParam("page_size","16");
         $page = MiniHttp::getParam("page","1");
-        $type = MiniHttp::getParam('type','');
+        $mimeType = MiniHttp::getParam('mime_type','');
         $biz = new PluginMiniDocBiz();
-        $list=$biz->getList($page,$pageSize,$type);
+        $list=$biz->getList($page,$pageSize,$mimeType);
         return $list;
     }
     /**
