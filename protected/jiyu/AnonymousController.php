@@ -27,7 +27,7 @@ class AnonymousController{
         $route = MiniHttp::getParam("route","");
         $key = "module/";
         $pos = strpos($route,$key);
-        if($pos){
+        if($pos!==false){
             return true;
         }
         return false;
