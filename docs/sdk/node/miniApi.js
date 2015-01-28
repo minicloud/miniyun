@@ -93,7 +93,7 @@ var miniApi={
      */
     getRequestUrl:function(requestData){
         //拼接要访问的服务器地址
-        var url = miniApi.host+"api.php"; 
+        var url = miniApi.host+"/api.php"; 
         //如果不是登录操作，需补充sign与access_token参数
         if(requestData.params.route!="user/oauth2"){
             requestData.params.sign = miniApi.sign(url);
