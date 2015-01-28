@@ -246,12 +246,4 @@ class MiniVersion extends MiniCache{
     }
     return NULL;
   }
-    public function getVersionIdBySignature($signature){
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "file_signature = :file_signature ";
-        $criteria->params        = array('file_signature'=>$signature);
-        $item = FileVersion::model()->find($criteria);
-        $versionId = $item->id;
-        return (int)$versionId;
-    }
 }

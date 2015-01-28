@@ -37,7 +37,7 @@ class PluginMiniSearchBiz extends MiniBiz
         $values = array();
         $searchContents = MiniSearchFile::getInstance()->search($ids);
         foreach ($searchContents as $searchContent) {//遍历，查询文件signature，根据signature判断当前用户有无浏览该文件权限
-            $fileVersionId = MiniVersion::getInstance()->getVersionIdBySignature($searchContent["file_signature"]);
+            $version = MiniVersion::getInstance()->getBySignature($searchContent["file_signature"]);
             //摘要内容，默认取第1个位置的摘要
             $summary = "";
             $opts = array(//摘要选项
@@ -53,7 +53,7 @@ class PluginMiniSearchBiz extends MiniBiz
                 $summary = $summaryList[0];
             }
             //反向查询系统所有的文件记录
-            $fileList = MiniFile::getInstance()->getAllByVersionId($fileVersionId);
+            $fileList = MiniFile::getInstance()->getAllByVersionId($version["id"]);
             foreach ($fileList as $fileItem) {//对具有相同signature的文件进行过滤
                 $filePath = $fileItem['file_path'];
                 $userId = (int)$this->user['id'];
