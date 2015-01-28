@@ -14,6 +14,6 @@ class PluginMiniSearchService extends MiniService{
     public function  search(){
         $key = MiniHttp::getParam("key","");
         $biz = new PluginMiniSearchBiz();
-        return $biz->contentSearch($key);
+        return $biz->search($key);
     }
 }
