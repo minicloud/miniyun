@@ -49,7 +49,7 @@ class PluginMiniSearchBiz extends MiniBiz
             );
             $opts["exact_phrase"] = 0;
             $summaryList = $sc->BuildExcerpts(array($searchContent["content"]), $searchIndex, $key, $opts);
-            if (!$summaryList) {
+            if (!empty($summaryList)) {
                 $summary = $summaryList[0];
             }
             //反向查询系统所有的文件记录
