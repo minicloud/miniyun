@@ -16,7 +16,7 @@ miniApi.login(host,"admin","admin",function(){
     //     }
     // };
     ////获得文档列表
-    //miniApi.postRequest("/api.php",data);
+    //miniApi.postRequest(data);
     //var data = {
     //        params:{
     //            route:"module/miniDoc/previewContent",
@@ -25,5 +25,5 @@ miniApi.login(host,"admin","admin",function(){
     //        }
     //    };
     // //获得文档封面图片地址，获得后可直接访问即可
-    //console.log(miniApi.getRequestUrl("/api.php",data));
+    //console.log(miniApi.getRequestUrl(data));
 });

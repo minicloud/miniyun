@@ -27,26 +27,37 @@ class AnonymousController{
         $route = MiniHttp::getParam("route","");
         $key = "module/";
         $pos = strpos($route,$key);
-        if($pos==0){
+        if($pos){
             return true;
         }
         return false;
     }
     public function invoke()
     {
-        //插件的接口访问形式如下
-        //{http://t.miniyun.cn/api.php?route=module/miniDoc/list&page_size=16&page=1&mime_type=application/msword}
-        //执行该类的方式是PluginMiniDocService.download方法
-        if($this->isPluginSendRequest()){
-            //查询是否是来自插件的请求
-            $route = MiniHttp::getParam("route","");
-            $info = explode("/",$route);
-            $pluginName = $info[1];
-            $className = "Plugin".ucfirst($pluginName)."Service";
-            $service = new $className;
-            $result = $service->invoke($info[2]);
-            echo(json_encode($result));exit;
+        $route = MiniHttp::getParam("route","");
+        if(!empty($route)){
+            //1.7调用方式
+            //插件的接口访问形式如下
+            //{http://t.miniyun.cn/api.php?route=module/miniDoc/list&page_size=16&page=1&mime_type=application/msword}
+            //执行该类的方式是PluginMiniDocService.download方法
+            if($this->isPluginSendRequest()){
+                //查询是否是来自插件的请求
+                $info = explode("/",$route);
+                $pluginName = $info[1];
+                $className = "Plugin".ucfirst($pluginName)."Service";
+                $service = new $className;
+                $result = $service->invoke($info[2]);
+                echo(json_encode($result));exit;
+            }else{
+                $info = explode("/",$route);
+                $module = $info[0];
+                $class = ucfirst($module)."Service";
+                $service = new $class;
+                $result = $service->invoke($info[1]);
+                echo(json_encode($result));exit;
+            }
         }else{
+            //1.5调用方式
             $uri = $this->getFilterUrl();
             $info = explode("/",$uri);
             $module = $info[3];

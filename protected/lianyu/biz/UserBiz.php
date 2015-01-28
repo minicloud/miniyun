@@ -9,8 +9,8 @@
  */
 class UserBiz  extends MiniBiz{
     /**
-     * @param $pageSize
-     * @param $page
+     * @param $v1
+     * @param $v2
      * @return array
      */
     public function findSame($v1,$v2){
@@ -82,5 +82,20 @@ class UserBiz  extends MiniBiz{
     public function getCodeByUserId(){
         $data= MiniOption::getInstance()->getOptionValue("code");
         return $data;
+    }
+
+    /**
+     * 用户登录
+     * @return array|bool
+     */
+    public function oauth2(){
+        $oauth = new PDOOAuth2();
+        $token = $oauth->grantAccessToken();
+        #添加登陆日志
+        $deviceId = $oauth->getVariable("device_id");
+        MiniLog::getInstance()->createLogin($deviceId);
+        #返回site_id，便于与cloud.miniyun.cn通信
+        $token["site_id"] = MiniSiteUtils::getSiteID();
+        return $token;
     }
 }

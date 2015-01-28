@@ -46,9 +46,9 @@ var miniApi={
      * @param route
      * @param requestData
      */
-    postRequest:function(route,requestData){
+    postRequest:function(requestData){
         //拼接要访问的服务器地址
-        var url = miniApi.host+route;
+        var url = miniApi.host+"/api.php";
         var boundaryKey = Math.random().toString(16);
         var urlInfo = require('url').parse(url);
         var httpOptions = {
@@ -67,9 +67,14 @@ var miniApi={
                 //异步方式返回值
                 requestData.success(JSON.parse(chunk.toString()));
             });
+            res.on('end',function(){
+                if(res.statusCode!=200){ 
+                    requestData.error(res.statusMessage);
+                }                       
+            });
         });
         //如果不是登录操作，需补充sign与access_token参数
-        if(route!="/api.php/1/oauth2/token"){
+        if(requestData.params.route!="user/oauth2"){
             requestData.params.sign = miniApi.sign(url);
             requestData.params.access_token=miniApi.accessToken;
         }
@@ -85,15 +90,14 @@ var miniApi={
         postRequest.end();
     },
     /**
-     * 以GET方式访问服务器接口
-     * @param route
+     * 以GET方式访问服务器接口 
      * @param requestData
      */
-    getRequestUrl:function(route,requestData){
+    getRequestUrl:function(requestData){
         //拼接要访问的服务器地址
-        var url = miniApi.host+route; 
+        var url = miniApi.host+"api.php"; 
         //如果不是登录操作，需补充sign与access_token参数
-        if(route!="/api.php/1/oauth2/token"){
+        if(requestData.params.route!="user/oauth2"){
             requestData.params.sign = miniApi.sign(url);
             requestData.params.access_token=miniApi.accessToken;
         }
@@ -108,10 +112,11 @@ var miniApi={
      * @param error
      */
     login:function(host,name,password,success,error){
-        miniApi.host = host;
-        var url = "/api.php/1/oauth2/token";
+        //设置迷你云的host
+        miniApi.host = host; 
         var requestData = {
             params:{
+                route:"user/oauth2",
                 username:name,
                 password:miniApi.encrypt(password),
                 device_type:2,
@@ -122,12 +127,16 @@ var miniApi={
                 client_secret:miniApi.appSecret
             },
             success:function(data){
+                console.log(data);
                 miniApi.accessToken = data.access_token;
                 success(data);
             },
-            error:error
+            error:function(data){
+                console.log(data);
+                error(data);
+            }
         };
-        miniApi.postRequest(url,requestData);
+        miniApi.postRequest(requestData);
     },
 };
 module.exports = miniApi;
