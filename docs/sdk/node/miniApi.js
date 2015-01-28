@@ -48,20 +48,31 @@ var miniApi={
      */
     postRequest:function(requestData){
         //拼接要访问的服务器地址
-        var url = miniApi.host+"/api.php";
-        var boundaryKey = Math.random().toString(16);
+        var url = miniApi.host+"/api.php"; 
         var urlInfo = require('url').parse(url);
+        //如果不是登录操作，需补充sign与access_token参数
+        if(requestData.params.route!="user/oauth2"){
+            requestData.params.sign = miniApi.sign(url);
+            requestData.params.access_token=miniApi.accessToken;
+        }
+        var postData = require('querystring').stringify(requestData.params);
+        var http = require('http');
+        var https = require('https');
+        var protocol = {
+        "http:":http,
+        "https:":https
+        };
         var httpOptions = {
             host:urlInfo.hostname,
             port:urlInfo.port,
             method:'POST',
             path:urlInfo.path,
             headers:{
-                'Content-Type':'multipart/form-data; boundary=' + boundaryKey,
-                'Connection':'keep-alive'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': postData.length
             }
-        };
-        var postRequest = require('http').request(httpOptions, function(res) {
+        }; 
+        var postRequest = protocol[urlInfo.protocol].request(httpOptions, function(res) {
             res.setEncoding('utf8');
             res.on('data', function (chunk) {
                 //异步方式返回值
@@ -73,20 +84,7 @@ var miniApi={
                 }                       
             });
         });
-        //如果不是登录操作，需补充sign与access_token参数
-        if(requestData.params.route!="user/oauth2"){
-            requestData.params.sign = miniApi.sign(url);
-            requestData.params.access_token=miniApi.accessToken;
-        }
-        var content = '';
-        var keys = Object.keys(requestData.params);
-        for (var i = 0; i < keys.length; i++) {
-            var name = keys[i];
-            var value = requestData.params[name];
-            content += '--' + boundaryKey + '\r\n';
-            content += 'Content-Disposition: form-data; name="' + name + '" \r\n\r\n' + value + '\r\n';
-        }
-        postRequest.write(content);
+        postRequest.write(postData);
         postRequest.end();
     },
     /**
@@ -131,7 +129,7 @@ var miniApi={
                 miniApi.accessToken = data.access_token;
                 success(data);
             },
-            error:function(data){
+            error:function(data){ 
                 console.log(data);
                 error(data);
             }
