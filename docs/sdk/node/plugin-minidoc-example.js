@@ -26,20 +26,20 @@ miniApi.login(host,"admin","admin",function(){
     //   };
     ////获得文档封面图片地址，获得后可直接访问即可
     //console.log(miniApi.getRequestUrl(data));
-    //var data = {
-    //     params:{
-    //         route:"module/miniSearch/search",
-    //         key:'php',
-    //     },
-    //     success:function(data){
-    //         console.log("success"+JSON.stringify(data));
-    //     },
-    //     error:function(data){
-    //         console.log("error"+JSON.stringify(data));
-    //     }
-    //};
-    ////全文检索
-    //miniApi.postRequest(data);
+    // var data = {
+    //      params:{
+    //          route:"module/miniSearch/search",
+    //          key:'sample',
+    //      },
+    //      success:function(data){
+    //          console.log("success"+JSON.stringify(data));
+    //      },
+    //      error:function(data){
+    //          console.log("error"+JSON.stringify(data));
+    //      }
+    // };
+    // //全文检索
+    // miniApi.postRequest(data);
 },function(error){
 
 });
