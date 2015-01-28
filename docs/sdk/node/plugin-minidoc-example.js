@@ -1,5 +1,5 @@
 var miniApi = require('./miniApi.js');
-var host = "http://t.miniyun.cn";
+var host = "http://192.168.0.91";
 miniApi.login(host,"admin","admin",function(){
     // var data = {
     //     params:{
@@ -15,15 +15,31 @@ miniApi.login(host,"admin","admin",function(){
     //         console.log("error"+JSON.stringify(data));
     //     }
     // };
-    ////获得文档列表
-    //miniApi.postRequest(data);
+    // //获得文档列表
+    // miniApi.postRequest(data);
     //var data = {
-    //        params:{
-    //            route:"module/miniDoc/previewContent",
-    //            path:"/1/test.doc",
-    //            type:"png",
-    //        }
-    //    };
-    // //获得文档封面图片地址，获得后可直接访问即可
+    //       params:{
+    //           route:"module/miniDoc/previewContent",
+    //           path:"/1/test.doc",
+    //           type:"png",
+    //       }
+    //   };
+    ////获得文档封面图片地址，获得后可直接访问即可
     //console.log(miniApi.getRequestUrl(data));
+    //var data = {
+    //     params:{
+    //         route:"module/miniSearch/search",
+    //         key:'php',
+    //     },
+    //     success:function(data){
+    //         console.log("success"+JSON.stringify(data));
+    //     },
+    //     error:function(data){
+    //         console.log("error"+JSON.stringify(data));
+    //     }
+    //};
+    ////全文检索
+    //miniApi.postRequest(data);
+},function(error){
+
 });
