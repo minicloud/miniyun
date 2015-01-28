@@ -110,7 +110,7 @@ class MiniSearchFile extends MiniCache{
         }
         $criteria->addInCondition('id', $intId);
         $items = SearchFile::model()->findAll($criteria);
-        return $items;
+        return $this->db2list($items);
     }
 
 }

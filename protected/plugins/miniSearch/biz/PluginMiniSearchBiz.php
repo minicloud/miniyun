@@ -16,6 +16,7 @@ class PluginMiniSearchBiz extends MiniBiz
      */
     public function search($key)
     {
+        //通过Sphinx远程端口查询数据
         $sc = new SphinxClient();
         $url = PluginMiniSearchOption::getInstance()->getMiniSearchHost();
         $urlInfo = parse_url($url);
@@ -25,29 +26,36 @@ class PluginMiniSearchBiz extends MiniBiz
         }
         $sc->SetServer($urlInfo['host'], $port); //注意这里的主机
 
-        $index = 'main1';
-        $res = $sc->Query($key, $index);
-        if ((int)$res['total'] === 0) {
+        $searchIndex = 'main1';
+        $summaryList = $sc->Query($key, $searchIndex);
+        if ((int)$summaryList['total'] === 0) {
             return array();
         }
-        $ids = array_keys($res['matches']);
+        $ids = array_keys($summaryList['matches']);
         $ids = join(',', $ids);
-        $items = MiniSearchFile::getInstance()->search($ids);//将所有符合条件的做了索引的文件都取出来
-        $opts = array(//摘要选项
-            "before_match" => "<span style='background-color: #ffff00'><b>",
-            "after_match" => "</b></span>",
-            "chunk_separator" => " ... ",
-            "limit" => 100,
-            "around" => 20,
-        );
-        $files = array();
-        foreach ($items as $item) {//遍历，查询文件signature，根据signature判断当前用户有无浏览该文件权限
-            $docs = array();
-            $file['signature'] = $item->file_signature;//相同的signature可能对应多个文件
-            $fileVersionId = MiniVersion::getInstance()->getVersionIdBySignature($file['signature']);
-            $list = MiniFile::getInstance()->getAllByVersionId($fileVersionId);
-            foreach ($list as $unit) {//对具有相同signature的文件进行过滤
-                $filePath = $unit['file_path'];
+        //将所有符合条件的做了索引的文件都取出来
+        $values = array();
+        $searchContents = MiniSearchFile::getInstance()->search($ids);
+        foreach ($searchContents as $searchContent) {//遍历，查询文件signature，根据signature判断当前用户有无浏览该文件权限
+            $fileVersionId = MiniVersion::getInstance()->getVersionIdBySignature($searchContent["file_signature"]);
+            //摘要内容，默认取第1个位置的摘要
+            $summary = "";
+            $opts = array(//摘要选项
+                "before_match" => "<span style='background-color: #ffff00'><b>",
+                "after_match" => "</b></span>",
+                "chunk_separator" => " ... ",
+                "limit" => 100,
+                "around" => 20,
+            );
+            $opts["exact_phrase"] = 0;
+            $summaryList = $sc->BuildExcerpts(array($searchContent["content"]), $searchIndex, $key, $opts);
+            if (!$summaryList) {
+                $summary = $summaryList[0];
+            }
+            //反向查询系统所有的文件记录
+            $fileList = MiniFile::getInstance()->getAllByVersionId($fileVersionId);
+            foreach ($fileList as $fileItem) {//对具有相同signature的文件进行过滤
+                $filePath = $fileItem['file_path'];
                 $userId = (int)$this->user['id'];
                 $permissionModel = new UserPermissionBiz($filePath, $userId);
                 $permission = $permissionModel->getPermission($filePath, $userId);
@@ -61,25 +69,14 @@ class PluginMiniSearchBiz extends MiniBiz
                         continue;
                     }
                 }
-                $file['file_name'] = $unit['file_name'];
-                $file['file_path'] = $filePath;
-                $file['type'] =
-                $file['content'] = $item->content;
-                array_push($docs, $item->content);
-                foreach (array(0) as $exact) {//获取$entry即文件内容摘要
-                    $opts["exact_phrase"] = $exact;
-                    $res = $sc->BuildExcerpts($docs, $index, $key, $opts);
-                    if (!$res) {
-                        die ("ERROR: " . $sc->GetLastError() . ".\n");
-                    } else {
-                        foreach ($res as $entry) {
-                            $file['content'] = $entry;
-                        }
-                    }
-                }
-                array_push($files, $file);
+                $item = array();
+                $item['signature'] = $searchContent["file_signature"];//相同的signature可能对应多个文件
+                $item['file_name'] = $fileItem['file_name'];
+                $item['file_path'] = $filePath;
+                $item['summary'] = $summary;
+                array_push($values, $item);
             }
         }
-        return $files;
+        return $values;
     }
 }
