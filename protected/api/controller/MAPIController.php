@@ -295,6 +295,13 @@ class MAPIController extends MApplicationComponent implements MIController{
         $result = $service->invoke($this->commonUri);
         echo(json_encode($result));
     }
+
+    private function lock() {
+
+        $service = new LockService();
+        $result = $service->invoke($this->commonUri);
+        echo(json_encode($result));
+    }
     /**
      * 处理个人空间应用
      */

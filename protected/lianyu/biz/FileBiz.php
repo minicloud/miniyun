@@ -331,5 +331,12 @@ class FileBiz  extends MiniBiz{
         $editors = unserialize($editors);
         return $editors;
     }
+    /**
+     *  文件秒传接口
+     */
+    public function sec(){
+        $filesController = new MFileSecondsController();
+        $filesController->invoke();
+    }
 }
 

@@ -85,13 +85,16 @@ class MiniGroup extends MiniCache{
     public function create($groupName,$userId,$parentGroupId){
         $groupName = trim($groupName);
         $criteria = new CDbCriteria();
-        $criteria->condition = "user_id=:user_id and name =:group_name";
-        $criteria->params = array('user_id'=> $userId,'group_name'=>$groupName);
+        $criteria->condition = "user_id=:user_id and name =:group_name and parent_group_id =:parent_group_id";
+        $criteria->params = array('user_id'=> $userId,'group_name'=>$groupName,'parent_group_id'=>$parentGroupId);
         $item = Group::model()->find($criteria);
         if (empty($item)){
             $group = new Group();
             $group['name']=$groupName;
             $group['user_id']=$userId;
+            if($userId==-1){
+                $group['parent_group_id'] = $parentGroupId;
+            }
             $group['description']='';
             $group->save();
             if($userId==-1){

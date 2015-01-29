@@ -43,11 +43,11 @@ class MCreateFileController extends MFileSecondsController
         }
 
         $this->size  = $size;
-        $url_manager = new MUrlManager();
-        $path        = $url_manager->parsePathFromUrl($uri);
-        $path_info   = MUtils::pathinfo_utf($path);
-        $file_name   = $path_info["basename"];
-        $this->type  = CUtils::mime_content_type($file_name);
+        $urlManager = new MUrlManager();
+        $path        = $urlManager->parsePathFromUrl($uri);
+        $pathInfo   = MUtils::pathinfo_utf($path);
+        $fileName   = $pathInfo["basename"];
+        $this->type  = CUtils::mime_content_type($fileName);
 
         parent::invoke($uri);
     }

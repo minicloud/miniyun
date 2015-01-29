@@ -106,4 +106,12 @@ class FileService extends MiniService{
         $data = $biz->getExtendTactics();
         return $data;
     }
+    /**
+     * 文件秒传接口
+     */
+    public function sec(){
+        $biz = new FileBiz();
+        $data = $biz->sec();
+        return $data;
+    }
 }

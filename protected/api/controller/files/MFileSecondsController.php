@@ -9,9 +9,10 @@
  */
 class MFileSecondsController extends MApplicationComponent implements MIController
 {
-    protected $create_handler = NULL;
+    protected $handler = NULL;
     protected $size = 0;
     protected $version_id = 0;
+    private $isNew = false;//标示是否是迷你云新版本，新版本启用传统的参数传递模式
     /**
      * (non-PHPdoc)
      * @see MIController::invoke()
@@ -31,27 +32,33 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         }
         
         // 解析文件路径，若返回false，则错误处理
-        $url_manager = new MUrlManager();
-        $path = $url_manager->parsePathFromUrl($uri);
-        $root = $url_manager->parseRootFromUrl($uri);
+        $urlManager = new MUrlManager();
+        $path = $urlManager->parsePathFromUrl($uri);
+        $root = $urlManager->parseRootFromUrl($uri);
         if ($path == false || $root == false) {
-            throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);;
+            //支持参数模式传递上传路径
+            $path = MiniHttp::getParam("path","");
+            $root = "miniyun";
+            $this->isNew = true;
+            if(empty($path)){
+                throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);
+            }
         }
         
-        $path        = "/" . $path;
-        $path_info   = MUtils::pathinfo_utf($path);
-        $file_name   = $path_info["basename"];
-        $parent_path = $path_info["dirname"];
+        //$path        = "/" . $path;
+        $pathInfo   = MUtils::pathinfo_utf($path);
+        $fileName   = $pathInfo["basename"];
+        $parentPath = $pathInfo["dirname"];
 
         // 检查是否在共享文件夹内， 如果在共享文件夹内，则进行权限检查
         $user     = MUserManager::getInstance ()->getCurrentUser ();
-        $user_id  = $user["user_id"];
-        $share_filter = MSharesFilter::init();
-        if ($share_filter->handlerCheck($user_id, $path)){
-            $user_id   = $share_filter->master;
-            $path      = $share_filter->_path;
-            $file_path = "/".$user_id.$path;
-            $share_filter->hasPermissionExecute($file_path, MPrivilege::FILE_CREATE);
+        $userId  = $user["user_id"];
+        $shareFilter = MSharesFilter::init();
+        if ($shareFilter->handlerCheck($userId, $path)){
+            $userId   = $shareFilter->master;
+            $path      = $shareFilter->_path;
+            $filePath = "/".$userId.$path;
+            $shareFilter->hasPermissionExecute($filePath, MPrivilege::FILE_CREATE);
         }
 
         // 检查版本是否存在
@@ -60,24 +67,25 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
             return;
         }
         
-        $this->create_handler = MFilesCommon::initMFilesCommon();
-        $this->create_handler->parent_path    = MUtils::convertStandardPath($parent_path);;
-        $this->create_handler->file_name      = $file_name;
-        $this->create_handler->root           = $root;
-        $this->create_handler->path           = MUtils::convertStandardPath($path);
-        $this->create_handler->type           = CUtils::mime_content_type($file_name);
-        $this->create_handler->size           = $this->size;
-        $this->create_handler->file_hash      = $hash;
-        $this->create_handler->version_id     = $this->version_id;
+        $this->handler = MFilesCommon::initMFilesCommon();
+        $this->handler->parent_path    = MUtils::convertStandardPath($parentPath);;
+        $this->handler->file_name      = $fileName;
+        $this->handler->root           = $root;
+        $this->handler->path           = MUtils::convertStandardPath($path);
+        $this->handler->type           = CUtils::mime_content_type($fileName);
+        $this->handler->size           = $this->size;
+        $this->handler->file_hash      = $hash;
+        $this->handler->version_id     = $this->version_id;
+        
         
         // 保存文件meta
-        $this->create_handler->saveFileMeta();
+        $this->handler->saveFileMeta();
         if (MUserManager::getInstance()->isWeb() === true)
         {
-            $this->create_handler->buildWebResponse();
-            return ;
+            $this->handler->buildWebResponse();
+            return;
         }
-        $this->create_handler->buildResult();
+        $this->handler->buildResult();
         
     }
     
@@ -99,21 +107,55 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
      */
     protected function handleCheckFileVersion ($hash)
     {
-        //data源处理对象
+        $storePath = MiniUtil::getPathBySplitStr ($hash);
         $dataObj = Yii::app()->data;
-        $file_version = MiniVersion::getInstance()->getBySignature($hash);
-        if ($file_version == null) {
-             return $this->handleAssign();
+        $version = MiniVersion::getInstance()->getBySignature($hash);
+        if(!$this->isNew){
+            //data源处理对象
+            if ($version == null) {
+                return $this->handleAssign();
+            }
+            // 检查文件是否存在
+            if ($dataObj->exists($storePath) == false) {
+                return $this->handleAssign();
+            }
+            $this->version_id = $version['id'];
+            $this->size       = $version['file_size'];
+            return true;
+        }else{
+            //按http://doc.mini-inc.cn/?p=175接口文档实现新版本的处理
+            //返回断点文件信息
+            $data = array(); 
+            if (empty($version)) { 
+                $data['success'] = false;
+                $data['url'] =  MiniHttp::getMiniHost()."api.php/1/file/upload";
+                $filePath = BASE."upload_block/cache/".$storePath;
+                if (file_exists($filePath)) {
+                    $data['offset'] = filesize($filePath);
+                    //如文件大小相同而且Hash值相同，说明流数据文件已经存在，直接生成元数据即可
+                    $size = MiniHttp::getParam("size","");
+                    $signature = MiniHttp::getParam("hash","");
+                    if($data['offset']==$size){
+                        //生成version记录，为使用老逻辑代码，这里处理得很羞涩
+                        //理想的逻辑是在这里直接返回相关结果
+                        $fileName = MiniHttp::getParam("file_name","");
+                        $mimeType = CUtils::mime_content_type($fileName);
+                        $version = MiniVersion::getInstance()->create($signature,$size,$mimeType);
+                        $this->version_id = $version['id'];
+                        $this->size       = $version['file_size'];
+                        return true;
+                    }
+                }else{
+                    $data['offset'] = 0;
+                } 
+                echo json_encode($data);exit;
+            }else{
+                //上传文件到其它目录下，支持秒传
+                $this->version_id = $version['id'];
+                $this->size       = $version['file_size'];
+                return true;
+            }
         }
-        
-        // 检查文件是否存在
-        $store_path = MiniUtil::getPathBySplitStr ( $hash );
-        if ($dataObj->exists ( $store_path ) == false) {
-            return $this->handleAssign();
-        }
-        
-        $this->version_id = $file_version['id'];
-        $this->size       = $file_version['file_size'];
-        return true;
+
     }
 }

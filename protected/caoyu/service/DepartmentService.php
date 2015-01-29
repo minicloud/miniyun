@@ -65,101 +65,11 @@ class DepartmentService extends MiniService{
         $result = $biz->unBindUserList($currentPage,$pageSize,$key);
         return $result;
     }
-    /**
-     * 导入部门
-     */
-    public function importDepartment(){
+    public function import(){
         $departmentData = MiniHttp::getParam('department_data',"");
-        $errorList = array();
-        $successList = array();
-//        foreach($departmentData as $department){//简单验证数据是否符合标准
-//            if(count($department)<2){
-//                $department[]="为空的数据请以“”填充";
-//                $errorList[] = $department;
-//            }elseif($department[0]==$department[1]){
-//                $department[]="部门与分部门不能相同";
-//                $errorList[] = $department;
-//            }else{
-//                    $successList[] = $department;
-//            }
-//        }
-        $userList = array();
-        $count = 0;
-        $isTrue = false;//用来判断父名称是否有'|';
-        $isFalse = false;//用来标识不满足条件的变量
-        foreach($departmentData as $department){
-            if(count($department)<2){
-                $department[]="为空的数据请以“”填充";
-                $errorList[] = $department;
-                continue;
-            }elseif($department[0]==$department[1]){
-                $department[]="部门与分部门不能相同";
-                $errorList[] = $department;
-                continue;
-            }
-
-            $groupName=trim($department[1]);
-            $result = MiniGroup::getInstance()->getByGroupName($groupName);
-            if(strpos($department[0],'|')){
-                $arr = explode('|',trim($department[0]));
-                foreach($arr as $val){
-                    if(strlen($val)==0){
-                        $isFalse = true;
-                        break;
-                    }
-                }
-                if($isFalse){
-                    $department[] = "不能用||，或不能以结尾.";
-                    $errorList[] = $department;
-                    continue;
-                }
-                $isTrue = true;
-                $parentGroupName = $arr[count($arr)-1];
-            }
-            if(!$isTrue){
-                $parentGroupName = $department[0];
-            }
-
-            if(isset($result)){
-                $parentGroup= MiniGroupRelation::getInstance()->getByGroupId($result['id']);
-                $firstGroupName = MiniGroup::getInstance()->getById($parentGroup['parent_group_id']);
-                if($parentGroupName==$firstGroupName){
-                    $count++;
-                    $department[] = "数据库中已经有相同的数据出现";
-                    $errorList[] = $department;
-                    continue;
-                }
-            }
-            $groupInfo = MiniGroup::getInstance()->getByGroupName($parentGroupName);
-
-            if(empty($groupInfo)){
-                if(trim($department[0]) == '“”'){
-                    $parentGroupId = -1;
-                }else{
-                    $department[] = "该条数据的子部门查询不到父部门";
-                    $errorList[] = $department;
-                    continue;
-                }
-
-            }else{
-                $parentGroupId = $groupInfo['id'];
-            }
-            MiniGroup::getInstance()->create($groupName,-1,$parentGroupId);
-            $successList[] = $department;
-        }
-        $userList['success'] = $successList;
-        $userList['total'] = count($departmentData);
-        $userList['error'] = $errorList;
-        $tempUrl ="upload/temp/error.csv";
-        $fp = fopen($tempUrl, 'w+');
-        if($fp){
-            foreach($errorList as $item){
-                fputcsv($fp,$item);
-            }
-        }
-        fclose($fp);
-        $userList['duplicateCount']=$count;
-        return $userList;
+        $biz = new DepartmentBiz();
+        $result = $biz->import($departmentData);
+        return $result;
     }
     /**
      * 将用户绑定到部门

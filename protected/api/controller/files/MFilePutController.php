@@ -24,11 +24,16 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
         
         // 解析文件路径，若返回false，则错误处理
-        $url_manager = new MUrlManager();
-        $path = $url_manager->parsePathFromUrl($uri);
-        $root = $url_manager->parseRootFromUrl($uri);
+        $urlManager = new MUrlManager();
+        $path = $urlManager->parsePathFromUrl($uri);
+        $root = $urlManager->parseRootFromUrl($uri);
         if ($path == false || $root == false) {
-            throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);
+            //支持参数模式传递上传路径
+            $path = MiniHttp::getParam("path","");
+            $root = "miniyun";
+            if(empty($path)){
+                throw new MFilesException(Yii::t('api',$root), MConst::HTTP_CODE_411);
+            }
         }
         // web端上传零字节文件
         if (MUserManager::getInstance()->isWeb() === true) {
@@ -43,60 +48,56 @@ class MFilePutController extends MApplicationComponent implements MIController{
             $this->signature = $_SERVER['HTTP_IF_MATCH'];
             $btupload = new MBtUpload();
             $btupload->invoke();
-            $store_path = $btupload->cache;
+            $storePath = $btupload->cache;
             //清除缓存并再次检查文件大小
             clearstatcache();
             //data源处理对象
             $dataObj = Yii::app()->data;
-            $size = $dataObj->size($store_path);
+            $size = $dataObj->size($storePath);
             $this->_size = $size;
         }else {
             // 如果文件已经上传成功, 返回文件已经上传成功
             $this->handleSpikeFile($uri);
-            
             $hash   = isset($_REQUEST['hash']) ? $_REQUEST['hash'] : '';
             $size   = isset($_REQUEST['size']) ? $_REQUEST['size'] : NULL;
             $offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : 0;
             if (empty($hash) || $size === NULL || $size < 0)
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'Missing parameter'), MConst::HTTP_CODE_400);
-            
-            $store_path = '';
+
             if ($offset < 0) {
                 throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'error parameter'), MConst::HTTP_CODE_400);
             }
             
             // 处理分块上传逻辑部分，通过插件内部的
-
             if ($offset == 0) {
-                $store_path = $this->handleEntireFile($hash, $size);
+                $storePath = $this->handleEntireFile($hash, $size);
             } else {
-                $store_path = $this->handleBreakPointFile($hash, $size, $offset);
+                $storePath = $this->handleBreakPointFile($hash, $size, $offset);
             }
         }
+
         // 初始化创建文件公共类句柄
-        $create_handler = MFilesCommon::initMFilesCommon();
+        $createHandler = MFilesCommon::initMFilesCommon();
+        $pathInfo   = MUtils::pathinfo_utf($path);
+        $fileName   = $pathInfo["basename"];
+        $parentPath = $pathInfo["dirname"];
         
-        $path        = "/" . $path;
-        $path_info   = MUtils::pathinfo_utf($path);
-        $file_name   = $path_info["basename"];
-        $parent_path = $path_info["dirname"];
-        
-        $create_handler->size           = $this->_size;
-        $create_handler->parent_path    = MUtils::convertStandardPath($parent_path);;
-        $create_handler->file_name      = $file_name;
-        $create_handler->root           = $root;
-        $create_handler->path           = MUtils::convertStandardPath($path);
-        $create_handler->type           = CUtils::mime_content_type($file_name);
+        $createHandler->size           = $this->_size;
+        $createHandler->parent_path    = MUtils::convertStandardPath($parentPath);;
+        $createHandler->file_name      = $fileName;
+        $createHandler->root           = $root;
+        $createHandler->path           = MUtils::convertStandardPath($path);
+        $createHandler->type           = CUtils::mime_content_type($fileName);
         // 文件不存在,保存文件
-        $create_handler->saveFile($store_path, $this->signature, $this->_size, false);
+        $createHandler->saveFile($storePath, $this->signature, $this->_size, false);
         // 保存文件meta
-        $create_handler->saveFileMeta();
+        $createHandler->saveFileMeta();
         if (MUserManager::getInstance()->isWeb() === true)
         {
-            $create_handler->buildWebResponse();
+            $createHandler->buildWebResponse();
             return ;
         }
-        $create_handler->buildResult();
+        $createHandler->buildResult();
     }
     
     /**
@@ -158,19 +159,23 @@ class MFilePutController extends MApplicationComponent implements MIController{
     
     /**
      * 使用put方法上传整文件
+     * @param $hash 文件hash值
+     * @param $size 文件大小
+     * @throws MFilesException
+     * @return array
      */
     private function handleEntireFile($hash, $size) {
         $dataObj = Yii::app()->data;
         $handle = $this->getInputFileHandle();
-        $cache = '/cache/' . MiniUtil::getPathBySplitStr($hash);
+        $cachePath = '/cache/' . MiniUtil::getPathBySplitStr($hash);
 
-        if ($dataObj->exists(dirname($cache)) === false) {
-            $dataObj->mkdir(dirname($cache));
+        if ($dataObj->exists(dirname($cachePath)) === false) {
+            $dataObj->mkdir(dirname($cachePath));
         }
 
         // 直接Append到对应文件块中
         // TODO: 文件流不支持Append操作处理逻辑
-        if ($dataObj->AppendFile($handle, $cache, 0) === false) {
+        if ($dataObj->AppendFile($handle, $cachePath, 0) === false) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
         
@@ -180,30 +185,33 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
 
         // 检查文件上传是否完整，如果不完整，则返回错误
-        $this->_size = $dataObj->size($cache);
+        $this->_size = $dataObj->size($cachePath);
         if ($this->_size > $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         } elseif ($this->_size < $size) {
             $this->ResponseRetryWith($hash, $size, $this->_size);
         }
         $this->signature = $hash;
-        return $this->handleSave($hash, $cache);
+        return $this->handleSave($hash, $cachePath);
     }
-    
+
     /**
-     * 使用post方法上传整文件
+     * 使用post方法上传断点文件
+     * @param $hash 文件hash值
+     * @param $size 文件大小
+     * @param $offset 文件偏移量
+     * @throws MFilesException
+     * @return array
      */
     private function handleBreakPointFile($hash, $size, $offset) {
         $dataObj = Yii::app()->data;
-        
-        $cache = '/cache/' . MiniUtil::getPathBySplitStr($hash);
+        $cachePath = '/cache/' .MiniUtil::getPathBySplitStr($hash);
         // 文件不存在，则需要客户端全部重新传文件
-        if ($dataObj->exists(dirname($cache)) === false) {
+        if ($dataObj->exists(dirname($cachePath)) === false) {
             $this->ResponseRetryWith($hash, $size, 0, FALSE);
         }
-
         // 如果收到的文件内容小于offset，那么需要要求客户端从received的位置开始上传
-        $received = $dataObj->size($cache);
+        $received = $dataObj->size($cachePath);
         if ($received < $offset) {
             $this->ResponseRetryWith($hash, $size, $received, FALSE);
         }
@@ -211,7 +219,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
         $handle = $this->getInputFileHandle();
         // 直接Append到对应文件块中
         // TODO: 文件流不支持Append操作处理逻辑
-        if ($dataObj->AppendFile($handle, $cache, $offset) === false) {
+        if ($dataObj->AppendFile($handle, $cachePath, $offset) === false) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
         
@@ -219,7 +227,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
         if (isset($this->_temp) && file_exists($this->_temp)) {
             @unlink($this->_temp);
         }
-        $this->_size = $dataObj->size($cache);
+        $this->_size = $dataObj->size($cachePath);
         if ($this->_size > $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         } elseif ($this->_size < $size) {
@@ -227,58 +235,42 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
         
         $this->signature = $hash;
-        return $this->handleSave($hash, $cache);
+        return $this->handleSave($hash, $cachePath);
     }
-    
-    /**
-     * 
-     * 写入文件,替换对应位置内容
-     */
-    private function handleWriteBytes($handle, $cache, $offset) {
-        $dataObj = Yii::app()->data;
 
-        $mode   = 'wb';
-        if ($dataObj->exists($cache))
-            $mode = 'r+b';
-
-        $data = fread($handle, 8096);
-        fseek($file, $offset);
-        while ($data) {
-            fwrite($file, $data);
-            $data = fread($handle, 8096);
-        }
-        fclose($file);
-        fclose($handle);
-        clearstatcache();
-        if (isset($this->_temp) && file_exists($this->_temp)) 
-            @unlink($this->_temp);
-    }
-    
     /**
-     * 
+     *
      * Enter description here ...
+     * @param $hash 文件hash值
+     * @param $tmpPath 临时文件
+     * @throws MFilesException
+     * @return string
      */
-    private function handleSave($hash, $tmp) {
+    private function handleSave($hash, $tmpPath) {
         //data源处理对象
         $dataObj = Yii::app()->data;
         // 如果文件不存在则保存
-        $store_path = MiniUtil::getPathBySplitStr($hash);
-        if ($dataObj->exists($store_path) === false) {
+        $storePath = MiniUtil::getPathBySplitStr($hash);
+        if ($dataObj->exists($storePath) === false) {
             // 创建父目录
-            if ($dataObj->exists(dirname($store_path)) === false) {
-                MUtils::MkDirs(dirname($store_path));
+            if ($dataObj->exists(dirname($storePath)) === false) {
+                MUtils::MkDirs(dirname($storePath));
             }
             
-            if ($dataObj->move($tmp, $store_path, true) == false) {
+            if ($dataObj->move($tmpPath, $storePath, true) == false) {
                 throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
             }
         }
-        return $store_path;
+        return $storePath;
     }
-    
+
     /**
-     * 
+     *
      * 通知客户端，需要重新上传文件，从offset的位置开始
+     * @param $hash 文件hash值
+     * @param $size 文件大小
+     * @param $offset 文件偏移量
+     * @param $success bool
      */
     private function ResponseRetryWith($hash, $size, $offset, $success=TRUE) {
         $code = MConst::HTTP_CODE_449;
@@ -319,22 +311,22 @@ class MFilePutController extends MApplicationComponent implements MIController{
      */
     private function handleCheckFiles() {
         if (count($_FILES) == 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."1"), MConst::HTTP_CODE_400);
         }
         
         $keys = array_keys($_FILES);
         if (count($keys) != 1) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."2"), MConst::HTTP_CODE_400);
         }
         $key = $keys[0];
         // 检查请求参数$_FILES
         if (isset($_FILES[$key]) === false)
         {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."3"), MConst::HTTP_CODE_400);
         }
         // 检查文件上传过程是否有错
         if ($_FILES[$key]["error"] != 0) {
-            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR."4"), MConst::HTTP_CODE_400);
         }
         return $_FILES[$key]["tmp_name"];
     }

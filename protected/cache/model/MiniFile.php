@@ -454,12 +454,12 @@ class MiniFile extends MiniCache{
         if(isset($model)){
             $file = $this->db2Item($model);
             //删除FileMeta
-            MiniFileMeta::getInstance()->deleteFileMetaByPath($file["file_path"]);
+            MiniFileMeta::getInstance()->cleanFileMetaByPath($file["file_path"]);
             //删除tag数据
             MiniTag::getInstance()->deleteByFileId($id);
             //Version数据减一
             $versionId = $file["version_id"];
-            MiniVersion::getInstance()->updateRefCountByIds($versionId,false);
+            MiniVersion::getInstance()->updateRefCountByIds(array($versionId),false);
             //删除share_files
             MiniLink::getInstance()->unlink($id);
             //删除user_privilege

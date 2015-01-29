@@ -1,6 +1,7 @@
+
 <?php
 /**
- * 基础版本数据库文件
+ * 部门导入添加冗余字段
  *
 * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
@@ -9,7 +10,7 @@
  * @since 1.6
  */
 
-class m140114_173955_V140  extends EDbMigration{
+class m150108_161355_v171 extends EDbMigration{
     /**
      * 更新系统
      * @return bool|void
@@ -30,7 +31,6 @@ class m140114_173955_V140  extends EDbMigration{
      * 为files表添加索引sort
      */
     private function addTable(){
-        $this->createIndex("sort", DB_PREFIX.'_files', "sort");
-        $this->createIndex("file_type", DB_PREFIX.'_files', "file_type");
+        $this->addColumn(DB_PREFIX.'_groups', 'parent_group_id', 'int(11)');
     }
 }

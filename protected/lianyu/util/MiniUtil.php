@@ -538,5 +538,16 @@ class MiniUtil{
         if(!isset($options['terminate']) || $options['terminate'])
             Yii::app()->end();
     }
-
+    /**
+     * 判断当前文件夹是否在根目录
+     * @param $path 目录路径
+     * @param $userId 用户ID
+     * @return bool
+     */
+    public static function isRootPath($path,$userId){
+        if($path==="/".$userId || $path==="/".$userId."/"){
+            return ture;
+        }
+        return false;
+    }
 }

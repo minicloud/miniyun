@@ -128,7 +128,7 @@ class MiniFileMeta extends MiniCache{
             return $this->db2list($items);
         }
     }
-	/**
+    /**
 	 * 更新Meta
 	 * @param string $filePath
 	 * @param string $key
@@ -176,16 +176,38 @@ class MiniFileMeta extends MiniCache{
 	}
     /**
      * 删除meta信息
+     * @param $filePath 文件路径
+     * @param $key meta_key
+     * @return bool
      */
-    public function deleteFileMetaByPath($filePath){
-        $modal = FileMeta::model()->find("file_path=:file_path", array(":file_path" => $filePath));
+    public function deleteFileMetaByPath($filePath,$key){
+        $modal = FileMeta::model()->findAll("file_path=:file_path and meta_key=:meta_key", array(":file_path" => $filePath,":meta_key" => $key));
         if(!empty($modal)){
-            $modal->delete();
+            foreach($modal as $item){
+                $item->delete();
+            }
+        }
+        return true;
+    }
+    /**
+     *清理meta的记录
+     * @param $filePath 文件路径
+     * @return boolean
+     */
+    public function cleanFileMetaByPath($filePath){
+        $modal = FileMeta::model()->findAll("file_path=:file_path", array(":file_path" => $filePath));
+        if(!empty($modal)){
+            foreach($modal as $item){
+                $item->delete();
+            }
         }
         return true;
     }
     /**
      * 设置公共目录权限
+     * @param $filePath 文件路径
+     * @param $privilege 权限
+     * @return array
      */
     public function setPublicPrivilege($filePath,$privilege){
         $meta_key=MConst::PUBLIC_FOLDER;
@@ -198,5 +220,56 @@ class MiniFileMeta extends MiniCache{
         $fileMeta["meta_value"] = $privilege;
         $fileMeta->save();
         return array('success'=>true);
+    }
+    /**
+     * 根据from_path和meta_key=‘create_id’改file_path
+     * @param $fromPath
+     * @param $key
+     * @param $toPath
+     * @param $fileType
+     * @return bool
+     */
+    public function modifyFilePath($fromPath,$key,$toPath,$fileType){
+        if($fileType == 0){//文件时候meta信息如下处理
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "meta_key=:meta_key and file_path=:file_path";
+            $criteria->params        = array(
+                "meta_key"=>$key,
+                "file_path"=>$fromPath
+            ); 
+            $item              	 =FileMeta::model()->find($criteria);
+            if(!empty($item)){
+                $item->file_path = $toPath;
+                $item->save();
+            } 
+            return true;
+        }else{//目录时meta信息如下处理
+            $fromPathArr = explode('/',$fromPath);
+            $toPathArr = explode('/',$toPath);
+            $fromPathArrCount = count($fromPathArr);
+            $toPathArrCount = count($toPathArr);
+            $toFolderName = $toPathArr[$toPathArrCount-1];
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "meta_key=:meta_key and file_path like :file_path";
+            $criteria->params        = array(
+                "meta_key"=>$key,
+                "file_path"=>$fromPath.'%'
+            );
+            $items              	 =FileMeta::model()->findAll($criteria);
+            foreach($items as $item){
+                $itemPath = $item->file_path;
+                $itemPathArr = explode('/',$itemPath);
+                $itemPathArr[$fromPathArrCount-1] = $toFolderName;
+                $itemPathArrCount = count($itemPathArr);
+                $newPath = "";
+                for($i=1;$i<$itemPathArrCount;$i++){
+                    $newPath .= '/'.$itemPathArr[$i];
+                }
+                $item->file_path = $newPath;
+                $item->save();
+            }
+            return true;
+        }
+
     }
 }

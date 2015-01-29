@@ -141,16 +141,16 @@ class MiniVersion extends MiniCache{
 	 * 创建文件版本
 	 * @param string $signature
 	 * @param int $size
-     * @param string $mime_type
+     * @param string $mimeType
      * @return array
 	 */
-	public function create($signature, $size, $mime_type) {
+	public function create($signature, $size, $mimeType) {
 	    $fileVersion                 = new FileVersion();
         $fileVersion->file_signature = $signature;
         $fileVersion->file_size      = $size;
         $fileVersion->block_ids      = 0;
         $fileVersion->ref_count      = 0;
-        $fileVersion->mime_type      = $mime_type;
+        $fileVersion->mime_type      = $mimeType;
         $fileVersion->save();
         $item                        = $this->db2Item($fileVersion);
 	    $key                         = $this->getCacheKey($signature);
