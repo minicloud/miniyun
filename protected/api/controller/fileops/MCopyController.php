@@ -72,7 +72,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         // 检查参数
         if (isset($params) === false) {
             throw new MFileopsException(
-                                        Yii::t('api','Bad Request'),
+                                        Yii::t('api','Bad Request 11'),
                                         MConst::HTTP_CODE_400);
         }
 
@@ -82,7 +82,7 @@ class MCopyController extends MApplicationComponent implements MIController{
                 isset($params["from_path"]) === false || 
                 isset($params["to_path"]) === false) {
             throw new MFileopsException(
-                                        Yii::t('api','Bad Request'),
+                                        Yii::t('api','Bad Request 12'),
                                         MConst::HTTP_CODE_400);
         }
         if (isset($params["locale"])) {
@@ -102,7 +102,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         if ($is_invalid)
         {
             throw new MFileopsException(
-                                        Yii::t('api','Bad Request'),
+                                        Yii::t('api','Bad Request 13'),
                                         MConst::HTTP_CODE_400);
         }
         //
@@ -116,7 +116,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             $this->_to_path === false)
         {
             throw new MFileopsException(
-                        Yii::t('api','Bad Request'),
+                        Yii::t('api','Bad Request 14'),
                         MConst::HTTP_CODE_400);
         }
         if ($this->_to_path[strlen($this->_to_path)-1] == "/")

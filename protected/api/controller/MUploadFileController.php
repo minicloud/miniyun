@@ -28,11 +28,11 @@ class MUploadFileController extends MApplicationComponent implements MIControlle
         $keys = array ('Filename','key');
         if (MSecurity :: verification($keys, $_POST) == false) {
             Yii::log(Yii::t('api',"Request is Error, keys:'{$keys}'"), CLogger::LEVEL_ERROR,"miniyun.api");
-            throw new MException(Yii::t('api',MConst::INVLID_REQUEST), MConst::UPLOAD_FILE_FAILS);
+            throw new MException(Yii::t('api',MConst::INVLID_REQUEST."1"), MConst::UPLOAD_FILE_FAILS);
         }
         // 处理创建文件
         if (!MUtils::create(DOCUMENT_ROOT_BLOCK, $_POST, $_FILES, true)) {
-            throw new MException(Yii::t('api',MConst::INVLID_REQUEST), MConst::UPLOAD_FILE_FAILS);
+            throw new MException(Yii::t('api',MConst::INVLID_REQUEST."2"), MConst::UPLOAD_FILE_FAILS);
         }
         Yii::trace(Yii::t('api','end to process {class}::{function}',
             array('{class}'=>get_class($this), '{function}'=>__FUNCTION__)),"miniyun.api");

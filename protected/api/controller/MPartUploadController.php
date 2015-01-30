@@ -40,11 +40,11 @@ class MPartUploadController
         }
         if (MSecurity :: verification($keys, $post) == false) {
             Yii::log(Yii::t('api',"Request is Error, verification error"), CLogger::LEVEL_ERROR,"miniyun.api");
-            throw new MException(Yii::t('api',MConst::INVLID_REQUEST), MConst::UPLOAD_FILE_FAILS);
+            throw new MException(Yii::t('api',MConst::INVLID_REQUEST."3"), MConst::UPLOAD_FILE_FAILS);
         }
         // 处理创建文件
         if (!MUtils::create(DOCUMENT_CACHE, $_POST, $_FILES)) {
-            throw new MException(Yii::t('api',MConst::INVLID_REQUEST), MConst::UPLOAD_FILE_FAILS);
+            throw new MException(Yii::t('api',MConst::INVLID_REQUEST."4"), MConst::UPLOAD_FILE_FAILS);
         }
     }
     

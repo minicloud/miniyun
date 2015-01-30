@@ -41,7 +41,7 @@ class MSearchController extends MApplicationComponent implements MIController {
             $query = $params["query"];
         }
         if($query === "") {
-            throw new MFileopsException(Yii::t('api','bad request'), MConst::HTTP_CODE_400);
+            throw new MFileopsException(Yii::t('api','bad request 15'), MConst::HTTP_CODE_400);
         }
         $file_limit = 10000;
         if(isset($params["file_limit"])) {

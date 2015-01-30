@@ -39,7 +39,7 @@ class MMoveController
         $params = $_REQUEST;
         // 检查参数
         if (isset($params) === false) {
-            throw new MException(Yii::t('api','Bad Request'));
+            throw new MException(Yii::t('api','Bad Request 7'));
         }
         //
         // 获取用户数据，如user_id

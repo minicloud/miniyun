@@ -32,7 +32,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         // 检查参数
         if (isset($params) === false) {
             throw new MFileopsException(
-                                        Yii::t('api','Bad Request'),
+                                        Yii::t('api','Bad Request 8'),
                                         MConst::HTTP_CODE_400);
         }
         //
@@ -51,7 +51,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         }
         if (isset($params["root"]) === false || isset($params["path"]) === false) {
             throw new MFileopsException(
-                                        Yii::t('api','Bad Request'),
+                                        Yii::t('api','Bad Request 9'),
                                         MConst::HTTP_CODE_400);
         }
         $root = $params["root"];
@@ -87,7 +87,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         if ($path == "" || $path == "/" || $path === false)
         {
             throw new MFileopsException(
-                        Yii::t('api','Bad request'),
+                        Yii::t('api','Bad request 10'),
                                 MConst::HTTP_CODE_400);
         }
 
