@@ -338,5 +338,37 @@ class FileBiz  extends MiniBiz{
         $filesController = new MFileSecondsController();
         $filesController->invoke();
     }
+    /**
+     * 判断权限是否匹配
+     * @param $path
+     * @return bool
+     */
+    public function privilege($path){
+        $isSharedPath = false;
+        $pathArr = explode('/',$path);
+        $masterId = $pathArr[1];
+        if($masterId!=$this->user['id']){
+            $isSharedPath = true;
+        }else{
+            $model = new GeneralFolderPermissionBiz($path);
+            if($model->isParentShared($path)){//如果是父目录被共享
+                $isSharedPath = true;
+            }
+        }
+        if($isSharedPath){
+            $permissionModel = new UserPermissionBiz($path,$this->user['id']);
+            $permissionArr = $permissionModel->getPermission($path,$this->user['id']);
+            if(!isset($permissionArr)){
+                $permission = MConst::SUPREME_PERMISSION;
+            }else{
+                $permission = $permissionArr['permission'];
+            }
+        }else{
+            $permission = MConst::SUPREME_PERMISSION;
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canRead = $miniPermission->canRead();
+        return $canRead;
+    }
 }
 

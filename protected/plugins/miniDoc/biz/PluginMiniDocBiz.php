@@ -129,38 +129,6 @@ class PluginMiniDocBiz extends MiniBiz{
         return $data;
     }
     /**
-     * 判断权限是否匹配
-     * @param $path
-     * @return bool
-     */
-    private function privilege($path){
-        $isSharedPath = false;
-        $pathArr = explode('/',$path);
-        $masterId = $pathArr[1];
-        if($masterId!=$this->user['id']){
-            $isSharedPath = true;
-        }else{
-            $model = new GeneralFolderPermissionBiz($path);
-            if($model->isParentShared($path)){//如果是父目录被共享
-                $isSharedPath = true;
-            }
-        }
-        if($isSharedPath){
-            $permissionModel = new UserPermissionBiz($path,$this->user['id']);
-            $permissionArr = $permissionModel->getPermission($path,$this->user['id']);
-            if(!isset($permissionArr)){
-                $permission = MConst::SUPREME_PERMISSION;
-            }else{
-                $permission = $permissionArr['permission'];
-            }
-        }else{
-            $permission = MConst::SUPREME_PERMISSION;
-        }
-        $miniPermission = new MiniPermission($permission);
-        $canRead = $miniPermission->canRead();
-        return $canRead;
-    }
-    /**
      * 在线浏览文件获得内容
      * @param $path 文件当前路径
      * @param $type 文件类型，可选择pdf/png
@@ -173,7 +141,8 @@ class PluginMiniDocBiz extends MiniBiz{
         if(empty($file)){
             return array('success' =>false ,'msg'=>'file not existed');
         }
-        $canRead = $this->privilege($path);
+        $fileBiz = new FileBiz();
+        $canRead = $fileBiz->privilege($path);
         if(!$canRead){
             throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
         }
