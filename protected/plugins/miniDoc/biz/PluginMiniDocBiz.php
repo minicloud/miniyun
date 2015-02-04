@@ -111,7 +111,7 @@ class PluginMiniDocBiz extends MiniBiz{
         // $files = MiniFile::getInstance()->getByMimeType($userId,$mimeType,($page-1)*$pageSize,$pageSize);
         $items = array();
         foreach($files as $file){
-            $version = MiniVersion::getInstance()->getVersion($file['version_id']);
+            $version = PluginMiniDocVersion::getInstance()->getVersion($file['version_id']);
             $item['file_name'] = $file['file_name'];
             $item['path'] = $file['file_path'];
             $item['mime_type'] = $version['mime_type'];
