@@ -16,8 +16,8 @@ class m150111_101855_V172  extends EDbMigration{
     {
         $transaction = $this->getDbConnection()->beginTransaction();
         try {
-            $this->setDefault();
             $this->modifyTable();
+            $this->setDefault();
             $transaction->commit();
         } catch (Exception $e) {
             $transaction->commit();
@@ -28,8 +28,11 @@ class m150111_101855_V172  extends EDbMigration{
      * 设置迷你云默认地址，迷你文档服务器下载文件内容需要获得这个地址
      */
     private function setDefault(){
-        $host = MiniHttp::getMiniHost();
-        MiniOption::getInstance()->setOptionValue("miniyun_host",$host);
+        //判断是否在网页启动数据库生成，在command模式下无法获得$_SERVER的值
+        if(array_key_exists("SERVER_PORT",$_SERVER)){
+            $host = MiniHttp::getMiniHost();
+            MiniOption::getInstance()->setOptionValue("miniyun_host",$host);
+        }
     }
     private  function modifyTable(){
         //doc_convert_status=-1表示文件转换失败
