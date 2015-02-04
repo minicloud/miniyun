@@ -24,9 +24,13 @@ class BusinessThemeModule extends MiniPluginModule {
     public function init()
     {
         $this->setImport(array(
+            "businessTheme.biz.*",
+            "businessTheme.cache.*",
+            "businessTheme.service.*",
         ));
         add_filter("plugin_info",array($this, "setPluginInfo"));
     }
+
     /**
      *获得插件信息
      * @param $plugins 插件列表
@@ -39,9 +43,32 @@ class BusinessThemeModule extends MiniPluginModule {
         if(empty($plugins)){
             $plugins = array();
         }
+        //读取商业主题设置参数
+        $key = "plugin_"."businessTheme";
+        $defaultParams = PluginBusinessThemeOption::getDefaultParams();
+        $pluginData = unserialize(MiniOption::getInstance()->getOptionValue($key));
+        if(empty($pluginData)){
+            $pluginData = $defaultParams;
+        }
+        if(empty($pluginData['logo'])){
+            $pluginData['logo'] = $defaultParams['logo'];
+        }
+        if(empty($pluginData['carouselImagesUrl'])){
+            $pluginData['carouselImagesUrl'] = $defaultParams['carouselImagesUrl'];
+        }
+        if(empty($pluginData['companyEnglishName'])){
+            $pluginData['companyEnglishName'] = $defaultParams['companyEnglishName'];
+        }
+        if(empty($pluginData['helpName'])){
+            $pluginData['helpName'] = $defaultParams['helpName'];
+        }
+        if(empty($pluginData['helpUrl'])){
+            $pluginData['helpUrl'] = $defaultParams['helpUrl'];
+        }
         array_push($plugins,
             array(
-               "name"=>"businessTheme",
+                "name"=>"businessTheme",
+                "data"=>$pluginData
             ));
         return $plugins;
     }
