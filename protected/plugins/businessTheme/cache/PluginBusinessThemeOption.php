@@ -10,7 +10,7 @@ class PluginBusinessThemeOption extends MiniVersion{
             'companyEnglishName' => 'CHENGDU MINI ALOUD TECHNOLOGY CO.LTD.',
             'productName' => '迷你云',
             'logo'     => 'http://static.miniyun.cn/static/mini-box/images/logo.gif',
-            'carouselImagesUrl' => array($host.'upload/plugins/pluginTheme/default.png'),
+            'carouselImagesUrl' => array($host.'static/images//plugins/pluginTheme/default.png'),
             'helpName' => '帮助',
             'helpUrl'  => 'http://bbs.miniyun.cn'
         );

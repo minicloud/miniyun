@@ -38,11 +38,11 @@ class PluginBusinessThemeBiz extends MiniBiz{
         $iconFile = $_FILES['icon'];
         $carouselPictures = $_FILES['carousel_pictures'];
         if(!empty($iconFile['name'])){
-            $iconFilePath = BASE.'plugins/pluginTheme/icon.png';
+            $iconFilePath = BASE.'../static/images/plugins/pluginTheme/icon.png';
             if($iconFile['error'] == 0){
                 move_uploaded_file($iconFile['tmp_name'],$iconFilePath);
             }
-            $value['logo'] = $host.'upload/plugins/pluginTheme/icon.png';
+            $value['logo'] = $host.'static/images/plugins/pluginTheme/icon.png';
         }else{
             $value['logo'] = '';
         }
@@ -51,9 +51,9 @@ class PluginBusinessThemeBiz extends MiniBiz{
             $carouselImagesUrl = array();
             for($i = 0;$i<= $total;$i++){
                 if($carouselPictures['error'][$i] == 0){
-                    $saveFilePath = BASE.'plugins/pluginTheme/p'.$i.'.png';
+                    $saveFilePath = BASE.'../static/images/plugins/pluginTheme/p'.$i.'.png';
                     move_uploaded_file($carouselPictures['tmp_name'][$i],$saveFilePath);
-                    array_push($carouselImagesUrl,$host.'upload/plugins/pluginTheme/p'.$i.'.png');
+                    array_push($carouselImagesUrl,$host.'static/images/plugins/pluginTheme/p'.$i.'.png');
                 }
             }
             $value['carouselImagesUrl'] = $carouselImagesUrl;
