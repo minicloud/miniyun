@@ -72,11 +72,28 @@ class PluginBusinessThemeBiz extends MiniBiz{
     public function getParams(){
         $key = "plugin_"."businessTheme";
         $value = MiniOption::getInstance()->getOptionValue($key);
+        $defaultParams =  PluginBusinessThemeOption::getDefaultParams();
         if(!empty($value)){
-            return unserialize($value);
+            $pluginData =  unserialize($value);
         }else{
-            return PluginBusinessThemeOption::getDefaultParams();
+            $pluginData = $defaultParams;
         }
+        if(empty($pluginData['logo'])){
+            $pluginData['logo'] = $defaultParams['logo'];
+        }
+        if(empty($pluginData['carouselImagesUrl'])){
+            $pluginData['carouselImagesUrl'] = $defaultParams['carouselImagesUrl'];
+        }
+        if(empty($pluginData['companyEnglishName'])){
+            $pluginData['companyEnglishName'] = $defaultParams['companyEnglishName'];
+        }
+        if(empty($pluginData['helpName'])){
+            $pluginData['helpName'] = $defaultParams['helpName'];
+        }
+        if(empty($pluginData['helpUrl'])){
+            $pluginData['helpUrl'] = $defaultParams['helpUrl'];
+        }
+        return $pluginData;
     }
 
 }
