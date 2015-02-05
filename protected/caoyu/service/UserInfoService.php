@@ -68,6 +68,10 @@ class UserInfoService extends MiniService{
      * 创建用户
      */
     public function createUser(){
+        $isExtend = apply_filters("license_user_extend");
+        if($isExtend===1){
+            throw new MiniException(1003);
+        }
         $userName = MiniHttp::getParam('user_name',"");
         $password    = MiniHttp::getParam('password',"");
         $nick    = MiniHttp::getParam('nick',"");
@@ -264,13 +268,14 @@ class UserInfoService extends MiniService{
             $user['name']=trim($item[0]);
             $user['password']=trim($item[1]);
             $user['extend']['nick']= trim($item[2]);
-//            trim($item[2]);
-//            mb_convert_encoding(trim($item[2]),"utf-8","GB-18030");
-//            var_dump(trim($item[2]));exit;
             $user['extend']['space']=(trim($item[3])*1024=="")?10240:trim($item[3])*1024;//默认10G
             $user['extend']['email']=trim($item[4]);
             if(MiniUser::getInstance()->getUserByName($user['name'])){
                 $count++;
+            }
+            $isExtend = apply_filters("license_user_extend");
+            if($isExtend===1){
+                throw new MiniException(1003);
             }
             MiniUser::getInstance()->create($user);
         }
