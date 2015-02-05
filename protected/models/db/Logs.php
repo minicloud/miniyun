@@ -9,6 +9,7 @@
  */
 class Logs extends CMiniyunModel
 {
+    public $maxUpdatedAt;
     public static function model($className=__CLASS__)
     {
         return parent::model($className);
