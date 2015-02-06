@@ -433,6 +433,7 @@ class MiniUser extends MiniCache{
     public function setAdministrator($userId){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($userId);
         $user = $this->getUser($userId);
+        $metas["is_admin"] = "0";
         foreach ($metas as $key=>$value){
             if($key==="is_admin"){
                 $metas["is_admin"] = "1";
@@ -451,6 +452,7 @@ class MiniUser extends MiniCache{
     public function normalizeUser($userId){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($userId);
         $user = $this->getUser($userId);
+        $metas["is_admin"] = "0";
         foreach ($metas as $key=>$value){
             if($key==="is_admin"){
                 $metas["is_admin"] = "0";
