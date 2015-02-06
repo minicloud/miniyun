@@ -6,7 +6,8 @@ protected/config/miniyun-config.php
 protected/runtime/error.log
 static/images/plugins/
 protected/config/memcache.php
-protected/config/miniyun_offline.php 
+protected/config/miniyun_offline.php
+protected/plugins/offline
 .idea/
 static/views/
 protected/runtime/sql.log

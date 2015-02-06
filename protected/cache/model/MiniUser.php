@@ -433,6 +433,7 @@ class MiniUser extends MiniCache{
     public function setAdministrator($userId){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($userId);
         $user = $this->getUser($userId);
+        $metas["is_admin"] = "0";
         foreach ($metas as $key=>$value){
             if($key==="is_admin"){
                 $metas["is_admin"] = "1";
@@ -451,6 +452,7 @@ class MiniUser extends MiniCache{
     public function normalizeUser($userId){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($userId);
         $user = $this->getUser($userId);
+        $metas["is_admin"] = "0";
         foreach ($metas as $key=>$value){
             if($key==="is_admin"){
                 $metas["is_admin"] = "0";
@@ -614,6 +616,13 @@ class MiniUser extends MiniCache{
      */
     public function getEnableCount(){
         return User::model()->count('user_status=1');
+    }
+    /**
+     * 获得所有用户的总数
+     * @return array 获得所有用户的总数
+     */
+    public function getCount(){
+        return User::model()->count();
     }
     public function getById($id){
         $criteria                = new CDbCriteria();
