@@ -288,7 +288,7 @@ class MiniUtil{
     }
     public static function sendResponse($status = 200, $body = '', $content_type = 'text/html')
     {
-        $status_header = 'HTTP/1.1 ' . $status . ' ' . self::getStatusCodeMessage($status);
+        $status_header = 'HTTP/1.1 ' . $status . ' ';
         // 设置状态
         header($status_header);
         // 设置Content-type

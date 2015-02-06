@@ -14,6 +14,7 @@ class UserFile extends CMiniyunModel
 	 * @var int
 	 */
     public $usedSize;
+    public $maxUpdatedAt;
     public static function model($className=__CLASS__)
     {
         return parent::model($className);

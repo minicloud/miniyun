@@ -22,6 +22,7 @@ class PluginDocConvertCommand extends CConsoleCommand{
     { 
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList();
         if(empty($versions)) {
+            echo("没有需要转换的文档了");
             Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
             return;
         }

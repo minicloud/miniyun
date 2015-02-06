@@ -87,8 +87,16 @@ class UserBiz  extends MiniBiz{
     /**
      * 用户登录
      * @return array|bool
+     * @throws
      */
     public function oauth2(){
+        $isExtend = apply_filters("license_expired");
+        if($isExtend===1){
+            $userName = MiniHttp::getParam("username","");
+            if($userName!=="admin"){
+                throw new MiniException(440);
+            }
+        }
         $oauth = new PDOOAuth2();
         $token = $oauth->grantAccessToken();
         #添加登陆日志

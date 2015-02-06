@@ -10,7 +10,8 @@
 class User extends CMiniyunModel
 {
 	public $maxId;
-
+    public $minCreatedAt;
+    public $maxUpdatedAt;
 	/**
 	 * Returns the static model of the specified AR class.
 	 */

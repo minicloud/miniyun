@@ -23,7 +23,6 @@ class m150116_101455_v172 extends EDbMigration{
             $this->modifyData();
             $transaction->commit();
         } catch (Exception $e) {
-            $transaction->commit();
         }
     }
     /**

@@ -617,6 +617,13 @@ class MiniUser extends MiniCache{
     public function getEnableCount(){
         return User::model()->count('user_status=1');
     }
+    /**
+     * 获得所有用户的总数
+     * @return array 获得所有用户的总数
+     */
+    public function getCount(){
+        return User::model()->count();
+    }
     public function getById($id){
         $criteria                = new CDbCriteria();
         $criteria->condition="id = :id";
