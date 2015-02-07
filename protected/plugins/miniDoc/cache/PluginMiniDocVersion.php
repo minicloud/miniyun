@@ -129,7 +129,6 @@ class PluginMiniDocVersion extends MiniCache{
                 $criteria->offset        = 0;
                 $criteria->params        = array(
                     "mime_type"=>$mimeType,
-                    "doc_convert_status"=>$status
                 );
                 $list = FileVersion::model()->findAll($criteria);
                 if(count($list)>0){
