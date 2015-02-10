@@ -40,6 +40,12 @@ class PluginBusinessThemeBiz extends MiniBiz{
         if(!empty($iconFile['name'])){
             $iconFilePath = BASE.'../static/images/plugins/pluginTheme/icon.png';
             if($iconFile['error'] == 0){
+                list($width, $height, $type, $attr) = getimagesize($iconFile['tmp_name']);
+                if($width!=256 || $height!=256){
+                    echo 'Logo文件大小不合法！';
+                    echo "<script type='text/javascript'> setTimeout(function(){window.parent.location = '".$host."index.php/consolePlugin/businessTheme'},1000);</script>";
+                    exit;
+                }
                 move_uploaded_file($iconFile['tmp_name'],$iconFilePath);
             }
             $value['logo'] = $host.'static/images/plugins/pluginTheme/icon.png';
@@ -51,6 +57,12 @@ class PluginBusinessThemeBiz extends MiniBiz{
             $carouselImagesUrl = array();
             for($i = 0;$i<= $total;$i++){
                 if($carouselPictures['error'][$i] == 0){
+                    list($width, $height, $type, $attr) = getimagesize($carouselPictures['tmp_name'][$i]);
+                    if($width!=1055 || $height!=575){
+                        echo '轮播图片文件大小不合法！';
+                        echo "<script type='text/javascript'> setTimeout(function(){window.parent.location = '".$host."index.php/consolePlugin/businessTheme'},1000);</script>";
+                        exit;
+                    }
                     $saveFilePath = BASE.'../static/images/plugins/pluginTheme/p'.$i.'.png';
                     move_uploaded_file($carouselPictures['tmp_name'][$i],$saveFilePath);
                     array_push($carouselImagesUrl,$host.'static/images/plugins/pluginTheme/p'.$i.'.png');
