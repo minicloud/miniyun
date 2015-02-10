@@ -1,13 +1,4 @@
 <?php
-/*
-* Plugin Name: 商业版主题
-* Plugin Type: businessTheme
-* Plugin URI: http://www.miniyun.cn
-* Description: 商业版用户主题
-* Author: MiniYun
-* Version: 1.0.0
-* Author URI: http://www.miniyun.cn
-*/
 /**
  * 商业版主题
  * @author app <app@miniyun.cn>

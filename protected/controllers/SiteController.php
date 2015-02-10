@@ -13,7 +13,7 @@ class SiteController extends CController {
      */
     public function actionError() {
         if ($error = Yii::app()->errorHandler->error) {
-            if (Yii::app()->request->isAjaxRequest){
+            if (Yii::app()->request->isAjaxRequest||MiniHttp::isPCClient()){
 				echo $error['message'];
 			}                
             else{

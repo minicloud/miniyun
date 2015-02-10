@@ -1,13 +1,4 @@
 <?php
-/*
-* Plugin Name: 迷你搜索
-* Plugin Type: miniSearch
-* Plugin URI: http://www.miniyun.cn
-* Description: 支持doc/xls/ppt/pdf/文本文件内容搜索
-* Author: MiniYun
-* Version: 1.0.0
-* Author URI: http://www.miniyun.cn
-*/
 /**
  *
  * 迷你搜索插件

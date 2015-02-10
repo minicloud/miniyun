@@ -1,13 +1,4 @@
 <?php
-/*
-* Plugin Name: 迷你文档
-* Plugin Type: miniDoc
-* Plugin URI: http://www.miniyun.cn
-* Description: 支持doc/xls/ppt/pdf在线浏览
-* Author: MiniYun
-* Version: 1.0.0
-* Author URI: http://www.miniyun.cn
-*/
 /**
  * 迷你文档插件
  * @author app <app@miniyun.cn>
