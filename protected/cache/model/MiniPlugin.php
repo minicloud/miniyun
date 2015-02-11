@@ -419,8 +419,9 @@ class MiniPlugin extends MiniCache
      */
     private function getPluginMeta($pluginFile)
     {
+        $metaFile = dirname($pluginFile).DIRECTORY_SEPARATOR."meta";
         // We don't need to write to the file, so just open for reading.
-        $fp = fopen($pluginFile, 'r');
+        $fp = fopen($metaFile, 'r');
         // Pull only the first 8kiB of the file in.
         $pluginData = fread($fp, 8192);
         // PHP will close file handle, but we are good citizens.

@@ -7,10 +7,10 @@ class PluginBusinessThemeOption extends MiniVersion{
         $host = MiniHttp::getMiniHost();
         $data = array(
             'companyName' => '成都迷你云科技有限公司',
-            'companyEnglishName' => 'CHENGDU MINI ALOUD TECHNOLOGY CO.LTD.',
+            'companyEnglishName' => 'Chengdu Mini cloud Technology Co. Ltd.',
             'productName' => '迷你云',
-            'logo'     => 'http://static.miniyun.cn/static/mini-box/images/logo.gif',
-            'carouselImagesUrl' => array($host.'static/images//plugins/pluginTheme/default.png'),
+            'logo'     => $host.'static/images/logo.png',
+            'carouselImagesUrl' => array($host.'static/images/plugins/pluginTheme/default.png'),
             'helpName' => '帮助',
             'helpUrl'  => 'http://bbs.miniyun.cn'
         );

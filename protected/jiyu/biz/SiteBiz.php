@@ -86,6 +86,10 @@ class SiteBiz extends MiniBiz
         if (isset($enableReg) && $enableReg == "0") {
             throw new MiniException(1000);
         }
+        $isExtend = apply_filters("license_user_extend");
+        if($isExtend===1){
+            throw new MiniException(1003);
+        }
         $data = array();
         //参数完整性检测
         if (empty($name) || strlen($name) > 255) {

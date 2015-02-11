@@ -14,142 +14,146 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
     <meta name='renderer' content='webkit'/>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'/>
-<script>
-    /**
-     * 设置cookie
-     */
-    function setCookie(name,value,expireDays)
-    {
-        if(expireDays>0){
-            var exDate=new Date()
-            exDate.setDate(exDate.getDate()+expireDays)
-            document.cookie=name+"="+encodeURI(value)+((expireDays==null) ? "" : ";path=/;expires="+exDate.toGMTString())
-        }else{
-            document.cookie=name+"="+encodeURI(value)+";path=/;";
-        }
-    }
-    /**
-     * 判断是否是IE浏览器
-     */
-    function isIE(){
-        var userAgent = navigator.userAgent.toLowerCase();
-        var value = (userAgent.indexOf('trident') != -1) ?true:false;
-        return value;
-    }
-    /**
-     * 获得cookie
-     * @param name
-     */
-    function getCookie(name)
-    {
-        var cookie = document.cookie;
-        if (cookie.length>0){
-            var key = name + "=";
-            var start=cookie.indexOf(key);
-            if (start!=-1){
-                start = start+key.length;
-                var end=cookie.indexOf(";",start);
-                if (end==-1){
-                    end=cookie.length;
-                }
-                var value = cookie.substring(start,end);
-                return decodeURI(value);
+    <script>
+        /**
+         * 设置cookie
+         */
+        function setCookie(name,value,expireDays)
+        {
+            if(expireDays>0){
+                var exDate=new Date()
+                exDate.setDate(exDate.getDate()+expireDays)
+                document.cookie=name+"="+encodeURI(value)+((expireDays==null) ? "" : ";path=/;expires="+exDate.toGMTString())
+            }else{
+                document.cookie=name+"="+encodeURI(value)+";path=/;";
             }
         }
-        return "";
-    }
-    /**
-     *获得url地址里面的参数
-     */
-    function getParameter(name){
-        var currLocation = window.location.search;
-        if(currLocation!=""){
-            var parameters = currLocation.split("?")[1].split("&");
-            for(var i = 0; i < parameters.length; i++){
-                var item = parameters[i].split("=");
-                if(item[0] == name){
-                    var value = decodeURIComponent(item[1]);
-                    return value.replace("#","");
+        /**
+         * 判断是否是IE浏览器
+         */
+        function isIE(){
+            var userAgent = navigator.userAgent.toLowerCase();
+            var value = (userAgent.indexOf('trident') != -1) ?true:false;
+            return value;
+        }
+        /**
+         * 获得cookie
+         * @param name
+         */
+        function getCookie(name)
+        {
+            var cookie = document.cookie;
+            if (cookie.length>0){
+                var key = name + "=";
+                var start=cookie.indexOf(key);
+                if (start!=-1){
+                    start = start+key.length;
+                    var end=cookie.indexOf(";",start);
+                    if (end==-1){
+                        end=cookie.length;
+                    }
+                    var value = cookie.substring(start,end);
+                    return decodeURI(value);
                 }
             }
-        }else{
-            var info = window.location.href.split("index.php");
-            if(typeof info[1] !== 'undefined'){
-                var parameters = info[1].split("/");
+            return "";
+        }
+        /**
+         *获得url地址里面的参数
+         */
+        function getParameter(name){
+            var currLocation = window.location.search;
+            if(currLocation!=""){
+                var parameters = currLocation.split("?")[1].split("&");
                 for(var i = 0; i < parameters.length; i++){
-                    if(parameters[i] == name && (i+1)<=parameters.length){
-                        var value = decodeURIComponent(parameters[i+1]);
+                    var item = parameters[i].split("=");
+                    if(item[0] == name){
+                        var value = decodeURIComponent(item[1]);
                         return value.replace("#","");
                     }
                 }
-            }
-        }
-        return "";
-    }
-    /**
-     * 访问static.miniyun.cn成功，跳转回去
-     */
-    function online(text){
-        var data = eval("(" + text + ")");
-        var language = getCookie("language");
-        if(language==""){
-            setCookie("language","zh_cn");
-        }
-        //上次更新时间
-        setCookie("syncTime",getParameter("t"));
-        //云端版本
-        setCookie("cloudVersion",data.version);
-        var accessToken = getCookie("accessToken");
-        if(accessToken==""){
-            window.location.href = "index.php/site/login";
-        }else{
-            var backUrl = getParameter("back");
-            window.location.href = decodeURIComponent(backUrl);
-        }
-    }
-    /**
-     * 无法访问static.miniyun.cn
-     */
-    function offline(){
-        setCookie("syncTime","-1");
-        window.location.href = "index.php/netdisk/index";
-    }
-    /**
-     * 判断是否在线
-     */
-    function judgeOnline(){
-        var host = getParameter("staticServerHost");
-        var url = host+"index.php/client/web";
-        if(isIE()){
-            var xdr = new XDomainRequest();
-            xdr.open("get", url);
-            xdr.onload = function() {
-                online(xdr.responseText);
-            };
-            xdr.onprogress = function() {};
-            xdr.onerror = function(){
-                offline();
-            };
-            xdr.send();
-
-        }else{
-            var oAjax = new XMLHttpRequest();
-            oAjax.open('GET', url, true);
-            oAjax.send();
-            oAjax.onreadystatechange = function(){  //OnReadyStateChange事件
-                if(oAjax.readyState == 4){  //4为完成
-                    if(oAjax.status == 200){//200为成功
-                        online(oAjax.responseText);
-                    }else{
-                        offline();
+            }else{
+                var info = window.location.href.split("index.php");
+                if(typeof info[1] !== 'undefined'){
+                    var parameters = info[1].split("/");
+                    for(var i = 0; i < parameters.length; i++){
+                        if(parameters[i] == name && (i+1)<=parameters.length){
+                            var value = decodeURIComponent(parameters[i+1]);
+                            return value.replace("#","");
+                        }
                     }
                 }
-            };
+            }
+            return "";
         }
-
-    }
-    window.onload = judgeOnline;
-</script>
+        /**
+         * 访问static.miniyun.cn成功，跳转回去
+         */
+        function online(text){
+            var data = eval("(" + text + ")");
+            var language = getCookie("language");
+            if(language==""){
+                setCookie("language","zh_cn");
+            }
+            //上次更新时间
+            setCookie("syncTime",getParameter("t"));
+            //云端版本
+            setCookie("cloudVersion",data.version);
+            var accessToken = getCookie("accessToken");
+            if(accessToken==""){
+                window.location.href = "index.php/site/login";
+            }else{
+                var backUrl = getParameter("back");
+                window.location.href = decodeURIComponent(backUrl);
+            }
+        }
+        /**
+         * 无法访问static.miniyun.cn
+         */
+        function offline(){
+            setCookie("syncTime","-1");
+            window.location.href = "index.php/netdisk/index";
+        }
+        /**
+         * 判断是否在线
+         */
+        function judgeOnline(){
+            var host = getParameter("staticServerHost");
+            var url = host+"index.php/client/web";
+            var xdr;
+            var oAjax;
+            try{
+                xdr = new XDomainRequest();
+            }catch(e){
+                oAjax = new XMLHttpRequest();
+            }
+            if(!xdr){
+                oAjax.open('GET', url, true);
+                oAjax.send();
+                oAjax.onreadystatechange = function(){  //OnReadyStateChange事件
+                    if(oAjax.readyState == 4){  //4为完成
+                        if(oAjax.status == 200){//200为成功
+                            online(oAjax.responseText);
+                        }else{
+                            offline();
+                        }
+                    }
+                };
+            }else{
+                var xdr = new XDomainRequest();
+                xdr.open("get", url);
+                xdr.onload = function() {
+                    online(xdr.responseText);
+                };
+                xdr.onprogress = function() {};
+                xdr.onerror = function(){
+                    offline();
+                };
+                xdr.send();
+            }
+        }
+        window.onload = judgeOnline;
+    </script>
 </head>
 <body>
 </body>
