@@ -66,7 +66,7 @@ class PluginMiniStoreNode extends MiniVersion{
         $value["access_token"]        = $item->access_token;
         $value["status"]              = $item->status;
         $value["saved_file_count"]    = $item->saved_file_count;
-        $value["downloaded_file_count"] = $item->download_file_count;
+        $value["downloaded_file_count"] = $item->downloaded_file_count;
         $value["created_at"]          = $item->created_at;
         $value["updated_at"]          = $item->updated_at;
         return $value;
