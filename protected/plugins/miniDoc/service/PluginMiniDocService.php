@@ -53,6 +53,7 @@ class PluginMiniDocService extends MiniService{
      */
     public function previewContent(){
         $path = MiniHttp::getParam("path","");
+        $path = rawurldecode($path);
         $type = MiniHttp::getParam("type","pdf");
         $biz = new PluginMiniDocBiz();
         return $biz->previewContent($path,$type);

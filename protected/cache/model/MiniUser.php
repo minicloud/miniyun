@@ -271,40 +271,14 @@ class MiniUser extends MiniCache{
         return NULL;
     }
     /**
-     * 是否需要重新计算用户的空间值
-     * @param int $userId
-     * @return bool
-     */
-    private function isRebuidUserSpace($userId){
-        $userEventKey       = "cach.model.user.event.max.user_".$userId;
-        $cacheUserMaxId     = $this->get($userEventKey);
-        if($cacheUserMaxId===false){//当2者之一都不存在记录，重置缓存
-            $cacheUserMaxId = MiniEvent::getInstance()->getMaxIdByUser($userId);
-            $this->set($userEventKey, $cacheUserMaxId);
-            //TODO 标识用户数据发生变化，应该做对于历史缓存数据的清理，与是否是网页或客户端状态没有关系
-            return true;
-        }
-        $userMaxId         = MiniEvent::getInstance()->getMaxIdByUser($userId);
-        if($cacheUserMaxId!=$userMaxId){
-            //TODO 标识用户数据发生变化，应该做对于历史缓存数据的清理，与是否是网页或客户端状态没有关系
-            return true;
-        }
-        return false;
-    }
-    /**
      * 获取用户使用的空间大小
      * 在计算用户空间这里，
      * @param $userId 用户ID
      * @return bool|mixed
      */
     private function getUsedSize($userId) {
-        $userSpaceKey  = "cach.model.user.usedSpace_".$userId;
-        if($this->isRebuidUserSpace($userId)){
-            $usedSpace = MiniFile::getInstance()->getUsedSize($userId);
-            $this->set($userSpaceKey, $usedSpace);
-            return $usedSpace;
-        }
-        return $this->get($userSpaceKey);
+        $usedSpace = MiniFile::getInstance()->getUsedSize($userId);
+        return $usedSpace;
     }
     /**
      * 更新用户密码，同时清理该用户的缓存
