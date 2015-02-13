@@ -40,7 +40,7 @@ class m150208_191855_V180  extends EDbMigration{
                 'access_token'         => 'varchar(128) NOT NULL',//访问token，用于安全校验
                 'status'               => 'int NOT NULL',//-1表示服务器不可用，1表示服务器可用
                 'saved_file_count'     => 'int NOT NULL',//已存储文件的总数
-                'download_file_count'  => 'int NOT NULL',//已下载文件的总数
+                'downloaded_file_count'  => 'int NOT NULL',//已下载文件的总数
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
