@@ -31,7 +31,7 @@ class PluginMiniStoreService extends MiniService{
         $host = MiniHttp::getParam("host","");
         $accessToken = MiniHttp::getParam("node_access_token","");
         if(empty($name)||empty($host)||empty($accessToken)){
-            //TODO 返回错误码
+            throw new MiniException(100101);
         }
         $biz = new PluginMiniStoreBiz();
         return $biz->createOrModifyNode($name,$host,$accessToken);
@@ -43,7 +43,7 @@ class PluginMiniStoreService extends MiniService{
         $name = MiniHttp::getParam("name","");
         $status = MiniHttp::getParam("status","0");
         if(empty($name)){
-            //TODO 返回错误码
+            throw new MiniException(100102);
         }
         $biz = new PluginMiniStoreBiz();
         return $biz->modifyNodeStatus($name,$status);

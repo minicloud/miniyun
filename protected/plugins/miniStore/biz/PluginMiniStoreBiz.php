@@ -28,13 +28,15 @@ class PluginMiniStoreBiz extends MiniBiz{
      * 修改迷你存储节点状态
      * @param $name 节点名称
      * @param $status 节点状态
+     * @throws MiniException
      */
     public function modifyNodeStatus($name,$status){
         $item = StoreNode::model()->find("name=:name",array("name"=>$name));
         if(!isset($item)){
-            //TODO 返回错误码，说明服务器节点不存在
+            throw new MiniException(100103);
         }
         //TODO 检查服务器状态，看看是否可以连接迷你存储服务器
+        //throw new MiniException(100104);
         return PluginMiniStoreNode::getInstance()->modifyNodeStatus($name,$status);
     }
 
