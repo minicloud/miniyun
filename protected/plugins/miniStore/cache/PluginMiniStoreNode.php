@@ -90,7 +90,7 @@ class PluginMiniStoreNode extends MiniVersion{
         if(!isset($item)){
             $item = new StoreNode();
             $item->saved_file_count=0;
-            $item->download_file_count=0;
+            $item->downloaded_file_count=0;
         }
         $item->name = $name;
         $item->host = $host;
