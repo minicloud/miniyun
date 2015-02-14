@@ -29,6 +29,12 @@ class MiniService{
         return array();
     }
     /**
+     * 只有管理员才能访问actionList
+     */
+    protected function adminActionList(){
+        return array();
+    }
+    /**
      * 初始化用户会话信息
      */
     protected  function initSession(){
@@ -50,6 +56,20 @@ class MiniService{
             }
             if($canAnonymous===false){
                 $this->initSession();
+            }
+            //如接口需管理员才能访问，则需安全过滤
+            $canAdmin = false;
+            $actions = $this->adminActionList();
+            foreach($actions as $subAction){
+                if($subAction===$uri){
+                    $canAdmin = true;
+                }
+            } 
+            if($canAdmin){
+                $user = MUserManager::getInstance()->getCurrentUser(); 
+                if(!$user["is_admin"]){
+                    throw new MiniException(100001);
+                }
             }
             //通过反射方式调用对应的action
             $this->action = $uri;
