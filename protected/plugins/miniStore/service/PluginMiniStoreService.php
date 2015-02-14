@@ -10,12 +10,17 @@
  */
 class PluginMiniStoreService extends MiniService{
     protected function anonymousActionList(){
-        return array(
-            "nodeList",
-            "node",
-            "nodeStatus"
+        return array( 
         );
     }
+    protected function adminActionList(){
+        return array( 
+            "nodeList",
+            "node",
+            "nodeStatus",
+        );
+    }
+    
     /**
      * 获得迷你存储节点列表
      */

@@ -13,6 +13,11 @@ class PluginBusinessThemeService extends MiniService{
         return array(
         );
     }
+    protected function adminActionList(){
+        return array(
+            "setParams"
+        );
+    }
     /**
      * 商业版主题参数设置接口
      */
