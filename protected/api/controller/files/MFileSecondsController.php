@@ -12,7 +12,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
     protected $handler = NULL;
     protected $size = 0;
     protected $version_id = 0;
-    private $isNew = false;//标示是否是迷你云新版本，新版本启用传统的参数传递模式
+    private $isNewVersion = false;//标示是否是迷你云新版本，新版本启用传统的参数传递模式
     /**
      * (non-PHPdoc)
      * @see MIController::invoke()
@@ -23,14 +23,15 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         // 调用父类初始化函数，注册自定义的异常和错误处理逻辑
         parent::init();
         $hash = @$_REQUEST['hash'];
-        
+        if (empty($hash)) {
+            $hash = MiniHttp::getParam("signature","");
+        }
         // 接收参数
         if (empty($hash)) {
             throw new MFilesException(
             Yii::t('api',MConst::PARAMS_ERROR . "Missing parameter 'hash'."), 
             MConst::HTTP_CODE_400);
         }
-        
         // 解析文件路径，若返回false，则错误处理
         $urlManager = new MUrlManager();
         $path = $urlManager->parsePathFromUrl($uri);
@@ -39,7 +40,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
             //支持参数模式传递上传路径
             $path = MiniHttp::getParam("path","");
             $root = "miniyun";
-            $this->isNew = true;
+            $this->isNewVersion = true;
             if(empty($path)){
                 throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);
             }
@@ -62,7 +63,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         }
 
         // 检查版本是否存在
-        if ($this->handleCheckFileVersion($hash) == FALSE)
+        if ($this->handleCheckFileVersion($hash,$fileName) == FALSE)
         {
             return;
         }
@@ -102,20 +103,21 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
     /**
      *
      * 检查文件data和 meta是否存在
-     * @param string $hash
+     * @param string $hash      文件sha1
+     * @param string $fileName  文件名
      * @return bool|void
      */
-    protected function handleCheckFileVersion ($hash)
+    protected function handleCheckFileVersion ($hash,$fileName)
     {
-        $storePath = MiniUtil::getPathBySplitStr ($hash);
-        $dataObj = Yii::app()->data;
         $version = MiniVersion::getInstance()->getBySignature($hash);
-        if(!$this->isNew){
+        if(!$this->isNewVersion){
             //data源处理对象
             if ($version == null) {
                 return $this->handleAssign();
-            }
+            } 
             // 检查文件是否存在
+            $dataObj = Yii::app()->data;
+            $storePath = MiniUtil::getPathBySplitStr ($hash);
             if ($dataObj->exists($storePath) == false) {
                 return $this->handleAssign();
             }
@@ -123,32 +125,45 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
             $this->size       = $version['file_size'];
             return true;
         }else{
-            //按http://doc.mini-inc.cn/?p=175接口文档实现新版本的处理
-            //返回断点文件信息
+            //返回断点文件信息 
             $data = array(); 
-            if (empty($version)) { 
-                $data['success'] = false;
-                $data['url'] =  MiniHttp::getMiniHost()."api.php";
-                $filePath = BASE."upload_block/cache/".$storePath;
-                if (file_exists($filePath)) {
-                    $data['offset'] = filesize($filePath);
-                    //如文件大小相同而且Hash值相同，说明流数据文件已经存在，直接生成元数据即可
-                    $size = MiniHttp::getParam("size","");
-                    $signature = MiniHttp::getParam("hash","");
-                    if($data['offset']==$size){
-                        //生成version记录，为使用老逻辑代码，这里处理得很羞涩
-                        //理想的逻辑是在这里直接返回相关结果
-                        $fileName = MiniHttp::getParam("file_name","");
-                        $mimeType = CUtils::mime_content_type($fileName);
-                        $version = MiniVersion::getInstance()->create($signature,$size,$mimeType);
-                        $this->version_id = $version['id'];
-                        $this->size       = $version['file_size'];
-                        return true;
-                    }
+            if (empty($version)) {  
+                $miniStoreInfo = MiniUtil::getPluginMiniStoreData(); 
+                if(empty($miniStoreInfo)){
+                    //普通文件上传
+                    $data['success'] = false;
+                    $data['url'] =  MiniHttp::getMiniHost()."api.php";
+                    $storePath = MiniUtil::getPathBySplitStr($hash);
+                    $filePath = BASE."upload_block/cache/".$storePath;
+                    if (file_exists($filePath)) {
+                        $data['offset'] = filesize($filePath);
+                        //如文件大小相同而且Hash值相同，说明流数据文件已经存在，直接生成元数据即可
+                        $size = MiniHttp::getParam("size",""); 
+                        if($data['offset']==$size){
+                            //生成version记录，为使用老逻辑代码，这里处理得很羞涩
+                            //理想的逻辑是在这里直接返回相关结果 
+                            $mimeType = CUtils::mime_content_type($fileName);
+                            $version = MiniVersion::getInstance()->create($hash,$size,$mimeType);
+                            $this->version_id = $version['id'];
+                            $this->size       = $version['file_size'];
+                            return true;
+                        }
+                    }else{
+                        $data['offset'] = 0;
+                    } 
+                    echo json_encode($data);exit;
                 }else{
-                    $data['offset'] = 0;
-                } 
-                echo json_encode($data);exit;
+                    //迷你存储与第3方存储秒传接口
+                    apply_filters("file_sec", array(
+                            "route"=>"module/miniStore/report",
+                            "sign"=>MiniHttp::getParam("sign",""),
+                            "access_token"=>MiniHttp::getParam("access_token",""),
+                            "signature"=>$hash,
+                            "size"=>MiniHttp::getParam("size",""),
+                            "path"=>MiniHttp::getParam("path",""), 
+                    )); 
+                }
+                
             }else{
                 //上传文件到其它目录下，支持秒传
                 $this->version_id = $version['id'];

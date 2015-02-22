@@ -9,6 +9,23 @@
  */
 class PluginMiniStoreBiz extends MiniBiz{
     /**
+     * 迷你存储报俊
+     * @param string $path 用户文件的存储路径
+     * @param string $signature 文件sha1
+     * @param int $size 文件大小，单位字节
+     * @param int $nodeId 迷你存储节点值 
+     */
+    public function report($path,$signature,$size,$nodeId){
+        //创建version/versionMeta数据
+        $pathParts = pathinfo($path);
+        $type = CUtils::mime_content_type($pathParts["filename"]);
+        $version = MiniVersion::getInstance()->create($signature, $size, $type);
+        MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
+        //执行文件秒传逻辑
+        $filesController = new MFileSecondsController();
+        $filesController->invoke();
+    }
+    /**
      *获得迷你存储节点信息列表
      */
     public function getNodeList(){

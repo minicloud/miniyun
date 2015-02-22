@@ -146,32 +146,28 @@ class MThumbnailBase extends MModel {
         }
         $this->width   = $sizeInfo["w"];
         $this->height  = $sizeInfo["h"];
+        // 检查缩略图是否存在
+        $thumbnail  = THUMBNAIL_TEMP . MiniUtil::getPathBySplitStr($signature);
+        $thumbnail .= "_{$this->width}_{$this->height}.{$this->format}";
 
+        if (file_exists($thumbnail) == true) {
+            //直接跳转，避免重复生成缩略图
+            $url = MiniHttp::getMiniHost()."static/thumbnails/".MiniUtil::getPathBySplitStr($signature);
+            $url .= "_{$this->width}_{$this->height}.{$this->format}";
+            header('Location: '.$url);
+            exit;
+        }
         //为第三方源下缩略图添加hook
         $thumbnailData = array();
-        $thumbnailData["hash"]    = $signature;
-        $thumbnailData["width"]   = $this->width;
-        $thumbnailData["height"]  = $this->height;
-        $thumbnailData["rotate"]  = 0;
-        $thumbnailData["sharpen"] = 20;
-        $thumbnailData["quality"] = 75;
-        $thumbnailData["format"]  = $this->format;
-        $thumbnailData['api']     = true;
-        $url = apply_filters("image_thumbnails", $thumbnailData);
-        if ($url !== $thumbnailData && !empty($url)){
-            Yii::app()->request->redirect($url);
-            return;
-        }
-        //data源处理对象
-        $dataObj = Yii::app()->data;
-        $signaturePath = MiniUtil::getPathBySplitStr($signature);
-        if ($dataObj->isExistLocal()){
-            $storePath = $dataObj->documentStorePath($signaturePath) . $signaturePath;
-        } else {
-            $isTmp = true;
-            $storePath = DOCUMENT_TEMP . $signature . ".tmp";
-            //将远程文件下载到本地， 如果是本地备份，则直接从本地读取
-            $dataObj->get($signaturePath, $storePath);
+        $thumbnailData["signature"] = $signature;
+        $storePath = apply_filters("image_path", $thumbnailData);
+        if ($storePath === $thumbnailData || empty($storePath)){
+            //data源处理对象
+            $dataObj = Yii::app()->data;
+            $signaturePath = MiniUtil::getPathBySplitStr($signature);
+            if ($dataObj->isExistLocal()){
+                $storePath = $dataObj->documentStorePath($signaturePath) . $signaturePath;
+            }
         }
         if (file_exists($storePath) == false) {
             throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
@@ -184,46 +180,32 @@ class MThumbnailBase extends MModel {
         $this->handler = NULL;
         $this->image   = $tmpPath;
         $this->resize  = true;
-        // 缩略图存储位置
-        $thumbnail  = THUMBNAIL_TEMP . MiniUtil::getPathBySplitStr($signature);
-        $thumbnail .= "_{$this->width}_{$this->height}.{$this->format}";
-        
-        
-        if (file_exists($thumbnail) == true) {
-            //直接跳转，避免重复生成缩略图
-            $url = MiniHttp::getMiniHost()."static/thumbnails/".MiniUtil::getPathBySplitStr($signature);
-            $url .= "_{$this->width}_{$this->height}.{$this->format}";
-            header('Location: '.$url);
-            exit;
-        } else {
-            // 创建缩略图片父目录
-            if (file_exists(dirname($thumbnail)) == false) {
-                if (MUtils::MkDirsLocal(dirname($thumbnail)) == false) {
-                    throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
-                }
+        // 创建缩略图片父目录
+        if (file_exists(dirname($thumbnail)) == false) {
+            if (MUtils::MkDirsLocal(dirname($thumbnail)) == false) {
+                throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
             }
-            // 临时文件父目录
-            if (file_exists(dirname($tmpPath)) == false) {
-                if (MUtils::MkDirsLocal(dirname($tmpPath)) == false) {
-                    throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
-                }
+        }
+        // 临时文件父目录
+        if (file_exists(dirname($tmpPath)) == false) {
+            if (MUtils::MkDirsLocal(dirname($tmpPath)) == false) {
+                throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
             }
-            // 拷贝文件到临时目录
-            if (file_exists($tmpPath) == false) {
-                if (copy($storePath, $tmpPath) == false) {
-                    throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
-                }
+        }
+        // 拷贝文件到临时目录
+        if (file_exists($tmpPath) == false) {
+            if (copy($storePath, $tmpPath) == false) {
+                throw new MException(Yii::t('api',"The file path was not found."), MConst::HTTP_CODE_404);
             }
-
-            // 如果图片格式与后缀不一致，转换为一致的
-            if ($this->format != strtolower($extension)) {
-                $fm = new Image($tmpPath);
-                $format_path = DOCUMENT_TEMP . $signature . ".{$this->format}";
-                $fm->save($format_path);
-                // 转换成功删除临时文件
-                unlink($tmpPath);
-                $this->image = $format_path;
-            }
+        }
+        // 如果图片格式与后缀不一致，转换为一致的
+        if ($this->format != strtolower($extension)) {
+            $fm = new Image($tmpPath);
+            $format_path = DOCUMENT_TEMP . $signature . ".{$this->format}";
+            $fm->save($format_path);
+            // 转换成功删除临时文件
+            unlink($tmpPath);
+            $this->image = $format_path;
         }
         if ($isTmp){
             unlink($storePath);

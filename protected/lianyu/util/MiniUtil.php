@@ -550,4 +550,28 @@ class MiniUtil{
         }
         return false;
     }
+    /**
+     * 获得系统所有启用的插件信息 
+     * @return array
+     */
+    private static function getActivedPluginsInfo(){
+        $pluginInfo = array();
+        $pluginInfo = apply_filters("plugin_info", $pluginInfo);
+        return $pluginInfo;
+    }
+    /**
+     * 返回迷你存储插件启用后的信息 
+     * @return array
+     */
+    public static function getPluginMiniStoreData(){
+        $plugins = MiniUtil::getActivedPluginsInfo();
+        if(!empty($plugins)){
+            foreach ($plugins as $plugin) {
+                if($plugin["name"]==="miniStore"){
+                    return $plugin["data"];
+                }
+            }
+        }
+        return null;
+    }
 }

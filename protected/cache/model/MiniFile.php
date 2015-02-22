@@ -806,16 +806,16 @@ class MiniFile extends MiniCache{
     }
 
     /**
-     * @param $filepath
+     * @param string $filePath
      * @return array
      * 兼容 中文名 pathInfo 的方法
      */
-    function cnPathInfo($filepath)
+    function cnPathInfo($filePath)
     {
         $path_parts = array();
-        $path_parts ['dirname'] = rtrim(substr($filepath, 0, strrpos($filepath, '/')),"/")."/";
-        $path_parts ['filename'] = ltrim(substr($filepath, strrpos($filepath, '/')),"/");
-        $path_parts ['extension'] = substr(strrchr($filepath, '.'), 1);
+        $path_parts ['dirname'] = rtrim(substr($filePath, 0, strrpos($filePath, '/')),"/")."/";
+        $path_parts ['filename'] = ltrim(substr($filePath, strrpos($filePath, '/')),"/");
+        $path_parts ['extension'] = substr(strrchr($filePath, '.'), 1);
         $path_parts ['basename'] = ltrim(substr($path_parts ['filename'], 0, strrpos($path_parts ['filename'], '.')),"/");
         return $path_parts;
     }
@@ -877,19 +877,17 @@ class MiniFile extends MiniCache{
     public function getContentBySignature($signature,$fileName,$contentType,$forceDownload=true){
         //下载文件的hook
         $data = array();
-        $data["hash"]         = $signature;
-        $data["filename"]     = $fileName;
-        $data["content_type"] = $contentType;
+        $data["signature"]  = $signature;
+        $data["file_name"]  = $fileName;
+        $data["mime_type"]  = $contentType;
         //对网页的处理分为2种逻辑，1种是直接显示内容，1种是文件直接下载
-        //自1.5.0开始就拥有这项能力
-        $data["forceDownload"] = $forceDownload;
-        $retData = apply_filters("location_down_load", $data);
+        $data["force_download"] = $forceDownload; ;
+        $retData = apply_filters("file_download", $data);
         if ($retData !== $data && !empty($retData)){
             header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
             header( "Location: ". $retData );
             return;
         }
-
         $filePath = MiniUtil::getPathBySplitStr ($signature);
         //data源处理对象
         $dataObj = Yii::app()->data;
@@ -913,21 +911,18 @@ class MiniFile extends MiniCache{
     private function getText($signature){
         //下载文件的hook
         $data = array();
-        $data["hash"]         = $signature;
-        $data["filename"]     = "text.txt";
-        $data["content_type"] = "text/html";
-        //对网页的处理分为2种逻辑，1种是直接显示内容，1种是文件直接下载
-        //自1.5.0开始就拥有这项能力
-        $data["forceDownload"] = false;
-        $retData = apply_filters("location_down_load", $data);
-
+        $data["signature"]  = $signature;
+        $data["file_name"]  = "text.txt";
+        $data["mime_type"]  = "text/html";
+        //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
+        $data["force_download"] = -1;
+        $retData = apply_filters("file_download", $data);
         if ($retData !== $data && !empty($retData)){
             //通过迷你存储存储的文件，通过代理方式直接请求文件内容
             $curl = curl_init($retData);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
             $content = curl_exec($curl);
             curl_close($curl);
-
         }else{
             $filePath = MiniUtil::getPathBySplitStr ( $signature );
             //data源处理对象
@@ -997,7 +992,8 @@ class MiniFile extends MiniCache{
      */
     public function getContent($path,$signature="",$contentType="",$forceDownload=false){
         $privilege = $this->hasContentPrivilege($path,$signature,$contentType,$forceDownload);
-        $this->getContentBySignature($privilege['signature'],$privilege['fileName'],'',$forceDownload);
+        $version = MiniVersion::getInstance()->getBySignature($privilege['signature']);
+        $this->getContentBySignature($privilege['signature'],$privilege['fileName'],$version["mime_type"],$forceDownload);
     }
     /**
      * 由外部控制文件输出类型
@@ -1341,8 +1337,9 @@ class MiniFile extends MiniCache{
     }
 
     /** 根据文件类型和用户ID获得对应文件信息
-     * @param $userId
-     * @param $type
+     * @param string $type
+     * @param int $pageSize
+     * @param int $currentPage
      * @return array|null
      */
     public function getAllFileListByType($type,$pageSize,$currentPage){

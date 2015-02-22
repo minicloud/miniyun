@@ -1,5 +1,5 @@
 <?php
-class PluginBusinessThemeOption extends MiniVersion{
+class PluginBusinessThemeOption extends MiniCache{
     /**
      * 设置默认参数
      */

@@ -7,7 +7,7 @@
  * @license http://www.miniyun.cn/license.html
  * @since 1.8
  */
-class PluginMiniStoreNode extends MiniVersion{
+class PluginMiniStoreNode extends MiniCache{
     /**
      *
      * Cache Key的前缀
@@ -70,6 +70,45 @@ class PluginMiniStoreNode extends MiniVersion{
         $value["created_at"]          = $item->created_at;
         $value["updated_at"]          = $item->updated_at;
         return $value;
+    } 
+    /**
+    * 根据ID获得迷你存储节点
+    * 找到min(saved_file_count) and status=1的记录分配
+     * @param int $id 迷你存储节点ID
+     * @return array
+    */
+    public function getNodeById($id){
+        $item = StoreNode::model()->find("id=:id",array("id"=>$id));
+        if(isset($item)){
+            return $this->db2Item($item);
+        }
+        return null;
+    }
+    /**
+    * 获得有效文件上传服务器节点
+    * 找到min(saved_file_count) and status=1的记录分配
+    */
+    public function getUploadNode(){
+        //TODO 对用户进行分区文件管理，需要找到迷你存储节点与用户的关系，然后进行分配处理
+        $savedFileCount = 0;
+        $uploadNode = null;
+        $nodes = $this->getNodeList();
+        foreach ($nodes as $node) { 
+            if($node["status"]==1){ 
+                $currentFileCount = $node["saved_file_count"];
+                //初始化第一次
+                if($savedFileCount===0){
+                    $savedFileCount = $currentFileCount;
+                    $uploadNode = $node;
+                }
+                //轮训最小上传文件数的节点
+                if($savedFileCount>$currentFileCount){
+                    $savedFileCount = $currentFileCount;
+                    $uploadNode = $node;
+                }
+            }
+        }
+        return $uploadNode;
     }
     /**
      * 获得迷你存储所有节点列表

@@ -7,7 +7,7 @@
  * @license http://www.miniyun.cn/license.html
  * @since 1.7
  */
-class PluginMiniDocOption extends MiniVersion{
+class PluginMiniDocOption extends MiniCache{
     /**
      *
      * Cache Key的前缀

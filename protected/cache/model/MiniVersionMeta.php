@@ -54,6 +54,9 @@ class MiniVersionMeta extends MiniCache{
 	}
 	/**
 	 * 根据version.id+version.key获得version的相关记录
+     * @param int $id version_id
+     * @param string $key key
+     * @return array
 	 */
 	public function getMeta($id,$key){
 		$criteria            = new CDbCriteria();

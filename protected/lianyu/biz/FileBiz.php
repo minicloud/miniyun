@@ -199,8 +199,9 @@ class FileBiz  extends MiniBiz{
     }
     /**
      * 通过signature下载文件
-     * @param $signature .文件signature
-     * @param $filePath .文件路径
+     * @param $filePath 文件路径
+     * @param $signature 文件signature
+     * @throws
      */
     public function downloadBySignature($filePath,$signature){
         $item = explode("/",$filePath);

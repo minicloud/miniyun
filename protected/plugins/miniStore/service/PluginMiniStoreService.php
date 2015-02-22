@@ -11,6 +11,7 @@
 class PluginMiniStoreService extends MiniService{
     protected function anonymousActionList(){
         return array( 
+            "report"
         );
     }
     protected function adminActionList(){
@@ -20,7 +21,18 @@ class PluginMiniStoreService extends MiniService{
             "nodeStatus",
         );
     }
-    
+    /**
+     * 迷你存储文件上传成功报俊
+     */
+    public function report(){
+        //TODO 要进行安全校验
+        $path = MiniHttp::getParam("path","");
+        $size = MiniHttp::getParam("size","");
+        $nodeId = MiniHttp::getParam("node_id","");
+        $signature = MiniHttp::getParam("signature","");
+        $biz = new PluginMiniStoreBiz();
+        return $biz->report($path,$signature,$size,$nodeId);
+    }
     /**
      * 获得迷你存储节点列表
      */
