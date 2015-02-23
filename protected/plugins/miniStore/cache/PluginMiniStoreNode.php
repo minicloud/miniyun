@@ -250,4 +250,82 @@ class PluginMiniStoreNode extends MiniCache{
         }
 
     }
+    /**
+     * 获得有效文件下载地址
+     * @param string $signature 文件内容hash
+     * @param string $fileName 文件名
+     * @param string $mimeType 文件的mimeType
+     * @param int $forceDownload 是否要文件下载
+     * @return string
+     */
+    public function getDownloadUrl($signature,$fileName,$mimeType,$forceDownload){
+        $node = $this->getDownloadNode($signature);
+        if(!empty($node)){
+            //迷你存储服务器下载文件地址
+            //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
+            $data = array(
+                "route"=>"file/download",
+                "signature"=>$signature,
+                "node_id"=>$node["id"],
+                "file_name"=>$fileName,
+                "mime_type"=>$mimeType,
+                "force_download"=>$forceDownload
+            );
+            $url = $node["host"]."/api.php?";
+            foreach($data as $key=>$value){
+                $url .="&".$key."=".$value;
+            }
+            //更新迷你存储节点状态，把新上传的文件数+1
+            PluginMiniStoreNode::getInstance()->newDownloadFile($node["id"]);
+
+            return $url;
+        }
+        return null;
+    }
+    /**
+     * 获得有效文件下载服务器节点
+     * 找到min(downloaded_file_count) and status=1的记录分配
+     * @param string $signature 文件内容hash
+     * @return array
+     */
+    private function getDownloadNode($signature){
+        $version = MiniVersion::getInstance()->getBySignature($signature);
+        if(!empty($version)){
+            $metaKey = "store_id";
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],$metaKey);
+            if(!empty($meta)){
+                $value = $meta["meta_value"];
+                $ids = explode(",",$value);
+                $downloadFileCount = 0;
+                $downloadNode = null;
+                $nodes = $this->getNodeList();
+                foreach ($nodes as $node) {
+                    //先找到当前文件存储的节点
+                    $isValidNode = false;
+                    foreach ($ids as $validNodeId) {
+                        if($validNodeId==$node["id"]){
+                            $isValidNode = true;
+                        }
+                    }
+                    if(!$isValidNode) continue;
+                    //然后判断节点是否有效，并在有效的节点找到下载次数最小的节点
+                    if($node["status"]==1){
+                        $currentFileCount = $node["downloaded_file_count"];
+                        //初始化第一次
+                        if($downloadFileCount===0){
+                            $downloadFileCount = $currentFileCount;
+                            $downloadNode = $node;
+                        }
+                        //轮训最小上传文件数的节点
+                        if($downloadFileCount>$currentFileCount){
+                            $downloadFileCount = $currentFileCount;
+                            $downloadNode = $node;
+                        }
+                    }
+                }
+                return $downloadNode;
+            }
+        }
+        return null;
+    }
 }

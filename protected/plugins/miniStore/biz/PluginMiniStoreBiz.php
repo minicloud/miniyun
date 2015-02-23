@@ -9,6 +9,23 @@
  */
 class PluginMiniStoreBiz extends MiniBiz{
     /**
+     *根据文件的Hash值下载内容
+     * @param $signature 文件hash值
+     * @throws 404错误
+     */
+    public function download($signature){
+        $version = MiniVersion::getInstance()->getBySignature($signature);
+        if(!empty($version)){
+            //根据文件内容输出文件内容
+            MiniFile::getInstance()->getContentBySignature($signature,$signature,$version["mime_type"]);
+        }else{
+            throw new MFileopsException(
+                Yii::t('api','File Not Found'),
+                404);
+        }
+
+    }
+    /**
      * 迷你存储报俊
      * @param string $path 用户文件的存储路径
      * @param string $signature 文件sha1

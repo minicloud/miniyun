@@ -68,6 +68,58 @@ class PluginMiniReplicateTask extends MiniCache{
         $value["updated_at"]      = $item->updated_at;
         return $value;
     }
+
+    /**
+     * 删除记录
+     * @param $id
+     */
+    private function delete($id){
+        $item = ReplicateTask::model()->find("id=:id",array("id"=>$id));
+        if(isset($item)){
+            $item->delete();
+        }
+    }
+    /**
+     *为miniyun_replicate_tasks.status=0前30条记录向对应服务器发送请求
+     */
+    public function replicate(){
+        $criteria                = new CDbCriteria();
+        $criteria->limit         = 30;
+        $criteria->offset        = 0;
+        $tasks = $this->db2list(ReplicateTask::model()->findAll($criteria));
+        foreach($tasks as $task){
+            $node = PluginMiniStoreNode::getInstance()->getNodeById($task["node_id"]);
+            if($node["status"]==1){
+                $signature = $task["file_signature"];
+                //文件下载地址
+                $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
+                $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
+                //向迷你存储发送冗余备份请求
+                $data = array(
+                    'route'=>"file/replicate",
+                    'signature'=>$signature,
+                    'downloadUrl'=>$downloadUrl,
+                );
+                $http = new HttpClient();
+                $http->post($node["host"]."/api.php",$data);
+                $content = $http->get_body();
+                if(!empty($content))
+                {
+                    $status = @json_decode($content)->{"status"};
+                    if($status==1)
+                    {
+                        //冗余备份成功,为miniyun_file_version_metas.meta_value新增冗余的节点
+                        PluginMiniStoreVersionMeta::getInstance()->addReplicateNode($signature,$node["id"]);
+                        //修改存储节点的miniyun_store_node.save_file_count+=1
+                        PluginMiniStoreNode::getInstance()->newUploadFile($node["id"]);
+                        //删除冗余备份的任务
+                        $this->delete($task["id"]);
+                    }
+                }
+
+            }
+        }
+    }
     /**
      *为miniyun_file_versions.replicate_status=0前10条记录生成冗余备份记录
      */

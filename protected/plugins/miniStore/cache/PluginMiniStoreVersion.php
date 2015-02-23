@@ -86,4 +86,16 @@ class PluginMiniStoreVersion extends MiniCache{
         $value['replicate_status'] = $item->replicate_status;
         return  $value;
     }
+
+    /**
+     * 冗余备份成功
+     * @param $signature
+     */
+    public function replicateSuccess($signature){
+        $item = FileVersion::model()->find("file_signature=:file_signature",array("file_signature"=>$signature));
+        if(isset($item)){
+            $item->replicate_status = 2;
+            $item->save();
+        }
+    }
 }

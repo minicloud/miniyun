@@ -22,6 +22,7 @@ class PluginStoreCommand extends CConsoleCommand{
     public function actionReplicate()
     { 
     	PluginMiniReplicateTask::getInstance()->createReplicateTask();
+        PluginMiniReplicateTask::getInstance()->replicate();
     }
     /**
      * 定时任务入口

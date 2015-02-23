@@ -44,7 +44,7 @@ class MiniStoreModule extends MiniPluginModule {
                 mkdir($saveFolder);
             }
             //把文件下载到本地
-            $url = PluginMiniFileVersionMeta::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
+            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
             file_put_contents($filePath,file_get_contents($url));
         }
         return $filePath;
@@ -59,7 +59,7 @@ class MiniStoreModule extends MiniPluginModule {
         $fileName = $params["file_name"];
         $mimeType = $params["mime_type"];
         $forceDownload = $params["force_download"];
-        return PluginMiniFileVersionMeta::getInstance()->getDownloadUrl($signature,$fileName,$mimeType,$forceDownload);
+        return PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,$fileName,$mimeType,$forceDownload);
     }
     /**
      * 秒传接口

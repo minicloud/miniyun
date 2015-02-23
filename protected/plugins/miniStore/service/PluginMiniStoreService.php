@@ -11,7 +11,8 @@
 class PluginMiniStoreService extends MiniService{
     protected function anonymousActionList(){
         return array( 
-            "report"
+            "report",
+            "download"
         );
     }
     protected function adminActionList(){
@@ -20,6 +21,15 @@ class PluginMiniStoreService extends MiniService{
             "node",
             "nodeStatus",
         );
+    }
+    /**
+     * 根据文件hash值进行下载文件
+     */
+    public function  download(){
+        //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
+        $signature = MiniHttp::getParam('signature',"");
+        $biz = new PluginMiniStoreBiz();
+        $biz->download($signature);
     }
     /**
      * 迷你存储文件上传成功报俊
