@@ -12,7 +12,8 @@ class PluginMiniStoreService extends MiniService{
     protected function anonymousActionList(){
         return array( 
             "report",
-            "download"
+            "download",
+            "replicateReport"
         );
     }
     protected function adminActionList(){
@@ -39,7 +40,7 @@ class PluginMiniStoreService extends MiniService{
         $signature = MiniHttp::getParam('signature',"");
         $nodeId = MiniHttp::getParam('node_id',"");
         $biz = new PluginMiniStoreBiz();
-        $biz->replicateReport($signature,$nodeId);
+        return $biz->replicateReport($signature,$nodeId);
     }
     /**
      * 迷你存储文件上传成功报俊
