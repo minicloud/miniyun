@@ -145,39 +145,23 @@ class MiniVersion extends MiniCache{
      * @return array
 	 */
 	public function create($signature, $size, $mimeType) {
-	    $fileVersion                 = new FileVersion();
-        $fileVersion->file_signature = $signature;
-        $fileVersion->file_size      = $size;
-        $fileVersion->block_ids      = 0;
-        $fileVersion->ref_count      = 0;
-        $fileVersion->mime_type      = $mimeType;
-        $fileVersion->save();
-        $item                        = $this->db2Item($fileVersion);
-	    $key                         = $this->getCacheKey($signature);
-	    $this->set($key,serialize($item));
-	    return $item;
-	}
-	
-	/**
-	 *
-	 * data server 增加需要的返回值
-	 *
-	 */
-	public function updateVersionDataBySignature($signature, $data) {
-	    
-	    $object         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
-	    if (empty($object)) {
-	        return False;
-	    }
-	    $object['data'] = $data;
-	    $object->save();
-	    
-	    $key            = $this->getCacheKey($signature);
-	    $this->set($key,serialize($object));
-	    return True;
+        $item         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+        if(!isset($item)){
+            $item                 = new FileVersion();
+            $item->file_signature = $signature;
+            $item->file_size      = $size;
+            $item->block_ids      = 0;
+            $item->ref_count      = 0;
+            $item->mime_type      = $mimeType;
+            $item->save();
+        }
+        return $this->db2Item($item);
 	}
 	/**
 	 * 更新版本引用次数
+     * @param int $id
+     * @param boolean $add
+     * @return boolean
 	 */
  	public function updateRefCount($id, $add = true) {
     	$this->updateRefCountByIds(array($id),$add);
@@ -185,6 +169,9 @@ class MiniVersion extends MiniCache{
     }
  	/**
      * 更新文件引用次数
+     * @param string $ids
+     * @param boolean $add
+     * @return boolean
      */
 	public function updateRefCountByIds($ids, $add = true) {
 		$criteria            = new CDbCriteria();

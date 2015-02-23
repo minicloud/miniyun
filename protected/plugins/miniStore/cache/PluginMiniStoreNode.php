@@ -179,4 +179,44 @@ class PluginMiniStoreNode extends MiniCache{
         }
         return $this->db2Item($item);
     }
+    /**
+     * 为文件生成其它冗余备份节点
+     * 找到不属当前迷你存储节点，且status=1，saved_file_count最小的记录
+     * @param string $signature 文件内容hash
+     * @return array
+     */
+    public function getReplicateNodes($signature){
+        $version = MiniVersion::getInstance()->getBySignature($signature);
+        if(!empty($version)) {
+            $metaKey = "store_id";
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"], $metaKey);
+            if (!empty($meta)) {
+                $value = $meta["meta_value"];
+                $ids = explode(",",$value);
+                $validNodes = array();
+                $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
+                foreach ($nodes as $node) {
+                    //排除当前节点的迷你存储服务器
+                    $isValidNode = false;
+                    foreach ($ids as $validNodeId) {
+                        if($validNodeId!=$node["id"]){
+                            $isValidNode = true;
+                        }
+                    }
+                    if(!$isValidNode) continue;
+                    //然后判断服务器是否有效
+                    if($node["status"]==1){
+                        array_push($validNodes,$node);
+                    }
+                }
+                //可用节点大于2，选出save_file_count最小的2个节点
+                PluginMiniStoreUtils::array_sort($validNodes,"saved_file_count",SORT_ASC);
+                if(count($validNodes)>2){
+                    return array($validNodes[0],$validNodes[1]);
+                }
+                return $validNodes;
+            }
+        }
+
+    }
 }

@@ -67,14 +67,16 @@ class m150208_191855_V180  extends EDbMigration{
             array(
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL', //文件signature值
-                'store_node_id'        => 'varchar(128) NOT NULL',//存储到目标服务器标记
+                'node_id'              => 'varchar(128) NOT NULL',//存储到目标服务器标记
+                'status'               => 'int(11)  NOT NULL DEFAULT  0',//0标志正常状态，1表示备份中状态，如果记录被删除说明备份成功
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
         $this->createIndex(DB_PREFIX.'_replicate_tasks_signature',DB_PREFIX.'_replicate_tasks', "file_signature");
+        $this->createIndex(DB_PREFIX.'_replicate_tasks_signature',DB_PREFIX.'_status', "status");
         //replicate_status=0表示默认状态
-        //replicate_status=1表示正在冗余备份
-        //replicate_status=2表示冗余备份成功
+        //replicate_status=1表示备份中
+        //replicate_status=2表示备份成功
         $this->addColumn(DB_PREFIX.'_file_versions', 'replicate_status', 'int(11) NOT NULL DEFAULT  0');
         $this->createIndex("miniyun_file_versions_replicate_status", DB_PREFIX.'_file_versions', "replicate_status");
         //后台定时任务，将检查各个存储服务器的状态
