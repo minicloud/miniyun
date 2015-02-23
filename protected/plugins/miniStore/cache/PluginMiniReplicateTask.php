@@ -71,12 +71,32 @@ class PluginMiniReplicateTask extends MiniCache{
 
     /**
      * 删除记录
-     * @param $id
+     * @param string $signature
+     * @param int $nodeId
      */
-    private function delete($id){
-        $item = ReplicateTask::model()->find("id=:id",array("id"=>$id));
+    public function delete($signature,$nodeId){
+        $item = ReplicateTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+            array(
+                "file_signature"=>$signature,
+                "node_id"=>$nodeId,
+            ));
         if(isset($item)){
             $item->delete();
+        }
+    }
+    /**
+     * 更新冗余备份记录状态
+     * @param int $id
+     * @param int $status 1表示正在冗余备份
+     */
+    private function updateStatus($id,$status){
+        $item = ReplicateTask::model()->find("id=:id",
+            array(
+                "id"=>$id,
+            ));
+        if(isset($item)){
+            $item->status=$status;
+            $item->save();
         }
     }
     /**
@@ -94,26 +114,22 @@ class PluginMiniReplicateTask extends MiniCache{
                 //文件下载地址
                 $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
                 $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
+                $callbackUrl = $miniHost."api.php?route=module/miniStore/replicateReport&signature=".$signature."&node_id=".$node["id"];
                 //向迷你存储发送冗余备份请求
                 $data = array(
                     'route'=>"file/replicate",
                     'signature'=>$signature,
                     'downloadUrl'=>$downloadUrl,
+                    "callback"=>$callbackUrl
                 );
                 $http = new HttpClient();
                 $http->post($node["host"]."/api.php",$data);
                 $content = $http->get_body();
-                if(!empty($content))
-                {
+                if(!empty($content)){
                     $status = @json_decode($content)->{"status"};
-                    if($status==1)
-                    {
-                        //冗余备份成功,为miniyun_file_version_metas.meta_value新增冗余的节点
-                        PluginMiniStoreVersionMeta::getInstance()->addReplicateNode($signature,$node["id"]);
-                        //修改存储节点的miniyun_store_node.save_file_count+=1
-                        PluginMiniStoreNode::getInstance()->newUploadFile($node["id"]);
-                        //删除冗余备份的任务
-                        $this->delete($task["id"]);
+                    if($status==1){
+                        //表示任务正在执行中
+                        $this->updateStatus($task["id"],1);
                     }
                 }
 

@@ -32,6 +32,16 @@ class PluginMiniStoreService extends MiniService{
         $biz->download($signature);
     }
     /**
+     * 冗余备份报俊
+     */
+    public function  replicateReport(){
+        //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
+        $signature = MiniHttp::getParam('signature',"");
+        $nodeId = MiniHttp::getParam('node_id',"");
+        $biz = new PluginMiniStoreBiz();
+        $biz->replicateReport($signature,$nodeId);
+    }
+    /**
      * 迷你存储文件上传成功报俊
      */
     public function report(){

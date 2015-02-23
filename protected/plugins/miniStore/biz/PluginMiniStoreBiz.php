@@ -26,6 +26,20 @@ class PluginMiniStoreBiz extends MiniBiz{
 
     }
     /**
+     * 冗余备份报俊
+     * @param $signature 文件hash值
+     * @param $nodeId 迷你存储ID
+     */
+    public function replicateReport($signature,$nodeId){
+        //冗余备份成功,为miniyun_file_version_metas.meta_value新增冗余的节点
+        PluginMiniStoreVersionMeta::getInstance()->addReplicateNode($signature,$nodeId);
+        //修改存储节点的miniyun_store_node.save_file_count+=1
+        PluginMiniStoreNode::getInstance()->newUploadFile($nodeId);
+        //删除冗余备份的任务
+        PluginMiniReplicateTask::getInstance()->delete($signature,$nodeId);
+
+    }
+    /**
      * 迷你存储报俊
      * @param string $path 用户文件的存储路径
      * @param string $signature 文件sha1
