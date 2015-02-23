@@ -118,6 +118,37 @@ class PluginMiniStoreNode extends MiniCache{
         return $this->db2list($items);
     }
     /**
+     * 检查所有节点状态
+     */
+    public function checkNodesStatus(){
+        $items = StoreNode::model()->findAll();
+        foreach($items as $item){
+            $host = $item->host;
+            $oldStatus = $item->status;
+            $status = $this->checkNodeStatus($host);
+            if($status!=$oldStatus){
+                $item->status = $status;
+                $item->save();
+            }
+        }
+    }
+    /**
+     * 检查存储节点状态
+     * @param $host
+     * @return int
+     */
+    private function checkNodeStatus($host){
+        $url = $host."/api.php?route=node/status";
+        $content = @file_get_contents($url);
+        if(!empty($content)){
+            $nodeStatus = @json_decode($content);
+            if($nodeStatus->{"status"}=="1"){
+                return 1;
+            }
+        }
+        return -1;
+    }
+    /**
      * 节点新上传文件
      * @param $nodeId
      */

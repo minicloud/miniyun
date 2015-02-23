@@ -23,4 +23,11 @@ class PluginStoreCommand extends CConsoleCommand{
     { 
     	PluginMiniReplicateTask::getInstance()->createReplicateTask();
     }
+    /**
+     * 定时任务入口
+     * 任务1：检查各个迷你云节点状态，如果访问失败，则把该节点拉下并把报警
+     */
+    public function actionStatus(){
+        PluginMiniStoreNode::getInstance()->checkNodesStatus();
+    }
 }
