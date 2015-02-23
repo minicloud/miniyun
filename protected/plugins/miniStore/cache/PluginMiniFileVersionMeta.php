@@ -93,6 +93,9 @@ class PluginMiniFileVersionMeta extends MiniCache{
             foreach($data as $key=>$value){
                 $url .="&".$key."=".$value;
             }
+            //更新迷你存储节点状态，把新上传的文件数+1
+            PluginMiniStoreNode::getInstance()->newDownloadFile($node["id"]);
+
             return $url;
         }
         return null;
@@ -110,7 +113,7 @@ class PluginMiniFileVersionMeta extends MiniCache{
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],$metaKey);
             if(!empty($meta)){
                 $value = $meta["meta_value"];
-                $ids = explode(",",$value); 
+                $ids = explode(",",$value);
                 $downloadFileCount = 0;
                 $downloadNode = null;
                 $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
@@ -118,11 +121,11 @@ class PluginMiniFileVersionMeta extends MiniCache{
                     //先找到当前文件存储的节点
                     $isValidNode = false;
                     foreach ($ids as $validNodeId) {
-                        if($validNodeId==$node[id]){
+                        if($validNodeId==$node["id"]){
                             $isValidNode = true;
                         }
                     }
-                    if(!$isValidNode) break;
+                    if(!$isValidNode) continue;
                     //然后判断节点是否有效，并在有效的节点找到下载次数最小的节点
                     if($node["status"]==1){
                         $currentFileCount = $node["downloaded_file_count"];

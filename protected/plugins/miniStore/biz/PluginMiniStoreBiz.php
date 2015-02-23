@@ -21,6 +21,10 @@ class PluginMiniStoreBiz extends MiniBiz{
         $type = CUtils::mime_content_type($pathParts["filename"]);
         $version = MiniVersion::getInstance()->create($signature, $size, $type);
         MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
+        //更新迷你存储节点状态，把新上传的文件数+1
+        PluginMiniStoreNode::getInstance()->newUploadFile($nodeId);
+        //文档转换
+        do_action('file_upload_after', $signature);
         //执行文件秒传逻辑
         $filesController = new MFileSecondsController();
         $filesController->invoke();

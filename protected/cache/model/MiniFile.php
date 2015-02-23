@@ -881,7 +881,7 @@ class MiniFile extends MiniCache{
         $data["file_name"]  = $fileName;
         $data["mime_type"]  = $contentType;
         //对网页的处理分为2种逻辑，1种是直接显示内容，1种是文件直接下载
-        $data["force_download"] = $forceDownload; ;
+        $data["force_download"] = $forceDownload;
         $retData = apply_filters("file_download", $data);
         if ($retData !== $data && !empty($retData)){
             header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
@@ -978,7 +978,6 @@ class MiniFile extends MiniCache{
             if(empty($signature)){
                 $signature = $version["file_signature"];
             }
-            $this->getContentBySignature($signature,$file["file_name"],$contentType,$forceDownload);
         }
         return array("hasPrivilege"=>$hasPrivilege,"signature"=>$signature,"fileName"=>$file["file_name"]);
     }

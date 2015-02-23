@@ -118,6 +118,28 @@ class PluginMiniStoreNode extends MiniCache{
         return $this->db2list($items);
     }
     /**
+     * 节点新上传文件
+     * @param $nodeId
+     */
+    public function newUploadFile($nodeId){
+        $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
+        if(isset($item)){
+            $item->saved_file_count+=1;
+            $item->save();
+        }
+    }
+    /**
+     * 节点新新下载了文件
+     * @param $nodeId
+     */
+    public function newDownloadFile($nodeId){
+        $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
+        if(isset($item)){
+            $item->downloaded_file_count+=1;
+            $item->save();
+        }
+    }
+    /**
      * 创建迷你存储节点
      * @param $name 节点名称
      * @param $host 节点域名
