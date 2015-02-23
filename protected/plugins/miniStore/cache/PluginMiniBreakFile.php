@@ -86,6 +86,19 @@ class PluginMiniBreakFile extends MiniCache{
         return $this->db2Item($item);
     }
     /**
+     * 删除记录
+     * @param string $signature 文件hash值
+     * @return array
+     */
+    public function deleteBySignature($signature){
+        $item = BreakFile::model()->find("file_signature=:file_signature",array(
+            "file_signature"=>$signature
+        ));
+        if(isset($item)){
+            $item->delete();
+        }
+    }
+    /**
      * 根据文件signature获得记录
      * @param string $signature 
      * @return array

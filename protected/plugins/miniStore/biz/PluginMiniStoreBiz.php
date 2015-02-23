@@ -25,6 +25,8 @@ class PluginMiniStoreBiz extends MiniBiz{
         PluginMiniStoreNode::getInstance()->newUploadFile($nodeId);
         //文档转换
         do_action('file_upload_after', $signature);
+        //清理垃圾数据
+        PluginMiniBreakFile::getInstance()->deleteBySignature($signature);
         //执行文件秒传逻辑
         $filesController = new MFileSecondsController();
         $filesController->invoke();
