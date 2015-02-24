@@ -120,7 +120,7 @@ class PluginMiniReplicateTask extends MiniCache{
                     'route'=>"file/replicate",
                     'signature'=>$signature,
                     'downloadUrl'=>$downloadUrl,
-                    "callback"=>$callbackUrl
+                    "callbackUrl"=>$callbackUrl
                 );
                 $http = new HttpClient();
                 $http->post($node["host"]."/api.php",$data);
