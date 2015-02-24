@@ -104,13 +104,15 @@ class PluginMiniReplicateTask extends MiniCache{
      */
     public function replicate(){
         $criteria                = new CDbCriteria();
-        $criteria->limit         = 30;
+        $criteria->condition     = "status=0";
+        $criteria->limit         = 3;
         $criteria->offset        = 0;
         $tasks = $this->db2list(ReplicateTask::model()->findAll($criteria));
         foreach($tasks as $task){
             $node = PluginMiniStoreNode::getInstance()->getNodeById($task["node_id"]);
             if($node["status"]==1){
                 $signature = $task["file_signature"];
+                $version = MiniVersion::getInstance()->getBySignature($signature);
                 //文件下载地址
                 $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
                 $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
@@ -118,6 +120,7 @@ class PluginMiniReplicateTask extends MiniCache{
                 //向迷你存储发送冗余备份请求
                 $data = array(
                     'route'=>"file/replicate",
+                    'size'=>$version["file_size"],
                     'signature'=>$signature,
                     'downloadUrl'=>$downloadUrl,
                     "callbackUrl"=>$callbackUrl
@@ -142,7 +145,7 @@ class PluginMiniReplicateTask extends MiniCache{
     public function createReplicateTask(){
         $criteria                = new CDbCriteria();
         $criteria->condition     = "replicate_status=0";
-        $criteria->limit         = 10;
+        $criteria->limit         = 30;
         $criteria->offset        = 0;
         $versions = FileVersion::model()->findAll($criteria);
         foreach($versions as $version){
