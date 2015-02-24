@@ -241,9 +241,17 @@ class PluginMiniStoreNode extends MiniCache{
                     }
                 }
                 //可用节点大于2，选出save_file_count最小的2个节点
-                PluginMiniStoreUtils::array_sort($validNodes,"saved_file_count",SORT_ASC);
+                $validNodes = PluginMiniStoreUtils::array_sort($validNodes,"saved_file_count",SORT_ASC);
                 if(count($validNodes)>2){
-                    return array($validNodes[0],$validNodes[1]);
+                    $resultNodes = array();
+                    $index = 0;
+                    foreach($validNodes as $node){
+                        if($index==0||$index==1){
+                            $resultNodes[]=$node;
+                        }
+                        $index++;
+                    }
+                    return $resultNodes;
                 }
                 return $validNodes;
             }
