@@ -25,7 +25,7 @@ http://demo.miniyun.cn/api.php
 ```html
    {
     route:'module/miniStore/nodeList',//接口路由地址
-    access_token:xxxx,当前登录的access_token
+    access_token:xxxx,当前登录用户的access_token
     sign:yyyy,当前会话签名
    }
   ```
@@ -42,7 +42,7 @@ http://demo.miniyun.cn/api.php
 ```html
    {
     route:'module/miniStore/node',//接口路由地址
-    access_token:xxxx,当前登录的access_token
+    access_token:xxxx,当前登录用户的access_token
     sign:yyyy,当前会话签名
     safe_code:"xxx",//存储节点内置的访问钥匙，存储节点默认安装设置为：uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS
     name:"xxx",//存储节点名称，名称在整个系统中唯一
@@ -61,7 +61,7 @@ http://demo.miniyun.cn/api.php
 ```html
    {
     route:'module/miniStore/nodeStatus',//接口路由地址
-    access_token:xxxx,管理员登录的access_token
+    access_token:xxxx,管理员登录用户的access_token
     sign:yyyy,当前会话签名,
     name:"xxx",//存储节点名称，名称在整个系统中唯一
     status:"-1",//-1表示节点拉下，1表示节点拉上
@@ -69,7 +69,7 @@ http://demo.miniyun.cn/api.php
   ```
 # 错误码说明
 
-100101 在添加/修改迷你存储节点信息，名称/地址/访问Token其中一项为空
+100101 在添加/修改迷你存储节点信息，名称/地址/safe_code其中一项为空
 
 100102 在修改迷你存储节点状态，名称一项为空
 
