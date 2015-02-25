@@ -35,6 +35,29 @@ class m150111_101855_V172  extends EDbMigration{
         }
     }
     private  function modifyTable(){
+        if (!defined("DB_TYPE")){
+            $dbType = "mysql";
+        } else {
+            $dbType = DB_TYPE;
+        }
+        $extend = "";
+        if ($dbType == "mysql"){
+            $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+        }
+        //创建miniyun_doc_nodes表存储迷你文档节点信息
+        $this->createTable(DB_PREFIX.'_doc_nodes',
+            array(
+                'id'                   => 'pk',
+                'name'                 => 'varchar(128) NOT NULL',//存储服务器名称，表唯一
+                'host'                 => 'varchar(128) NOT NULL',//访问域名，这个域名不对用户最终设备开放
+                'safe_code'            => 'varchar(128) NOT NULL',//访问安全码，用于安全校验
+                'status'               => 'int NOT NULL',//-1表示服务器不可用，1表示服务器可用
+                'convert_file_count'   => 'int NOT NULL',//已转换文件的总数
+                'created_at'           => 'datetime NOT NULL',
+                'updated_at'           => 'datetime NOT NULL',
+            ),$extend);
+        $this->createIndex(DB_PREFIX.'_doc_nodes_name',DB_PREFIX.'_doc_nodes', "name");
+
         //doc_convert_status=-1表示文件转换失败
         //doc_convert_status=0表示默认状态
         //doc_convert_status=1表示已经发送给了迷你文档服务器
