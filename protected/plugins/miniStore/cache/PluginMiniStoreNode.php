@@ -63,7 +63,7 @@ class PluginMiniStoreNode extends MiniCache{
         $value["id"]                  = $item->id;
         $value["name"]                = $item->name;
         $value["host"]                = $item->host;
-        $value["access_token"]        = $item->access_token;
+        $value["safe_code"]           = $item->safe_code;
         $value["status"]              = $item->status;
         $value["saved_file_count"]    = $item->saved_file_count;
         $value["downloaded_file_count"] = $item->downloaded_file_count;
@@ -174,10 +174,10 @@ class PluginMiniStoreNode extends MiniCache{
      * 创建迷你存储节点
      * @param $name 节点名称
      * @param $host 节点域名
-     * @param $accessToken 节点访问的accessToken
+     * @param $safeCode 节点访问的安全码
      * @return array
      */
-    public function createOrModifyNode($name,$host,$accessToken){
+    public function createOrModifyNode($name,$host,$safeCode){
         $item = StoreNode::model()->find("name=:name",array("name"=>$name));
         if(!isset($item)){
             $item = new StoreNode();
@@ -186,7 +186,7 @@ class PluginMiniStoreNode extends MiniCache{
         }
         $item->name = $name;
         $item->host = $host;
-        $item->access_token = $accessToken;
+        $item->safe_code = $safeCode;
         $item->status = -1;//所有新建或修改节点状态都是无效的
         $item->save();
         return $this->db2Item($item);
