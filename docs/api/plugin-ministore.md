@@ -44,7 +44,7 @@ http://demo.miniyun.cn/api.php
     route:'module/miniStore/node',//接口路由地址
     access_token:xxxx,当前登录的access_token
     sign:yyyy,当前会话签名
-    node_access_token:"xxx",//存储节点内置的访问钥匙，存储节点默认安装设置为：uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS
+    safe_code:"xxx",//存储节点内置的访问钥匙，存储节点默认安装设置为：uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS
     name:"xxx",//存储节点名称，名称在整个系统中唯一
     host:"xxxx",//存储节点访问地址，比如:http://s1.miniyun.cn或者http://192.168.0.11:8090，前面的http://或https://不能少得
    }
