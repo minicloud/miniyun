@@ -137,7 +137,7 @@ class PluginMiniStoreNode extends MiniCache{
      * @param $host
      * @return int
      */
-    private function checkNodeStatus($host){
+    public function checkNodeStatus($host){
         $url = $host."/api.php?route=node/status";
         $content = @file_get_contents($url);
         if(!empty($content)){
@@ -190,6 +190,14 @@ class PluginMiniStoreNode extends MiniCache{
         $item->status = -1;//所有新建或修改节点状态都是无效的
         $item->save();
         return $this->db2Item($item);
+    }
+    /**
+     * 根据名称查询节点
+     * @param $name
+     * @return array
+     */
+    public function getNodeByName($name){
+        return $this->db2Item(StoreNode::model()->find("name=:name",array("name"=>$name)));
     }
     /**
      * 修改迷你存储节点状态

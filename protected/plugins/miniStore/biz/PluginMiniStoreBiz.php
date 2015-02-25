@@ -90,12 +90,17 @@ class PluginMiniStoreBiz extends MiniBiz{
      * @throws MiniException
      */
     public function modifyNodeStatus($name,$status){
-        $item = StoreNode::model()->find("name=:name",array("name"=>$name));
-        if(!isset($item)){
+        $node = PluginMiniStoreNode::getInstance()->getNodeByName($name);
+        if(empty($node)){
             throw new MiniException(100103);
         }
-        //TODO 检查服务器状态，看看是否可以连接迷你存储服务器
-        //throw new MiniException(100104);
+        if($status==1){
+            //检查服务器状态，看看是否可以连接迷你存储服务器
+            $nodeStatus = PluginMiniStoreNode::getInstance()->checkNodeStatus($node["host"]);
+            if($nodeStatus==-1){
+                throw new MiniException(100104);
+            }
+        }
         return PluginMiniStoreNode::getInstance()->modifyNodeStatus($name,$status);
     }
 
