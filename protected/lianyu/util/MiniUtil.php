@@ -252,8 +252,8 @@ class MiniUtil{
         return $rand;
     }
     /**
-     *
      * 递归删除目录
+     * @param string $dirPath 目录路径
      */
     public  static function deleteDir($dirPath) {
         if (! is_dir($dirPath)) {

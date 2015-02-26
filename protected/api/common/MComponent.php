@@ -138,11 +138,10 @@ class MComponent
 
     /**
      * 重载__call函数调用指定名称的函数
-     * 
      * @param string $name 方法名称
      * @param array $parameters 方法参数
+     * @throws
      * @return mixed 方法返回值
-     * 
      */
     public function __call($name, $parameters)
     {

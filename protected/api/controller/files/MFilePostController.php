@@ -17,6 +17,17 @@ class MFilePostController extends MApplicationComponent  implements MIController
         return $_FILES[$key]["tmp_name"];
     }
     /**
+     * 获得hash值
+     * @return mixed
+     */
+    private function getSignature(){
+        $signature = MiniHttp::getParam("hash","");
+        if(empty($signature)){
+            $signature = MiniHttp::getParam("signature","");;
+        }
+        return $signature;
+    }
+    /**
      * 判断是否是断点上传文件
      * 如果是网页上传，是没有文件的size与文件的hash值的
      * 如果size/hash值不为空，则是客户端上传逻辑，包括移动客户端、PC客户端
@@ -25,7 +36,7 @@ class MFilePostController extends MApplicationComponent  implements MIController
     private function isBreakpointUpload(){
         $tmpPath = $this->getUploadFileTmpPath();
         $clientFileSize = MiniHttp::getParam("size","");
-        $clientFileSignature = MiniHttp::getParam("hash","");
+        $clientFileSignature = $this->getSignature();
         if(empty($clientFileSize)){
             return false;
         }

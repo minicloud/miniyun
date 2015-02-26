@@ -8,6 +8,18 @@
  * @since 1.6
  */
 class MFilePutController extends MApplicationComponent implements MIController{
+    private  $signature;
+    /**
+     * 获得hash值
+     * @return mixed
+     */
+    private function getSignature(){
+        $signature = MiniHttp::getParam("hash","");
+        if(empty($signature)){
+            $signature = MiniHttp::getParam("signature","");;
+        }
+        return $signature;
+    }
     /**
      * 控制器执行主逻辑函数
      */
@@ -43,44 +55,30 @@ class MFilePutController extends MApplicationComponent implements MIController{
         }
         
         $this->_size = -1;
-        // 老版本
-        if (isset($_SERVER['HTTP_IF_MATCH']) && isset($_SERVER['HTTP_X_CONTENT_LENGTH']) && isset($_SERVER['HTTP_CONTENT_RANGE'])) {
-            $this->signature = $_SERVER['HTTP_IF_MATCH'];
-            $btupload = new MBtUpload();
-            $btupload->invoke();
-            $storePath = $btupload->cache;
-            //清除缓存并再次检查文件大小
-            clearstatcache();
-            //data源处理对象
-            $dataObj = Yii::app()->data;
-            $size = $dataObj->size($storePath);
-            $this->_size = $size;
-        }else {
-            // 如果文件已经上传成功, 返回文件已经上传成功
-            $this->handleSpikeFile($uri);
-            $hash   = isset($_REQUEST['hash']) ? $_REQUEST['hash'] : '';
-            $size   = isset($_REQUEST['size']) ? $_REQUEST['size'] : NULL;
-            $offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : 0;
-            if (empty($hash) || $size === NULL || $size < 0)
-                throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'Missing parameter'), MConst::HTTP_CODE_400);
+        // 如果文件已经上传成功, 返回文件已经上传成功
+        $this->handleSpikeFile($uri);
+        $signature        = $this->getSignature();
+        $this->signature  = $signature;
+        $size   = isset($_REQUEST['size']) ? $_REQUEST['size'] : NULL;
+        $offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : 0;
+        if (empty($signature) || $size === NULL || $size < 0)
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'Missing parameter'), MConst::HTTP_CODE_400);
 
-            if ($offset < 0) {
-                throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'error parameter'), MConst::HTTP_CODE_400);
-            }
-            
-            // 处理分块上传逻辑部分，通过插件内部的
-            if ($offset == 0) {
-                $storePath = $this->handleEntireFile($hash, $size);
-            } else {
-                $storePath = $this->handleBreakPointFile($hash, $size, $offset);
-            }
+        if ($offset < 0) {
+            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR . 'error parameter'), MConst::HTTP_CODE_400);
+        }
+        // 处理分块上传逻辑部分，通过插件内部的
+        if ($offset == 0) {
+            $storePath = $this->handleEntireFile($signature, $size);
+        } else {
+            $storePath = $this->handleBreakPointFile($signature, $size, $offset);
         }
 
         // 初始化创建文件公共类句柄
         $createHandler = MFilesCommon::initMFilesCommon();
-        $pathInfo   = MUtils::pathinfo_utf($path);
-        $fileName   = $pathInfo["basename"];
-        $parentPath = $pathInfo["dirname"];
+        $pathInfo      = MUtils::pathinfo_utf($path);
+        $fileName      = $pathInfo["basename"];
+        $parentPath    = $pathInfo["dirname"];
         
         $createHandler->size           = $this->_size;
         $createHandler->parent_path    = MUtils::convertStandardPath($parentPath);;
@@ -128,19 +126,19 @@ class MFilePutController extends MApplicationComponent implements MIController{
         $this->signature = MiniUtil::getFileHash($tmp);
         
         // 如果文件不存在则保存
-        $store_path = MiniUtil::getPathBySplitStr($this->signature);
-        if ($dataObj->exists($store_path) === false) {
+        $storePath = MiniUtil::getPathBySplitStr($this->signature);
+        if ($dataObj->exists($storePath) === false) {
             // 创建父目录
-            if ($dataObj->exists(dirname($store_path)) === false) {
-                MUtils::MkDirs(dirname($store_path));
+            if ($dataObj->exists(dirname($storePath)) === false) {
+                MUtils::MkDirs(dirname($storePath));
             }
             
-            if ($dataObj->put($tmp, $store_path, true) == false) {
+            if ($dataObj->put($tmp, $storePath, true) == false) {
                 throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
             }
         }
         @unlink($tmp);
-        return $store_path;
+        return $storePath;
     }
     
     /**
@@ -159,70 +157,65 @@ class MFilePutController extends MApplicationComponent implements MIController{
     
     /**
      * 使用put方法上传整文件
-     * @param $hash 文件hash值
-     * @param $size 文件大小
+     * @param string $signature 文件hash值
+     * @param int $size 文件大小
      * @throws MFilesException
      * @return array
      */
-    private function handleEntireFile($hash, $size) {
+    private function handleEntireFile($signature, $size) {
         $dataObj = Yii::app()->data;
         $handle = $this->getInputFileHandle();
-        $cachePath = '/cache/' . MiniUtil::getPathBySplitStr($hash);
+        $cachePath = '/cache/' . MiniUtil::getPathBySplitStr($signature);
 
         if ($dataObj->exists(dirname($cachePath)) === false) {
             $dataObj->mkdir(dirname($cachePath));
         }
 
         // 直接Append到对应文件块中
-        // TODO: 文件流不支持Append操作处理逻辑
         if ($dataObj->AppendFile($handle, $cachePath, 0) === false) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
-        
         fclose($handle);
         if (isset($this->_temp) && file_exists($this->_temp)) {
             @unlink($this->_temp);
         }
-
         // 检查文件上传是否完整，如果不完整，则返回错误
         $this->_size = $dataObj->size($cachePath);
         if ($this->_size > $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         } elseif ($this->_size < $size) {
-            $this->ResponseRetryWith($hash, $size, $this->_size);
+            $this->ResponseRetryWith($signature, $size, $this->_size);
         }
-        $this->signature = $hash;
-        return $this->handleSave($hash, $cachePath);
+        $this->signature = $signature;
+        return $this->handleSave($signature, $cachePath);
     }
 
     /**
      * 使用post方法上传断点文件
-     * @param $hash 文件hash值
-     * @param $size 文件大小
-     * @param $offset 文件偏移量
+     * @param string $signature 文件hash值
+     * @param int $size 文件大小
+     * @param int $offset 文件偏移量
      * @throws MFilesException
      * @return array
      */
-    private function handleBreakPointFile($hash, $size, $offset) {
+    private function handleBreakPointFile($signature, $size, $offset) {
         $dataObj = Yii::app()->data;
-        $cachePath = '/cache/' .MiniUtil::getPathBySplitStr($hash);
+        $cachePath = '/cache/' .MiniUtil::getPathBySplitStr($signature);
         // 文件不存在，则需要客户端全部重新传文件
         if ($dataObj->exists(dirname($cachePath)) === false) {
-            $this->ResponseRetryWith($hash, $size, 0, FALSE);
+            $this->ResponseRetryWith($signature, $size, 0, FALSE);
         }
         // 如果收到的文件内容小于offset，那么需要要求客户端从received的位置开始上传
         $received = $dataObj->size($cachePath);
         if ($received < $offset) {
-            $this->ResponseRetryWith($hash, $size, $received, FALSE);
+            $this->ResponseRetryWith($signature, $size, $received, FALSE);
         }
-        
         $handle = $this->getInputFileHandle();
         // 直接Append到对应文件块中
         // TODO: 文件流不支持Append操作处理逻辑
         if ($dataObj->AppendFile($handle, $cachePath, $offset) === false) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         }
-        
         fclose($handle);
         if (isset($this->_temp) && file_exists($this->_temp)) {
             @unlink($this->_temp);
@@ -231,18 +224,18 @@ class MFilePutController extends MApplicationComponent implements MIController{
         if ($this->_size > $size) {
             throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
         } elseif ($this->_size < $size) {
-            $this->ResponseRetryWith($hash, $size, $this->_size);
+            $this->ResponseRetryWith($signature, $size, $this->_size);
         }
         
-        $this->signature = $hash;
-        return $this->handleSave($hash, $cachePath);
+        $this->signature = $signature;
+        return $this->handleSave($signature, $cachePath);
     }
 
     /**
      *
      * Enter description here ...
-     * @param $hash 文件hash值
-     * @param $tmpPath 临时文件
+     * @param string $hash 文件hash值
+     * @param string $tmpPath 临时文件
      * @throws MFilesException
      * @return string
      */
@@ -256,10 +249,10 @@ class MFilePutController extends MApplicationComponent implements MIController{
             if ($dataObj->exists(dirname($storePath)) === false) {
                 MUtils::MkDirs(dirname($storePath));
             }
-            
             if ($dataObj->move($tmpPath, $storePath, true) == false) {
                 throw new MFilesException(Yii::t('api',"The file upload error!"), MConst::HTTP_CODE_400);
             }
+            //TODO 删除$tempPath文件夹
         }
         return $storePath;
     }
@@ -267,18 +260,18 @@ class MFilePutController extends MApplicationComponent implements MIController{
     /**
      *
      * 通知客户端，需要重新上传文件，从offset的位置开始
-     * @param $hash 文件hash值
-     * @param $size 文件大小
-     * @param $offset 文件偏移量
-     * @param $success bool
+     * @param string $signature 文件hash值
+     * @param int $size 文件大小
+     * @param int $offset 文件偏移量
+     * @param boolean $success
      */
-    private function ResponseRetryWith($hash, $size, $offset, $success=TRUE) {
+    private function ResponseRetryWith($signature, $size, $offset, $success=TRUE) {
         $code = MConst::HTTP_CODE_449;
         if ($success)
             $code = MConst::HTTP_CODE_200;
         header('HTTP/1.1 ' . $code . ' ' . MConst::RETRY_WITH);
-        header('ETag: ' . $hash);
-        $response = array('hash' => $hash, 'offset' => $offset, 'size' => $size, 'success' => $success);
+        header('ETag: ' . $signature);
+        $response = array('hash' => $signature, 'offset' => $offset, 'size' => $size, 'success' => $success);
         echo json_encode($response);
         exit();
     }
