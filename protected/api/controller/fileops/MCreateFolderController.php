@@ -150,7 +150,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         $this->_parentFilePath = "/{$this->_user_id}";
         // 检查父目录
         $parentFileId        = $this->handlerParentFolder($parentPath);
-        $fileDetail           = $this->createFile($path, $parentFileId, $hadFileDelete);
+        $fileDetail          = $this->createFile($path, $parentFileId, $hadFileDelete);
         // 处理不同端，不同返回值
         if (MUserManager::getInstance()->isWeb() === true)
         {
@@ -183,7 +183,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
     /**
      * 处理web端输出数据
      */
-    public function buildWebResponse($file_name, $path)
+    public function buildWebResponse($fileName, $path)
     {
         $aid = 0;
         if (isset($_REQUEST['aid'])) {
@@ -202,7 +202,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
 		$result["path"]    = $path;
         $result["code"]    = 0;
         $result["message"] = Yii::t('api_message', 'create_folder_success');
-        $result["cname"]   = $file_name;
+        $result["cname"]   = $fileName;
         $result['aid']     = $aid;
         $result['cid']     = $file["id"];
         echo json_encode($result);
@@ -276,31 +276,31 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
     /**
      * 处理创建文件信息及事件
      */
-    private function createFile($path, $parent_file_id, $had_file_delete)
+    private function createFile($path, $parentFileId, $hadFileDelete)
     {
-        $file_name                       = MUtils::get_basename($path);
+        $fileName                       = MUtils::get_basename($path);
         // 组装对象信息
-        $file_detail                     = array();
-        $file_detail["file_create_time"] = time();
-        $file_detail["file_update_time"] = time();
-        $file_detail["file_name"]        = $file_name;
-        $file_detail["file_path"]        = $path;
-        $file_detail["file_size"]        = 0;
-        $file_detail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
-        $file_detail["parent_file_id"]   = $parent_file_id;
-        $file_detail["event_uuid"]    = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
-        $file_detail["mime_type"]        = NULL;
+        $fileDetail                     = array();
+        $fileDetail["file_create_time"] = time();
+        $fileDetail["file_update_time"] = time();
+        $fileDetail["file_name"]        = $fileName;
+        $fileDetail["file_path"]        = $path;
+        $fileDetail["file_size"]        = 0;
+        $fileDetail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
+        $fileDetail["parent_file_id"]   = $parentFileId;
+        $fileDetail["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+        $fileDetail["mime_type"]        = NULL;
         // 保存文件元数据
-        if ($had_file_delete)
+        if ($hadFileDelete)
         {
 
             $updates                      = array();
             $updates["file_update_time"]  = time();
             $updates["is_deleted"]        = intval(false);
             $updates["file_type"]         = MConst::OBJECT_TYPE_DIRECTORY;
-            $updates["event_uuid"]        = $file_detail["event_uuid"];
+            $updates["event_uuid"]        = $fileDetail["event_uuid"];
             // 存在已被删除的数据，只需更新
-            $ret_value                    = MiniFile::getInstance()->updateByPath($path, $updates);
+            $retValue                    = MiniFile::getInstance()->updateByPath($path, $updates);
         }
         else 
         {
@@ -309,13 +309,13 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
 //                $this->_user_id = $pathArr[1];
 //            }
             // 不存在数据，添加
-            $ret_value                    = MiniFile::getInstance()->create($file_detail,$pathArr[1]);
+            $retValue                    = MiniFile::getInstance()->create($fileDetail,$pathArr[1]);
             $user     = Yii::app()->session["user"];
             if((int)$pathArr[1]!==(int)$user['user_id']){//只有当被共享者在共享目录下创建目录时，才会记录create_id
                 MFileMetas::createFileMeta ( $path, 'create_id', $user['user_id'] );
             }
         }
-        if ($ret_value === false)
+        if ($retValue === false)
         {
             throw new MFileopsException(
                                         Yii::t('api','Internal Server Error'),
@@ -323,23 +323,25 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         }
         // 保存事件
         $event_action                    = MConst::CREATE_DIRECTORY;
-        $ret_value                       = MiniEvent::getInstance()->createEvent(
+        $retValue                       = MiniEvent::getInstance()->createEvent(
 										        								   $this->_user_id,
 										                                           $this->_user_device_id,
 										                                           $event_action,
-										                                           $file_detail["file_path"],
-										                                           $file_detail["file_path"],
-										                                           $file_detail["event_uuid"],
+										                                           $fileDetail["file_path"],
+										                                           $fileDetail["file_path"],
+										                                           $fileDetail["event_uuid"],
 										                                           $this->share_filter->type
 					                                           					);
-        if ($ret_value === false)
+        if ($retValue === false)
         {
             throw new MFileopsException(
                                         Yii::t('api','Internal Server Error'),
                                         MConst::HTTP_CODE_500);
         }
         // 为每个共享用户创建事件
-        $this->share_filter->handlerAction($event_action, $this->_user_device_id, $file_detail["file_path"], $file_detail["file_path"]);
-        return $file_detail;
+        if(isset($this->share_filter)){
+            $this->share_filter->handlerAction($event_action, $this->_user_device_id, $fileDetail["file_path"], $fileDetail["file_path"]);
+        }
+        return $fileDetail;
     }
 }
