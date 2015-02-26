@@ -177,8 +177,21 @@ class PluginMiniStoreNode extends MiniCache{
      * @param $safeCode 节点访问的安全码
      * @return array
      */
-    public function createOrModifyNode($name,$host,$safeCode){
-        $item = StoreNode::model()->find("name=:name",array("name"=>$name));
+    public function createOrModifyNode($name,$host,$safeCode,$id){
+        if(!empty($id)){
+            $item = StoreNode::model()->find("id=:id",array("id"=>$id));
+            if($item->name!=$name){
+                $node = StoreNode::model()->find("name=:name",array("name"=>$name));
+                if(isset($node)){
+                    return false;
+                }
+            }
+        }else{
+            $item = StoreNode::model()->find("name=:name",array("name"=>$name));
+            if(isset($item)){
+                return false;
+            }
+        }
         if(!isset($item)){
             $item = new StoreNode();
             $item->saved_file_count=0;
