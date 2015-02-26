@@ -66,13 +66,14 @@ class PluginMiniStoreService extends MiniService{
      */
     public function node(){
         $name = MiniHttp::getParam("name","");
+        $id = MiniHttp::getParam("id","");
         $host = MiniHttp::getParam("host","");
         $safeCode = MiniHttp::getParam("safe_code","");
         if(empty($name)||empty($host)||empty($safeCode)){
             throw new MiniException(100101);
         }
         $biz = new PluginMiniStoreBiz();
-        return $biz->createOrModifyNode($name,$host,$safeCode);
+        return $biz->createOrModifyNode($name,$host,$safeCode,$id);
     }
     /**
      * 修改迷你存储节点的状态
