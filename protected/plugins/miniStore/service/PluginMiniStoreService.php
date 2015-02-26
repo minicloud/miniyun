@@ -73,7 +73,7 @@ class PluginMiniStoreService extends MiniService{
             throw new MiniException(100101);
         }
         $biz = new PluginMiniStoreBiz();
-        return $biz->createOrModifyNode($name,$host,$safeCode,$id);
+        return $biz->createOrModifyNode($id,$name,$host,$safeCode);
     }
     /**
      * 修改迷你存储节点的状态

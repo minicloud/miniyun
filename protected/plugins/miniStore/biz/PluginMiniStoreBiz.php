@@ -79,9 +79,9 @@ class PluginMiniStoreBiz extends MiniBiz{
      * @param $host 节点域名
      * @param $safeCode 节点访问的accessToken
      */
-    public function createOrModifyNode($name,$host,$safeCode,$id){
+    public function createOrModifyNode($id,$name,$host,$safeCode){
 
-        return PluginMiniStoreNode::getInstance()->createOrModifyNode($name,$host,$safeCode,$id);
+        return PluginMiniStoreNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
     }
     /**
      * 修改迷你存储节点状态
