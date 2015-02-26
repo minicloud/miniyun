@@ -172,12 +172,13 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 创建迷你存储节点
+     * @param $id 节点id
      * @param $name 节点名称
      * @param $host 节点域名
      * @param $safeCode 节点访问的安全码
      * @return array
      */
-    public function createOrModifyNode($name,$host,$safeCode,$id){
+    public function createOrModifyNode($id,$name,$host,$safeCode){
         if(!empty($id)){
             $item = StoreNode::model()->find("id=:id",array("id"=>$id));
             if($item->name!=$name){
