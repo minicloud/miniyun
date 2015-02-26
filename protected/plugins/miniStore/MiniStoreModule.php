@@ -88,7 +88,6 @@ class MiniStoreModule extends MiniPluginModule {
             $callbackUrl .="&".$key."=".$value;
         }
         $data['callback'] =  $callbackUrl;
-        $data['node_access_token'] = $node["access_token"]; 
         $data['url'] =  $node["host"]."/api.php";
         echo json_encode($data);exit;
     }

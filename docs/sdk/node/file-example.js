@@ -37,7 +37,6 @@ miniApi.login(host,"admin","admin",function(){
                                     signature:signature,
                                     size:stats.size,
                                     callback:secInfo.callback,
-                                    nodeAccessToken:secInfo.node_access_token,
                                     accessToken:miniApi.accessToken,
                                     remotePath:remotePath,
                                     success:function(){

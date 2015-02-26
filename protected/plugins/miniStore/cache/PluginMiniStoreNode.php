@@ -283,7 +283,7 @@ class PluginMiniStoreNode extends MiniCache{
                 "route"=>"file/download",
                 "signature"=>$signature,
                 "node_id"=>$node["id"],
-                "file_name"=>$fileName,
+                "file_name"=>urlencode($fileName),
                 "mime_type"=>$mimeType,
                 "force_download"=>$forceDownload
             );
