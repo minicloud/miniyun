@@ -10,7 +10,7 @@
 class PluginMiniStoreBiz extends MiniBiz{
     /**
      *根据文件的Hash值下载内容
-     * @param $signature 文件hash值
+     * @param string $signature 文件hash值
      * @throws 404错误
      */
     public function download($signature){
@@ -27,8 +27,8 @@ class PluginMiniStoreBiz extends MiniBiz{
     }
     /**
      * 冗余备份报俊
-     * @param $signature 文件hash值
-     * @param $nodeId 迷你存储ID
+     * @param string $signature 文件hash值
+     * @param string $nodeId 迷你存储ID
      * @return array
      */
     public function replicateReport($signature,$nodeId){
@@ -69,24 +69,31 @@ class PluginMiniStoreBiz extends MiniBiz{
     }
     /**
      *获得迷你存储节点信息列表
+     * @return array
      */
     public function getNodeList(){
         return PluginMiniStoreNode::getInstance()->getNodeList();
     }
     /**
      * 创建迷你存储节点
-     * @param $name 节点名称
-     * @param $host 节点域名
-     * @param $safeCode 节点访问的accessToken
+     * @param int $id 节点ID
+     * @param string $name 节点名称
+     * @param string $host 节点域名
+     * @param string $safeCode 节点访问的accessToken
+     * @throws MiniException
+     * @return array
      */
     public function createOrModifyNode($id,$name,$host,$safeCode){
-
-        return PluginMiniStoreNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
+        $node = PluginMiniStoreNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
+        if(empty($node)){
+            throw new MiniException(100105);
+        }
+        return $node;
     }
     /**
      * 修改迷你存储节点状态
-     * @param $name 节点名称
-     * @param $status 节点状态
+     * @param string $name 节点名称
+     * @param string $status 节点状态
      * @throws MiniException
      */
     public function modifyNodeStatus($name,$status){

@@ -54,7 +54,7 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 把数据库记录序列化
-     * @param $item 数据库对象
+     * @param array $item 数据库对象
      * @return array
      */
     private function db2Item($item){
@@ -134,7 +134,7 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 检查存储节点状态
-     * @param $host
+     * @param string $host
      * @return int
      */
     public function checkNodeStatus($host){
@@ -150,7 +150,7 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 节点新上传文件
-     * @param $nodeId
+     * @param int $nodeId
      */
     public function newUploadFile($nodeId){
         $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
@@ -161,7 +161,7 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 节点新新下载了文件
-     * @param $nodeId
+     * @param int $nodeId
      */
     public function newDownloadFile($nodeId){
         $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
@@ -172,25 +172,27 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 创建迷你存储节点
-     * @param $id 节点id
-     * @param $name 节点名称
-     * @param $host 节点域名
-     * @param $safeCode 节点访问的安全码
+     * @param int $id 节点id
+     * @param string $name 节点名称
+     * @param string $host 节点域名
+     * @param string $safeCode 节点访问的安全码
      * @return array
      */
     public function createOrModifyNode($id,$name,$host,$safeCode){
         if(!empty($id)){
+            //修改节点信息
             $item = StoreNode::model()->find("id=:id",array("id"=>$id));
+            //防止节点名称修改为了其它节点的名称
             if($item->name!=$name){
                 $node = StoreNode::model()->find("name=:name",array("name"=>$name));
                 if(isset($node)){
-                    return false;
+                    return null;
                 }
             }
         }else{
             $item = StoreNode::model()->find("name=:name",array("name"=>$name));
             if(isset($item)){
-                return false;
+                return null;
             }
         }
         if(!isset($item)){
@@ -198,16 +200,16 @@ class PluginMiniStoreNode extends MiniCache{
             $item->saved_file_count=0;
             $item->downloaded_file_count=0;
         }
-        $item->name = $name;
-        $item->host = $host;
+        $item->name      = $name;
+        $item->host      = $host;
         $item->safe_code = $safeCode;
-        $item->status = -1;//所有新建或修改节点状态都是无效的
+        $item->status    = -1;//所有新建或修改节点状态都是无效的
         $item->save();
         return $this->db2Item($item);
     }
     /**
      * 根据名称查询节点
-     * @param $name
+     * @param string $name
      * @return array
      */
     public function getNodeByName($name){
@@ -215,8 +217,8 @@ class PluginMiniStoreNode extends MiniCache{
     }
     /**
      * 修改迷你存储节点状态
-     * @param $name 节点名称
-     * @param $status 节点状态
+     * @param string $name 节点名称
+     * @param int $status 节点状态
      * @return array
      */
     public function modifyNodeStatus($name,$status){
