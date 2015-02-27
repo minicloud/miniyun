@@ -81,33 +81,33 @@ class CUtils{
         }
 
         // 获取父目录路径
-        $parent_path = dirname($dir);
+        $parentPath = dirname($dir);
 
         // 递归调用
-        self::delDirs($parent_path, $times);
+        self::delDirs($parentPath, $times);
     }
 
     /**
      * 删除临时文件
-     * @param string $file_name 删除文件的全路径
+     * @param string $fileName 删除文件的全路径
      * @return mixed $value 返回最终需要执行完的结果
      */
-    public static function RemoveFile($file_name) {
-        if (strlen($file_name) == 0) {
+    public static function RemoveFile($fileName) {
+        if (strlen($fileName) == 0) {
             return false;
         }
-        if (strpos($file_name, BASE) === false) {
+        if (strpos($fileName, BASE) === false) {
             return false;
         }
-        if (file_exists($file_name) == false) {
+        if (file_exists($fileName) == false) {
             return false;
         }
 
-        if (unlink($file_name) == false) {
+        if (unlink($fileName) == false) {
             return false;
         }
         // 如果文件夹为空，删除
-        $dir = dirname($file_name);
+        $dir = dirname($fileName);
         if (strpos($dir, BASE) === false) {
             return false;
         }
@@ -156,37 +156,36 @@ class CUtils{
     /**
      * 方法描述：根据文件路径获取文件的signature
      * 参数：
-     *   $path         - 文件地址
-     *   $python       - python路径
-     * 返回值：
-     *   $sig_cal      - 文件的signature
+     *@param string $path         - 文件地址
+     *@param string $python       - python路径
+     *@return string      - 文件的signature
      */
     public static function getSignature($path,$python) {
-        $sig_path = dirname(__FILE__) . "/../py/signature.py";
-        $sig_cal  = "0";
+        $sigPath = dirname(__FILE__) . "/../py/signature.py";
+        $sigCal  = "0";
         $res      = array ();
         $rc       = 0;
-        exec($python . " " . $sig_path ." " . $path, $res, $rc);
+        exec($python . " " . $sigPath ." " . $path, $res, $rc);
         //
         // 检查返回值
         //
         if ($rc != 1) {
-            return $sig_cal;
+            return $sigCal;
         }
 
         if (is_null($res[0])) {
-            return $sig_cal;
+            return $sigCal;
         }
-        $sig_cal = $res[0];
-        return $sig_cal;
+        $sigCal = $res[0];
+        return $sigCal;
     }
 
     /**
      * 方法描述：检查传入的signature是否和计算出来的文件signature是否一致
-     * 参数：
-     *   $path        - 文件地址
-     *   $python      - python可执行路径
-     *   $signature   - 需要检查的signature
+     * @param string $path
+     * @param string $python
+     * @param string $signature
+     * @return bool
      */
     public static function checkSignature($path,$python,$signature) {
         //
@@ -201,32 +200,32 @@ class CUtils{
 
     /**
      * 组装文件需要的post参数
-     * @param string $file_signature 文件块的signature
+     * @param string $signature 文件块的signature
      * @param int $offset 文件索引
      * @return mixed $value 执行成功返回post，否则返回false
      */
-    public static function getPost($file_signature, $offset=0) {
-        $key               = substr($file_signature,0,2)."/".substr($file_signature,2,2);
-        $key              .= "/".substr($file_signature,4,2)."/".substr($file_signature,6,2);
+    public static function getPost($signature, $offset=0) {
+        $key               = substr($signature,0,2)."/".substr($signature,2,2);
+        $key              .= "/".substr($signature,4,2)."/".substr($signature,6,2);
 
         //
         // TODO: 处理组装s3需要的参数
         //
-        $input = array( "Filename" => "{$file_signature}",
+        $input = array( "Filename" => "{$signature}",
             "key" => "$key/\${filename}");
         //
         // 生成数字签名,使用json格式，返回hash格式数据
         //
         $output = CUtils::getRequesSignature($input);
-        $expiration_time   = $output["expiration_date"];
-        $digital_signature = $output["digital_signature"];
+        $expirationTime   = $output["expiration_date"];
+        $digitalSignature = $output["digital_signature"];
 
         $post = array();
-        $post["Filename"]               = $file_signature;
+        $post["Filename"]               = $signature;
         $post["AWSAccessKeyId"]         = CConst::ACCESS_KEY_ID;
-        $post["key"]                    = $file_signature;
-        $post["expiration_date"]        = $expiration_time;
-        $post["digital_signature"]      = $digital_signature;
+        $post["key"]                    = $signature;
+        $post["expiration_date"]        = $expirationTime;
+        $post["digital_signature"]      = $digitalSignature;
         $post["offset"]                 = $offset;
         $post["success_action_status"]  = "201";
 
@@ -248,20 +247,20 @@ class CUtils{
             return  false;
         }
         //计算过期时间
-        $expired_date = time() + $expire;
+        $expiredDate = time() + $expire;
         //
         // 对传入数组进行转换，将其key值转成小写，形成新的关联数组
         //
-        $new_input = array();
+        $newInput = array();
         foreach ($input as $key=>$value) {
             // 转成小写
             $key = strtolower($key);
-            $new_input[$key] = $value;
+            $newInput[$key] = $value;
         }
         //
         // 获取新数组的key
         //
-        $keys = array_keys($new_input);
+        $keys = array_keys($newInput);
         //
         // keys数组排序
         //
@@ -271,14 +270,14 @@ class CUtils{
         //
         $str = "";
         foreach ($keys as $key) {
-            $str .= $key . $new_input[$key];
+            $str .= $key . $newInput[$key];
         }
-        $str .= CConst::EXPIRATION_DATE . $expired_date;
+        $str .= CConst::EXPIRATION_DATE . $expiredDate;
         $signature = CUtils::getSha1Signature($str);
         //
         // 在传入数组后添加两个新值： expiration_date digital_signature
         //
-        $input["expiration_date"] = $expired_date;
+        $input["expiration_date"] = $expiredDate;
         $input["digital_signature"] = $signature;
         return $input;
     }
@@ -374,15 +373,15 @@ class CUtils{
         //        }
         $index = 1;
         $paths = self::pathinfo_utf($name);
-        $file_name = $paths["filename"];
+        $fileName = $paths["filename"];
         $extension = $paths["extension"];
 
-        $tmp_name = strtolower($name);
+        $tmpName = strtolower($name);
 
-        while (isset($names[$tmp_name])) {
-            $tmp_name = $file_name . "($index)";
+        while (isset($names[$tmpName])) {
+            $tmpName = $fileName . "($index)";
             if ($extension) {
-                $tmp_name .= ".$extension";
+                $tmpName .= ".$extension";
             }
             $index += 1;
             //
@@ -393,8 +392,8 @@ class CUtils{
             }
         }
 
-        $file_name = $tmp_name;
-        return $file_name;
+        $fileName = $tmpName;
+        return $fileName;
     }
 
     /**
@@ -523,19 +522,19 @@ class CUtils{
     /**
      * 验证文件名是否合法
      * 不可使用  \ / : * ? " < > |
-     * @param $file_name
+     * @param $fileName
      * @return mixed $value 包含非法字符返回true，否则返回false
      */
-    public static function checkNameInvalid($file_name)
+    public static function checkNameInvalid($fileName)
     {
-        if ($file_name === "")
+        if ($fileName === "")
         {
             return true;
         }
-        if ($file_name{strlen($file_name)-1} == ".") {
+        if ($fileName{strlen($fileName)-1} == ".") {
             return true;
         }
-        return preg_match("/[\\/".preg_quote("|?*\\<\":>")."]/",$file_name);
+        return preg_match("/[\\/".preg_quote("|?*\\<\":>")."]/",$fileName);
     }
 
     /**
@@ -578,29 +577,29 @@ class CUtils{
         //  如： "/aa" => "/aa" 原样子返回
         // 而basename($filePath) 这个函数会存在中文问题,
         //
-        $first_index = strrpos($filePath, "/");
-        $second_index = strrpos($filePath, "\\");
-        $index = $first_index;
-        if ($first_index < $second_index)
+        $firstIndex = strrpos($filePath, "/");
+        $secondIndex = strrpos($filePath, "\\");
+        $index = $firstIndex;
+        if ($firstIndex < $secondIndex)
         {
-            $index = $second_index;
+            $index = $secondIndex;
         }
-        $file_name = substr($filePath, $index+1);
-        if ($file_name === false)
+        $fileName = substr($filePath, $index+1);
+        if ($fileName === false)
         {
             return "";
         }
-        return $file_name;
+        return $fileName;
     }
     /**
      * 获得文件扩展类型
-     * @param $filename
-     * @param $path
+     * @param string $filename
+     * @param string $path
      * @return string
      */
     public static function mime_content_type($filename, $path = null) {
 
-        $mime_types = array(
+        $mimeTypes = array(
             'txt'  => 'text/plain',
             'htm'  => 'text/html',
             'html' => 'text/html',
@@ -713,8 +712,8 @@ class CUtils{
         );
         $ext = explode('.',$filename);
         $ext = strtolower(array_pop($ext));
-        if (array_key_exists($ext, $mime_types)) {
-            return $mime_types[$ext];
+        if (array_key_exists($ext, $mimeTypes)) {
+            return $mimeTypes[$ext];
         }
         elseif (function_exists('finfo_open') && !empty($path)) {
             $fileInfo = finfo_open(FILEINFO_MIME);
@@ -769,8 +768,8 @@ class CUtils{
         $dirName = substr ( $path, 0, strlen ( $path ) - strlen ( $basename ) - 1 );
 
         if (strpos ( $basename, '.' ) !== false) {
-            $ext_parts = explode ( '.', $path );
-            $extension = end ( $ext_parts );
+            $extParts = explode ( '.', $path );
+            $extension = end ( $extParts );
             $filename = substr ( $basename, 0, strlen ( $basename ) - strlen ( $extension ) - 1 );
         } else {
             $extension = '';
@@ -788,57 +787,55 @@ class CUtils{
 
     /**
      * 从数据库中查询， 判断用户名是否重复
-     * @param int $user_id
-     * @param int $parent_id
-     * @param string $file_name
+     * @param int $userId
+     * @param int $parentId
+     * @param string $fileName
      * @return string
      */
-    public static function getConflictFileName($user_id, $parent_id, $file_name) {
-        $files =  UserFile::model()->getByParentID($user_id, $parent_id);
+    public static function getConflictFileName($userId, $parentId, $fileName) {
+        $files =  UserFile::model()->getByParentID($userId, $parentId);
         $names = array ();
         foreach ( $files as $k => $v ) {
             $names [$v ["file_name"]] = $v ["file_name"];
         }
-        $file_name = CUtils::getConflictName($file_name, $names);
-        return $file_name;
+        $fileName = CUtils::getConflictName($fileName, $names);
+        return $fileName;
     }
-
 
     /**
      * 方法描述：输出文件流，使用lighttpd x-sendfile方式
-     * 参数：
-     *   $path         - 文件绝对路径
-     *   $content_type - 文件输出类型
-     *   $output_name  - 文件输出名称
+     * @param string $filePath
+     * @param string $contentType
+     * @param string $fileName
      */
-    public static function output($file_path, $ctype, $file_name) {
-        $size = filesize ( $file_path );
+    public static function output($filePath, $contentType, $fileName) {
+        $size = filesize ( $filePath );
         // 输入文件标签
-        Header ( "Content-type: $ctype" );
+        Header ( "Content-type: $contentType" );
         Header ( "Cache-Control: public" );
         Header ( "Content-length: " . $size );
-        $encoded_filename = urlencode ( $file_name );
-        $encoded_filename = str_replace ( "+", "%20", $encoded_filename );
+        $encodedFilename = urlencode ( $fileName );
+        $encodedFilename = str_replace ( "+", "%20", $encodedFilename );
         $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
         // 处理下载的时候的文件名
         if (preg_match ( "/MSIE/", $ua )) {
-            header ( 'Content-Disposition: attachment; filename="' . $encoded_filename . '"' );
+            header ( 'Content-Disposition: attachment; filename="' . $encodedFilename . '"' );
         } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
-            header ( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
+            header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
         } else if (preg_match ( "/Firefox/", $ua )) {
-            header ( 'Content-Disposition: attachment; filename*="utf8\'\'' . $file_name . '"' );
+            header ( 'Content-Disposition: attachment; filename*="utf8\'\'' . $fileName . '"' );
         } else {
-            header ( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
+            header ( 'Content-Disposition: attachment; filename="' . $fileName . '"' );
         }
-        $fp = fopen ( $file_path, "rb" ); // 打开文件
+        $fp = fopen ( $filePath, "rb" ); // 打开文件
         if (isset ( $_SERVER ['HTTP_RANGE'] ) && ($_SERVER ['HTTP_RANGE'] != "") && preg_match ( "/^bytes=([0-9]+)-/i", $_SERVER ['HTTP_RANGE'], $match ) && ($match [1] < $size)) {
             $range = $match [1];
             fseek ( $fp, $range );
             header ( "HTTP/1.1 206 Partial Content" );
-            header ( "Last-Modified: " . gmdate ( "D, d M Y H:i:s", filemtime ( $file_path ) ) . " GMT" );
+            header ( "Last-Modified: " . gmdate ( "D, d M Y H:i:s", filemtime ( $filePath ) ) . " GMT" );
             header ( "Accept-Ranges: bytes" );
-            $rangesize = ($size - $range) > 0 ? ($size - $range) : 0;
-            header ( "Content-Length:" . $rangesize );
+            $rangeSize = ($size - $range) > 0 ? ($size - $range) : 0;
+            header ( "Content-Length:" . $rangeSize );
             header ( "Content-Range: bytes " . $range . '-' . ($size - 1) . "/" . $size );
         } else {
             header ( "Content-Length: $size" );
@@ -851,10 +848,10 @@ class CUtils{
         //
         set_time_limit(0);
         $dstStream = fopen('php://output', 'wb');
-        $chunksize = 4096;
+        $chunkSize = 4096;
         $offset = $range;
         while(!feof($fp) && $offset < $size) {
-            $offset += stream_copy_to_stream($fp, $dstStream, $chunksize, $offset);
+            $offset += stream_copy_to_stream($fp, $dstStream, $chunkSize, $offset);
         }
         fclose($dstStream);
         fclose ( $fp );
@@ -871,15 +868,19 @@ class CUtils{
         $key = md5(uniqid(rand(), true));
         if ($unique)
         {
-            list($usec,$sec) = explode(' ',microtime());
-            $key .= dechex($usec).dechex($sec);
+            list($uSec,$sec) = explode(' ',microtime());
+            $key .= dechex($uSec).dechex($sec);
         }
         return $key;
     }
 
     /**
-     *获得显示字符串，支持中文英文的自动截取
-     *
+     * 获得显示字符串，支持中文英文的自动截取
+     * @param $string
+     * @param $length
+     * @param string $dot
+     * @param string $charset
+     * @return string
      */
     public static function getShowSubStr($string, $length, $dot = '...',$charset='utf-8') {
         if(strlen($string) <= $length) {
@@ -1287,10 +1288,10 @@ class CUtils{
     }
 
     /**
-     *
      * 删除指定元素的数组
-     *
-     * @since 1.0.7
+     * @param $array
+     * @param $value
+     * @return mixed
      */
     public static function arrayRemove($array, $value) {
         foreach($array as $k=>$v){
@@ -1363,11 +1364,12 @@ class CUtils{
 
     /**
      * 判断是否处于最后一个位置
-     *
-     *@since 1.0.7
+     * @param $filePath
+     * @param $string
+     * @return bool
      */
-    public static function isLast($file_path, $string) {
-        $list = explode('/', $file_path);
+    public static function isLast($filePath, $string) {
+        $list = explode('/', $filePath);
         $ddd= end($list);
         if (end($list) == $string){
             return true;
@@ -1405,19 +1407,19 @@ class CUtils{
     /**
      *
      * 重新组装url地址
-     * @param mixed $parsed_url @see parse_url()
+     * @param mixed $parsedUrl @see parse_url()
      * @return mix
      */
-    public static function unparse_url($parsed_url) {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-        $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+    public static function unparse_url($parsedUrl) {
+        $scheme   = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '';
+        $host     = isset($parsedUrl['host']) ? $parsedUrl['host'] : '';
+        $port     = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+        $user     = isset($parsedUrl['user']) ? $parsedUrl['user'] : '';
+        $pass     = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-        $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+        $path     = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+        $query    = isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '';
+        $fragment = isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
@@ -1439,10 +1441,10 @@ class CUtils{
     /**
      * 显示操作日志内容
      * @param mix $context 操作日志
-     * @param int|string $file_type
+     * @param int|string $fileType
      * @return mixed|string
      */
-    public static function contextDetails($context, $file_type = MConst::OBJECT_TYPE_DIRECTORY) {
+    public static function contextDetails($context, $fileType = MConst::OBJECT_TYPE_DIRECTORY) {
         //
         // 初始化
         //
@@ -1476,7 +1478,7 @@ class CUtils{
         $newName = $notes2[$count-1];
 
 
-        if ($file_type == MConst::OBJECT_TYPE_DIRECTORY) {
+        if ($fileType == MConst::OBJECT_TYPE_DIRECTORY) {
             //
             // 操作日志描述
             //
@@ -1516,10 +1518,10 @@ class CUtils{
         $text = str_replace("{file}", $newName, $text);
 
         // 16代表公共目录
-        if ($file_type == 16) {
+        if ($fileType == 16) {
             // 公共目录
             $text = Yii::t("js_message_list","public_folder").$text;
-        } else if($file_type == MConst::OBJECT_TYPE_SHARED || $file_type == MConst::OBJECT_TYPE_BESHARED) {
+        } else if($fileType == MConst::OBJECT_TYPE_SHARED || $fileType == MConst::OBJECT_TYPE_BESHARED) {
             // 共享目录
             $text = Yii::t("front_common","shared_folder").$text;
         }

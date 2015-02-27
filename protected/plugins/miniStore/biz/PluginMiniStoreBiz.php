@@ -53,7 +53,7 @@ class PluginMiniStoreBiz extends MiniBiz{
         if(empty($version)){
             //创建version/versionMeta数据
             $pathParts = pathinfo($path);
-            $type = CUtils::mime_content_type($pathParts["filename"]);
+            $type = CUtils::mime_content_type($pathParts["basename"]);
             $version = MiniVersion::getInstance()->create($signature, $size, $type);
             MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
             //更新迷你存储节点状态，把新上传的文件数+1

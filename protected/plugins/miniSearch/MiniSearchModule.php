@@ -43,8 +43,7 @@ class MiniSearchModule extends MiniPluginModule {
     }
     /**
      *根据文件的Hash值下载内容
-     *@param $signature 文件hash值
-     *@throws
+     *@param string $signature 文件hash值
      *@return array
      *
      */
@@ -54,15 +53,7 @@ class MiniSearchModule extends MiniPluginModule {
             $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
             foreach($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
-                    //文本类文件直接把内容存储到数据库中，便于全文检索
-                    //文本类文件直接把内容存储到数据库中，便于全文检索
-                    $filePath = MiniUtil::getPathBySplitStr ($signature);
-                    //data源处理对象
-                    $dataObj = Yii::app()->data;
-                    if ($dataObj->exists( $filePath ) === false) {
-                        throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
-                    }
-                    $content = $dataObj->get_contents($filePath);
+                    $content = MiniFile::getInstance()->getText($signature);
                     MiniSearchFile::getInstance()->create($signature,$content);
                     return;
                 }
