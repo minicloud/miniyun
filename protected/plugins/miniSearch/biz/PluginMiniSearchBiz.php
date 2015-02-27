@@ -11,7 +11,7 @@ class PluginMiniSearchBiz extends MiniBiz
 {
     /**
      * 全文检索
-     * @param $key 关键字
+     * @param string $key 关键字
      * @return array
      */
     public function search($key)
@@ -78,5 +78,48 @@ class PluginMiniSearchBiz extends MiniBiz
             }
         }
         return $values;
+    }
+    /**
+     *获得迷你搜索节点信息列表
+     * @return array
+     */
+    public function getNodeList(){
+        return PluginMiniSearchNode::getInstance()->getNodeList();
+    }
+    /**
+     * 创建迷你搜索节点
+     * @param int $id 节点ID
+     * @param string $name 节点名称
+     * @param string $host 节点域名
+     * @param string $safeCode 节点访问的安全码
+     * @throws MiniException
+     * @return array
+     */
+    public function createOrModifyNode($id,$name,$host,$safeCode){
+        $node = PluginMiniSearchNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
+        if(empty($node)){
+            throw new MiniException(100305);
+        }
+        return $node;
+    }
+    /**
+     * 修改迷你搜索节点状态
+     * @param string $name 节点名称
+     * @param string $status 节点状态
+     * @throws MiniException
+     */
+    public function modifyNodeStatus($name,$status){
+        $node = PluginMiniSearchNode::getInstance()->getNodeByName($name);
+        if(empty($node)){
+            throw new MiniException(100303);
+        }
+        if($status==1){
+            //检查服务器状态，看看是否可以连接迷你搜索服务器
+            $nodeStatus = PluginMiniSearchNode::getInstance()->checkNodeStatus($node["host"]);
+            if($nodeStatus==-1){
+                throw new MiniException(100304);
+            }
+        }
+        return PluginMiniSearchNode::getInstance()->modifyNodeStatus($name,$status);
     }
 }

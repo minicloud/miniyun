@@ -1,19 +1,19 @@
 <?php
 /**
- * 缓存miniyun_doc_nodes表的记录
+ * 缓存miniyun_search_nodes表的记录
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
  * @since 1.8
  */
-class PluginMiniDocNode extends MiniCache{
+class PluginMiniSearchNode extends MiniCache{
     /**
      *
      * Cache Key的前缀
      * @var string
      */
-    private static $CACHE_KEY = "cache.model.PluginMiniDocNode";
+    private static $CACHE_KEY = "cache.model.PluginMiniSearchNode";
 
     /**
      *  静态成品变量 保存全局实例
@@ -65,18 +65,17 @@ class PluginMiniDocNode extends MiniCache{
         $value["host"]                = $item->host;
         $value["safe_code"]           = $item->safe_code;
         $value["status"]              = $item->status;
-        $value["converted_file_count"] = $item->converted_file_count;
         $value["created_at"]          = $item->created_at;
         $value["updated_at"]          = $item->updated_at;
         return $value;
     } 
     /**
-    * 根据ID获得迷你文档节点
-     * @param int $id 迷你文档节点ID
+    * 根据ID获得迷你搜索节点
+     * @param int $id 迷你搜索节点ID
      * @return array
     */
     public function getNodeById($id){
-        $item = DocNode::model()->find("id=:id",array("id"=>$id));
+        $item = SearchNode::model()->find("id=:id",array("id"=>$id));
         if(isset($item)){
             return $this->db2Item($item);
         }
@@ -84,17 +83,17 @@ class PluginMiniDocNode extends MiniCache{
     }
 
     /**
-     * 获得迷你文档所有节点列表
+     * 获得迷你搜索所有节点列表
      */
     public function getNodeList(){
-        $items = DocNode::model()->findAll();
+        $items = SearchNode::model()->findAll();
         return $this->db2list($items);
     }
     /**
      * 检查所有节点状态
      */
     public function checkNodesStatus(){
-        $items = DocNode::model()->findAll();
+        $items = SearchNode::model()->findAll();
         foreach($items as $item){
             $host = $item->host;
             $oldStatus = $item->status;
@@ -106,7 +105,7 @@ class PluginMiniDocNode extends MiniCache{
         }
     }
     /**
-     * 检查文档节点状态
+     * 检查搜索节点状态
      * @param string $host
      * @return int
      */
@@ -122,7 +121,7 @@ class PluginMiniDocNode extends MiniCache{
         return -1;
     }
     /**
-     * 创建迷你文档节点
+     * 创建迷你搜索节点
      * @param int $id 节点id
      * @param string $name 节点名称
      * @param string $host 节点域名
@@ -132,23 +131,22 @@ class PluginMiniDocNode extends MiniCache{
     public function createOrModifyNode($id,$name,$host,$safeCode){
         if(!empty($id)){
             //修改节点信息
-            $item = DocNode::model()->find("id=:id",array("id"=>$id));
+            $item = SearchNode::model()->find("id=:id",array("id"=>$id));
             //防止节点名称修改为了其它节点的名称
             if($item->name!=$name){
-                $node = DocNode::model()->find("name=:name",array("name"=>$name));
+                $node = SearchNode::model()->find("name=:name",array("name"=>$name));
                 if(isset($node)){
                     return null;
                 }
             }
         }else{
-            $item = DocNode::model()->find("name=:name",array("name"=>$name));
+            $item = SearchNode::model()->find("name=:name",array("name"=>$name));
             if(isset($item)){
                 return null;
             }
         }
         if(!isset($item)){
-            $item = new DocNode();
-            $item->converted_file_count=0;
+            $item = new SearchNode();
         }
         $item->name      = $name;
         $item->host      = $host;
@@ -163,21 +161,21 @@ class PluginMiniDocNode extends MiniCache{
      * @return array
      */
     public function getNodeByName($name){
-        return $this->db2Item(DocNode::model()->find("name=:name",array("name"=>$name)));
+        return $this->db2Item(SearchNode::model()->find("name=:name",array("name"=>$name)));
     }
     /**
-     * 修改迷你文档节点状态
+     * 修改迷你搜索节点状态
      * @param string $name 节点名称
      * @param int $status 节点状态
      * @return array
      */
     public function modifyNodeStatus($name,$status){
-        //迷你文档节点状态只保留2个
-        //1表示迷你文档节点生效,-1表示迷你文档节点无效
+        //迷你搜索节点状态只保留2个
+        //1表示迷你搜索节点生效,-1表示迷你搜索节点无效
         if($status!=="1"){
             $status = "-1";
         }
-        $item = DocNode::model()->find("name=:name",array("name"=>$name));
+        $item = SearchNode::model()->find("name=:name",array("name"=>$name));
         if(isset($item)){
             $item->status = $status;
             $item->save();

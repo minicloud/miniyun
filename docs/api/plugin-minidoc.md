@@ -158,4 +158,6 @@ http://demo.miniyun.cn/api.php
 
 100204 把迷你文档节点拉上时，迷你云服务器无法连接存储节点服务器或者预先填写的safe_code不合法
 
+100205 节点名称重复
+
 [pdf.js]:https://github.com/mozilla/pdf.js

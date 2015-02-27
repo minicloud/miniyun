@@ -43,6 +43,7 @@ http://demo.miniyun.cn/api.php
     route:'module/miniSearch/node',//接口路由地址
     access_token:xxxx,当前登录用户的access_token
     sign:yyyy,当前会话签名
+    id:"xx",//当前节点id，默认为空字符串。为整数时该接口用于修改
     safe_code:"xxx",//搜索节点内置的访问钥匙，搜索节点默认安装设置为：uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS
     name:"xxx",//搜索节点名称，名称在整个系统中唯一
     host:"xxxx",//搜索节点访问地址，比如:http://s1.miniyun.cn或者http://192.168.0.11:8090，前面的http://或https://不能少得
@@ -99,6 +100,8 @@ http://demo.miniyun.cn/api.php
 100303 在修改迷你搜索节点状态，没有发现对应的名称的节点
 
 100304 把迷你搜索节点拉上时，迷你云服务器无法连接迷你搜索节点服务器或者预先填写的safe_code不合法
+
+100305 节点名称重复
 
 [sphinx]:http://sphinxsearch.com/
 [迷你文档]:https://github.com/MiniYun/php-server/blob/minidoc/docs/api/plugin-minidoc.md

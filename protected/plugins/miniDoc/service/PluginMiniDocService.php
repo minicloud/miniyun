@@ -15,6 +15,13 @@ class PluginMiniDocService extends MiniService{
             "report"
         );
     }
+    protected function adminActionList(){
+        return array(
+            "nodeList",
+            "node",
+            "nodeStatus",
+        );
+    }
     /**
      * 根据文件hash值进行下载文件
      */
