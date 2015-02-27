@@ -10,14 +10,14 @@
 class PluginMiniDocBiz extends MiniBiz{
     /**
      *根据文件的Hash值下载内容
-     * @param $fileHash 文件hash值
+     * @param string $signature 文件hash值
      * @throws 404错误
      */
-    public function download($fileHash){
-        $version = MiniVersion::getInstance()->getBySignature($fileHash);
+    public function download($signature){
+        $version = MiniVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
             //根据文件内容输出文件内容
-            MiniFile::getInstance()->getContentBySignature($fileHash,$fileHash,$version["mime_type"]);
+            MiniFile::getInstance()->getContentBySignature($signature,$signature,$version["mime_type"]);
         }else{
             throw new MFileopsException(
                 Yii::t('api','File Not Found'),
@@ -27,31 +27,31 @@ class PluginMiniDocBiz extends MiniBiz{
     }
     /**
      *给迷你云报告文件转换过程
-     * @param $fileHash 文件hash值
-     * @param $status 文件状态
+     * @param string $signature 文件hash值
+     * @param string $status 文件状态
      * @return array
      */
-    public function report($fileHash,$status){
-        $version = MiniVersion::getInstance()->getBySignature($fileHash);
+    public function report($signature,$status){
+        $version = MiniVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
             //文件转换成功
             if($status==="1"){
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($fileHash,2);
+                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($signature,2);
                 //通过回调方式让迷你搜索把文件文本内容编制索引到数据库中
-                do_action("pull_text_search",$fileHash);
+                do_action("pull_text_search",$signature);
             }
             //文件转换失败
             if($status==="0"){
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($fileHash,-1);
+                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($signature,-1);
             }
         }
         return array("success"=>true);
     }
     /**
      * 获得账号里所有的指定文件类型列表
-     * @param $page 当前页码
-     * @param $pageSize 当前每页大小
-     * @param $mimeType 文件类型
+     * @param int $page 当前页码
+     * @param int $pageSize 当前每页大小
+     * @param string $mimeType 文件类型
      * @return array
      */
     public function getList($page,$pageSize,$mimeType){
@@ -130,8 +130,8 @@ class PluginMiniDocBiz extends MiniBiz{
     }
     /**
      * 在线浏览文件获得内容
-     * @param $path 文件当前路径
-     * @param $type 文件类型，可选择pdf/png
+     * @param string $path 文件当前路径
+     * @param string $type 文件类型，可选择pdf/png
      * @throws
      * @return NULL
      */
@@ -217,5 +217,48 @@ class PluginMiniDocBiz extends MiniBiz{
             Header ( "Content-type: ".$contentType);
             echo(file_get_contents($localPath));
         }
+    }
+    /**
+     *获得迷你文档节点信息列表
+     * @return array
+     */
+    public function getNodeList(){
+        return PluginMiniDocNode::getInstance()->getNodeList();
+    }
+    /**
+     * 创建迷你文档节点
+     * @param int $id 节点ID
+     * @param string $name 节点名称
+     * @param string $host 节点域名
+     * @param string $safeCode 节点访问的安全码
+     * @throws MiniException
+     * @return array
+     */
+    public function createOrModifyNode($id,$name,$host,$safeCode){
+        $node = PluginMiniDocNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
+        if(empty($node)){
+            throw new MiniException(100205);
+        }
+        return $node;
+    }
+    /**
+     * 修改迷你文档节点状态
+     * @param string $name 节点名称
+     * @param string $status 节点状态
+     * @throws MiniException
+     */
+    public function modifyNodeStatus($name,$status){
+        $node = PluginMiniDocNode::getInstance()->getNodeByName($name);
+        if(empty($node)){
+            throw new MiniException(100203);
+        }
+        if($status==1){
+            //检查服务器状态，看看是否可以连接迷你文档服务器
+            $nodeStatus = PluginMiniDocNode::getInstance()->checkNodeStatus($node["host"]);
+            if($nodeStatus==-1){
+                throw new MiniException(100204);
+            }
+        }
+        return PluginMiniDocNode::getInstance()->modifyNodeStatus($name,$status);
     }
 }

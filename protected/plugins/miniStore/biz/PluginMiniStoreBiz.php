@@ -79,7 +79,7 @@ class PluginMiniStoreBiz extends MiniBiz{
      * @param int $id 节点ID
      * @param string $name 节点名称
      * @param string $host 节点域名
-     * @param string $safeCode 节点访问的accessToken
+     * @param string $safeCode 节点访问的安全码
      * @throws MiniException
      * @return array
      */

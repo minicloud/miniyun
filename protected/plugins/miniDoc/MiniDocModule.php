@@ -17,6 +17,7 @@ class MiniDocModule extends MiniPluginModule {
         $this->setImport(array(
             "miniDoc.biz.*",
             "miniDoc.cache.*",
+            "miniDoc.models.*",
             "miniDoc.service.*",
         ));
         add_filter("plugin_info",array($this, "setPluginInfo"));

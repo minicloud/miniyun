@@ -52,7 +52,7 @@ class m150111_101855_V172  extends EDbMigration{
                 'host'                 => 'varchar(128) NOT NULL',//访问域名，这个域名不对用户最终设备开放
                 'safe_code'            => 'varchar(128) NOT NULL',//访问安全码，用于安全校验
                 'status'               => 'int NOT NULL',//-1表示服务器不可用，1表示服务器可用
-                'convert_file_count'   => 'int NOT NULL',//已转换文件的总数
+                'converted_file_count' => 'int NOT NULL',//已转换文件的总数
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend);
