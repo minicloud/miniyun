@@ -57,8 +57,11 @@ class MiniFile extends MiniCache{
         }
         return self::$_instance;
     }
+
     /**
      * 把数据库值序列化
+     * @param array $items
+     * @return array
      */
     private function db2list($items){
         $data  = array();
@@ -88,13 +91,16 @@ class MiniFile extends MiniCache{
         $value["sort"]             = $item->is_deleted;
         return $value;
     }
+
     /**
-     * 获得用户消耗的空间大小，我们计算的用户空间开销只是用户自身的文件大小，2/3/4不计算在内
+     * * 获得用户消耗的空间大小，我们计算的用户空间开销只是用户自身的文件大小，2/3/4不计算在内
      * 用户空间消耗包括4块内容
      * 1：用户自己的文件
      * 2：用户被共享目录
      * 3：系统公共目录
      * 4：文件衍生出的文件，包括：图片缩略图、文档html文件、视频二次产生物
+     * @param $userId
+     * @return int
      */
     public function getUsedSize($userId){
         $criteria            = new CDbCriteria;
@@ -112,8 +118,11 @@ class MiniFile extends MiniCache{
         }
         return $usedSize;
     }
+
     /**
      * 获得用户的共享列表
+     * @param int $userId
+     * @return array
      */
     public function getShares($userId){
         $items = UserFile::model()->findAll('user_id=:user_id and file_type in(2,3,16) ', array('user_id' => $userId));
@@ -137,6 +146,12 @@ class MiniFile extends MiniCache{
 
     /**
      * 根据条件获得子文件记录
+     * @param int $parentFileId
+     * @param bool $includeDeleted
+     * @param array $user
+     * @param int  $userId
+     * @param string $filePaths
+     * @return array
      */
     public function getChildrenByFileID($parentFileId, $includeDeleted = false, $user=null,$userId=null,$filePaths=null) {
         $criteria                 = new CDbCriteria();
@@ -182,10 +197,10 @@ class MiniFile extends MiniCache{
     }
 
     /**
-     * @param $file
-     * @param $user
-     * @return mixed
      * 获取share_key和privilege
+     * @param array $file
+     * @param array $user
+     * @return mixed
      */
     public function getFolderExtendProperty($file,$user){
         $fileType = intval($file["file_type"]);
@@ -203,8 +218,11 @@ class MiniFile extends MiniCache{
         $file["privilege"]=$privilege;
         return $file;
     }
+
     /**
      * 根据目录下所有可显示的子文件
+     * @param string $parentPath
+     * @return array
      */
     public  function getShowChildrenByPath($parentPath) {
         $criteria            = new CDbCriteria();
@@ -214,8 +232,13 @@ class MiniFile extends MiniCache{
         $items               = UserFile::model()->findAll($criteria);
         return  $this->db2list($items);
     }
+
     /**
      * 根据Parent_file_id获得该目录下的子文件
+     * @param int $userId
+     * @param int $parentFileId
+     * @param bool $isDeleted
+     * @return array
      */
     public  function getChildrenByParentId($userId,$parentFileId,$isDeleted = false) {
         $criteria            = new CDbCriteria();
@@ -229,8 +252,13 @@ class MiniFile extends MiniCache{
         $items              = UserFile::model()->findAll($criteria);
         return  $this->db2list($items);
     }
+
     /**
      * 根据Parent_file_id获得该目录下的普通和公共目录
+     * @param int  $userId
+     * @param int $parentFileId
+     * @param boolean $isDeleted
+     * @return array
      */
     public  function getChildrenFolderByParentId($userId,$parentFileId,$isDeleted) {
         $criteria            = new CDbCriteria();
@@ -247,6 +275,11 @@ class MiniFile extends MiniCache{
 
     /**
      * 根据Parent_file_id获得该目录下的所有子文件
+     * @param int $userId
+     * @param int $parentFileId
+     * @param int $pageSize
+     * @param int $currentPage
+     * @return array|null
      */
     public  function getAllChildrenByParentId($userId,$parentFileId,$pageSize,$currentPage) {
         $criteria            = new CDbCriteria();
@@ -269,9 +302,13 @@ class MiniFile extends MiniCache{
             return $data;
         }
     }
+
     /**
      * 创建File对象
      * 这里使用了引用传值，确保event_uuid可传递到外面
+     * @param array $file
+     * @param int $userId
+     * @return mixed
      */
     public function create(&$file,$userId){
         if (!isset($file["version_id"])){
@@ -295,9 +332,13 @@ class MiniFile extends MiniCache{
         return $file;
 
     }
+
     /**
      * 批量创建文件
      * 这里使用了引用传值，确保event_uuid可传递到外面
+     * @param $userId
+     * @param $files
+     * @return bool
      */
     public function createFiles($userId,&$files){
         foreach ($files as $file) {
@@ -305,16 +346,22 @@ class MiniFile extends MiniCache{
         }
         return true;
     }
+
     /**
      * 根据路径获得文件File对象
+     * @param string $path
+     * @return array
      */
     public function getByPath($path){
         $model = $this->getModelByPath($path);
         return $this->db2Item($model);
 
     }
+
     /**
      * 根据路径获得文件的Model对象
+     * @param string $path
+     * @return mixed
      */
     private function getModelByPath($path){
         $criteria            = new CDbCriteria();
@@ -325,22 +372,31 @@ class MiniFile extends MiniCache{
         $item                = UserFile::model()->find($criteria);
         return $item;
     }
+
     /**
      * 根据主键获得文件的Model对象
+     * @param int $id
+     * @return mixed
      */
     private function getModelById($id){
         $item  = UserFile::model()->findByPk($id);
         return $item;
     }
+
     /**
      * 根据Id获得文件File对象
+     * @param int $id
+     * @return array
      */
     public function getById($id){
         $model = $this->getModelById($id);
         return $this->db2Item($model);
     }
+
     /**
      * 根据路径，假删除文件
+     * @param string $path
+     * @return bool
      */
     public function supposeDelete($path) {
         $criteria            = new CDbCriteria();
@@ -352,8 +408,11 @@ class MiniFile extends MiniCache{
         UserFile::model()->updateAll($attributes,$criteria);
         return true;
     }
+
     /**
      * 根据路径，假删除文件夹
+     * @param string $path
+     * @return bool
      */
     public function supposeDeleteFolder($path) {
         $criteria            = new CDbCriteria();
@@ -367,8 +426,13 @@ class MiniFile extends MiniCache{
         UserFile::model()->updateAll($attributes,$criteria);
         return true;
     }
+
     /**
      * 移动目录
+     * @param int $userId
+     * @param string $fromPath
+     * @param string $toPath
+     * @return bool
      */
     public function moveFolder($userId, $fromPath,$toPath){
         $fromPath          .= "/";
@@ -390,8 +454,12 @@ class MiniFile extends MiniCache{
         UserFile::model()->updateAll($attributes,$criteria);
         return true;
     }
+
     /**
      * 针对Id对应的文件更新其属性
+     * @param int $id
+     * @param string $values
+     * @return bool
      */
     public function update($id,$values){
         $model               = $this->getModelById($id);
@@ -404,8 +472,12 @@ class MiniFile extends MiniCache{
         }
         return false;
     }
+
     /**
      * 针对path对于的文件更新其属性
+     * @param string $path
+     * @param string $values
+     * @return bool
      */
     public function updateByPath($path,$values){
         $model               = $this->getModelByPath($path);
@@ -431,8 +503,12 @@ class MiniFile extends MiniCache{
         }
         return false;
     }
+
     /**
      * 更新ParentID
+     * @param int $fromId
+     * @param int $toId
+     * @return bool
      */
     public  function updateParentId($fromId,$toId){
         $criteria            = new CDbCriteria();
@@ -446,8 +522,11 @@ class MiniFile extends MiniCache{
         UserFile::model()->updateAll($attributes,$criteria);
         return true;
     }
+
     /**
      * 删除文件
+     * @param int $id
+     * @return bool
      */
     public  function deleteFile($id) {
         $model = $this->getModelById($id);
@@ -469,8 +548,11 @@ class MiniFile extends MiniCache{
         }
         return true;
     }
+
     /**
      * 清空回收站文件
+     * @param int $userId
+     * @return array
      */
     public function getUserRecycleFile($userId){
         $criteria                = new CDbCriteria();
@@ -481,9 +563,12 @@ class MiniFile extends MiniCache{
         $items                   = UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
+
     /**
      * 根据外部指定条件进行搜索
      * 不建议这样使用，这个方法标记为废弃
+     * @param string $condition
+     * @return array
      */
     public  function search($condition) {
         $criteria            = new CDbCriteria();
@@ -491,8 +576,14 @@ class MiniFile extends MiniCache{
         $items               = UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
+
     /**
      * 搜索文件
+     * @param string $path
+     * @param string $key
+     * @param int $userId
+     * @param boolean $includeDeleted
+     * @return array
      */
     public  function searchFilesByPath($path, $key, $userId, $includeDeleted) {
         $params                 = array();
@@ -515,8 +606,14 @@ class MiniFile extends MiniCache{
         $items                   = UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
+
     /**
      * 在指定文件类型下搜索文件
+     * @param string $type
+     * @param string $fileName
+     * @param int $pageSize
+     * @param int $currentPage
+     * @return array|null
      */
     public function searchFilesByName($type,$fileName,$pageSize,$currentPage){
         $criteria                = new CDbCriteria();
@@ -545,8 +642,11 @@ class MiniFile extends MiniCache{
             return $data;
         }
     }
+
     /**
      * 获得用户未删除文件总数
+     * @param int $userId
+     * @return mixed
      */
     public function getFilesCount($userId){
         $criteria                = new CDbCriteria();
@@ -556,8 +656,11 @@ class MiniFile extends MiniCache{
         );
         return              	 UserFile::model()->count($criteria);
     }
+
     /**
      * 获得用户未删除的文件夹总数
+     * @param int $userId
+     * @return mixed
      */
     public function getFoldersCount($userId){
         $criteria                = new CDbCriteria();
@@ -567,8 +670,11 @@ class MiniFile extends MiniCache{
         );
         return              	 UserFile::model()->count($criteria);
     }
+
     /**
      * 用户文档数量
+     * @param int $userId
+     * @return mixed
      */
     public function getOfficeCount($userId)
     {
@@ -578,8 +684,11 @@ class MiniFile extends MiniCache{
         return              	 UserFile::model()->count($criteria);
 
     }
+
     /**
      * 用户图片数量
+     * @param int $userId
+     * @return mixed
      */
     public function getImageCount($userId)
     {
@@ -590,8 +699,11 @@ class MiniFile extends MiniCache{
         );
         return              	 UserFile::model()->count($criteria);
     }
+
     /**
      * 用户音乐数量
+     * @param int $userId
+     * @return mixed
      */
     public function getMusicCount($userId)
     {
@@ -602,8 +714,12 @@ class MiniFile extends MiniCache{
         );
         return              	 UserFile::model()->count($criteria);
     }
+
     /**
      * 用户视频数量
+     * @param int $userId
+     * @param string $sql
+     * @return mixed
      */
     public function getVedioCount($userId, $sql='')
     {
@@ -614,8 +730,12 @@ class MiniFile extends MiniCache{
         );
         return              	 UserFile::model()->count($criteria);
     }
+
     /**
      * 用户各类文件数据
+     * @param int $userId
+     * @param string $type
+     * @return array|null
      */
     public function getFileByUserType($userId,$type)
     {
@@ -633,8 +753,12 @@ class MiniFile extends MiniCache{
         }
 
     }
+
     /**
      * 根据文件名模糊查找文件
+     * @param int $userId
+     * @param string $fileName
+     * @return array|null
      */
     public function getFileByName($userId,$fileName)
     {
@@ -652,8 +776,11 @@ class MiniFile extends MiniCache{
         }
 
     }
+
     /**
      * 根据文件Id查找文件
+     * @param string $ids
+     * @return array|null
      */
     public function getFilesByIds($ids)
     {
@@ -671,6 +798,8 @@ class MiniFile extends MiniCache{
 
     /**
      * 回收站文件的个数(文件夹内的文件不计)
+     * @param int $userId
+     * @return mixed
      */
     public function trashCount($userId){
         $condition               = "user_id=:user_id and is_deleted = 1 and parent_file_id not in (select id from ".Yii::app()->params['tablePrefix']."files where is_deleted = 1 and user_id=:user_id)";
@@ -680,8 +809,11 @@ class MiniFile extends MiniCache{
         $criteria->condition     = $condition;
         return UserFile::model()->count($criteria);
     }
+
     /**
      * 获取指定目录下子文件的数量
+     * @param int $fileId
+     * @return mixed
      */
     public function getFileCount($fileId)
     {
@@ -690,8 +822,15 @@ class MiniFile extends MiniCache{
         $criteria->condition     = "is_deleted=0 and parent_file_id=:parent_file_id and file_type = 0";
         return UserFile::model()->count($criteria);
     }
+
     /**
      * 网页版显示文件列表，对其进行分页
+     * @param int $userId
+     * @param int $parentFileId
+     * @param string $order
+     * @param int $limit
+     * @param int $start
+     * @return array
      */
     public function getPageList($userId, $parentFileId,$order,$limit = 45, $start = 0){
         $condition = "user_id=:user_id and is_deleted=0 and parent_file_id=:parent_file_id";
@@ -731,7 +870,7 @@ class MiniFile extends MiniCache{
 
     /**
      * 根据versionId获得相关的文件列表
-     * @param $versionId
+     * @param int $versionId
      * @return array
      */
     public function getAllByVersionId($versionId){
@@ -742,8 +881,12 @@ class MiniFile extends MiniCache{
         return $this->db2list($items);
 
     }
+
     /**
-     * 根据用户ID获得用户文件信息
+     *  根据用户ID获得用户文件信息
+     * @param int $userId
+     * @param int $parentFileId
+     * @return array
      */
     public function getFiles($userId,$parentFileId = 0){
         $criteria                = new CDbCriteria();
@@ -754,10 +897,10 @@ class MiniFile extends MiniCache{
     }
     /**
      * copy file to folder of new user
-     * @param $fileId
-     * @param $userId
-     * @param $deviceId
-     * @param $aimFolderId
+     * @param string $fileId
+     * @param int $userId
+     * @param int $deviceId
+     * @param int $aimFolderId
      */
     public function copy($fileId,$userId,$deviceId,$aimFolderId){
         $file = $this->getById($fileId);
@@ -821,8 +964,8 @@ class MiniFile extends MiniCache{
     }
     /**
      * get file name in folder
-     * @param $fileName
-     * @param $children
+     * @param string $fileName
+     * @param string $children
      * @param int $index
      * @return bool|string
      */
@@ -859,7 +1002,7 @@ class MiniFile extends MiniCache{
 
     /**
      * 下载文件
-     * @param $path
+     * @param string $path
      * @throws MFilesException
      */
     public function download($path){
@@ -868,10 +1011,10 @@ class MiniFile extends MiniCache{
 
     /**
      * 获得文件内容同时支持迷你存储
-     * @param $signature
-     * @param $fileName
-     * @param $contentType
-     * @param $forceDownload
+     * @param string $signature
+     * @param string $fileName
+     * @param string $contentType
+     * @param bool $forceDownload
      * @throws MFilesException
      */
     public function getContentBySignature($signature,$fileName,$contentType,$forceDownload=true){
@@ -904,11 +1047,11 @@ class MiniFile extends MiniCache{
 
     /**
      * 获得文本文件内容
-     * @param $signature
+     * @param string $signature
      * @return mixed
      * @throws MFilesException
      */
-    private function getText($signature){
+    public function getText($signature){
         //下载文件的hook
         $data = array();
         $data["signature"]  = $signature;
@@ -949,7 +1092,7 @@ class MiniFile extends MiniCache{
 
     /**
      * 检测是否是历史版本预览
-     * @param $path
+     * @param string $path
      * @param string $signature
      * @param string $contentType
      * @param bool $forceDownload
@@ -983,10 +1126,10 @@ class MiniFile extends MiniCache{
     }
     /**
      * 由外部控制文件输出类型
-     * @param $path
-     * @param $signature
-     * @param $contentType
-     * @param $forceDownload
+     * @param string $path
+     * @param string $signature
+     * @param string $contentType
+     * @param bool $forceDownload
      * @throws MFilesException
      */
     public function getContent($path,$signature="",$contentType="",$forceDownload=false){
@@ -996,8 +1139,8 @@ class MiniFile extends MiniCache{
     }
     /**
      * 由外部控制文件输出类型
-     * @param $path
-     * @param $signature
+     * @param string $path
+     * @param string $signature
      * @throws MFilesException
      * @return string
      */
@@ -1027,9 +1170,9 @@ class MiniFile extends MiniCache{
 
     /**
      * 根据文件类型和用户ID获得对应文件分页信息
-     * @param $pageSet
-     * @param $pageSize
-     * @param $userId
+     * @param int $pageSet
+     * @param int $pageSize
+     * @param int $userId
      * @param $type
      * @return array|null
      */
@@ -1053,8 +1196,8 @@ class MiniFile extends MiniCache{
     }
 
     /** 根据文件类型和用户ID获得对应文件信息
-     * @param $userId
-     * @param $type
+     * @param int $userId
+     * @param string $type
      * @return array|null
      */
     public function getFileListByType($userId,$type){
@@ -1107,7 +1250,12 @@ class MiniFile extends MiniCache{
         $items                   =UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
-    //根据filePath和mine_type获取图片
+
+    /**
+     * 根据filePath和mine_type获取图片
+     * @param string $filePath
+     * @return array|null
+     */
     public function searchFileByPathType($filePath){
         $criteria                = new CDbCriteria();
         $criteria->select   ='*';
@@ -1121,9 +1269,13 @@ class MiniFile extends MiniCache{
             return $this->db2list($items);
         }
     }
+
     /**
-     *
      * 历史版本恢复
+     * @param int $deviceId
+     * @param string $filePath
+     * @param string $signature
+     * @return bool
      */
     public function recover($deviceId,$filePath, $signature){
         $version = MiniVersion::getInstance()->getBySignature($signature);
@@ -1175,6 +1327,12 @@ class MiniFile extends MiniCache{
         MiniVersion::getInstance()->updateRefCountByIds(array($version["id"]), TRUE);
         return true;
     }
+
+    /**
+     * 获得为删除文件列表
+     * @param int $id
+     * @return array
+     */
     public function getUnDeleteFile($id){
         $criteria  =new CDbCriteria();
         $criteria->select     = '*';
@@ -1188,9 +1346,9 @@ class MiniFile extends MiniCache{
 
     /**
      * 获得加删除文件分页列表
-     * @param $userId
-     * @param $pageSize
-     * @param $pageSet
+     * @param int $userId
+     * @param int $pageSize
+     * @param int $pageSet
      * @return array
      */
     public function getDeleteFile($userId,$pageSize=null,$pageSet=null,$parentFileId=null,$fileType=0){
@@ -1216,7 +1374,7 @@ class MiniFile extends MiniCache{
 
     /**
      * 获得加删除文件总数
-     * @param $userId
+     * @param int $userId
      * @return array
      */
     public function getDeleteFileCount($userId){
@@ -1230,11 +1388,13 @@ class MiniFile extends MiniCache{
         return $items;
     }
 
-    /**根据路径，回复假删除文件
-     * @param $path
+    /**
+     * 根据路径，回复假删除文件
+     * @param string $path
+     * @param int $userId
+     * @param string $device
      * @return bool
      */
-
     public function recoverDelete($path,$userId,$device) {
         if(strlen($path)!=0){
             $path = "/" . $userId.$path;
@@ -1297,9 +1457,10 @@ class MiniFile extends MiniCache{
         return true;
     }
 
-    /**根据文件名模糊查找假删除文件
-     * @param $userId
-     * @param $fileName
+    /**
+     * 根据文件名模糊查找假删除文件
+     * @param int $userId
+     * @param string $fileName
      * @return array|null
      */
 
@@ -1318,8 +1479,12 @@ class MiniFile extends MiniCache{
             return $this->db2list($items);
         }
     }
+
     /**
      * 显示所有文件，对其进行分页
+     * @param int $pageSize
+     * @param int $currentPage
+     * @return array|null
      */
     public function getAllFilesList($pageSize,$currentPage){
         $criteria                = new CDbCriteria();
@@ -1368,7 +1533,7 @@ class MiniFile extends MiniCache{
 
     /**
      * 根据文件路径查询文件所属子文件
-     * @param $path
+     * @param string $path
      * @return array
      */
     public function getChildrenByPath($path){
@@ -1390,8 +1555,11 @@ class MiniFile extends MiniCache{
         $data['last_file']  = $this->db2Item($last);
         return $data;
     }
+
     /**
      * 获得特定时间内的文件数
+     * @param date $wholeDate
+     * @return array
      */
     public function getBeforeDateFiles($wholeDate){
         $totalNum   = array();
@@ -1417,9 +1585,9 @@ class MiniFile extends MiniCache{
             }
 
             $officeTypes              = Yii::app()->params['officeType'];
-            $officeConditons          = "'".implode("','",array_values($officeTypes))."'";
+            $officeConditions         = "'".implode("','",array_values($officeTypes))."'";
             $criteria3                = new CDbCriteria();
-            $criteria3->condition     ="created_at < :date and mime_type in($officeConditons)";
+            $criteria3->condition     ="created_at < :date and mime_type in($officeConditions)";
 
             $criteria3->params        = array(':date'=>$date);
             $total3                   = UserFile::model()->count($criteria3);
@@ -1444,8 +1612,11 @@ class MiniFile extends MiniCache{
         $data['recycleNum'] = $recycleNum;
         return $data;
     }
+
     /**
      * 设置为公共目录
+     * @param string $filePath
+     * @return array
      */
     public function  setToPublic($filePath){
         $criteria                = new CDbCriteria();
@@ -1462,8 +1633,11 @@ class MiniFile extends MiniCache{
             return array('success'=>false);
         }
     }
+
     /**
      * 取消设置为公共目录
+     * @param string $filePath
+     * @return array
      */
     public function  cancelPublic($filePath){
         $criteria                = new CDbCriteria();
@@ -1483,20 +1657,25 @@ class MiniFile extends MiniCache{
 
     /**
      * 处理创建文件信息及事件
+     * @param string $folderPath
+     * @param int $parentFileId
+     * @param boolean $hadFileDelete
+     * @param int $userId
+     * @return array
      */
     private function createFileMeta($folderPath, $parentFileId, $hadFileDelete,$userId){
-        $file_name                       = MUtils::get_basename($folderPath);
+        $fileName                       = MUtils::get_basename($folderPath);
         // 组装对象信息
-        $file_detail                     = array();
-        $file_detail["file_create_time"] = time();
-        $file_detail["file_update_time"] = time();
-        $file_detail["file_name"]        = $file_name;
-        $file_detail["file_path"]        = $folderPath;
-        $file_detail["file_size"]        = 0;
-        $file_detail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
-        $file_detail["parent_file_id"]   = $parentFileId;
-        $file_detail["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
-        $file_detail["mime_type"]        = NULL;
+        $fileDetail                     = array();
+        $fileDetail["file_create_time"] = time();
+        $fileDetail["file_update_time"] = time();
+        $fileDetail["file_name"]        = $fileName;
+        $fileDetail["file_path"]        = $folderPath;
+        $fileDetail["file_size"]        = 0;
+        $fileDetail["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
+        $fileDetail["parent_file_id"]   = $parentFileId;
+        $fileDetail["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+        $fileDetail["mime_type"]        = NULL;
         // 保存文件元数据
         if ($hadFileDelete)
         {
@@ -1504,35 +1683,40 @@ class MiniFile extends MiniCache{
             $updates["file_update_time"]  = time();
             $updates["is_deleted"]        = intval(false);
             $updates["file_type"]         = MConst::OBJECT_TYPE_DIRECTORY;
-            $updates["event_uuid"]        = $file_detail["event_uuid"];
+            $updates["event_uuid"]        = $fileDetail["event_uuid"];
             // 存在已被删除的数据，只需更新
-            $ret_value                    = $this->updateByPath($folderPath, $updates);
+            $this->updateByPath($folderPath, $updates);
         }
         else
         {
             // 不存在数据，添加
             $file = $this->getByPath($folderPath);
             if(empty($file)){
-                if(!empty($file_detail["file_name"])){
-                    $this->create($file_detail, $userId);
+                if(!empty($fileDetail["file_name"])){
+                    $this->create($fileDetail, $userId);
                     $device                   = MUserManager::getInstance()->getCurrentDevice();
                     $event_action             = MConst::CREATE_DIRECTORY;
                     MiniEvent::getInstance()->createEvent(
                         $userId,
                         $device["device_id"],
                         $event_action,
-                        $file_detail["file_path"],
-                        $file_detail["file_path"],
-                        $file_detail["event_uuid"],
+                        $fileDetail["file_path"],
+                        $fileDetail["file_path"],
+                        $fileDetail["event_uuid"],
                         0
                     );
                 }
             }
         }
-        return $file_detail;
+        return $fileDetail;
     }
+
     /**
      * 处理检查文件父目录是否存在，不存在将递归依次创建
+     * @param string $folderPath
+     * @param int $userId
+     * @return mixed
+     * @throws MFileopsException
      */
     private function handlerParentFolder($folderPath,$userId){
         $file = $this->getByPath($folderPath);
@@ -1565,6 +1749,9 @@ class MiniFile extends MiniCache{
     }
     /**
      * 创建目录
+     * @param string $folderPath
+     * @param int $userId
+     * @return array
      */
     public function createFolder($folderPath,$userId){
         $hadFileDelete       = false;
