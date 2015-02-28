@@ -114,7 +114,7 @@ class PluginMiniDocNode extends MiniCache{
         //寻找以前迷你文档节点
         $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
-            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"miniDoc");
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"doc_id");
             if(!empty($meta)){
                 $nodeId = $meta["meta_value"];
                 $node = $this->getNodeById($nodeId);

@@ -161,7 +161,7 @@ class PluginMiniDocVersion extends MiniCache{
             $versionItem->save();
             //文档转换成功，为meta添加记录，便于二次寻找迷你文档服务器
             if($status==2){
-                MiniVersionMeta::getInstance()->create($versionItem->id,"miniDoc",$nodeId);
+                MiniVersionMeta::getInstance()->create($versionItem->id,"doc_id",$nodeId);
             }
             return true;
         }
