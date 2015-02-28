@@ -27,22 +27,23 @@ class PluginMiniDocBiz extends MiniBiz{
     }
     /**
      *给迷你云报告文件转换过程
+     * @param int $nodeId 文档转换服务器Id
      * @param string $signature 文件hash值
      * @param string $status 文件状态
      * @return array
      */
-    public function report($signature,$status){
+    public function report($nodeId,$signature,$status){
         $version = MiniVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
             //文件转换成功
             if($status==="1"){
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($signature,2);
+                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($nodeId,$signature,2);
                 //通过回调方式让迷你搜索把文件文本内容编制索引到数据库中
                 do_action("pull_text_search",$signature);
             }
             //文件转换失败
             if($status==="0"){
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($signature,-1);
+                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($nodeId,$signature,-1);
             }
         }
         return array("success"=>true);

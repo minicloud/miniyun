@@ -149,15 +149,20 @@ class PluginMiniDocVersion extends MiniCache{
      * doc_convert_status:0 表示尚未转换
      * doc_convert_status:1 表示正在转换
      * doc_convert_status:2 表示转换成功
-     * @param $hash 文件内容hash值
-     * @param $status 文件转换状态值
+     * @param int $nodeId 文档转换节点ID
+     * @param string $signature 文件内容hash值
+     * @param int $status 文件转换状态值
      * @return boolean
      */
-    public function updateDocConvertStatus($hash,$status){
-        $version         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$hash));
-        if(isset($version)){
-            $version["doc_convert_status"] = $status;
-            $version->save();
+    public function updateDocConvertStatus($nodeId,$signature,$status){
+        $versionItem         =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+        if(isset($versionItem)){
+            $versionItem["doc_convert_status"] = $status;
+            $versionItem->save();
+            //文档转换成功，为meta添加记录，便于二次寻找迷你文档服务器
+            if($status==2){
+                MiniVersionMeta::getInstance()->create($versionItem->id,"miniDoc",$nodeId);
+            }
             return true;
         }
         return false;
@@ -189,33 +194,6 @@ class PluginMiniDocVersion extends MiniCache{
         return $this->get4DbBySignature($signature);
     }
     /**
-     * 获得要转换文档列表
-     * @param $versions 文件版本列表
-     * @return array
-     */
-    private function getReadyConvertList($versions){
-        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
-        //报俊地址
-        $reportUrl = $miniHost."api.php?route=module/miniDoc/report";
-        //下载文件地址
-        $downloadUrl =$miniHost."api.php?route=module/miniDoc/download";
-        if(count($versions)>0){
-            $data = array("report_success_url"=>$reportUrl);
-            $items = array();
-            foreach ($versions as $version) {
-                $item = array(
-                    'hash' => $version["file_signature"],
-                    'mime_type' => $version["mime_type"],
-                    'url' => $downloadUrl."&hash=".$version["file_signature"],
-                );
-                array_push($items, $item);
-            }
-            $data["list"] = $items;
-            return $data;
-        }
-        return NULL;
-    }
-    /**
      * 单个提交转换请求
      * @param $signature
      */
@@ -230,17 +208,28 @@ class PluginMiniDocVersion extends MiniCache{
      * @param $versions
      */
     public function pushConvert($versions){
-        $params = $this->getReadyConvertList($versions);
-        $url = PluginMiniDocOption::getInstance()->getMiniDocHost().'/convert';
-        $data = array ('task' =>json_encode($params));
-        $http = new HttpClient();
-        $http->post($url,$data);
-        $result =  $http->get_body();
-        $result = json_decode($result,true);
-        if($result['task']=='received'){
-            //修改文档的转换状态为转换中
-            foreach ($versions as $version) {
-                $this->updateDocConvertStatus($version["file_signature"],1);
+        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
+        //修改文档的转换状态为转换中
+        foreach ($versions as $version) {
+            $signature = $version["file_signature"];
+            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+            if(!empty($node)){
+                $url = $node["host"].'/api.php?route=file/convert';
+                $downloadUrl =$miniHost."api.php?route=module/miniDoc/download&signature=".$signature;
+                $callbackUrl =$miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
+                $data = array (
+                    'signature'=>$signature,
+                    'mime_type'=>$version["mime_type"],//文件类型
+                    'downloadUrl' =>$downloadUrl,//文件内容下载地址
+                    "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
+                );
+                $http = new HttpClient();
+                $http->post($url,$data);
+                $result =  $http->get_body();
+                $result = json_decode($result,true);
+                if($result['status']==1){
+                    $this->updateDocConvertStatus($node["id"],$version["file_signature"],1);
+                }
             }
         }
     }

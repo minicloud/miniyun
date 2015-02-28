@@ -106,6 +106,45 @@ class PluginMiniDocNode extends MiniCache{
         }
     }
     /**
+     * 获得迷你文档转换服务器节点
+     * @param string $signature
+     * @return string
+     */
+    public function getConvertNode($signature){
+        //寻找以前迷你文档节点
+        $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
+        if(!empty($version)){
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"miniDoc");
+            if(!empty($meta)){
+                $nodeId = $meta["meta_value"];
+                $node = $this->getNodeById($nodeId);
+                if($node["status"]==1){
+                    return $node;
+                }
+            }
+        }
+        //返回随机converted_file_count最小的节点
+        $node = null;
+        $nodes = $this->getNodeList();
+        $convertedCount = 0;
+        foreach($nodes as $itemNode){
+            if($itemNode["status"]==-1){
+                continue;
+            }
+            $itemCount = $itemNode["converted_file_count"];
+            if($convertedCount==0){
+                $convertedCount = $itemCount;
+                $node = $itemNode;
+                continue;
+            }
+            if($convertedCount>$itemCount){
+                $convertedCount = $itemCount;
+                $node = $itemNode;
+            }
+        }
+        return $node;
+    }
+    /**
      * 检查文档节点状态
      * @param string $host
      * @return int

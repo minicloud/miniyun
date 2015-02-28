@@ -41,18 +41,6 @@ class PluginMiniDocOption extends MiniCache{
         return self::$_instance;
     }
     /**
-     * 获得MiniDoc服务器地址
-     * 如果用户在options表中定义了{mini_doc_host:xxxx}，优选它
-     * 否则默认为http://minidoc.miniyun.cn
-     */
-    public function getMiniDocHost(){
-        $value = MiniOption::getInstance()->getOptionValue("mini_doc_host");
-        if(empty($value)){
-            $value = "http://minidoc.miniyun.cn";
-        }
-        return $value;
-    }
-    /**
      * 获得MiniDoc缓存地址
      * 如果用户在options表中定义了{mini_doc_host:xxxx}，优选它
      * 否则默认为http://minidoc.miniyun.cn

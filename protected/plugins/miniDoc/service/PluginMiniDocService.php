@@ -27,19 +27,20 @@ class PluginMiniDocService extends MiniService{
      */
     public function  download(){
         //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
-        $fileHash = MiniHttp::getParam('hash',"");
+        $signature = MiniHttp::getParam('signature',"");
         $biz = new PluginMiniDocBiz();
-        $biz->download($fileHash);
+        $biz->download($signature);
     }
     /**
      * 根据文件hash值报告文档转换情况
      */
     public function  report(){
         //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
-        $fileHash = MiniHttp::getParam('hash',"");
+        $nodeId = MiniHttp::getParam('node_id',"");
+        $signature = MiniHttp::getParam('signature',"");
         $status = MiniHttp::getParam('status',"");
         $biz = new PluginMiniDocBiz();
-        $result = $biz->report($fileHash,$status);
+        $result = $biz->report($nodeId,$signature,$status);
         return $result;
     }
     /**
