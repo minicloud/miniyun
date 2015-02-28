@@ -1025,7 +1025,7 @@ class MiniFile extends MiniCache{
         $data["mime_type"]  = $contentType;
         //对网页的处理分为2种逻辑，1种是直接显示内容，1种是文件直接下载
         $data["force_download"] = $forceDownload;
-        $retData = apply_filters("file_download", $data);
+        $retData = apply_filters("file_download_url", $data);
         if ($retData !== $data && !empty($retData)){
             header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
             header( "Location: ". $retData );
@@ -1044,14 +1044,13 @@ class MiniFile extends MiniCache{
         MiniUtil::outContent($filePath, $contentType, $fileName,$forceDownload);
         exit;
     }
-
     /**
-     * 获得文本文件内容
-     * @param string $signature
-     * @return mixed
-     * @throws MFilesException
+     * 通过signature获得文件内容到内存
+     * @param $signature
+     * @throws
+     * @return mix
      */
-    public function getText($signature){
+    public function getFileContentBySignature($signature){
         //下载文件的hook
         $data = array();
         $data["signature"]  = $signature;
@@ -1059,13 +1058,10 @@ class MiniFile extends MiniCache{
         $data["mime_type"]  = "text/html";
         //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
         $data["force_download"] = -1;
-        $retData = apply_filters("file_download", $data);
+        $retData = apply_filters("file_download_url", $data);
         if ($retData !== $data && !empty($retData)){
             //通过迷你存储存储的文件，通过代理方式直接请求文件内容
-            $curl = curl_init($retData);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-            $content = curl_exec($curl);
-            curl_close($curl);
+            $content = apply_filters("file_content", $signature);
         }else{
             $filePath = MiniUtil::getPathBySplitStr ( $signature );
             //data源处理对象
@@ -1075,6 +1071,16 @@ class MiniFile extends MiniCache{
             }
             $content = $dataObj->get_contents($filePath);
         }
+        return $content;
+    }
+    /**
+     * 获得文本文件内容
+     * @param string $signature
+     * @return mixed
+     * @throws MFilesException
+     */
+    private function getText($signature){
+        $content = $this->getFileContentBySignature($signature);
         //如果是UTF-8，不用转换。否则尝试将其转换为utf-8编码的文件，这里还是会存在转换失败的可能性，也就是说用户只是看到部分文本
         $encode = mb_detect_encoding($content);
         if($encode!=='UTF-8'){

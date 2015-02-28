@@ -48,7 +48,7 @@ class PluginMiniDocOption extends MiniCache{
     public function getMiniDocCachePath(){
         $value = MiniOption::getInstance()->getOptionValue("mini_doc_cache_path");
         if(empty($value)){
-            $value = MINIYUN_PATH."/upload/cache/minidoc/";
+            $value = MINIYUN_PATH."/assets/minidoc/";
         }
         return $value;
     }

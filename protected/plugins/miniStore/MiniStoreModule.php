@@ -25,7 +25,9 @@ class MiniStoreModule extends MiniPluginModule {
         //文件秒传
         add_filter("file_sec",array($this, "fileSec"));
         //文件下载
-        add_filter("file_download",array($this, "fileDownload"));
+        add_filter("file_download_url",array($this, "fileDownloadUrl"));
+        //获得文件内容
+        add_filter("file_content",array($this, "fileContent"));
         //图片缩略图
         add_filter("image_path",array($this,"imagePath"));
 
@@ -50,17 +52,37 @@ class MiniStoreModule extends MiniPluginModule {
         return $filePath;
     }
     /**
-     * 下载文件
+     * 获得文件下载地址
      * @param array $params
      * @return string
      */
-    function fileDownload($params){
+    function fileDownloadUrl($params){
         $signature = $params["signature"];
         $fileName = $params["file_name"];
         $mimeType = $params["mime_type"];
         $forceDownload = $params["force_download"];
         return PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,$fileName,$mimeType,$forceDownload);
     }
+    /**
+     * 获得文件内容
+     * 把迷你存储的文件缓存到本地
+     * @param string $signature
+     * @return string
+     */
+    function fileContent($signature){
+        $saveFolder = MINIYUN_PATH."/assets/miniStore/";
+        $filePath = $saveFolder.$signature;
+        if(!file_exists($filePath)){
+            if(!file_exists($saveFolder)){
+                mkdir($saveFolder);
+            }
+            //把文件下载到本地
+            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
+            file_put_contents($filePath,file_get_contents($url));
+        }
+        return file_get_contents($filePath);
+    }
+
     /**
      * 秒传接口
      * @param array $params

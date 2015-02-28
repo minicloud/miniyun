@@ -53,7 +53,7 @@ class MiniSearchModule extends MiniPluginModule {
             $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
             foreach($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
-                    $content = MiniFile::getInstance()->getText($signature);
+                    $content = MiniFile::getInstance()->getFileContentBySignature($signature);
                     MiniSearchFile::getInstance()->create($signature,$content);
                     return;
                 }

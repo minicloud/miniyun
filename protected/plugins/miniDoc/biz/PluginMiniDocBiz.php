@@ -164,15 +164,11 @@ class PluginMiniDocBiz extends MiniBiz{
             //根据情况判断是否需要向迷你文档拉取内容
             $needPull = false;
             //ppt/excel/word的pdf/png需要向迷你文档拉取
-            $mimeTypes = array("application/mspowerpoint","application/msword","application/msexcel");
+            $mimeTypes = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
             foreach ($mimeTypes as $mimeType) {
                 if($mimeType===$version["mime_type"]){
                     $needPull = true;
                 }
-            }
-            //pdf的png需要向迷你文档拉取
-            if("application/pdf"===$version["mime_type"] && $type==="png"){
-                $needPull = true;
             }
             //TODO 如这里接管了文本文件在线浏览，这里还要处理其他mime_type,当前暂时未处理
             if($needPull){
@@ -195,19 +191,6 @@ class PluginMiniDocBiz extends MiniBiz{
                     Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
                 }else{
                     Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
-                }
-            }else{
-                //pdf and type=pdf, download file content
-                if("application/pdf"===$version["mime_type"] && $type==="pdf"){
-                    $filePath = MiniUtil::getPathBySplitStr ($signature);
-                    //data源处理对象
-                    $dataObj = Yii::app()->data;
-                    if ($dataObj->exists( $filePath ) === false) {
-                        throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
-                    }
-                    $content = $dataObj->get_contents($filePath);
-                    //把文件内容存储到本地硬盘
-                    file_put_contents($localPath, $content);
                 }
             }
         }
