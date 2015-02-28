@@ -32,7 +32,9 @@ class PluginDocPullTxtCommand extends CConsoleCommand
             if(!empty($searchFile)){
                 continue;
             }
-            $url = PluginMiniSearchOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
+            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+            //TODO 需要处理文件不存在的情况
+            $url = $node["host"]."/".$signature."/".$signature.".txt";
             $http = new HttpClient();
             $http->get($url);
             $status = $http->get_status();

@@ -63,7 +63,9 @@ class MiniSearchModule extends MiniPluginModule {
                 if($mimeType===$version["mime_type"]){
                     //文档类增量转换
                     //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
-                    $url = PluginMiniDocOption::getInstance()->getMiniDocHost()."/".$signature."/".$signature.".txt";
+                    $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+                    //TODO 需要处理文件不存在的情况
+                    $url = $node["host"]."/".$signature."/".$signature.".txt";
                     $http = new HttpClient();
                     $http->get($url);
                     $status = $http->get_status();
