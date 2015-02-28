@@ -37,6 +37,8 @@ class PluginMiniDocBiz extends MiniBiz{
         if(!empty($version)){
             //文件转换成功
             if($status==="1"){
+                //更新迷你存储节点状态，把新上传的文件数+1
+                PluginMiniDocNode::getInstance()->newConvertFile($nodeId);
                 PluginMiniDocVersion::getInstance()->updateDocConvertStatus($nodeId,$signature,2);
                 //通过回调方式让迷你搜索把文件文本内容编制索引到数据库中
                 do_action("pull_text_search",$signature);

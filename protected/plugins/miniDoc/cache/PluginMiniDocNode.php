@@ -223,4 +223,15 @@ class PluginMiniDocNode extends MiniCache{
         }
         return $this->db2Item($item);
     }
+    /**
+     * 节点新转换成功了一个文件
+     * @param int $nodeId
+     */
+    public function newConvertFile($nodeId){
+        $item = DocNode::model()->find("id=:id",array("id"=>$nodeId));
+        if(isset($item)){
+            $item->converted_file_count+=1;
+            $item->save();
+        }
+    }
 }
