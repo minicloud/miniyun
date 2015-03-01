@@ -26,14 +26,14 @@
 ### 秒传成功返回值
     TODO 返回文件信息
     
-#文件块上传
+#文件块上传(客户端)
 
     文件块上传，用于PC、Android、iOS等客户端。
     服务器端将根据signature寻找到断点文件，如不存在，则新建文件。如存在，则把文件块append到断点文件后面。
     如服务器端文件与size一致，则认为文件上传完成。
     
 ## 访问地址
-
+    访问地址来源就是客户端向迷你云发送秒传接口的返回值
 	http://st1.miniyun.cn/api.php
 
 ## 输入
@@ -54,3 +54,24 @@
 
 ### 文件所有块上传成功
     TODO返回文件信息
+    
+#文件下载
+ 
+    
+## 访问地址 
+
+	http://st1.miniyun.cn/api.php
+
+## 输入
+| 名称        | 类型   |  默认值或说明  |
+| :--------   | :-----  | :----  |
+| route      | string   |   file/download     |
+| signature        |   string   |   文件内容sha1编码   |
+| file_name        |    string    |  文件名  | 
+| mime_type        |    string    |  文件的mimeType  |
+| force_download        |    int    |  1表示强行下载，不论图片或文本文件，-1表示在浏览器中直接显示  |
+
+
+## 输出格式binary
+
+    
