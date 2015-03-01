@@ -28,8 +28,8 @@ http://demo.miniyun.cn/api.php
     size:1234,//文件大小，单位字节 
    }
   ```
- ## 输出
- ### 迷你存储秒传失败
+## 输出
+### 迷你存储秒传失败
  ```html
    {
     success:false,//是否秒传成功
@@ -38,14 +38,14 @@ http://demo.miniyun.cn/api.php
     url:"http://test.miniyun.cn/api.php",//如success=false,文件上传的目标地址 
    }
   ```
- ### 默认存储秒传失败
+### 默认存储秒传失败
  ```html
    {
     success:false,//是否秒传成功 
     url:"http://test.miniyun.cn/api.php",//文件上传的目标地址 
    }
   ```
-   ### 秒传成功
+### 秒传成功
  ```html
    {
     success:true,//秒传成功  
