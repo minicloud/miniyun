@@ -28,6 +28,28 @@ http://demo.miniyun.cn/api.php
     size:1234,//文件大小，单位字节 
    }
   ```
- 
+## 输出
+### 迷你存储秒传失败
+ ```html
+   {
+    success:false,//是否秒传成功
+    store_type:"miniStore",存储类型如果不为空，则表示第3房存储载体，如果为空，说明是默认存储载体
+    callback:"http://test.miniyun.cn/xxxxx",//如不为空，向url地址上传内容时，需要带上的url地址。当store_type="miniStore"时有效
+    url:"http://test.miniyun.cn/api.php",//如success=false,文件上传的目标地址 
+   }
+  ```
+### 默认存储秒传失败
+ ```html
+   {
+    success:false,//是否秒传成功 
+    url:"http://test.miniyun.cn/api.php",//文件上传的目标地址 
+   }
+  ```
+### 秒传成功
+ ```html
+   {
+    success:true,//秒传成功  
+   }
+  ```
 # 错误码说明
  
