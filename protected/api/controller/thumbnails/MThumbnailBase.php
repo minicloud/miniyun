@@ -12,7 +12,7 @@ class MThumbnailBase extends MModel {
      * 输出图片对应的尺寸大小,单位:px (像素)
      * @var array
      */
-    public static $_sizes = array(
+    public static $sizes = array(
         "small"  => array("w"=>32, "h"=>32),
         "medium" => array("w"=>64, "h"=>64),
         "large"  => array("w"=>128, "h"=>128),
@@ -26,8 +26,9 @@ class MThumbnailBase extends MModel {
      * 支持图片缩略图类型
      * @var array
      */
-    public static $_support_types = array(
-         "gif" => "image/gif",          "jpeg" => "image/jpeg",
+    public static $supportTypes = array(
+         "gif" => "image/gif",
+        "jpeg" => "image/jpeg",
          "jpg" => "image/jpeg",
          "jpe" => "image/jpeg",
          "png" => "image/png",
@@ -38,6 +39,11 @@ class MThumbnailBase extends MModel {
     /**
      * 初始化参数对象
      * 解析外部参数
+     * @param string $uri
+     * @param array $config
+     * @throws Exception
+     * @throws MException
+     * @return mix
      */
     public static function initMThumbnailBase($uri, $config = NULL) {
         $thumbnailBase   = new MThumbnailBase();
@@ -93,18 +99,21 @@ class MThumbnailBase extends MModel {
         
         return $thumbnailBase;
     }
-    
+
     /**
      * 计算是否存在缩略图
+     * @param string $fileName
+     * @param int $size
+     * @throws MException
      */
-    public function checkExistThumbnail($file_name,$size) {
+    public function checkExistThumbnail($fileName,$size) {
         if ($size == 0 || $size > MConst::MAX_IMAGE_SIZE) {
             throw new MException(Yii::t('api',"The image is invalid and cannot be thumbnailed."), MConst::HTTP_CODE_415);
         }
-        $pathInfo  = MUtils::pathinfo_utf($file_name);
+        $pathInfo  = MUtils::pathinfo_utf($fileName);
         $extension = strtolower($pathInfo["extension"]);
         // 检查文件类型是否支持
-        if (empty(self::$_support_types[$extension])) {
+        if (empty(self::$supportTypes[$extension])) {
             throw new MException(Yii::t('api',"The file extension doesn't allow thumbnailing."), MConst::HTTP_CODE_404);;
         }
     }
@@ -135,7 +144,7 @@ class MThumbnailBase extends MModel {
         $signature = $version[0]["file_signature"];
 
         // 缩略图大小
-        $sizeInfo = self::$_sizes[$this->size];
+        $sizeInfo = self::$sizes[$this->size];
         if($sizeInfo===NULL){
           $sizeStr = strtolower($this->size);
           $sizeList = explode("x",$sizeStr);
@@ -152,7 +161,7 @@ class MThumbnailBase extends MModel {
 
         if (file_exists($thumbnail) == true) {
             //直接跳转，避免重复生成缩略图
-            $url = MiniHttp::getMiniHost()."static/thumbnails/".MiniUtil::getPathBySplitStr($signature);
+            $url = MiniHttp::getMiniHost()."assets/thumbnails/".MiniUtil::getPathBySplitStr($signature);
             $url .= "_{$this->width}_{$this->height}.{$this->format}";
             header('Location: '.$url);
             exit;

@@ -56,6 +56,38 @@ $tablePrefix = "miniyun_";
 $key = "key";
 if (file_exists($configPath)) {
     require_once $configPath;
+
+    define('DOCUMENT_ROOT_BLOCK', BASE . "/upload_block/");
+    //
+    // 图片缩略图存储路径
+    //
+    define('THUMBNAIL_TEMP', dirname(__FILE__) . '/../../assets/thumbnails/');
+    //
+    // 系统临时文件目录
+    //
+    define('DOCUMENT_TEMP', dirname(__FILE__) . '/../../assets/temp/');
+    define('DOCUMENT_CACHE',dirname(__FILE__) . '/../../assets/cache/');
+    //
+    // 插件的跟目录
+    //
+    define('PLUGIN_DIR', MINIYUN_PATH. DS . 'protected' . DS . 'plugins');//插件的文件目录
+    //
+    // 默认空间大小
+    //
+    define('DEFAULT_USER_SPACE', 100);
+    //
+    // 服务器send file 标志
+    //
+    define('X_SEND_FILE', FALSE);
+    //
+    // nginxsendfile配置/peizhi/
+    //
+    define('NGINX_SEND_FILE_TAG', '/download/');
+    //
+    // 是否支持去掉index.php前缀
+    //
+    define('SUPPORT_NO_INDEX', false);
+
     $initialized = true;
     $tablePrefix = DB_PREFIX . "_";
     $key = KEY;
@@ -78,8 +110,8 @@ if (file_exists($configPath)) {
     }
 }
 
-$hook_path = dirname(__FILE__) . '/../common/hook/hook.php';
-require_once($hook_path);
+$hookPath = dirname(__FILE__) . '/../common/hook/hook.php';
+require_once($hookPath);
 
 
 //用户基础地址
