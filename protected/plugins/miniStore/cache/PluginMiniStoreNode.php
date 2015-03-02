@@ -90,25 +90,20 @@ class PluginMiniStoreNode extends MiniCache{
     */
     public function getUploadNode(){
         //TODO 对用户进行分区文件管理，需要找到迷你存储节点与用户的关系，然后进行分配处理
-        $savedFileCount = 0;
-        $uploadNode = null;
         $nodes = $this->getNodeList();
-        foreach ($nodes as $node) { 
-            if($node["status"]==1){ 
-                $currentFileCount = $node["saved_file_count"];
-                //初始化第一次
-                if($savedFileCount===0){
-                    $savedFileCount = $currentFileCount;
-                    $uploadNode = $node;
-                }
-                //轮训最小上传文件数的节点
-                if($savedFileCount>$currentFileCount){
-                    $savedFileCount = $currentFileCount;
-                    $uploadNode = $node;
-                }
+        $validNodes = array();
+        foreach ($nodes as $node) {
+            if ($node["status"] == 1) {
+                array_push($validNodes, $node);
             }
         }
-        return $uploadNode;
+        //选出saved_file_count最小的个节点
+        $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
+        $nodes = MiniUtil::getFistArray($validNodes,1);
+        if(count($nodes)>0){
+            return $nodes[0];
+        }
+        return null;
     }
     /**
      * 获得迷你存储所有节点列表
@@ -264,20 +259,13 @@ class PluginMiniStoreNode extends MiniCache{
                         array_push($validNodes,$node);
                     }
                 }
-                //可用节点大于2，选出save_file_count最小的2个节点
+                //选出save_file_count最小的2个节点
                 $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
-                if(count($validNodes)>2){
-                    $resultNodes = array();
-                    $index = 0;
-                    foreach($validNodes as $node){
-                        if($index==0||$index==1){
-                            $resultNodes[]=$node;
-                        }
-                        $index++;
-                    }
-                    return $resultNodes;
+                $nodes = MiniUtil::getFistArray($validNodes,2);
+                if(count($nodes)==2){
+                    return $nodes;
                 }
-                return $validNodes;
+                return $nodes;
             }
         }
 
@@ -328,9 +316,8 @@ class PluginMiniStoreNode extends MiniCache{
             if(!empty($meta)){
                 $value = $meta["meta_value"];
                 $ids = explode(",",$value);
-                $downloadFileCount = 0;
-                $downloadNode = null;
                 $nodes = $this->getNodeList();
+                $validNodes = array();
                 foreach ($nodes as $node) {
                     //先找到当前文件存储的节点
                     $isValidNode = false;
@@ -342,20 +329,16 @@ class PluginMiniStoreNode extends MiniCache{
                     if(!$isValidNode) continue;
                     //然后判断节点是否有效，并在有效的节点找到下载次数最小的节点
                     if($node["status"]==1){
-                        $currentFileCount = $node["downloaded_file_count"];
-                        //初始化第一次
-                        if($downloadFileCount===0){
-                            $downloadFileCount = $currentFileCount;
-                            $downloadNode = $node;
-                        }
-                        //轮训最小上传文件数的节点
-                        if($downloadFileCount>$currentFileCount){
-                            $downloadFileCount = $currentFileCount;
-                            $downloadNode = $node;
-                        }
+                        array_push($validNodes,$node);
                     }
                 }
-                return $downloadNode;
+                //选出downloaded_file_count最小的个节点
+                $validNodes = MiniUtil::arraySort($validNodes,"downloaded_file_count",SORT_ASC);
+                $nodes = MiniUtil::getFistArray($validNodes,1);
+                if(count($nodes)>0){
+                    return $nodes[0];
+                }
+                return null;
             }
         }
         return null;
