@@ -78,6 +78,11 @@ class MUtils
 
     /**
      * 创建文件夹根据指定的对象
+     * @param $fileObject
+     * @param $dir
+     * @param int $mode
+     * @param bool $recursive
+     * @return bool
      */
     public static function MkDirsOject($fileObject, $dir, $mode = 0777, $recursive = true) {
         if (is_null($dir) || $dir == "") {
@@ -94,25 +99,25 @@ class MUtils
 
     /**
      * 删除临时文件
-     * @param string $file_name 删除文件的全路径
+     * @param string $fileName 删除文件的全路径
      * @return mixed $value 返回最终需要执行完的结果
      */
-    public static function RemoveFile($file_name) {
-        if (strlen($file_name) == 0) {
+    public static function RemoveFile($fileName) {
+        if (strlen($fileName) == 0) {
             return false;
         }
-        if (strpos($file_name, BASE) === false) {
+        if (strpos($fileName, BASE) === false) {
             return false;
         }
-        if (file_exists($file_name) == false) {
+        if (file_exists($fileName) == false) {
             return false;
         }
 
-        if (unlink($file_name) == false) {
+        if (unlink($fileName) == false) {
             return false;
         }
         // 如果文件夹为空，删除
-        $dir = dirname($file_name);
+        $dir = dirname($fileName);
         if (strpos($dir, BASE) === false) {
             return false;
         }
@@ -151,7 +156,7 @@ class MUtils
             return false;
         }
         $flag = 1;
-        exec("mv $src $dist",$retval,$flag);
+        exec("mv $src $dist",$retVal,$flag);
         if ($flag == 1) {
             return false;
         }
@@ -160,32 +165,37 @@ class MUtils
 
     /**
      * 上传保存文件操作
+     * @param $root
+     * @param $post
+     * @param $file
+     * @param bool $isNeedCheckSignature
+     * @return bool
      */
-    public static function create($root, $post, $file, $is_need_check_signature=false) {
+    public static function create($root, $post, $file, $isNeedCheckSignature=false) {
         Yii::trace(Yii::t('api','Begin to process {class}::{function}',
         array('{class}'=>"MUtils", '{function}'=>__FUNCTION__)),"miniyun.api");
         ob_start();
         ob_end_clean();
         $key = $post["key"];
-        $file_name = $post["Filename"];
+        $fileName = $post["Filename"];
         // 检查错误，在此之前，已经通过post请求将参数传入到此
         if ($file["file"]["error"] > 0) {
             Yii::log(Yii::t("api","Request is Error, file:'{$file["file"]["error"]}'"), CLogger::LEVEL_ERROR,"miniyun.api");
             return false;
         }
         // 参数检查
-        if (strlen(trim($key)) <= 0 || strlen(trim($file_name)) <= 0) {
-            Yii::log(Yii::t("api","Request is Error, file_name:'{$file_name}'"), CLogger::LEVEL_ERROR,"miniyun.api");
+        if (strlen(trim($key)) <= 0 || strlen(trim($fileName)) <= 0) {
+            Yii::log(Yii::t("api","Request is Error, file_name:'{$fileName}'"), CLogger::LEVEL_ERROR,"miniyun.api");
             return false;
         }
         // $key 必须包含 / , ${filename}
         if (is_bool(strpos(trim($key), "/")) || is_bool(strpos(trim($key), "\${filename}"))) {
-            Yii::log(Yii::t("api","Request is Error, file_name:'{$file_name}'"), CLogger::LEVEL_ERROR,"miniyun.api");
+            Yii::log(Yii::t("api","Request is Error, file_name:'{$fileName}'"), CLogger::LEVEL_ERROR,"miniyun.api");
             return false;
         }
 
         // 全路径
-        $path = $root . str_replace("\${filename}", $file_name, $key);
+        $path = $root . str_replace("\${filename}", $fileName, $key);
 
         // 确保需要合并的文件不存在
         if (file_exists($path)) {
@@ -203,10 +213,10 @@ class MUtils
         //
         // 检查文件signature是否与传入的一致
         //
-        if ($is_need_check_signature) {
-            if (MUtils::checkSignature($path, PYTHON_PATH, $file_name) == false) {
+        if ($isNeedCheckSignature) {
+            if (MUtils::checkSignature($path, PYTHON_PATH, $fileName) == false) {
                 MUtils::RemoveFile($path);
-                Yii::log(Yii::t("api","signature is not same , file_name:'{$file_name}'"), CLogger::LEVEL_ERROR,"miniyun.api");
+                Yii::log(Yii::t("api","signature is not same , file_name:'{$fileName}'"), CLogger::LEVEL_ERROR,"miniyun.api");
                 return false;
             }
         }
@@ -218,40 +228,39 @@ class MUtils
 
     /**
      * 方法描述：输出文件流，使用lighttpd x-sendfile方式
-     * 参数：
-     *   $path         - 文件绝对路径
-     *   $content_type - 文件输出类型
-     *   $output_name  - 文件输出名称
+     * @param string $path
+     * @param string $contentType
+     * @param string $outputName
      */
-    public static function output($path, $content_type, $output_name) {
+    public static function output($path, $contentType, $outputName) {
         // 检查是否已经输出
         if (headers_sent()) {
             exit;
         }
         // 判断是否输出图片
-        $contents = explode("/", $content_type);
+        $contents = explode("/", $contentType);
         // 检查文件名称是否存在，若不存在，则生成随机字符串
-        if (strlen(trim($output_name)) <= 0) {
-            $output_name = md5(date("Y-m-d G:i:s")); // 时间压缩的md5值
+        if (strlen(trim($outputName)) <= 0) {
+            $outputName = md5(date("Y-m-d G:i:s")); // 时间压缩的md5值
         }
 
-        $encoded_filename = urlencode($output_name);
-        $encoded_filename = str_replace("+", "%20", $encoded_filename);
+        $encodedFileName = urlencode($outputName);
+        $encodedFileName = str_replace("+", "%20", $encodedFileName);
 
         $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
         header("Cache-Control:");
         header("Cache-Control: public");
-        header("Content-Type: " . $content_type);
+        header("Content-Type: " . $contentType);
         if (strcmp($contents[0], 'image') != 0) {
             if (preg_match("/MSIE/", $ua)) {
-                header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+                header('Content-Disposition: attachment; filename="' . $encodedFileName . '"');
             } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
                 header ( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
             }
             elseif (preg_match("/Firefox/", $ua)) {
-                header('Content-Disposition: attachment; filename*="utf8\'\'' . $output_name . '"');
+                header('Content-Disposition: attachment; filename*="utf8\'\'' . $outputName . '"');
             } else {
-                header('Content-Disposition: attachment; filename="' . $output_name . '"');
+                header('Content-Disposition: attachment; filename="' . $outputName . '"');
             }
         }
         header("Accept-Ranges: none");
@@ -262,59 +271,58 @@ class MUtils
 
     /**
      * 方法描述：以断点续传的方式进行下载
-     * 参数：
-     *   $path         - 文件地址
-     *   $output_name  - 下载文件名
-     *   $content_type - 输出类型
+     * @param string $path
+     * @param string $outputName
+     * @param string $contentType
      */
-    public static function output_ranges($path, $output_name, $content_type) {
+    public static function output_ranges($path, $outputName, $contentType) {
         // 检查是否已经输出
         if (headers_sent()) {
             exit;
         }
         $size = filesize($path);
         //$size = 2209112064;
-        $seek_start = 0;
-        $seek_range = substr($_SERVER['HTTP_RANGE'], 6);
-        $range = explode('-', $seek_range);
+        $seekStart = 0;
+        $seekRange = substr($_SERVER['HTTP_RANGE'], 6);
+        $range = explode('-', $seekRange);
 
         // 获取ranges的值
         if ($range[0] > 0) {
-            $seek_start = floatval($range[0]);
+            $seekStart = floatval($range[0]);
         }
         if ($range[1] > 0) {
-            $seek_end = floatval($range[1]);
+            $seekEnd = floatval($range[1]);
         }
-        $length = $seek_end - $seek_start;
+        $length = $seekEnd - $seekStart;
 
         // 检查文件名称是否存在，若不存在，则生成随机字符串
-        if (strlen(trim($output_name)) <= 0) {
-            $output_name = md5(date("Y-m-d G:i:s")); // 时间压缩的md5值
+        if (strlen(trim($outputName)) <= 0) {
+            $outputName = md5(date("Y-m-d G:i:s")); // 时间压缩的md5值
         }
         // 判断是否输出图片
-        $contents = explode("/", $content_type);
+        $contents = explode("/", $contentType);
 
         // 将名称编码
-        $encoded_filename = urlencode($output_name);
-        $encoded_filename = str_replace("+", "%20", $output_name);
+        $encodedFileName = urlencode($outputName);
+        $encodedFileName = str_replace("+", "%20", $outputName);
         $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
 
         header("HTTP/1.1 206 Partial Content");
-        header("Content-Range: bytes $seek_start-$seek_end/$size");
+        header("Content-Range: bytes $seekStart-$seekEnd/$size");
         header("Cache-Control:");
         header('Cache-Control: public');
         //设置输出浏览器格式
-        header('Content-Type: ' . $content_type);
+        header('Content-Type: ' . $contentType);
         if (strcmp($contents[0], 'image') != 0) {
             if (preg_match("/MSIE/", $ua)) {
-                header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
+                header('Content-Disposition: attachment; filename="' . $encodedFileName . '"');
             } elseif (preg_match ( "/Firefox\/8.0/", $ua )){
                 header ( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
             }
             elseif (preg_match("/Firefox/", $ua)) {
-                header('Content-Disposition: attachment; filename*="utf8\'\'' . $output_name . '"');
+                header('Content-Disposition: attachment; filename*="utf8\'\'' . $outputName . '"');
             } else {
-                header('Content-Disposition: attachment; filename="' . $output_name . '"');
+                header('Content-Disposition: attachment; filename="' . $outputName . '"');
             }
         }
         header("Accept-Ranges: bytes");
@@ -322,15 +330,15 @@ class MUtils
 
         // 通过执行python脚本完成对应的下载代码逻辑
         $python = PYTHON_PATH;
-        $read_path = dirname(__FILE__) . "/../py/readfile.py";
-        $str = "$python $read_path $path $seek_start $length";
+        $readPath = dirname(__FILE__) . "/../py/readfile.py";
+        $str = "$python $readPath $path $seekStart $length";
         Yii::trace($str,"miniyun.api");
         $descriptorspec = array(
         0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
         1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
         2 => array("file", "/tmp/error-output.log", "a") // stderr is a file to write to
         );
-        $process = proc_open("$python $read_path $path $seek_start $length", $descriptorspec, $pipes);
+        $process = proc_open("$python $readPath $path $seekStart $length", $descriptorspec, $pipes);
 
         if (is_resource($process)) {
             // $pipes now looks like this:
@@ -359,57 +367,54 @@ class MUtils
 
     /**
      * 方法描述：下载，根据是否设置了断点续传来选择下载方法
-     * 参数：
-     *   $path         - 文件地址
-     *   $output_name  - 下载文件名
-     *   $content_type - 输出类型
+     * @param string $path
+     * @param string $contentType
+     * @param string $outputName
      */
-    public static function download($path, $content_type, $output_name) {
+    public static function download($path, $contentType, $outputName) {
         // 判断是否是断点续传
         if (isset ($_SERVER['HTTP_RANGE'])) {
-            MUtils::output_ranges($path, $content_type, $output_name);
+            MUtils::output_ranges($path, $contentType, $outputName);
         } else {
-            MUtils::output($path, $content_type, $output_name);
+            MUtils::output($path, $contentType, $outputName);
         }
     }
 
     /**
      * 方法描述：根据文件路径获取文件的signature
-     * 参数：
-     *   $path         - 文件地址
-     *   $pyhon        - python路径
-     * 返回值：
-     *   $sig_cal      - 文件的signature
+     * @param string $path
+     * @param string $python
+     * @return string
      */
     public static function getSignature($path,$python) {
-        $sig_path = dirname(__FILE__) . "/../py/signature.py";
-        $sig_cal  = "0";
+        $sigPath = dirname(__FILE__) . "/../py/signature.py";
+        $sigCal  = "0";
         $res      = array ();
         $rc       = 0;
-        exec($python . " " . $sig_path ." " . $path, $res, $rc);
+        exec($python . " " . $sigPath ." " . $path, $res, $rc);
         // 检查返回值
         if ($rc != 1) {
-            return $sig_cal;
+            return $sigCal;
         }
 
         if (is_null($res[0])) {
-            return $sig_cal;
+            return $sigCal;
         }
-        $sig_cal = $res[0];
-        return $sig_cal;
+        $sigCal = $res[0];
+        return $sigCal;
     }
 
     /**
      * 方法描述：检查传入的signature是否和计算出来的文件signature是否一致
-     * 参数：
-     *   $path        - 文件地址
-     *   $python      - python可执行路径
-     *   $signature   - 需要检查的signature
+     * @param string $path
+     * @param string $python
+     * @param string $signature
+     * @return bool
      */
     public static function checkSignature($path,$python,$signature) {
         // 计算文件signature
-        $retval = MUtils::getSignature($path,$python);
-        if (strcmp($retval, $signature) != 0) {
+        $retVal = MUtils::getSignature($path,$python);
+        if (strcmp($retVal, $signature) != 0) {
             return false;
         }
         return true;
@@ -417,25 +422,28 @@ class MUtils
 
     /**
      * 组装文件需要的post参数
+     * @param string $signature
+     * @param int $offset
+     * @return array
      */
-    public static function getPost($file_signature, $offset=0) {
-        $key               = substr($file_signature,0,2)."/".substr($file_signature,2,2);
-        $key              .= "/".substr($file_signature,4,2)."/".substr($file_signature,6,2);
+    public static function getPost($signature, $offset=0) {
+        $key               = substr($signature,0,2)."/".substr($signature,2,2);
+        $key              .= "/".substr($signature,4,2)."/".substr($signature,6,2);
 
         // TODO: 处理组装s3需要的参数
-        $input = array( "Filename" => "{$file_signature}",
+        $input = array( "Filename" => "{$signature}",
                         "key" => "$key/\${filename}");
         // 生成数字签名,使用json格式，返回hash格式数据
         $output = MUtils::getRequesSignature($input);
-        $expiration_time   = $output["expiration_date"];
-        $digital_signature = $output["digital_signature"];
+        $expirationTime   = $output["expiration_date"];
+        $digitalSignature = $output["digital_signature"];
 
         $post = array();
-        $post["Filename"]               = $file_signature;
+        $post["Filename"]               = $signature;
         $post["AWSAccessKeyId"]         = MConst::ACCESS_KEY_ID;
-        $post["key"]                    = $file_signature;
-        $post["expiration_date"]        = $expiration_time;
-        $post["digital_signature"]      = $digital_signature;
+        $post["key"]                    = $signature;
+        $post["expiration_date"]        = $expirationTime;
+        $post["digital_signature"]      = $digitalSignature;
         $post["offset"]                 = $offset;
         $post["success_action_status"]  = "201";
 
@@ -457,27 +465,27 @@ class MUtils
             return  false;
         }
         //计算过期时间
-        $expired_date = time() + $expire;
+        $expiredDate = time() + $expire;
         // 对传入数组进行转换，将其key值转成小写，形成新的关联数组
-        $new_input = array();
+        $newInput = array();
         foreach ($input as $key=>$value) {
             // 转成小写
             $key = strtolower($key);
-            $new_input[$key] = $value;
+            $newInput[$key] = $value;
         }
         // 获取新数组的key
-        $keys = array_keys($new_input);
+        $keys = array_keys($newInput);
         // keys数组排序
         natsort($keys);
         // input 的key不区分大小写
         $str = "";
         foreach ($keys as $key) {
-            $str .= $key . $new_input[$key];
+            $str .= $key . $newInput[$key];
         }
-        $str .= MConst::EXPIRATION_DATE . $expired_date;
+        $str .= MConst::EXPIRATION_DATE . $expiredDate;
         $signature = MUtils::getSha1Signature($str);
         // 在传入数组后添加两个新值： expiration_date digital_signature
-        $input["expiration_date"] = $expired_date;
+        $input["expiration_date"] = $expiredDate;
         $input["digital_signature"] = $signature;
         return $input;
     }
@@ -520,20 +528,30 @@ class MUtils
     public static function getFileSha256($file) {
         return hash_file('sha256', $file);
     }
+
     /**
      * 计算字符串的sha256值
+     * @param $str
+     * @return string
      */
     public static function getStrSha256($str) {
         return hash('sha256', $str);
     }
+
     /**
      * 计算字符串的sha256值
+     * @param $str
+     * @return string
      */
     public static function getStrSha1($str) {
         return hash('sha1', $str);
     }
+
     /**
      * 获取冲突文件名
+     * @param string $name
+     * @param array $names
+     * @return string
      */
     public static function getConflictName($name, $names=array()) {
         //        $tmp = array();
@@ -542,15 +560,15 @@ class MUtils
         //        }
         $index = 1;
         $paths = self::pathinfo_utf($name);
-        $file_name = $paths["filename"];
+        $fileName = $paths["filename"];
         $extension = $paths["extension"];
 
-        $tmp_name = strtolower($name);
+        $tmpName = strtolower($name);
 
-        while (isset($names[$tmp_name])) {
-            $tmp_name = $file_name . "($index)";
+        while (isset($names[$tmpName])) {
+            $tmpName = $fileName . "($index)";
             if ($extension) {
-                $tmp_name .= ".$extension";
+                $tmpName .= ".$extension";
             }
             $index += 1;
             // 限制循环次数
@@ -559,21 +577,29 @@ class MUtils
             }
         }
 
-        $file_name = $tmp_name;
-        Yii::trace("function: '{__FUNCTION__}',conflict_name:'{$file_name}'","miniyun.api");
-        return $file_name;
+        $fileName = $tmpName;
+        Yii::trace("function: '{__FUNCTION__}',conflict_name:'{$fileName}'","miniyun.api");
+        return $fileName;
     }
 
     /**
      * 计算文件附加属性
+     * @param string $deviceName
+     * @param int $fileSize
+     * @param int $versionId
+     * @param string $action
+     * @param int $userId
+     * @param string $userNick
+     * @param string $versions
+     * @return string
      */
-    public static function getFileVersions($deviceName, $fileSize, $version_id, $action, $user_id, $user_nick,$versions="a:0:{}") {
+    public static function getFileVersions($deviceName, $fileSize, $versionId, $action, $userId, $userNick,$versions="a:0:{}") {
         $versions = is_null($versions)||empty($versions) ? "a:0:{}" : $versions;
         $version               = array();
         $version["type"]       = $action;
-        $version["version_id"] = $version_id;
-        $version["user_id"]    = $user_id;
-        $version["user_nick"]  = $user_nick;
+        $version["version_id"] = $versionId;
+        $version["user_id"]    = $userId;
+        $version["user_nick"]  = $userNick;
         $version["device_name"]= $deviceName;
         $version["file_size"]  = $fileSize;
         $version["datetime"]   = MiniUtil::getCurrentTime();
@@ -594,25 +620,28 @@ class MUtils
 
     /**
      * 计算size单位转换
+     * @param $locale
+     * @param $size
+     * @return string
      */
     public static function getSizeByLocale($locale, $size) {
-        $retval = "$size bytes";
+        $retVal = "$size bytes";
         if ($locale === "KB" || $locale === "kb") {
             $tmp = $size / 1024.0;
             $tmp = number_format($tmp, 2);
-            $retval = "$tmp$locale";
+            $retVal = "$tmp$locale";
         } elseif ($locale === "mb" || $locale === "MB" || $locale === "M") {
             $divisor = 1048576.0;
             $tmp = $size / $divisor;
             $tmp = number_format($tmp, 2);
-            $retval = "$tmp$locale";
+            $retVal = "$tmp$locale";
         } elseif ($locale === "GB" || $locale === "gb" || $locale === "G") {
             $divisor = 1073741824.0;
             $tmp = $size / $divisor;
             $tmp = number_format($tmp, 2);
-            $retval = "$tmp$locale";
+            $retVal = "$tmp$locale";
         }
-        return $retval;
+        return $retVal;
     }
 
     /**
@@ -672,19 +701,19 @@ class MUtils
     /**
      * 验证文件名是否合法
      * 不可使用  \ / : * ? " < > |
-     * @param $file_name
+     * @param $fileName
      * @return mixed $value 包含非法字符返回true，否则返回false
      */
-    public static function checkNameInvalid($file_name)
+    public static function checkNameInvalid($fileName)
     {
-        if ($file_name === "")
+        if ($fileName === "")
         {
             return true;
         }
-        if ($file_name{strlen($file_name)-1} == ".") {
+        if ($fileName{strlen($fileName)-1} == ".") {
             return true;
         }
-        return preg_match("/[\\/".preg_quote("|?*\\<\":>")."]/",$file_name);
+        return preg_match("/[\\/".preg_quote("|?*\\<\":>")."]/",$fileName);
     }
 
     /**
@@ -706,6 +735,9 @@ class MUtils
 
     /**
      * 将int时间格式化字符串
+     * @param $time
+     * @param string $format
+     * @return bool|string
      */
     public static function formatIntTime($time, $format="D, d M Y G:i:s O")
     {
@@ -724,29 +756,32 @@ class MUtils
         //  如： "/aa" => "/aa" 原样子返回
         // 而basename($filePath) 这个函数会存在中文问题,
         //
-        $first_index = strrpos($filePath, "/");
-        $second_index = strrpos($filePath, "\\");
-        $index = $first_index;
-        if ($first_index < $second_index)
+        $firstIndex = strrpos($filePath, "/");
+        $secondIndex = strrpos($filePath, "\\");
+        $index = $firstIndex;
+        if ($firstIndex < $secondIndex)
         {
-            $index = $second_index;
+            $index = $secondIndex;
         }
-        $file_name = substr($filePath, $index+1);
-        if ($file_name === false)
+        $fileName = substr($filePath, $index+1);
+        if ($fileName === false)
         {
             return "";
         }
-        return $file_name;
+        return $fileName;
     }
 
     /**
      * 判断是否存在缩略图
+     * @param string $type
+     * @param int $size
+     * @return bool
      */
     public static function isExistThumbnail($type, $size) {
         if ($size > MConst::MAX_IMAGE_SIZE || $size <= 0) {
             return false;
         }
-        foreach ( MThumbnailBase::$_support_types as $value ) {
+        foreach ( MThumbnailBase::$supportTypes as $value ) {
             if ($value == $type) {
                 return true;
             }
@@ -762,7 +797,7 @@ class MUtils
      */
     public static function pathinfo_utf($path) {
         $path = self::convertStandardPath($path);
-        $retval = array (
+        $retVal = array (
             'dirname' => "",
             'basename' => "", 
             'extension' => "", 
@@ -774,9 +809,9 @@ class MUtils
             }
 
             if (empty ( $basename ))
-            return $retval;
+            return $retVal;
 
-            $dirname = substr ( $path, 0, strlen ( $path ) - strlen ( $basename ) - 1 );
+            $dirName = substr ( $path, 0, strlen ( $path ) - strlen ( $basename ) - 1 );
 
             if (strpos ( $basename, '.' ) !== false) {
                 $ext_parts = explode ( '.', $path );
@@ -788,7 +823,7 @@ class MUtils
             }
 
             return array (
-            'dirname' => $dirname, 
+            'dirname' => $dirName,
             'basename' => $basename, 
             'extension' => $extension, 
             'filename' => $filename 
@@ -808,10 +843,9 @@ class MUtils
     }
 
     /**
-     *
      * 获取权限数组
-     *
-     * @since 1.1.0
+     * @param $perm
+     * @return mixed
      */
     public static function getPermissionArray($perm){
         if (strlen($perm) != 9){
@@ -826,10 +860,9 @@ class MUtils
     }
 
     /**
-     *
      * 判断是否属于共享类型的目录
-     *
-     * @since 1.0.7
+     * @param string $type
+     * @return bool
      */
     public static function isShareFolder($type){
         if ($type == MConst::OBJECT_TYPE_BESHARED){

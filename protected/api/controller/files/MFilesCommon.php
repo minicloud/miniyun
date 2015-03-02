@@ -767,7 +767,7 @@ class MFilesCommon extends MModel {
         if ($this->size > MConst::MAX_IMAGE_SIZE || $this->size <= 0) {
             return false;
         }
-        foreach ( MThumbnailBase::$_support_types as $value ) {
+        foreach ( MThumbnailBase::$supportTypes as $value ) {
             if ($value == $this->type) {
                 return true;
             }
