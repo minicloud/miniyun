@@ -145,7 +145,7 @@ class PluginMiniDocNode extends MiniCache{
      * @return int
      */
     public function checkNodeStatus($host){
-        $url = $host."/api.php?route=node/status";
+        $url = $host."/api.php?route=doc/status";
         $content = @file_get_contents($url);
         if(!empty($content)){
             $nodeStatus = @json_decode($content);

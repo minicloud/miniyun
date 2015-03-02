@@ -133,7 +133,7 @@ class PluginMiniStoreNode extends MiniCache{
      * @return int
      */
     public function checkNodeStatus($host){
-        $url = $host."/api.php?route=node/status";
+        $url = $host."/api.php?route=store/status";
         $content = @file_get_contents($url);
         if(!empty($content)){
             $nodeStatus = @json_decode($content);
