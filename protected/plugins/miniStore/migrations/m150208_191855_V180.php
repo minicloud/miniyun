@@ -52,7 +52,6 @@ class m150208_191855_V180  extends EDbMigration{
             array(
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL',//文件signature值
-                'size'                 => 'long NOT NULL',//文件总大小
                 'store_node_id'        => 'varchar(128) NOT NULL',//存储到目标服务器标记
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
