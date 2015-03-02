@@ -575,6 +575,23 @@ class MiniUtil{
         return null;
     }
     /**
+     * 返回array指定的元素集合
+     * @param $array
+     * @param $returnCount
+     * @return array
+     */
+    public static function getFistArray($array,$returnCount){
+        $retVal = array();
+        $index = 0;
+        foreach($array as $item){
+            if($index<$returnCount){
+                array_push($retVal,$item);
+            }
+            $index++;
+        }
+        return $retVal;
+    }
+    /**
      * 自定义排序
      * @param $array
      * @param $on

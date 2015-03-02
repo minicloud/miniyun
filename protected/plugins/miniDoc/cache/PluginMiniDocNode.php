@@ -131,10 +131,11 @@ class PluginMiniDocNode extends MiniCache{
                 array_push($validNodes,$itemNode);
             }
         }
-        //可用节点大于1，选出converted_file_count最小的个节点
+        //选出converted_file_count最小的个节点
         $validNodes = MiniUtil::arraySort($validNodes,"converted_file_count",SORT_ASC);
-        if(count($validNodes)>1){
-            return $validNodes[0];
+        $nodes = MiniUtil::getFistArray($validNodes,1);
+        if(count($nodes)>0){
+            return $nodes[0];
         }
         return null;
     }

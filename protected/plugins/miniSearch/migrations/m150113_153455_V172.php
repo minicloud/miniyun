@@ -57,13 +57,6 @@ class m150113_153455_V172  extends EDbMigration{
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend);
-//        $this->createIndex("group_user_id", DB_PREFIX.'_groups', "user_id");
-
-        //创建增量索引记数表
-        $this->createTable(DB_PREFIX.'_sphinx_count',
-            array(
-                'count_id'              => 'pk',
-                'max_doc_id'            => 'int(11) NOT NULL',
-            ),$extend);
+        //创建search
     }
 }
