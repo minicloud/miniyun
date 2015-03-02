@@ -161,7 +161,7 @@ class MThumbnailBase extends MModel {
 
         if (file_exists($thumbnail) == true) {
             //直接跳转，避免重复生成缩略图
-            $url = MiniHttp::getMiniHost()."static/thumbnails/".MiniUtil::getPathBySplitStr($signature);
+            $url = MiniHttp::getMiniHost()."assets/thumbnails/".MiniUtil::getPathBySplitStr($signature);
             $url .= "_{$this->width}_{$this->height}.{$this->format}";
             header('Location: '.$url);
             exit;

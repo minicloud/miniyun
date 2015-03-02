@@ -62,33 +62,3 @@ define('UPGRADE_PATH', MINIYUN_PATH. DS . 'protected' . DS . 'upgrade');
 // 重新定义文件存储路径
 //
 define('BASE',"#base#");
-define('DOCUMENT_ROOT_BLOCK', BASE . "/upload_block/");
-//
-// 图片缩略图存储路径
-//
-define('THUMBNAIL_TEMP', dirname(__FILE__) . '/../../static/thumbnails/');
-//
-// 系统临时文件目录
-//
-define('DOCUMENT_TEMP', BASE . '/temp/');
-define('DOCUMENT_CACHE', BASE . '/cache/');
-//
-// 插件的跟目录
-//
-define('PLUGIN_DIR', MINIYUN_PATH. DS . 'protected' . DS . 'plugins');//插件的文件目录
-//
-// 默认空间大小
-//
-define('DEFAULT_USER_SPACE', 100);
-//
-// 服务器send file 标志
-//
-define('X_SEND_FILE', FALSE);
-//
-// nginxsendfile配置/peizhi/
-//
-define('NGINX_SEND_FILE_TAG', '/download/');
-//
-// 是否支持去掉index.php前缀
-//
-define('SUPPORT_NO_INDEX', false);

@@ -39,7 +39,7 @@ class MiniStoreModule extends MiniPluginModule {
      */
     function imagePath($params){
         $signature = $params["signature"];
-        $saveFolder = MINIYUN_PATH."/assets/thumbnail/";
+        $saveFolder = MINIYUN_PATH."/assets/miniStore/";
         $filePath = $saveFolder.$signature;
         if(!file_exists($filePath)){
             if(!file_exists($saveFolder)){
