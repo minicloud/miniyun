@@ -124,25 +124,19 @@ class PluginMiniDocNode extends MiniCache{
             }
         }
         //返回随机converted_file_count最小的节点
-        $node = null;
         $nodes = $this->getNodeList();
-        $convertedCount = 0;
+        $validNodes = array();
         foreach($nodes as $itemNode){
-            if($itemNode["status"]==-1){
-                continue;
-            }
-            $itemCount = $itemNode["converted_file_count"];
-            if($convertedCount==0){
-                $convertedCount = $itemCount;
-                $node = $itemNode;
-                continue;
-            }
-            if($convertedCount>$itemCount){
-                $convertedCount = $itemCount;
-                $node = $itemNode;
+            if($itemNode["status"]==1){
+                array_push($validNodes,$itemNode);
             }
         }
-        return $node;
+        //可用节点大于1，选出converted_file_count最小的个节点
+        $validNodes = MiniUtil::arraySort($validNodes,"converted_file_count",SORT_ASC);
+        if(count($validNodes)>1){
+            return $validNodes[0];
+        }
+        return null;
     }
     /**
      * 检查文档节点状态

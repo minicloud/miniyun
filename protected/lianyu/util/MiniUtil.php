@@ -574,4 +574,46 @@ class MiniUtil{
         }
         return null;
     }
+    /**
+     * 自定义排序
+     * @param $array
+     * @param $on
+     * @param int $order
+     * @return array
+     */
+    public static function arraySort($array, $on, $order=SORT_ASC)
+    {
+        $newArray = array();
+        $sortableArray = array();
+
+        if (count($array) > 0) {
+            foreach ($array as $k => $v) {
+                if (is_array($v)) {
+                    foreach ($v as $k2 => $v2) {
+                        if ($k2 == $on) {
+                            $sortableArray[$k] = $v2;
+                        }
+                    }
+                } else {
+                    $sortableArray[$k] = $v;
+                }
+            }
+
+            switch ($order) {
+                case SORT_ASC:
+                    asort($sortableArray);
+                    break;
+                case SORT_DESC:
+                    arsort($sortableArray);
+                    break;
+            }
+
+            foreach ($sortableArray as $k => $v) {
+                $newArray[$k] = $array[$k];
+            }
+        }
+
+        return $newArray;
+    }
+
 }

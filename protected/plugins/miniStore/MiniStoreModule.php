@@ -16,7 +16,6 @@ class MiniStoreModule extends MiniPluginModule {
     {
         $this->setImport(array(
             "miniStore.biz.*",
-            "miniStore.utils.*",
             "miniStore.cache.*",
             "miniStore.models.*",
             "miniStore.service.*",
