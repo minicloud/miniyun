@@ -114,10 +114,10 @@ class PluginMiniSearchBuildTask extends MiniCache{
             foreach($tasks as $task){
                 $nodeId = $task->node_id;
                 $signature = $task->file_signature;
-                $node = PluginMiniStoreNode::getInstance()->getNodeById($nodeId);
+                $node = PluginMiniSearchNode::getInstance()->getNodeById($nodeId);
                 if(!empty($node)){
                     $url = $node["host"].'/api.php?route=file/build';
-                    $downloadUrl =$miniHost."api.php?route=module/miniSearch/download&signature=".$signature;
+                    $downloadUrl =$miniHost."api.php?route=module/miniSearch/downloadTxt&signature=".$signature;
                     $callbackUrl =$miniHost."api.php?route=module/miniSearch/report&node_id=".$node["id"]."&signature=".$signature;
                     $data = array (
                         'signature'=>$signature,

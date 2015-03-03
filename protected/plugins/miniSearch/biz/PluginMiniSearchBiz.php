@@ -14,16 +14,24 @@ class PluginMiniSearchBiz extends MiniBiz
      * @param string $signature 文件hash值
      * @throws 404错误
      */
-    public function download($signature){
+    public function downloadTxt($signature){
         $version = MiniVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
             //根据文件内容输出文件内容
-            MiniFile::getInstance()->getContentBySignature($signature,$signature,$version["mime_type"]);
-        }else{
-            throw new MFileopsException(
-                Yii::t('api','File Not Found'),
-                404);
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"doc_id");
+            if(!empty($meta)){
+                $node = PluginMiniDocNode::getInstance()->getNodeById($meta["meta_value"]);
+                if(!empty($node)){
+                    $url = $node["host"]."/".$signature."/".$signature.".txt";
+                    header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
+                    header( "Location: ". $url );
+                    exit;
+                }
+            }
         }
+        throw new MFileopsException(
+            Yii::t('api','File Not Found'),
+            404);
 
     }
     /**

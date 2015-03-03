@@ -41,18 +41,6 @@ class PluginMiniSearchOption extends MiniCache{
         return self::$_instance;
     }
     /**
-     * 获得MiniSearch服务器地址
-     * 如果用户在options表中定义了{mini_search_host:xxxx}，优选它
-     * 否则默认为http://minidoc.miniyun.cn
-     */
-    public function getMiniSearchHost(){
-        $value = MiniOption::getInstance()->getOptionValue("mini_search_host");
-        if(empty($value)){
-            $value = "127.0.0.1:9312";
-        }
-        return $value;
-    }
-    /**
      * 获得迷你云服务器地址
      * 如果用户在options表中定义了{miniyun_host:xxxx}，优选它
      * 否则默认为http://127.0.0.1

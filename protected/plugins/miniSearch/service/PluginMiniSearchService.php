@@ -11,7 +11,7 @@ class PluginMiniSearchService extends MiniService{
     protected function anonymousActionList(){
         return array(
             "report",
-            "download",
+            "downloadTxt",
         );
     }
     protected function adminActionList(){
@@ -24,11 +24,11 @@ class PluginMiniSearchService extends MiniService{
     /**
      * 根据文件hash值进行下载文件
      */
-    public function  download(){
+    public function  downloadTxt(){
         //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
         $signature = MiniHttp::getParam('signature',"");
         $biz = new PluginMiniSearchBiz();
-        $biz->download($signature);
+        $biz->downloadTxt($signature);
     }
     /**
      * 迷你存储文件上传成功报俊
