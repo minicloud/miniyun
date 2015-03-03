@@ -48,7 +48,7 @@ class m150208_191855_V180  extends EDbMigration{
         //创建miniyun_break_files表存储断点文件
         //如果文件上传成功，break_files相关记录会被删除，另外生成相关用户的元数据
         //为用户生成的数据，包括有file_version_metas生成相关记录
-        $this->createTable(DB_PREFIX.'_break_files',
+        $this->createTable(DB_PREFIX.'_store_break_files',
             array(
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL',//文件signature值
@@ -56,13 +56,13 @@ class m150208_191855_V180  extends EDbMigration{
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
-        $this->createIndex(DB_PREFIX.'_break_files_signature',DB_PREFIX.'_break_files', "file_signature");
+        $this->createIndex(DB_PREFIX.'_store_break_files_signature',DB_PREFIX.'_store_break_files', "file_signature");
         //创建miniyun_replicate_tasks表存储冗余备份任务表
         //用户把文件上传成功后，系统自动为其它2个节点生成冗余备份请求
         //后台定时任务，会把请求推送到目标服务器
         //目标服务器冗余备份后，replicate_tasks相关记录将会被删除
         //文件冗余成功后，会更改file_version_metas的相关记录
-        $this->createTable(DB_PREFIX.'_replicate_tasks',
+        $this->createTable(DB_PREFIX.'_store_replicate_tasks',
             array(
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL', //文件signature值
@@ -71,8 +71,8 @@ class m150208_191855_V180  extends EDbMigration{
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
-        $this->createIndex(DB_PREFIX.'_replicate_tasks_signature',DB_PREFIX.'_replicate_tasks', "file_signature");
-        $this->createIndex(DB_PREFIX.'_replicate_tasks_signature',DB_PREFIX.'_status', "status");
+        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "file_signature");
+        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "status");
         //replicate_status=0表示默认状态
         //replicate_status=1表示备份中
         //replicate_status=2表示备份成功

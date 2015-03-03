@@ -24,7 +24,7 @@ class BreakFile extends CMiniyunModel
      */
     public function tableName()
     {
-        return Yii::app()->params['tablePrefix'].'break_files';
+        return Yii::app()->params['tablePrefix'].'store_break_files';
     }
 
 }

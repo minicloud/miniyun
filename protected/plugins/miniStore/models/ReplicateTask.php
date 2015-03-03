@@ -24,7 +24,7 @@ class ReplicateTask extends CMiniyunModel
      */
     public function tableName()
     {
-        return Yii::app()->params['tablePrefix'].'replicate_tasks';
+        return Yii::app()->params['tablePrefix'].'store_replicate_tasks';
     }
 
 }
