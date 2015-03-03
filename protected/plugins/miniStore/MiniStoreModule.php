@@ -108,8 +108,9 @@ class MiniStoreModule extends MiniPluginModule {
         foreach ($params as $key => $value) {
             $callbackUrl .="&".$key."=".$value;
         }
+        $siteId   = MiniSiteUtils::getSiteID();
         $data['callback'] =  $callbackUrl;
-        $data['url'] =  $node["host"]."/api.php";
+        $data['url'] =  $node["host"]."/api.php?site_id=".$siteId;
         echo json_encode($data);exit;
     }
     /**

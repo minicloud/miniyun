@@ -103,6 +103,10 @@ class PluginMiniReplicateTask extends MiniCache{
      *为miniyun_replicate_tasks.status=0前30条记录向对应服务器发送请求
      */
     public function replicate(){
+        $siteId   = MiniSiteUtils::getSiteID();
+        //文件下载地址
+        $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
+
         $criteria                = new CDbCriteria();
         $criteria->condition     = "status=0";
         $criteria->limit         = 3;
@@ -113,13 +117,13 @@ class PluginMiniReplicateTask extends MiniCache{
             if($node["status"]==1){
                 $signature = $task["file_signature"];
                 $version = MiniVersion::getInstance()->getBySignature($signature);
-                //文件下载地址
-                $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
+
                 $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
                 $callbackUrl = $miniHost."api.php?route=module/miniStore/replicateReport&signature=".$signature."&node_id=".$node["id"];
                 //向迷你存储发送冗余备份请求
                 $data = array(
                     'route'=>"file/replicate",
+                    'site_id'=>$siteId,//站点ID
                     'size'=>$version["file_size"],
                     'signature'=>$signature,
                     'downloadUrl'=>$downloadUrl,

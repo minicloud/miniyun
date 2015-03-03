@@ -209,6 +209,7 @@ class PluginMiniDocVersion extends MiniCache{
      */
     public function pushConvert($versions){
         $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
+        $siteId   = MiniSiteUtils::getSiteID();
         //修改文档的转换状态为转换中
         foreach ($versions as $version) {
             $signature = $version["file_signature"];
@@ -219,6 +220,7 @@ class PluginMiniDocVersion extends MiniCache{
                 $callbackUrl =$miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
                 $data = array (
                     'signature'=>$signature,
+                    'site_id'=>$siteId,//站点ID
                     'mime_type'=>$version["mime_type"],//文件类型
                     'downloadUrl' =>$downloadUrl,//文件内容下载地址
                     "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
