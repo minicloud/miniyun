@@ -64,6 +64,8 @@ class PluginMiniSearchNode extends MiniCache{
         $value["name"]                = $item->name;
         $value["host"]                = $item->host;
         $value["safe_code"]           = $item->safe_code;
+        $value["build_file_count"]    = $item->build_file_count;
+        $value["search_count"]        = $item->search_count;
         $value["status"]              = $item->status;
         $value["created_at"]          = $item->created_at;
         $value["updated_at"]          = $item->updated_at;
@@ -90,6 +92,19 @@ class PluginMiniSearchNode extends MiniCache{
         return $this->db2list($items);
     }
     /**
+     * 获得迷你搜索有效的节点列表
+     */
+    public function getValidNodeList(){
+        $retVal = array();
+        $nodes = $this->getNodeList();
+        foreach($nodes as $node){
+            if($node["status"]==1){
+                array_push($retVal,$node);
+            }
+        }
+        return $retVal;
+    }
+    /**
      * 检查所有节点状态
      */
     public function checkNodesStatus(){
@@ -110,7 +125,7 @@ class PluginMiniSearchNode extends MiniCache{
      * @return int
      */
     public function checkNodeStatus($host){
-        $url = $host."/api.php?route=node/status";
+        $url = $host."/api.php?route=search/status";
         $content = @file_get_contents($url);
         if(!empty($content)){
             $nodeStatus = @json_decode($content);
@@ -147,6 +162,8 @@ class PluginMiniSearchNode extends MiniCache{
         }
         if(!isset($item)){
             $item = new SearchNode();
+            $item->build_file_count=0;
+            $item->search_count=0;
         }
         $item->name      = $name;
         $item->host      = $host;
@@ -181,5 +198,52 @@ class PluginMiniSearchNode extends MiniCache{
             $item->save();
         }
         return $this->db2Item($item);
+    }
+    /**
+     * 节点新编制索引成功了一个文件
+     * @param int $nodeId
+     */
+    public function newBuildFile($nodeId){
+        $item = SearchNode::model()->find("id=:id",array("id"=>$nodeId));
+        if(isset($item)){
+            $item->build_file_count+=1;
+            $item->save();
+        }
+    }
+    /**
+     * 节点新搜索了一次服务器
+     * @param int $nodeId
+     */
+    public function newSearch($nodeId){
+        $item = SearchNode::model()->find("id=:id",array("id"=>$nodeId));
+        if(isset($item)){
+            $item->search_count+=1;
+            $item->save();
+        }
+    }
+
+    /**
+     * 获得最好的的迷你搜索节点
+     * 先找出build_file_count最大的节点
+     * 如果build_file_count相同，找出search_count最小的节点
+     * @return array
+     */
+    public function getBestNode(){
+        $nodes = $this->getValidNodeList();
+        if(count($nodes)>0){
+            $sortNodes = MiniUtil::arraySort($nodes,"build_file_count",SORT_DESC);
+            $bestNode  = $sortNodes[0];
+            $buildFileCount = $sortNodes[0]["build_file_count"];
+            $searchCount = $sortNodes[0]["search_count"];
+            foreach($sortNodes as $node){
+                if($node["build_file_count"]==$buildFileCount){
+                    if($node["search_count"]<$searchCount){
+                        $bestNode = $node;
+                    }
+                }
+            }
+            return $bestNode;
+        }
+        return null;
     }
 }

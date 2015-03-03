@@ -8,7 +8,7 @@
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
- * @since 1.7
+ * @since 1.8
  */
 class MiniSearchFile extends MiniCache{
     /**
@@ -45,6 +45,8 @@ class MiniSearchFile extends MiniCache{
     }
     /**
      * 把数据库值序列化
+     * @param $items
+     * @return array
      */
     private function db2list($items){
         $data  = array();
@@ -59,6 +61,7 @@ class MiniSearchFile extends MiniCache{
         $value["id"]               = $item->id;
         $value["file_signature"]   = $item->file_signature;
         $value["content"]          = $item->content;
+        $value["node_ids"]         = $item->node_ids;
         $value["created_at"]       = $item->created_at;
         $value["updated_at"]       = $item->updated_at;
         return $value;
@@ -74,12 +77,13 @@ class MiniSearchFile extends MiniCache{
             array("file_signature"=>$signature));
         if(!isset($item)){
             $item = new SearchFile();
-        }else{
-            return true;
+            $item['content']=$content;
+            $item['file_signature']=$signature;
+            $item['node_ids']="";
+            $item->save();
+            //生成索引编制任务
+            PluginMiniSearchBuildTask::getInstance()->createTask($item->node_ids,$signature);
         }
-        $item['content']=$content;
-        $item['file_signature']=$signature;
-        $item->save();
         return true;
     }
     /**
@@ -87,7 +91,7 @@ class MiniSearchFile extends MiniCache{
      * @param $signature 文件的signature
      * @return array
      */
-    public function  getItemBySignature($signature){
+    public function  getBySignature($signature){
         $criteria = new CDbCriteria();
         $criteria->condition = "file_signature=:file_signature";
         $criteria->params = array(
@@ -97,20 +101,40 @@ class MiniSearchFile extends MiniCache{
         return $this->db2Item($item);
     }
     /**
-     * 搜索
-     * @param $ids 文件ID
+     * 根据signature列表获得searchFile对象
+     * @param array $signatures 文件sha1值列表
      * @return array
      */
-    public function search($ids){
+    public function getBySignatures($signatures){
         $criteria = new CDbCriteria();
-        $idsArr = explode(',',$ids);
-        $intId = array();
-        for($i=0;$i<count($idsArr);$i++){
-            array_push($intId,(int)$idsArr[$i]);
-        }
-        $criteria->addInCondition('id', $intId);
+        $criteria->addInCondition('file_signature', $signatures);
         $items = SearchFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
-
+    /**
+     * 迷你搜索节点编制索引成功
+     * @param $signature
+     * @param $nodeId
+     * @return boolean
+     */
+    public function buildSuccess($signature,$nodeId){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "file_signature=:file_signature";
+        $criteria->params = array(
+            "file_signature"=>$signature
+        );
+        $item = SearchFile::model()->find($criteria);
+        if(!isset($item)){
+            //迷你搜索编制索引成功后，node_ids将追加
+            $nodeIds = $item->node_ids;
+            if(empty($nodeIds)){
+                $item->node_ids = $nodeId;
+            }else{
+                $item->node_ids .= ",".$nodeId;
+            }
+            $item->save();
+            return true;
+        }
+        return false;
+    }
 }

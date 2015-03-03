@@ -42,11 +42,12 @@ class m150113_153455_V172  extends EDbMigration{
                 'name'                 => 'varchar(128) NOT NULL',//存储服务器名称，表唯一
                 'host'                 => 'varchar(128) NOT NULL',//访问域名，这个域名不对用户最终设备开放
                 'safe_code'            => 'varchar(128) NOT NULL',//访问安全码，用于安全校验
+                'build_file_count'     => 'int NOT NULL DEFAULT  0',//编制索引的文件数
+                'search_count'         => 'int NOT NULL DEFAULT  0',//搜索次数
                 'status'               => 'int NOT NULL',//-1表示服务器不可用，1表示服务器可用
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend);
-        $this->createIndex(DB_PREFIX.'_search_nodes_name',DB_PREFIX.'_search_nodes', "name");
 
         //创建miniyun_search_files表存储搜索文本内容
         $this->createTable(DB_PREFIX.'_search_files',
@@ -54,9 +55,23 @@ class m150113_153455_V172  extends EDbMigration{
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL',
                 'content'              => 'longblob NOT NULL',
+                'node_ids'             => 'varchar(128) NOT NULL',//编制索引的迷你搜索ID，使用,符号间隔
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend);
-        //创建search
+        $this->createIndex(DB_PREFIX.'_search_files_signature',DB_PREFIX.'_search_files', "file_signature");
+
+        //创建file_build 任务表
+        $this->createTable(DB_PREFIX.'_search_build_tasks',
+            array(
+                'id'                   => 'pk',
+                'file_signature'       => 'varchar(128) NOT NULL', //文件signature值
+                'node_id'              => 'varchar(128) NOT NULL',//存储到目标服务器标记
+                'status'               => 'int(11)  NOT NULL DEFAULT  0',//0标志正常状态，1表示备份中状态，如果记录被删除说明备份成功
+                'created_at'           => 'datetime NOT NULL',
+                'updated_at'           => 'datetime NOT NULL',
+            ),$extend);
+        $this->createIndex(DB_PREFIX.'_search_build_tasks_signature',DB_PREFIX.'_search_build_tasks', "file_signature");
+        $this->createIndex(DB_PREFIX.'_search_build_tasks_status',DB_PREFIX.'_search_build_tasks', "status");
     }
 }

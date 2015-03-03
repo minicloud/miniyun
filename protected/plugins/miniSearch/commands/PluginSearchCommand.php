@@ -11,7 +11,7 @@
  * 获得所有转换成功的word/excel/pdf的内容到数据库
  * Class PullTxtCommand
  */
-class PluginDocPullTxtCommand extends CConsoleCommand
+class PluginSearchCommand extends CConsoleCommand
 {
 
     /**
@@ -28,7 +28,7 @@ class PluginDocPullTxtCommand extends CConsoleCommand
         foreach($versions as $version){
             $signature = $version["file_signature"];
             //先判断文件的signature是否在search_file存在记录，如果不存在才从迷你文档上拉文本内容
-            $searchFile = MiniSearchFile::getInstance()->getItemBySignature($signature);
+            $searchFile = MiniSearchFile::getInstance()->getBySignature($signature);
             if(!empty($searchFile)){
                 continue;
             }
@@ -48,5 +48,25 @@ class PluginDocPullTxtCommand extends CConsoleCommand
         }
         Yii::log("save txt:".$count." records",CLogger::LEVEL_INFO,"doc.convert");
 
+    }
+    /**
+     * 定时任务入口
+     * 任务1：检查各个迷你搜索节点状态，如果访问失败，则把该节点拉下并把报警
+     */
+    public function actionStatus(){
+        PluginMiniSearchNode::getInstance()->checkNodesStatus();
+    }
+    /**
+     * 定时12点为新节点生成索引库
+     * 这里也可手工执行
+     */
+    public function actionTask(){
+        PluginMiniSearchBuildTask::getInstance()->backupCreateTask();
+    }
+    /**
+     * 定时把任务推送到迷你搜索服务器
+     */
+    public function actionPushTask(){
+        PluginMiniSearchBuildTask::getInstance()->pushTask();
     }
 }
