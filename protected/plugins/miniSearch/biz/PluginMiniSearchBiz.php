@@ -112,7 +112,7 @@ class PluginMiniSearchBiz extends MiniBiz
         //向迷你搜索服务器发送搜索请求
         $node = PluginMiniStoreNode::getInstance()->getBestNode();
         if(!empty($node)){
-            $url = $node["host"].'/api.php?route=search/search';
+            $url = $node["host"].'/api.php?route=file/search';
             $data = array (
                 'site_id'=>$siteId,//站点ID
                 'key'=>$key,//搜索的关键字
