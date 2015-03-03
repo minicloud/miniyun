@@ -95,7 +95,7 @@ class PluginMiniSearchBuildTask extends MiniCache{
             $this->createTask($file["node_ids"],$file["file_signature"]);
         }
         //向迷你搜索服务器发送请求
-        PluginMiniSearchBuildTask::getInstance()->pushTask();
+        $this->pushTask();
     }
     /**
      * 向迷你搜索服务器推送消息
@@ -166,6 +166,8 @@ class PluginMiniSearchBuildTask extends MiniCache{
             }
 
         }
+        //向迷你搜索服务器发送请求
+        $this->pushTask();
     }
 
 }
