@@ -124,7 +124,7 @@ class MiniSearchFile extends MiniCache{
             "file_signature"=>$signature
         );
         $item = SearchFile::model()->find($criteria);
-        if(!isset($item)){
+        if(isset($item)){
             //迷你搜索编制索引成功后，node_ids将追加
             $nodeIds = $item->node_ids;
             if(empty($nodeIds)){

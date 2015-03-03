@@ -38,6 +38,7 @@ class PluginMiniSearchBiz extends MiniBiz
      *根据文件的Hash值报告索引成功
      * @param string $signature 文件hash值
      * @param string $nodeId 迷你搜索ID
+     * @return array
      */
     public function report($signature,$nodeId){
         //编制索引成功
@@ -48,6 +49,7 @@ class PluginMiniSearchBiz extends MiniBiz
             //删除索引任务
             PluginMiniSearchBuildTask::getInstance()->delete($signature,$nodeId);
         }
+        return array("success"=>true);
     }
     /**
      * 全文检索
