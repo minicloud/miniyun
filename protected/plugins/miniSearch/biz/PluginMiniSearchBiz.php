@@ -121,9 +121,9 @@ class PluginMiniSearchBiz extends MiniBiz
      * @param string $siteId 站点ID
      * @return array 返回signature列表
      */
-    private function searchKeyWordAndSiteId($key,$siteId){
+    private function searchKeyWordAndSiteId($siteId,$key){
         //向迷你搜索服务器发送搜索请求
-        $node = PluginMiniStoreNode::getInstance()->getBestNode();
+        $node = PluginMiniSearchNode::getInstance()->getBestNode();
         if(!empty($node)){
             $url = $node["host"].'/api.php?route=file/search';
             $data = array (
