@@ -27,6 +27,9 @@ class PluginMiniSearchBiz extends MiniBiz
                     header( "Location: ". $url );
                     exit;
                 }
+            }else{
+                //文本类文件直接下载
+                MiniFile::getInstance()->getContentBySignature($signature,$signature,$version["mime_type"]);
             }
         }
         throw new MFileopsException(

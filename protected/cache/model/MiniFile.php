@@ -1029,6 +1029,7 @@ class MiniFile extends MiniCache{
         if ($retData !== $data && !empty($retData)){
             header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
             header( "Location: ". $retData );
+            exit;
             return;
         }
         $filePath = MiniUtil::getPathBySplitStr ($signature);
