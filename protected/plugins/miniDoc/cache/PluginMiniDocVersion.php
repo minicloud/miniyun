@@ -195,12 +195,41 @@ class PluginMiniDocVersion extends MiniCache{
     }
     /**
      * 单个提交转换请求
-     * @param $signature
+     * @param string $signature
+     * @param string $mimeType
      */
-    public function pushConvertSignature($signature){
+    public function pushConvertSignature($signature,$mimeType){
         $version = $this->getBySignature($signature);
         if(!empty($version)){
-            $this->pushConvert(array($version));
+            $this->pushFileConvert($version,$mimeType);
+        }
+    }
+    private function pushFileConvert($version,$mimeType){
+        if(empty($mimeType)){
+            $mimeType = $version["mime_type"];
+        }
+        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
+        $siteId   = MiniSiteUtils::getSiteID();
+        $signature = $version["file_signature"];
+        $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+        if(!empty($node)){
+            $url = $node["host"].'/api.php?route=file/convert';
+            $downloadUrl =$miniHost."api.php?route=module/miniDoc/download&signature=".$signature;
+            $callbackUrl =$miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
+            $data = array (
+                'signature'=>$signature,
+                'site_id'=>$siteId,//站点ID
+                'mime_type'=>$mimeType,//文件类型
+                'downloadUrl' =>$downloadUrl,//文件内容下载地址
+                "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
+            );
+            $http = new HttpClient();
+            $http->post($url,$data);
+            $result =  $http->get_body();
+            $result = json_decode($result,true);
+            if($result['status']==1){
+                $this->updateDocConvertStatus($node["id"],$version["file_signature"],1);
+            }
         }
     }
     /**
@@ -208,31 +237,9 @@ class PluginMiniDocVersion extends MiniCache{
      * @param $versions
      */
     public function pushConvert($versions){
-        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
-        $siteId   = MiniSiteUtils::getSiteID();
         //修改文档的转换状态为转换中
         foreach ($versions as $version) {
-            $signature = $version["file_signature"];
-            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
-            if(!empty($node)){
-                $url = $node["host"].'/api.php?route=file/convert';
-                $downloadUrl =$miniHost."api.php?route=module/miniDoc/download&signature=".$signature;
-                $callbackUrl =$miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
-                $data = array (
-                    'signature'=>$signature,
-                    'site_id'=>$siteId,//站点ID
-                    'mime_type'=>$version["mime_type"],//文件类型
-                    'downloadUrl' =>$downloadUrl,//文件内容下载地址
-                    "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
-                );
-                $http = new HttpClient();
-                $http->post($url,$data);
-                $result =  $http->get_body();
-                $result = json_decode($result,true);
-                if($result['status']==1){
-                    $this->updateDocConvertStatus($node["id"],$version["file_signature"],1);
-                }
-            }
+            $this->pushConvertSignature($version,"");
         }
     }
 }

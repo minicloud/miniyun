@@ -52,25 +52,22 @@ class MiniDocModule extends MiniPluginModule {
     function fileUploadAfter($data){
         $signature = $data["signature"];
         $fileName  = $data["file_name"];
-        $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
-        if(!empty($version)){
-            $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
-            foreach($mimeTypeList as $mimeType){
-                if($mimeType===$version["mime_type"]){
-                    //文本类文件直接把内容存储到数据库中，便于全文检索
-                    do_action("pull_text_search",$signature);
-                    return;
-                }
+        $newMimeType = MiniUtil::getMimeType($fileName);
+        $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
+        foreach($mimeTypeList as $mimeType){
+            if($mimeType===$newMimeType){
+                //文本类文件直接把内容存储到数据库中，便于全文检索
+                do_action("pull_text_search",$signature);
+                return;
             }
-            $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
-            foreach ($mimeTypeList as $mimeType){
-                if($mimeType===$version["mime_type"]){
-                    //文档类增量转换
-                    PluginMiniDocVersion::getInstance()->pushConvertSignature($signature);
-                    break;
-                }
+        }
+        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+        foreach ($mimeTypeList as $mimeType){
+            if($mimeType===$newMimeType){
+                //文档类增量转换
+                PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,$newMimeType);
+                break;
             }
-
         }
         return true;
     }

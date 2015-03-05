@@ -152,46 +152,33 @@ class PluginMiniDocBiz extends MiniBiz{
         //获得文件当前版本对应的version
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
-        //$signature = "48a6fe3e2dd674ff5fa72009c0bca6c7f686e47f";
         $localPath = PluginMiniDocOption::getInstance()->getMiniDocCachePath().$signature."/".$signature.".".$type;
         if(!file_exists($localPath)){
-            if($version["doc_convert_status"]===0){
-                //TODO 执行文档转换脚本
-            }
-            if($version["doc_convert_status"]===-1){
+            //文档还在转换中
+            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+            if(empty($node)){
                 throw new MFileopsException( Yii::t('api','convert error'),MConst::HTTP_CODE_412);
             }
             //根据情况判断是否需要向迷你文档拉取内容
-            $needPull = false;
-            //ppt/excel/word的pdf/png需要向迷你文档拉取
-            $mimeTypes = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
-            foreach ($mimeTypes as $mimeType) {
-                if($mimeType===$version["mime_type"]){
-                    $needPull = true;
-                }
+            $parentPath = dirname($localPath);
+            //如果缓存目录不存在，则需要创建
+            if(!file_exists($parentPath)){
+                MUtils::MkDirsLocal($parentPath);
             }
-            //TODO 如这里接管了文本文件在线浏览，这里还要处理其他mime_type,当前暂时未处理
-            if($needPull){
-                $parentPath = dirname($localPath);
-                //如果缓存目录不存在，则需要创建
-                if(!file_exists($parentPath)){
-                    MUtils::MkDirsLocal($parentPath);
-                }
-                //文件不存在，则需要从迷你文档拉取文件内容
-                $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
-                //TODO 需要处理文件不存在的情况
-                $url = $node["host"]."/".$signature."/".$signature.".".$type;
-                $http = new HttpClient();
-                $http->get($url);
-                $status = $http->get_status();
-                if($status=="200"){
-                    $content = $http->get_body();
-                    //把文件内容存储到本地硬盘
-                    file_put_contents($localPath, $content);
-                    Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
-                }else{
-                    Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
-                }
+            //文件不存在，则需要从迷你文档拉取文件内容
+
+            //TODO 需要处理文件不存在的情况
+            $url = $node["host"]."/".$signature."/".$signature.".".$type;
+            $http = new HttpClient();
+            $http->get($url);
+            $status = $http->get_status();
+            if($status=="200"){
+                $content = $http->get_body();
+                //把文件内容存储到本地硬盘
+                file_put_contents($localPath, $content);
+                Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
+            }else{
+                Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
             }
         }
 
