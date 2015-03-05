@@ -46,10 +46,12 @@ class MiniDocModule extends MiniPluginModule {
     /**
      *
      * 文件上传成功后，向迷你文档服务器发送文档转换请求
-     * @param $signature 文件sha1编码
+     * @param $data 文件sha1编码
      * @return bool
      */
-    function fileUploadAfter($signature){
+    function fileUploadAfter($data){
+        $signature = $data["signature"];
+        $fileName  = $data["file_name"];
         $version = PluginMiniDocVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
             $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");

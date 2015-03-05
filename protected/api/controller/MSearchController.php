@@ -329,7 +329,7 @@ class MSearchController extends MApplicationComponent implements MIController {
                     $response = array_merge($response, $downloadParam);
                 }
             }
-            $mimeType = CUtils::mime_content_type($file['file_path']);
+            $mimeType = MiniUtil::getMimeType($file['file_path']);
             $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
         }else{
             $response['is_dir'] = true;

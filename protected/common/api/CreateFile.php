@@ -104,7 +104,7 @@ class CreateFile extends CApiComponent
             throw new ApiException("Params Error.");
         }
         $this->hash = MiniUtil::getFileHash($this->tmpName);
-        $this->type = CUtils::mime_content_type($this->cname);
+        $this->type = MiniUtil::getMimeType($this->cname);
         $this->handleVersion();
         $this->handleCreateFile();
         

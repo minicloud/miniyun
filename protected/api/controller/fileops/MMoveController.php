@@ -376,7 +376,7 @@ class MMoveController
                 $this->_user_device_name,
                 $query_db_file[0]["file_size"]);
         }else{
-            $file_detail->mime_type = CUtils::mime_content_type($file_name);
+            $file_detail->mime_type = MiniUtil::getMimeType($file_name);
             $file_meta              = new MFileMetas();
             $file_meta->version_id  = $query_db_file[0]["version_id"];
             //
@@ -572,7 +572,7 @@ class MMoveController
         if ($query_db_file["file_type"] == MConst::OBJECT_TYPE_FILE)
         {
             // 根据文件名后缀判断mime type
-            $mime_type                  = CUtils::mime_content_type($query_db_file["file_name"]);
+            $mime_type                  = MiniUtil::getMimeType($query_db_file["file_name"]);
             $is_dir                     = false;
             $response["mime_type"]      = $mime_type;
             $response["thumb_exists"]   = MUtils::isExistThumbnail($mime_type, (int)$query_db_file["file_size"]);

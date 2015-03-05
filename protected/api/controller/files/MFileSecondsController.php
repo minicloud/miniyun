@@ -73,7 +73,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
         $this->handler->file_name      = $fileName;
         $this->handler->root           = $root;
         $this->handler->path           = MUtils::convertStandardPath($path);
-        $this->handler->type           = CUtils::mime_content_type($fileName);
+        $this->handler->type           = MiniUtil::getMimeType($fileName);
         $this->handler->size           = $this->size;
         $this->handler->file_hash      = $hash;
         $this->handler->version_id     = $this->version_id;
@@ -142,7 +142,7 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                         if($data['offset']==$size){
                             //生成version记录，为使用老逻辑代码，这里处理得很羞涩
                             //理想的逻辑是在这里直接返回相关结果 
-                            $mimeType = CUtils::mime_content_type($fileName);
+                            $mimeType = MiniUtil::getMimeType($fileName);
                             $version = MiniVersion::getInstance()->create($hash,$size,$mimeType);
                             $this->version_id = $version['id'];
                             $this->size       = $version['file_size'];

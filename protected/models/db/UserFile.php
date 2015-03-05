@@ -363,7 +363,7 @@ class UserFile extends CMiniyunModel
         
         if ($model['file_type'] == 0)
         {
-            $model['mime_type'] = CUtils::mime_content_type($name);
+            $model['mime_type'] = MiniUtil::getMimeType($name);
             //
             // 如果是文件,需要创建版本
             //

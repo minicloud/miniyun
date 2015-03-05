@@ -85,7 +85,7 @@ class MFilePutController extends MApplicationComponent implements MIController{
         $createHandler->file_name      = $fileName;
         $createHandler->root           = $root;
         $createHandler->path           = MUtils::convertStandardPath($path);
-        $createHandler->type           = CUtils::mime_content_type($fileName);
+        $createHandler->type           = MiniUtil::getMimeType($fileName);
         // 文件不存在,保存文件
         $createHandler->saveFile($storePath, $this->signature, $this->_size, false);
         // 保存文件meta

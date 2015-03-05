@@ -86,7 +86,7 @@ class MFilePostController extends MApplicationComponent  implements MIController
         }
 
         $fileName = $_FILES[$key]["name"];
-        $type     = CUtils::mime_content_type($fileName);
+        $type     = MiniUtil::getMimeType($fileName);
         $size     = $_FILES[$key]["size"];
         $tmpName  = $_FILES[$key]["tmp_name"];
         // 验证文件是否已经上传成功

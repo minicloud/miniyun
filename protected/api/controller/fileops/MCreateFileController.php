@@ -47,7 +47,7 @@ class MCreateFileController extends MFileSecondsController
         $path        = $urlManager->parsePathFromUrl($uri);
         $pathInfo   = MUtils::pathinfo_utf($path);
         $fileName   = $pathInfo["basename"];
-        $this->type  = CUtils::mime_content_type($fileName);
+        $this->type  = MiniUtil::getMimeType($fileName);
 
         parent::invoke($uri);
     }

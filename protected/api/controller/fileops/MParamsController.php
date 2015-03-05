@@ -26,7 +26,7 @@ class MParamsController extends MFileSecondsController{
         $path        = $url_manager->parsePathFromUrl($uri);
         $path_info   = MUtils::pathinfo_utf($path);
         $file_name   = $path_info["basename"];
-        $this->type  = CUtils::mime_content_type($file_name);
+        $this->type  = MiniUtil::getMimeType($file_name);
 
         //如果文件的block存在则直接创建meta，表示创建成功否则返回上传文件的参数
         if ($this->handleCheckFileVersionSearch($hash)) {

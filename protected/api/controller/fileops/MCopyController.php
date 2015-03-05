@@ -97,9 +97,9 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 检查文件名是否有效
         //
-        $is_invalid = MUtils::checkNameInvalid(
+        $isInvalid = MUtils::checkNameInvalid(
                             MUtils::get_basename($this->_to_path));
-        if ($is_invalid)
+        if ($isInvalid)
         {
             throw new MFileopsException(
                                         Yii::t('api','Bad Request 13'),
@@ -173,11 +173,11 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 检查目标路径文件是否存在
         //
-        $query_to_path_db_file = MFiles::queryAllFilesByPath($this->_to_path);
+        $queryToPathDbFile = MFiles::queryAllFilesByPath($this->_to_path);
         $isUpdate = false;
-        if ($query_to_path_db_file)
+        if ($queryToPathDbFile)
         {
-            if ($query_to_path_db_file[0]["is_deleted"] == false)
+            if ($queryToPathDbFile[0]["is_deleted"] == false)
             {
                 // 已经存在,403 error
                 throw new MFileopsException(
@@ -189,10 +189,10 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 查询其信息
         //
-        $file_name   = MUtils::get_basename($this->_to_path);
-        $query_from_path_db_file = MFiles::queryFilesByPath($this->_from_path);
-        $query_to_path_db_file = MFiles::queryFilesByPath(dirname($this->_to_path));
-        if ($query_from_path_db_file === false || empty($query_from_path_db_file))
+        $fileName   = MUtils::get_basename($this->_to_path);
+        $queryFromPathDbFile = MFiles::queryFilesByPath($this->_from_path);
+        $queryToPathDbFile = MFiles::queryFilesByPath(dirname($this->_to_path));
+        if ($queryFromPathDbFile === false || empty($queryFromPathDbFile))
         {
             throw new MFileopsException(
                 Yii::t('api','Not found the source files of the specified path'),
@@ -266,41 +266,41 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 查询目标路径父目录信息
         //
-        $parent_path                      = dirname($this->_to_path);
-        $create_folder                    = new MCreateFolderController();
-        $create_folder->_user_device_id   = $this->_user_device_id;
-        $create_folder->_user_id          = $this->_user_id;
-        $create_folder->share_filter      = $this->to_share_filter;
-        $parent_file_id                   = $create_folder->handlerParentFolder($parent_path);
+        $parentPath                      = dirname($this->_to_path);
+        $createFolder                    = new MCreateFolderController();
+        $createFolder->_user_device_id   = $this->_user_device_id;
+        $createFolder->_user_id          = $this->_user_id;
+        $createFolder->share_filter      = $this->to_share_filter;
+        $parentFileId                   = $createFolder->handlerParentFolder($parentPath);
         //
         // 组装对象信息
         //
-        $file_detail                      = new MFiles();
-        $file_detail->file_name           = $file_name;
-        $file_detail->file_path           = $this->_to_path;
+        $fileDetail                      = new MFiles();
+        $fileDetail->file_name           = $fileName;
+        $fileDetail->file_path           = $this->_to_path;
         $this->assembleFileDetail( 
-                                    $file_name,
-                                    $parent_file_id,
-                                    $file_detail, 
-                                    $query_from_path_db_file[0]);
+                                    $fileName,
+                                    $parentFileId,
+                                    $fileDetail,
+                                    $queryFromPathDbFile[0]);
         //
         // 首先处理复制根目录操作
         //
         if ($isUpdate)
         {
-            $file_detail->event_uuid = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+            $fileDetail->event_uuid = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
             $updates = array();
             $updates["file_update_time"]    = time();
             $updates["is_deleted"]          = intval(false);
-            $updates["event_uuid"]          = $file_detail->event_uuid;
-            $updates["file_type"]           = $file_detail->file_type;
-            $ret_value = MFiles::updateFileDetailByPath($this->_to_path, $updates);
+            $updates["event_uuid"]          = $fileDetail->event_uuid;
+            $updates["file_type"]           = $fileDetail->file_type;
+            $retValue = MFiles::updateFileDetailByPath($this->_to_path, $updates);
         }
         else
         {
-            $ret_value = MFiles::CreateFileDetail($file_detail, $this->_user_id);
+            $retValue = MFiles::CreateFileDetail($fileDetail, $this->_user_id);
         }
-        if ($ret_value === false)
+        if ($retValue === false)
         {
         throw new MFileopsException(
                                     Yii::t('api','Internal Server Error'),
@@ -309,107 +309,107 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 更新版本信息
         //
-        $this->updateVerRef(array($file_detail));
-        $ret_value = MiniEvent::getInstance()->createEvent($this->_user_id,
+        $this->updateVerRef(array($fileDetail));
+        $retValue = MiniEvent::getInstance()->createEvent($this->_user_id,
             $this->_user_device_id,
-            $file_detail->event_action,
-            $file_detail->file_path,
-            $file_detail->context,
-            $file_detail->event_uuid,
+            $fileDetail->event_action,
+            $fileDetail->file_path,
+            $fileDetail->context,
+            $fileDetail->event_uuid,
             $this->to_share_filter->type);
-        if ($ret_value === false)
+        if ($retValue === false)
         {
             throw new MFileopsException(
                                         Yii::t('api','There is already a item at the given destination'),
                                         MConst::HTTP_CODE_500);
         }
-        $context = $file_detail->context;
-        if ($file_detail->file_type == 0) {
+        $context = $fileDetail->context;
+        if ($fileDetail->file_type == 0) {
             $context = unserialize($context);
         }
-        $this->to_share_filter->handlerAction($file_detail->event_action, $this->_user_device_id,
-                                              $file_detail->file_path,$context);
+        $this->to_share_filter->handlerAction($fileDetail->event_action, $this->_user_device_id,
+                                              $fileDetail->file_path,$context);
         //
         // 判断操作的是文件夹，还是文件
         //
-        $create_array = array();
-        $query_db_file = MFiles::queryFilesByPath($this->_to_path);
+        $createArray = array();
+        $queryDbFile = MFiles::queryFilesByPath($this->_to_path);
         //
         // 查询其复制目录路径id
         //
-        if ($query_db_file === false || empty($query_db_file))
+        if ($queryDbFile === false || empty($queryDbFile))
         {
             throw new MFileopsException(
                 Yii::t('api','Not found the source files of the specified path'),
                 MConst::HTTP_CODE_404);
         }
-        if ($file_detail->file_type != MConst::OBJECT_TYPE_FILE)
+        if ($fileDetail->file_type != MConst::OBJECT_TYPE_FILE)
         {
-            $file_detail->id = $query_db_file[0]["id"];
-            $file_detail->file_size = $query_db_file[0]["file_size"];
-            $this->handlerChildrenFile($file_detail);
+            $fileDetail->id = $queryDbFile[0]["id"];
+            $fileDetail->file_size = $queryDbFile[0]["file_size"];
+            $this->handlerChildrenFile($fileDetail);
             //
             // 处理版本信息
             //
-            $move_controller = new MMoveController();
-            $move_controller->versions = array();
-            $create_array = $move_controller->handleChildrenVersions(
-                                            $create_array, 
+            $moveController = new MMoveController();
+            $moveController->versions = array();
+            $createArray = $moveController->handleChildrenVersions(
+                                            $createArray,
                                             $this->_user_id, 
                                             $this->user_nick, 
                                             $this->_from_path, 
                                             $this->_to_path,
-                                            $query_to_path_db_file[0]["id"],
+                                            $queryToPathDbFile[0]["id"],
                                             $this->_user_device_name,
-                                            $query_from_path_db_file[0]["file_size"]
+                                            $queryFromPathDbFile[0]["file_size"]
                                             );
-            $this->versions = $move_controller->versions;
+            $this->versions = $moveController->versions;
         }
         else
         {
-            $file_meta = new MFileMetas();
-            $file_meta->version_id = $query_from_path_db_file[0]["version_id"];
+            $fileMeta = new MFileMetas();
+            $fileMeta->version_id = $queryFromPathDbFile[0]["version_id"];
             //
             // 查询其版本
             //
-            $file_version = MFileMetas::queryFileMeta(
+            $fileVersion = MFileMetas::queryFileMeta(
                                                         $this->_to_path, 
                                                         MConst::VERSION);
-            $file_meta->is_add     = false;
-            if ($file_version)
+            $fileMeta->is_add     = false;
+            if ($fileVersion)
             {
-                $meta_value = MUtils::getFileVersions(
+                $metaValue = MUtils::getFileVersions(
                                                 $this->_user_device_name,
-                                                $file_detail->file_size,
-                                                $file_meta->version_id,
+                                                $fileDetail->file_size,
+                                                $fileMeta->version_id,
                                                 MConst::CREATE_FILE, 
                                                 $this->_user_id, 
                                                 $this->user_nick,
-                                                $file_version[0]["meta_value"]);
+                                                $fileVersion[0]["meta_value"]);
             }
             else 
             {
-                $meta_value = MUtils::getFileVersions(
+                $metaValue = MUtils::getFileVersions(
                                                 $this->_user_device_name,
-                                                $file_detail->file_size,
-                                                $file_meta->version_id, 
+                                                $fileDetail->file_size,
+                                                $fileMeta->version_id,
                                                 MConst::CREATE_FILE, 
                                                 $this->_user_id, 
                                                 $this->user_nick);
-                $file_meta->is_add     = true; // 不存在记录，需要添加
+                $fileMeta->is_add     = true; // 不存在记录，需要添加
             }
-            $file_meta->meta_value = $meta_value;
-            $file_meta->file_path  = $this->_to_path;
-            $create_array[$query_from_path_db_file[0]["file_path"]] = $file_meta;
+            $fileMeta->meta_value = $metaValue;
+            $fileMeta->file_path  = $this->_to_path;
+            $createArray[$queryFromPathDbFile[0]["file_path"]] = $fileMeta;
             //
             // 添加到需要更新的版本ref
             //
-            array_push($this->versions, $file_meta->version_id);
+            array_push($this->versions, $fileMeta->version_id);
         }
         //
         // 创建版本信息
         //
-        MFileMetas::batchCreateFileMetas($create_array, MConst::VERSION);
+        MFileMetas::batchCreateFileMetas($createArray, MConst::VERSION);
 //        if ($ret === false)
 //        {
 //            throw new MFileopsException(
@@ -419,17 +419,17 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 更新版本
         //
-        foreach ($create_array as $key => $file_meta)
+        foreach ($createArray as $key => $fileMeta)
         {
-            if ($file_meta->is_add === true)
+            if ($fileMeta->is_add === true)
             {
                 // 不存在记录，不需要更新
                 continue;
             }
             MFileMetas::updateFileMeta(
-                                        $file_meta->file_path, 
+                                        $fileMeta->file_path,
                                         MConst::VERSION, 
-                                        $file_meta->meta_value);
+                                        $fileMeta->meta_value);
         }
         
         //
@@ -442,31 +442,31 @@ class MCopyController extends MApplicationComponent implements MIController{
         }
         
         $response                   = array();
-        $is_dir                     = true;
-        if ($query_db_file[0]["file_type"] == MConst::OBJECT_TYPE_FILE)
+        $isDir                     = true;
+        if ($queryDbFile[0]["file_type"] == MConst::OBJECT_TYPE_FILE)
         {
             // TODO
-            $mime_type                = "text/plain";
-            $response["mime_type"]    = $mime_type;
-            $is_dir                   = false;
-            $response["thumb_exists"] = MUtils::isExistThumbnail($mime_type, (int)$query_db_file[0]["file_size"]);
+            $mimeType                = "text/plain";
+            $response["mime_type"]    = $mimeType;
+            $isDir                   = false;
+            $response["thumb_exists"] = MUtils::isExistThumbnail($mimeType, (int)$queryDbFile[0]["file_size"]);
         }
         
-        $size                       = $query_db_file[0]["file_size"];
+        $size                       = $queryDbFile[0]["file_size"];
         $response["size"]           = MUtils::getSizeByLocale($locale, $size);
         $response["bytes"]          = intval($size);
         
         
-        $path_info                  = MUtils::pathinfo_utf($this->_to_path);
-        $path_info_out = MUtils::pathinfo_utf($this->to_share_filter->src_path);
+        $pathInfo                  = MUtils::pathinfo_utf($this->_to_path);
+        $pathInfoOut = MUtils::pathinfo_utf($this->to_share_filter->src_path);
         
-        $path = MUtils::convertStandardPath($path_info_out['dirname'] . "/" . $path_info['basename']);
+        $path = MUtils::convertStandardPath($pathInfoOut['dirname'] . "/" . $pathInfo['basename']);
         $response["path"]           = $path;
         $response["root"]           = $root;
-        $response["is_dir"]         = $is_dir;
-        $response["rev"]            = strval($query_db_file[0]["version_id"]);
-        $response["revision"]       = intval($query_db_file[0]["version_id"]);
-        $response["modified"]       = MUtils::formatIntTime($query_db_file[0]["file_update_time"]);
+        $response["is_dir"]         = $isDir;
+        $response["rev"]            = strval($queryDbFile[0]["version_id"]);
+        $response["revision"]       = intval($queryDbFile[0]["version_id"]);
+        $response["modified"]       = MUtils::formatIntTime($queryDbFile[0]["file_update_time"]);
         
         //
         // 如果标记为不输出结果的话，直接返回$response
@@ -486,29 +486,29 @@ class MCopyController extends MApplicationComponent implements MIController{
         return ;
     }
     
-    public function handlerChildrenFile($file_detail)
+    public function handlerChildrenFile($fileDetail)
     {
         $directories = array();   // 记录这层中文件夹的对象
         $files       = array();   // 记录需要处理的文件对象（包括文件夹）
         //
         // 文件夹，查询其子文件这一层数据
         //
-        $db_children_files = MFiles::queryChildrenFilesByParentFileID($file_detail->from_id);
-        if ($db_children_files === false)
+        $dbChildrenFiles = MFiles::queryChildrenFilesByParentFileID($fileDetail->from_id);
+        if ($dbChildrenFiles === false)
         {
             throw new MFileopsException(
                         Yii::t('api','Internal Server Error'),
                         MConst::HTTP_CODE_500);
         }
-        if (empty($db_children_files))
+        if (empty($dbChildrenFiles))
         {
-            $p = $file_detail->file_path;
+            $p = $fileDetail->file_path;
             return ; // 没有子文件，返回
         }
         //
         // 检查文件数量，复制数量限制在10000条内
         //
-        if (count($db_children_files) > MConst::MAX_FILES_COUNT)
+        if (count($dbChildrenFiles) > MConst::MAX_FILES_COUNT)
         {
             throw new MFileopsException(
                         Yii::t('api','Too many files or folders need to be copied'),
@@ -517,25 +517,25 @@ class MCopyController extends MApplicationComponent implements MIController{
         //
         // 转换数据
         //
-        foreach ($db_children_files as $db_file)
+        foreach ($dbChildrenFiles as $dbFile)
         {
-            $new_file_detail = new MFiles();
+            $newFileDetail = new MFiles();
             //
             // 排除已被删除的对象
             //
-            if ($db_file["is_deleted"] == true)
+            if ($dbFile["is_deleted"] == true)
             {
                 continue;
             }
             $this->assembleFileDetail(
-                                        $db_file['file_name'],
-                                        $file_detail->id,
-                                        $new_file_detail, 
-                                        $db_file);
-            array_push($files, $new_file_detail);
-            if ($db_file["file_type"] == MConst::OBJECT_TYPE_DIRECTORY)
+                                        $dbFile['file_name'],
+                                        $fileDetail->id,
+                                        $newFileDetail,
+                                        $dbFile);
+            array_push($files, $newFileDetail);
+            if ($dbFile["file_type"] == MConst::OBJECT_TYPE_DIRECTORY)
             {
-                array_push($directories, $new_file_detail);
+                array_push($directories, $newFileDetail);
             }
         }
         if (empty($files))
@@ -591,67 +591,68 @@ class MCopyController extends MApplicationComponent implements MIController{
             //
             // 查询其复制目录路径id
             //
-            $query_db_directory = MFiles::queryFilesByPath(
+            $queryDbDirectory = MFiles::queryFilesByPath(
                                                         $file->file_path);
-            if ($query_db_directory === false || empty($query_db_directory))
+            if ($queryDbDirectory === false || empty($queryDbDirectory))
             {
                 throw new MFileopsException(
                     Yii::t('api','Not found the source files of the specified path'),
                     MConst::HTTP_CODE_404);
             }
-            $file->id        = $query_db_directory[0]["id"];
+            $file->id        = $queryDbDirectory[0]["id"];
             $this->handlerChildrenFile($file);
         }
     }
-    
+
     /**
      * 处理组装复制文件需要的对象
-     * @param string $file_name 文件名
-     * @param object $file_detail     文件对象
-     * @param array $query_db_file  数据库查询对象
+     * @param $fileName
+     * @param $parentFileId
+     * @param $fileDetail
+     * @param $queryDbFile
      */
     public function assembleFileDetail(
-                                        $file_name,
-                                        $parent_file_id,
-                                        $file_detail, 
-                                        $query_db_file)
+                                        $fileName,
+                                        $parentFileId,
+                                        $fileDetail,
+                                        $queryDbFile)
     {
-        $file_path                          = $query_db_file["file_path"];
-        $file_detail->file_type             = $query_db_file["file_type"];
-        $event_action = MConst::CREATE_DIRECTORY;
-        $file_detail->context               = $file_path;
-        $file_detail->mime_type             = NULL;
-        if ($file_detail->file_type == MConst::OBJECT_TYPE_FILE)
+        $filePath                          = $queryDbFile["file_path"];
+        $fileDetail->file_type             = $queryDbFile["file_type"];
+        $eventAction = MConst::CREATE_DIRECTORY;
+        $fileDetail->context               = $filePath;
+        $fileDetail->mime_type             = NULL;
+        if ($fileDetail->file_type == MConst::OBJECT_TYPE_FILE)
         {
-            $file_detail->mime_type = CUtils::mime_content_type($file_name);
-            $event_action = MConst::CREATE_FILE;
-            $version_id  = $query_db_file["version_id"];
-            $version     = MiniVersion::getInstance()->getVersion($version_id);
+            $fileDetail->mime_type = MiniUtil::getMimeType($fileName);
+            $eventAction = MConst::CREATE_FILE;
+            $versionId  = $queryDbFile["version_id"];
+            $version     = MiniVersion::getInstance()->getVersion($versionId);
             if ($version != null) {
                 $context = array( "hash"  => $version["file_signature"],
-                                               "rev"   => (int)$version_id,
-                                               "bytes" => (int)$query_db_file["file_size"],
-                                               "update_time" => (int)$query_db_file["file_update_time"],
-                                               "create_time" => (int)$query_db_file["file_create_time"] );
-                $file_detail->context = serialize($context);
+                                               "rev"   => (int)$versionId,
+                                               "bytes" => (int)$queryDbFile["file_size"],
+                                               "update_time" => (int)$queryDbFile["file_update_time"],
+                                               "create_time" => (int)$queryDbFile["file_create_time"] );
+                $fileDetail->context = serialize($context);
             }
-        } elseif ($file_detail->file_type > MConst::OBJECT_TYPE_DIRECTORY) {
-            $file_detail->file_type = 1;
+        } elseif ($fileDetail->file_type > MConst::OBJECT_TYPE_DIRECTORY) {
+            $fileDetail->file_type = 1;
         }
         
-        $file_detail->from_id               = $query_db_file['id'];
-        $file_detail->parent_file_id        = $parent_file_id;
-        $file_detail->event_action          = $event_action;
-        $file_detail->file_name             = $file_name;
-        $file_detail->version_id            = $query_db_file["version_id"];
-        $file_detail->file_size             = $query_db_file["file_size"];
-        $file_detail->event_uuid            = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+        $fileDetail->from_id               = $queryDbFile['id'];
+        $fileDetail->parent_file_id        = $parentFileId;
+        $fileDetail->event_action          = $eventAction;
+        $fileDetail->file_name             = $fileName;
+        $fileDetail->version_id            = $queryDbFile["version_id"];
+        $fileDetail->file_size             = $queryDbFile["file_size"];
+        $fileDetail->event_uuid            = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
         $index      = strlen($this->_from_path);
-        $file_path  = substr_replace($file_path, $this->_to_path, 0, $index);
-        $file_detail->from_path             = $file_path;
-        $file_detail->file_path             = $file_path;
-        $file_detail->file_create_time      = time();
-        $file_detail->file_update_time      = time();
+        $filePath  = substr_replace($filePath, $this->_to_path, 0, $index);
+        $fileDetail->from_path             = $filePath;
+        $fileDetail->file_path             = $filePath;
+        $fileDetail->file_create_time      = time();
+        $fileDetail->file_update_time      = time();
     }
     
     /**
