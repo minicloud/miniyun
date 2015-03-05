@@ -59,7 +59,7 @@ class PluginMiniSearchBiz extends MiniBiz
      * @param string $key 关键字
      * @return array
      */
-    public function search($key)
+    public function search($key,$path)
     {
         $siteId = MiniSiteUtils::getSiteID();
         $searchItems = $this->searchKeyWordAndSiteId($siteId,$key);
@@ -71,6 +71,10 @@ class PluginMiniSearchBiz extends MiniBiz
             $fileList = MiniFile::getInstance()->getAllByVersionId($version["id"]);
             foreach ($fileList as $file) {//对具有相同signature的文件进行过滤
                 $filePath = $file['file_path'];
+                $isInString = strpos($filePath,$path);
+                if($isInString===false){
+                    continue;
+                }
                 $userId = (int)$this->user['id'];
                 $permissionModel = new UserPermissionBiz($filePath, $userId);
                 $permission = $permissionModel->getPermission($filePath, $userId);
