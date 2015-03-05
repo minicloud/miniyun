@@ -83,7 +83,7 @@ class PluginMiniSearchBiz extends MiniBiz
                 "around" => 20,
             );
             $opts["exact_phrase"] = 0;
-            $summaryList = $sc->BuildExcerpts(array($searchFile["content"]), "", $key, $opts);
+            $summaryList = $sc->BuildExcerpts(array($searchFile["content"]), "main1", $key, $opts);
             if (!empty($summaryList)) {
                 $summary = $summaryList[0];
             }
