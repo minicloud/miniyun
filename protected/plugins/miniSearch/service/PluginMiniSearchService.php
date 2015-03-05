@@ -45,8 +45,12 @@ class PluginMiniSearchService extends MiniService{
      */
     public function  search(){
         $key = MiniHttp::getParam("key","");
+        $path = MiniHttp::getParam("path","/");
+        if(empty($path)){
+            $path = "/";
+        }
         $biz = new PluginMiniSearchBiz();
-        return $biz->search($key);
+        return $biz->search($key,$path);
     }
     /**
      * 获得迷你搜索节点列表

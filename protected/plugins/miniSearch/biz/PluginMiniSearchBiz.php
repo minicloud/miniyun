@@ -57,6 +57,7 @@ class PluginMiniSearchBiz extends MiniBiz
     /**
      * 全文检索
      * @param string $key 关键字
+     * @param string $path 路径
      * @return array
      */
     public function search($key,$path)

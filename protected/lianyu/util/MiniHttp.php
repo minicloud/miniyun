@@ -10,12 +10,18 @@
 class MiniHttp{
     /**
      * 获得request的函数
+     * @param $paramKey
+     * @param $default
+     * @return mixed
      */
     public static function getParam($paramKey,$default){
         return Yii::app()->request->getParam($paramKey,$default);
     }
+
     /**
      * 获得系统参数
+     * @param $key
+     * @return mixed
      */
     public static function getSystemParam($key){
         return Yii::app()->params["app"][$key];
