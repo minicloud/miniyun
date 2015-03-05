@@ -68,7 +68,6 @@ class PluginMiniSearchBiz extends MiniBiz
         }
         //分析迷你搜索返回的signatures列表
         $sc = new SphinxClient();
-        $searchIndex = 'main1';
         //将所有符合条件的做了索引的文件都取出来
         $values = array();
         $searchFiles = MiniSearchFile::getInstance()->getBySignatures($signatures);
@@ -84,7 +83,7 @@ class PluginMiniSearchBiz extends MiniBiz
                 "around" => 20,
             );
             $opts["exact_phrase"] = 0;
-            $summaryList = $sc->BuildExcerpts(array($searchFile["content"]), $searchIndex, $key, $opts);
+            $summaryList = $sc->BuildExcerpts(array($searchFile["content"]), "", $key, $opts);
             if (!empty($summaryList)) {
                 $summary = $summaryList[0];
             }
