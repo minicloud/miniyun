@@ -62,31 +62,11 @@ class PluginMiniSearchBiz extends MiniBiz
     public function search($key)
     {
         $siteId = MiniSiteUtils::getSiteID();
-        $signatures = $this->searchKeyWordAndSiteId($siteId,$key);
-        if(empty($signatures)){
-            return array();
-        }
-        //分析迷你搜索返回的signatures列表
-        $sc = new SphinxClient();
-        //将所有符合条件的做了索引的文件都取出来
+        $searchItems = $this->searchKeyWordAndSiteId($siteId,$key);
         $values = array();
-        $searchFiles = MiniSearchFile::getInstance()->getBySignatures($signatures);
-        foreach ($searchFiles as $searchFile) {//遍历，查询文件signature，根据signature判断当前用户有无浏览该文件权限
-            $version = MiniVersion::getInstance()->getBySignature($searchFile["file_signature"]);
-            //摘要内容，默认取第1个位置的摘要
-            $summary = "";
-            $opts = array(//摘要选项
-                "before_match" => "<span style='background-color: #ffff00'><b>",
-                "after_match" => "</b></span>",
-                "chunk_separator" => " ... ",
-                "limit" => 100,
-                "around" => 20,
-            );
-            $opts["exact_phrase"] = 0;
-            $summaryList = $sc->BuildExcerpts(array($searchFile["content"]), "main1", $key, $opts);
-            if (!empty($summaryList)) {
-                $summary = $summaryList[0];
-            }
+        foreach ($searchItems as $searchItem) {
+            //遍历，查询文件signature，根据signature判断当前用户有无浏览该文件权限
+            $version = MiniVersion::getInstance()->getBySignature($searchItem["signature"]);
             //反向查询系统所有的文件记录
             $fileList = MiniFile::getInstance()->getAllByVersionId($version["id"]);
             foreach ($fileList as $file) {//对具有相同signature的文件进行过滤
@@ -105,10 +85,10 @@ class PluginMiniSearchBiz extends MiniBiz
                     }
                 }
                 $item = array();
-                $item['signature'] = $searchFile["file_signature"];//相同的signature可能对应多个文件
+                $item['signature'] = $searchItem["signature"];//相同的signature可能对应多个文件
                 $item['file_name'] = $file['file_name'];
                 $item['file_path'] = $filePath;
-                $item['summary'] = $summary;
+                $item['summary']   = $searchItem["summary"];
                 array_push($values, $item);
             }
         }
@@ -121,6 +101,13 @@ class PluginMiniSearchBiz extends MiniBiz
      * @return array 返回signature列表
      */
     private function searchKeyWordAndSiteId($siteId,$key){
+        $opts = array(//摘要选项
+            "before_match" => "<span style='background-color: #ffff00'><b>",
+            "after_match" => "</b></span>",
+            "chunk_separator" => " ... ",
+            "limit" => 150,
+            "around" => 75,
+        );
         //向迷你搜索服务器发送搜索请求
         $node = PluginMiniSearchNode::getInstance()->getBestNode();
         if(!empty($node)){
@@ -129,19 +116,18 @@ class PluginMiniSearchBiz extends MiniBiz
                 'site_id'=>$siteId,//站点ID
                 'key'=>$key,//搜索的关键字
             );
+            foreach($opts as $key=>$value){
+                $data[$key]=$value;
+            }
             $http = new HttpClient();
             $http->post($url,$data);
-            $result =  $http->get_body();
-            $result = json_decode($result,true);
-            if($result['status']==1){
-                $value = $result["signature_list"];
-                if(!empty($value)){
-                    $signatures = explode(",",$value);
-                    return $signatures;
-                }
+            $body =  $http->get_body();
+            $body = json_decode($body,true);
+            if($body['status']==1){
+                return $body["result"];
             }
         }
-        return null;
+        return array();
     }
     /**
      *获得迷你搜索节点信息列表

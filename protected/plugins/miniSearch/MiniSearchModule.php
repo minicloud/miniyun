@@ -15,7 +15,6 @@ class MiniSearchModule extends MiniPluginModule {
             "miniSearch.biz.*",
             "miniSearch.cache.*",
             "miniSearch.service.*",
-            "miniSearch.utils.*",
             "miniSearch.models.*",
         ));
         add_filter("plugin_info",array($this, "setPluginInfo"));
@@ -53,8 +52,7 @@ class MiniSearchModule extends MiniPluginModule {
             $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
             foreach($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
-                    $content = MiniFile::getInstance()->getFileContentBySignature($signature);
-                    MiniSearchFile::getInstance()->create($signature,$content);
+                    MiniSearchFile::getInstance()->create($signature);
                     return;
                 }
             }
@@ -63,19 +61,7 @@ class MiniSearchModule extends MiniPluginModule {
                 if($mimeType===$version["mime_type"]){
                     //文档类增量转换
                     //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
-                    $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
-                    //TODO 需要处理文件不存在的情况
-                    $url = $node["host"]."/".$signature."/".$signature.".txt";
-                    $http = new HttpClient();
-                    $http->get($url);
-                    $status = $http->get_status();
-                    if($status=="200"){
-                        $content = $http->get_body();
-                        MiniSearchFile::getInstance()->create($signature,$content);
-                        Yii::log($signature." get txt success",CLogger::LEVEL_INFO,"doc.convert");
-                    }else{
-                        Yii::log($signature." get txt error",CLogger::LEVEL_ERROR,"doc.convert");
-                    }
+                    MiniSearchFile::getInstance()->create($signature);
                 }
             }
 

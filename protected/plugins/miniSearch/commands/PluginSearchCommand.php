@@ -32,19 +32,8 @@ class PluginSearchCommand extends CConsoleCommand
             if(!empty($searchFile)){
                 continue;
             }
-            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
-            //TODO 需要处理文件不存在的情况
-            $url = $node["host"]."/".$signature."/".$signature.".txt";
-            $http = new HttpClient();
-            $http->get($url);
-            $status = $http->get_status();
-            if($status=="200"){
-                $content = $http->get_body();
-                MiniSearchFile::getInstance()->create($signature,$content);
-                $count ++;
-            }else{
-                Yii::log($signature."get txt error",CLogger::LEVEL_ERROR,"doc.convert");
-            }
+            MiniSearchFile::getInstance()->create($signature);
+            $count ++;
         }
         Yii::log("save txt:".$count." records",CLogger::LEVEL_INFO,"doc.convert");
 

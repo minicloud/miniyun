@@ -60,7 +60,6 @@ class MiniSearchFile extends MiniCache{
         $value                     = array();
         $value["id"]               = $item->id;
         $value["file_signature"]   = $item->file_signature;
-        $value["content"]          = $item->content;
         $value["node_ids"]         = $item->node_ids;
         $value["created_at"]       = $item->created_at;
         $value["updated_at"]       = $item->updated_at;
@@ -69,15 +68,13 @@ class MiniSearchFile extends MiniCache{
     /**
      * 将文本内容存入数据库
      * @param $signature 文件hash值
-     * @param $content 文本内容
      * @return bool
      */
-    public function  create($signature,$content){
+    public function  create($signature){
         $item = SearchFile::model()->find("file_signature=:file_signature",
             array("file_signature"=>$signature));
         if(!isset($item)){
             $item = new SearchFile();
-            $item['content']=$content;
             $item['file_signature']=$signature;
             $item['node_ids']="";
             $item->save();

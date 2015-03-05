@@ -54,7 +54,6 @@ class m150113_153455_V172  extends EDbMigration{
             array(
                 'id'                   => 'pk',
                 'file_signature'       => 'varchar(128) NOT NULL',
-                'content'              => 'longblob NOT NULL',
                 'node_ids'             => 'varchar(128) NOT NULL',//编制索引的迷你搜索ID，使用,符号间隔
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
