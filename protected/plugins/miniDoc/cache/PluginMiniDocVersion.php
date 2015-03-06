@@ -204,28 +204,33 @@ class PluginMiniDocVersion extends MiniCache{
             $this->pushFileConvert($version,$mimeType);
         }
     }
+    /**
+     * 把文档进行转换
+     * @param array $version
+     * @param string $mimeType 如mineType为空，则使用version.mime_type
+     */
     private function pushFileConvert($version,$mimeType){
         if(empty($mimeType)){
             $mimeType = $version["mime_type"];
         }
-        $miniHost = PluginMiniDocOption::getInstance()->getMiniyunHost();
-        $siteId   = MiniSiteUtils::getSiteID();
+        $miniHost  = PluginMiniDocOption::getInstance()->getMiniyunHost();
+        $siteId    = MiniSiteUtils::getSiteID();
         $signature = $version["file_signature"];
-        $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
+        $node      = PluginMiniDocNode::getInstance()->getConvertNode($signature);
         if(!empty($node)){
-            $url = $node["host"].'/api.php?route=file/convert';
-            $downloadUrl =$miniHost."api.php?route=module/miniDoc/download&signature=".$signature;
-            $callbackUrl =$miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
+            $url         = $node["host"].'/api.php?route=file/convert';
+            $downloadUrl = $miniHost."api.php?route=module/miniDoc/download&signature=".$signature;
+            $callbackUrl = $miniHost."api.php?route=module/miniDoc/report&node_id=".$node["id"]."&signature=".$signature;
             $data = array (
-                'signature'=>$signature,
-                'site_id'=>$siteId,//站点ID
-                'mime_type'=>$mimeType,//文件类型
-                'downloadUrl' =>$downloadUrl,//文件内容下载地址
-                "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
+                'signature'   => $signature,
+                'site_id'     => $siteId,//站点ID
+                'mime_type'   => $mimeType,//文件类型
+                'downloadUrl' => $downloadUrl,//文件内容下载地址
+                "callbackUrl" => $callbackUrl//文档转换成功后的回调地址
             );
-            $http = new HttpClient();
+            $http   = new HttpClient();
             $http->post($url,$data);
-            $result =  $http->get_body();
+            $result = $http->get_body();
             $result = json_decode($result,true);
             if($result['status']==1){
                 $this->updateDocConvertStatus($node["id"],$version["file_signature"],1);
