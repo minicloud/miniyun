@@ -342,7 +342,6 @@ class MFilesCommon extends MModel {
         $data["area_id"]            = $cid;
         $data["category_id"]        = $cid;
         $data["upload_size_remain"] = $uploadSizeRemain;
-        $data                       = apply_filters('meta_add', $data);
         $ret                        = Array();
         $ret["state"]               = true;
         $ret["data"]                = $data;
