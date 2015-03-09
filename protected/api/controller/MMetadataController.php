@@ -273,8 +273,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($file["is_deleted"] == true){
             $response["is_deleted"]    = true;
         }
-        // 添加hook，修改meta值
-        $response = apply_filters('meta_add', $response);
         return $response;
     }
 }

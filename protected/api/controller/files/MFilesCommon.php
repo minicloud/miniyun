@@ -280,8 +280,6 @@ class MFilesCommon extends MModel {
         if (isset($this->event_uuid)) {
             $response["event_uuid"]  = $this->event_uuid; // 事件编码
         }
-        // 添加hook，修改meta值
-        $response                    = apply_filters('meta_add', $response);
         echo json_encode ( $response );
         exit();
     }
