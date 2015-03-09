@@ -336,10 +336,6 @@ class MFiles extends MModel {
         {
             
             $var = array('condition'=>" user_id={$user_id}", 'params'=>array(':parent_file_id'=>$parent_file_id));
-            //
-            // 增加查询条件
-            //
-            $var = apply_filters('file_list_filter', $var);
             $sql .= ' AND ' .$var['condition'];
         }
         $sql .= ' ORDER BY file_type desc,id DESC ';

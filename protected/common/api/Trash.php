@@ -394,7 +394,6 @@ class Trash extends CApiComponent
         // 修改查询条件
         //
         $value     = array('condition'=>$condition, 'params' => $params);
-        $value = apply_filters('recycle_file_list_filter', $value);
         $info = UserFile::model()->findAll(array(
                 'condition' => $value['condition'],
                 'params'    => $value['params'],
