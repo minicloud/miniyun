@@ -14,9 +14,13 @@ class MMetadataController extends MApplicationComponent implements MIController{
     private $root      = null;
     private $userId   = null;
     private $locale    = null;
+
     /**
      * 控制器执行主逻辑函数
-     *
+     * @param null $uri
+     * @param null $absolutePath
+     * @throws MAuthorizationException
+     * @throws MFileopsException
      */
     public function invoke($uri=null,$absolutePath=null)
     {
@@ -40,8 +44,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $this->locale  = $params["locale"];
         }
         $includeDeleted    = MUtils::convertToBool($includeDeleted);
-        $urlManager = new MUrlManager();
-        $path = MUtils::convertStandardPath($urlManager->parsePathFromUrl($uri));
+        $urlManager        = new MUrlManager();
+        $path              = MUtils::convertStandardPath($urlManager->parsePathFromUrl($uri));
 
         $this->root = $urlManager->parseRootFromUrl($path);
         if($path===false){
@@ -56,9 +60,10 @@ class MMetadataController extends MApplicationComponent implements MIController{
         }
         echo json_encode($response);
     }
-
     /**
      * 处理根目录下文件查询
+     * @param $includeDeleted
+     * @return array
      */
     private  function  handleRootPath($includeDeleted)
     {
@@ -74,18 +79,18 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["is_dir"]                 = true;
         $response["hash"]                   = "";
         $contents = array();
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $publicFiles = MiniFile::getInstance()->getPublics();
+        $user             = MUserManager::getInstance()->getCurrentUser();
+        $publicFiles      = MiniFile::getInstance()->getPublics();
         $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
         $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
-        $filePaths  = array();
-        $shareFiles = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
-        $userFiles = MiniFile::getInstance()->getChildrenByFileID(
-            $parentFileId=0,
-            $includeDeleted,
-            $user,
-            $this->userId);
-        $fileData = array_merge($shareFiles,$userFiles);
+        $filePaths        = array();
+        $shareFiles       = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
+        $userFiles        = MiniFile::getInstance()->getChildrenByFileID(
+                                                                        $parentFileId=0,
+                                                                        $includeDeleted,
+                                                                        $user,
+                                                                        $this->userId);
+        $fileData         = array_merge($shareFiles,$userFiles);
         //如果没有文件记录
         if (empty($publicFiles) && empty($shareFiles) && empty($userFiles)){
             $response["contents"] = $contents;
@@ -131,9 +136,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["contents"] = $contents;
         return $response;
     }
-    
     /**
      * 处理非根目录下文件查询
+     * @param $path
+     * @param $includeDeleted
+     * @return array
+     * @throws MFileopsException
      */
     private function handleNotRootPath($path, $includeDeleted)
     {
@@ -148,13 +156,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($version != NULL)
         {
             $currentFile["signature"] = $version["file_signature"];
-            $mimeType = $version["mime_type"];
+            $mimeType                 = $version["mime_type"];
         }
-        $response                   = array();
-        $shareKeyPrivilege = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
-        $response['share_key']=$shareKeyPrivilege['share_key'];
-        $response = $this->assembleResponse($response, $currentFile, $mimeType);
-        $user = MUserManager::getInstance()->getCurrentUser();
+        $response              = array();
+        $shareKeyPrivilege     = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
+        $response['share_key'] = $shareKeyPrivilege['share_key'];
+        $response              = $this->assembleResponse($response, $currentFile, $mimeType);
         // 组装子文件数据
         $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
         $parentFileId  = $currentFile['id'],
@@ -164,8 +171,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
             foreach($childrenFiles as $childrenFile){
                 $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($childrenFile['file_path'],'create_id');
                 if(!empty($childrenFileMeta)){
-                    $filePathArr = explode('/',$childrenFile['file_path']);
-                    $fileOwnerId = $filePathArr[1];
+                    $filePathArr  = explode('/',$childrenFile['file_path']);
+                    $fileOwnerId  = $filePathArr[1];
                     $childrenFileCreateId = $childrenFileMeta['meta_value'];
                     $currentUser     = Yii::app()->session["user"];
                     if((int)$fileOwnerId !== (int)$currentUser['user_id']){//当前目录不为当前用户所有（共享目录/公共目录）
@@ -195,9 +202,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response['contents'] = $contents;
         return $response;
     }
-    
     /**
      * 处理组装请求元数据
+     * @param $response
+     * @param $file
+     * @param $mimeType
+     * @return mixed
      */
     private function assembleResponse($response, $file, $mimeType)
     {
