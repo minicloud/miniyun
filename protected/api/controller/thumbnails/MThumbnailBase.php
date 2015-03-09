@@ -166,7 +166,7 @@ class MThumbnailBase extends MModel {
             header('Location: '.$url);
             exit;
         }
-        //为第三方源下缩略图添加hook
+        //为迷你存储缩略图添加hook
         $thumbnailData = array();
         $thumbnailData["signature"] = $signature;
         $storePath = apply_filters("image_path", $thumbnailData);
