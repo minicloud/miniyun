@@ -98,7 +98,6 @@ class MFiles extends MModel {
     public static function updateRemoveFileDetail($file_detail) {
         $db_manager = MDbManager::getInstance();
         $sql = "UPDATE " . DB_PREFIX . "_files SET updated_at=now(), is_deleted = 1 ";
-        $sql = apply_filters('modify_file_type', $sql, $file_detail->file_type);
         $sql .= "WHERE file_path = \"{$file_detail->file_path}\" ";
         Yii::trace ( "handleRemoveObject: " . $sql );
         return $db_manager->updateDb ( $sql );
@@ -106,8 +105,6 @@ class MFiles extends MModel {
     
     /**
      * 更新元数据对象
-     * @param int $id
-     * @param array $keys         - 需要更新的字段
      */
     public static function updateFileDetailById($id, $updates = array()) {
         $sql = "UPDATE " . DB_PREFIX . "_files SET ";
@@ -127,8 +124,6 @@ class MFiles extends MModel {
     
     /**
      * 根据父亲目录id获取子对象
-     * @param int $id
-     * @param bool $is_deleted
      */
     public static function queryChildrenByParentId($userId,$parent_file_id, $is_deleted = false) {
         $sql = "SELECT * FROM " . DB_PREFIX . "_files WHERE parent_file_id=$parent_file_id";
@@ -341,10 +336,6 @@ class MFiles extends MModel {
         {
             
             $var = array('condition'=>" user_id={$user_id}", 'params'=>array(':parent_file_id'=>$parent_file_id));
-            //
-            // 增加查询条件
-            //
-            $var = apply_filters('file_list_filter', $var);
             $sql .= ' AND ' .$var['condition'];
         }
         $sql .= ' ORDER BY file_type desc,id DESC ';
@@ -367,7 +358,6 @@ class MFiles extends MModel {
     
     /**
      * 将查询结果转换为对象
-     * @param array $file_detail
      */
     public static function exchange2Object($file_detail,$signal = false) {
         $retval = new MFiles ();

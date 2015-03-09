@@ -837,7 +837,6 @@ class MiniFile extends MiniCache{
         $params    = array('user_id'=>$userId, 'parent_file_id'=>$parentFileId);
         // 修改查询条件
         $filter    = array('condition'=>$condition, 'params' => $params);
-        $filter    = apply_filters('file_list_filter', $filter);
         $items     = UserFile::model()->findAll(
             array(
                 'condition' => $filter["condition"],

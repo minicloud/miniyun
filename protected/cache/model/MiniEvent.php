@@ -138,17 +138,7 @@ class MiniEvent extends MiniCache{
         //
         // 为创建事件记录日志信息
         //
-        $new = $this->createLogs($user_id, $action, $path, $context);
-
-        $value = apply_filters("has_support_msg", false);
-        if (empty($value) == false) {
-            //
-            // 发送消息通知
-            //
-            $this->needSendMessages($user_id, $action, $new, $context, $value);
-        }
-
-
+        $this->createLogs($user_id, $action, $path, $context);
         return true;
     }
 
@@ -194,7 +184,6 @@ class MiniEvent extends MiniCache{
      */
     public  function getAll($userId,$eventId,$limit) {
         $var                 = array('condition'=>"user_id = {$userId} and id > $eventId", 'params'=>array('id'=>$eventId, 'user_id'=>$userId));
-        $var                 = apply_filters('event_list_filter', $var);
         $condition           = $var['condition'];
         $criteria            = new CDbCriteria;
         $criteria->order     = 'id asc';
@@ -259,9 +248,6 @@ class MiniEvent extends MiniCache{
 
     /**
      * 根据条件返回所有信息
-     * @param $e_user_id
-     * @param $event_id
-     * @param $limit
      */
     public function queryAllbyCondition($e_user_id,$event_id,$limit) {
         return Event::model()->findAll(' user_id = ? AND id < ? limit ? ',array($e_user_id,$event_id,$limit) );

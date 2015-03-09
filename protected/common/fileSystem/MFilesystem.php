@@ -26,19 +26,9 @@ class MFilesystem extends CApplicationComponent{
     public function  __construct()
     {
         //获取数据库连接对象
-        $fileSystem = apply_filters("data_source_object");
-        if (!isset($fileSystem) || empty($fileSystem)){
-            $this->fileSystem = new MFilesystemDirect();
-        } else {
-            $this->fileSystem = $fileSystem;
-        }
+        $this->fileSystem = new MFilesystemDirect();
 
-        $localBackup = apply_filters("is_local_backup", "");
-        if (!isset($localBackup) || empty($localBackup)){
-            $this->localBackup = false;
-        } else {
-            $this->localBackup = $localBackup;
-        }
+        $this->localBackup = false;
 
         $this->createDefault();
     }
@@ -51,7 +41,6 @@ class MFilesystem extends CApplicationComponent{
      */
     public function getFileSystemObject(){
         $fileSystem = $this->fileSystem;
-        $fileSystem = apply_filters("reset_data_source_object", $fileSystem);
         return $fileSystem;
     }
 

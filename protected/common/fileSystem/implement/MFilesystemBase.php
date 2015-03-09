@@ -73,16 +73,9 @@ class MFilesystemBase{
     /**
      * 
      * 获取本地路径
-     * @param string $path
-     * 
-     * @since 1.1.2
      */
     function localPath($path) {
-        $store_path = apply_filters("reset_local_path", $path);
-        if ($store_path === $path || $store_path === false){
-            return DOCUMENT_ROOT_BLOCK.$path;
-        }
-        return $store_path;
+        return DOCUMENT_ROOT_BLOCK.$path;
     }
 
 

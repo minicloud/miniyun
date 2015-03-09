@@ -239,15 +239,12 @@ class MSearchController extends MApplicationComponent implements MIController {
                 $sharedpaths[] = $shareFile['file_path'];
         }
         $sharedpaths = array_unique($sharedpaths);
-//        $path = MUtils::convertStandardPath($path);
         //
         // 搜索共享目录,根目录查询
         //
         if($path != '/' . $this->_user_id) {
             return array();
         }
-//        $access = new SharesAccessFilter();
-//        $sharedpaths = $access->handleGetAllSharesFolder($this->_user_id);
         $query = str_replace("%", "\\%", $query);
 //        $sql = ' file_name like "%' . $query . '%"';
         $sql = '';
@@ -260,28 +257,6 @@ class MSearchController extends MApplicationComponent implements MIController {
             }
             $retval = array_merge($retval, $files);
         }
-//        $var = apply_filters('documents_filter', null);
-//        if(is_array($var) && !empty($var)) {
-//            $ids = join(',', $var);
-//            $sql = ' file_name like "%' . $query . '%"';
-//            $sql .= ' and id in (' . $ids . ')';
-//            $files = MFiles::findAll($sql);
-//            $retval = array_merge($retval, $files);
-//        }
-//
-//        // 判断搜索出来的文件是否有权限访问
-//        $share_filter = MSharesFilter::init();
-//        foreach($retval as $index => $ret) {
-//            // 列表权限，如果没有列表权限，则不进行显示
-//            if(MUtils::isShareFolder($ret['file_type'])) {
-//                try {
-//                    $share_filter->hasPermissionExecute($ret['file_path'], MPrivilege::RESOURCE_READ);
-//                } catch(Exception $e) {
-//                    unset($query_db_file[$index]);
-//                    continue;
-//                }
-//            }
-//        }
         
         return $retval;
     }
@@ -307,7 +282,6 @@ class MSearchController extends MApplicationComponent implements MIController {
         //外链Key
         $response["share_key"]              = $file["share_key"];
         $response['is_dir'] = false;
-//        if($file['file_type'] != 0){
         $permissionModel = new UserPermissionBiz($filePath,$this->_user_id);
         $permission = $permissionModel->getPermission($filePath,$this->_user_id);
         if(!empty($permission)){
@@ -320,18 +294,10 @@ class MSearchController extends MApplicationComponent implements MIController {
                 return null;
             }
         }
-//        }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
-            //支持类s3数据源的文件下载
-            $data = array("hash" => $file["signature"]);
-            $downloadParam = apply_filters("event_params", $data);
-            if ($downloadParam !== $data){
-                if (is_array($downloadParam)){
-                    $response = array_merge($response, $downloadParam);
-                }
-            }
-            $mimeType = MiniUtil::getMimeType($file['file_path']);
-            $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
+            $response["hash"]         = $file["signature"];
+            $mimeType                 = MiniUtil::getMimeType($file['file_path']);
+            $response["thumb_exists"] = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
         }else{
             $response['is_dir'] = true;
         }
@@ -344,8 +310,6 @@ class MSearchController extends MApplicationComponent implements MIController {
         if ($file["is_deleted"] == true){
             $response["is_deleted"]    = true;
         }
-        // 添加hook，修改meta值
-        $response = apply_filters('meta_add', $response);
         return $response;
     }
 } 

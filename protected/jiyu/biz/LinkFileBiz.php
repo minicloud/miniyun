@@ -195,37 +195,5 @@ class LinkFileBiz  extends MiniBiz{
         }
 
     }
-    /**
-     * 获取office文件的预览地址
-     * @param $key
-     * @param $path
-     * @return string
-     */
-    public function doc($key,$path){
-        $link     = MiniLink::getInstance()->getByKey($key);
-        if($link!==NULL){
-            $file     = MiniFile::getInstance()->getById($link["file_id"]);
-            $type     = explode('/',$file['mime_type']);
-            $fileType = '';
-            if($type[1] == 'msexcel'){
-                $fileType = 'xls';
-            }else if($type[1] == 'msword'){
-                $fileType = 'doc';
-            }else if($type[1] == 'mspowerpoint'){
-                $fileType = 'ppt';
-            }else if($type[1] == 'zip'){
-                $fileType = 'zip';
-            }else if($type[1] == 'x-rar-compressed'){
-                $fileType = 'rar';
-            }
-            $isSupport = apply_filters("is_support_doc");
-            if($isSupport){
-                $url = Yii::app()->getBaseUrl().'miniDoc/viewer/'.$fileType.'?path='.$path."&key=".$key;
-            }else{
-                $url = "";
-            }
-            return $url;
-        }
-    }
 }
 

@@ -424,7 +424,7 @@ class CUtils{
         }
         // 当文件历史版本超过一定数量后，扎断处理
         $count = count($versions);
-        $fileMaxVersion = apply_filters("max_file_version_count", MConst::MAX_VERSION_CONUNT);
+        $fileMaxVersion = MiniConst::MAX_VERSION_COUNT;
         if ($count >= $fileMaxVersion) {
             $limit    = $count - $fileMaxVersion + 1;
             $versions = CUtils::mergeFileMetaVersion($versions, $limit);
@@ -950,10 +950,7 @@ class CUtils{
             $response['block_size'] = $response['block_size'] - 104858;
         }
         // 获取忘记密码使用短信口子地址
-        $getpwUrl = apply_filters('user_forgetpasswd');
-        if (!empty($getpwUrl)) {
-            $response['forgetPwUrl'] = Yii::app()->params['app']['absoluteUrl'].$getpwUrl;
-        }
+        $response['forgetPwUrl'] = Yii::app()->params['app']['absoluteUrl'];
         return $response;
     }
 

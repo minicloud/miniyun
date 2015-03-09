@@ -213,14 +213,19 @@ $config = array(
             'routes' => array(
                 array(
                     'class' => 'CFileLogRoute',
+                    'levels' => 'info',
+                    'logFile' => 'app-info.log',
+                ),
+                array(
+                    'class' => 'CFileLogRoute',
                     'levels' => 'error, warning',
-                    'logFile' => 'error.log',
+                    'logFile' => 'app-error.log',
                 ),
                 array(
                     'class' => 'CFileLogRoute',
                     'levels' => 'error, warning',
                     'categories' => 'system.db.*',
-                    'logFile' => 'sql.log',
+                    'logFile' => 'app-sql-error.log',
                 ),
             )
         ),

@@ -38,8 +38,6 @@ class Trash extends CApiComponent
      */
     public function invoke ($action = 0)
     {
-        // 回收站操作之前做安全密码验证
-        do_action('trash_entry');
 
         switch ($action) {
             case Trash::LIST_TRASH:
@@ -246,7 +244,6 @@ class Trash extends CApiComponent
         $files = UserFile::model()->getFilesByIds($this->fromIds, 1);
 //         $files = UserFile::model()->findAllByAttributes(array("user_id" => $this->_userId, "is_deleted" => 1));
         //为清空回收站文件添加文件
-        $files = apply_filters("clean_recycle", $files, $this->_userId);
         $ids = array();
         foreach ($files as $file) {
             array_push($ids, $file["id"]);
@@ -394,7 +391,6 @@ class Trash extends CApiComponent
         // 修改查询条件
         //
         $value     = array('condition'=>$condition, 'params' => $params);
-        $value = apply_filters('recycle_file_list_filter', $value);
         $info = UserFile::model()->findAll(array(
                 'condition' => $value['condition'],
                 'params'    => $value['params'],

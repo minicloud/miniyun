@@ -23,8 +23,7 @@ class MAPIController extends MApplicationComponent implements MIController{
      */
     public function invoke($uri=null)
     {
-    	//IP安全检查
-    	do_action('ip_check',false);
+
         // 解析控制器中对应操作名称
         $urlManager = new MUrlManager();
         $urlArray = $urlManager->parseActionFromUrl();
@@ -65,8 +64,6 @@ class MAPIController extends MApplicationComponent implements MIController{
             //更新设备在线状态
             MiniOnlineDevice::getInstance()->setOnlineDeviceValue($this->user["id"],$this->user["appId"],$this->device["id"]);
         }
-        // 执行插件中自定义的api接口
-        do_action('api_interface',$action);
         $this->$action();
     }
 
@@ -179,18 +176,6 @@ class MAPIController extends MApplicationComponent implements MIController{
         $paramController = new MParamsController();
         $paramController->invoke($this->commonUri);
     }
-
-    /**
-     * 创建文件的元数据
-     * //上传成功，写入元数据到数据库
-     * @return mixed $value 返回最终需要执行完的结果
-     */
-    private function create_file()
-    {
-        $createFile = new MCreateFileController();
-        $createFile->invoke($this->commonUri);
-    }
-
     /**
      * 处理获取元数据
      *

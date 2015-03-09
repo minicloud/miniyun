@@ -333,8 +333,6 @@ class PDOOAuth2 extends OAuth2 {
 
         //对设备进行检测
         $device = DeviceManager::getDevice($user["id"], $deviceType, $deviceName, $deviceInfo);
-        // 检测设备是否激活
-        $device = apply_filters('valid_device', $device);
         return $device;
     }
 
@@ -356,11 +354,7 @@ class PDOOAuth2 extends OAuth2 {
             $params["sign"] = $_REQUEST['sign'];
             $params["time"] = $_REQUEST['time'];
             $params["token"] = $_REQUEST['token'];
-            $user = apply_filters('free_login', $params);
-            if ($user){
-                return $user;
-            }
-            return false;
+            return $params;
         }else{
             //正常用户登陆模式
 			$userName = $_REQUEST['username'];

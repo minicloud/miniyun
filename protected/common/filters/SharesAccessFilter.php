@@ -19,11 +19,6 @@ class SharesAccessFilter {
         $files            = MiniFile::getInstance()->getShares($userId);
         $paths            = array();
         foreach ($files as $file) {
-            $filter = apply_filters('all_shared_folder', $file['file_type']);
-            if ($file['file_type'] == 2 || $filter === true) {
-                array_push($paths, $file['file_path']);
-                continue;
-            }
             $fileMeta     = MiniFileMeta::getInstance()->getFileMeta($file['file_path'],'shared_folders');
             if ($fileMeta === NULL) {
                 continue;

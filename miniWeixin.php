@@ -154,13 +154,10 @@ class MiniWeixin{
         $content .= "appInfo.only_default_account = JSON.parse('".json_encode($appInfo->defaultAccount())."');";
         //打印用户是否登录
         $user    = $appInfo->getUser();
-        //迷你存储或第3方存储系统
-        $thirdStoreInfo = MiniHttp::getThirdStoreInfo();
         $info = array("success"=>true);
         if(empty($user)){
             $info = array("success"=>false);
         }
-        $content .= "appInfo.third_store = JSON.parse('".json_encode($thirdStoreInfo)."');";
         $content .= "appInfo.login = JSON.parse('".json_encode($info)."');";
         if(!empty($user)){
             $content .= "appInfo.user = JSON.parse('".json_encode($user)."');";

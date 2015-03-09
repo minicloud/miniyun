@@ -66,7 +66,6 @@ class MFilesCommon extends MModel {
         $fileCommon->conflict         = false; // 生成冲突文件标志
         $fileCommon->space            = $user["space"];
         $fileCommon->used_space       = $user["usedSpace"];
-//        $file_common->share_filter     = MSharesFilter::init();
         $fileCommon->create_event     = true;
         return $fileCommon;
     }
@@ -280,8 +279,6 @@ class MFilesCommon extends MModel {
         if (isset($this->event_uuid)) {
             $response["event_uuid"]  = $this->event_uuid; // 事件编码
         }
-        // 添加hook，修改meta值
-        $response                    = apply_filters('meta_add', $response);
         echo json_encode ( $response );
         exit();
     }
@@ -344,7 +341,6 @@ class MFilesCommon extends MModel {
         $data["area_id"]            = $cid;
         $data["category_id"]        = $cid;
         $data["upload_size_remain"] = $uploadSizeRemain;
-        $data                       = apply_filters('meta_add', $data);
         $ret                        = Array();
         $ret["state"]               = true;
         $ret["data"]                = $data;

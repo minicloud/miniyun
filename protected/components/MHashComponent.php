@@ -22,10 +22,7 @@ class MHashComponent extends CApplicationComponent {
      */
     public function __construct($path = NULL) {
         $this->path = $path;
-        $this->algorithm  = apply_filters("file_hash_algorithm", NULL);
-        if (empty($this->algorithm) || $this->algorithm == NULL) {
-            $this->algorithm = new MHashSha1();
-        }
+        $this->algorithm = new MHashSha1();
         $this->algorithm->path = $this->path;
     }
     /**

@@ -172,8 +172,6 @@ class User extends CMiniyunModel
 			$ids = explode(',', $userIds);
 			$userFile = new UserFile();
 			foreach($ids as $id) {
-				//添加删除用户的hook
-				do_action("delete_user", $id);
 				// 删除用户共享文件
 				$userFile->deleteSharedFolders($id);
 				//删除所有标签信息

@@ -14,9 +14,13 @@ class MMetadataController extends MApplicationComponent implements MIController{
     private $root      = null;
     private $userId   = null;
     private $locale    = null;
+
     /**
      * 控制器执行主逻辑函数
-     *
+     * @param null $uri
+     * @param null $absolutePath
+     * @throws MAuthorizationException
+     * @throws MFileopsException
      */
     public function invoke($uri=null,$absolutePath=null)
     {
@@ -40,8 +44,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $this->locale  = $params["locale"];
         }
         $includeDeleted    = MUtils::convertToBool($includeDeleted);
-        $urlManager = new MUrlManager();
-        $path = MUtils::convertStandardPath($urlManager->parsePathFromUrl($uri));
+        $urlManager        = new MUrlManager();
+        $path              = MUtils::convertStandardPath($urlManager->parsePathFromUrl($uri));
 
         $this->root = $urlManager->parseRootFromUrl($path);
         if($path===false){
@@ -59,6 +63,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
 
     /**
      * 处理根目录下文件查询
+     * @param $includeDeleted
+     * @return array
      */
     private  function  handleRootPath($includeDeleted)
     {
@@ -134,9 +140,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["contents"] = $contents;
         return $response;
     }
-    
     /**
      * 处理非根目录下文件查询
+     * @param $path
+     * @param $includeDeleted
+     * @return array
+     * @throws MFileopsException
      */
     private function handleNotRootPath($path, $includeDeleted)
     {
@@ -166,8 +175,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
             foreach($childrenFiles as $childrenFile){
                 $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($childrenFile['file_path'],'create_id');
                 if(!empty($childrenFileMeta)){
-                    $filePathArr = explode('/',$childrenFile['file_path']);
-                    $fileOwnerId = $filePathArr[1];
+                    $filePathArr  = explode('/',$childrenFile['file_path']);
+                    $fileOwnerId  = $filePathArr[1];
                     $childrenFileCreateId = $childrenFileMeta['meta_value'];
                     $currentUser     = Yii::app()->session["user"];
                     if((int)$fileOwnerId !== (int)$currentUser['user_id']){//当前目录不为当前用户所有（共享目录/公共目录）
@@ -197,9 +206,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response['contents'] = $contents;
         return $response;
     }
-    
     /**
      * 处理组装请求元数据
+     * @param $response
+     * @param $file
+     * @param $mimeType
+     * @return mixed
      */
     private function assembleResponse($response, $file, $mimeType)
     {
@@ -265,8 +277,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if ($file["is_deleted"] == true){
             $response["is_deleted"]    = true;
         }
-        // 添加hook，修改meta值
-        $response = apply_filters('meta_add', $response);
         return $response;
     }
 }

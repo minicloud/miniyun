@@ -34,8 +34,7 @@ class MParamsController extends MFileSecondsController{
         } else {
             //空间检查
             $this->spaceFilter($size);
-            $params = apply_filters("upload_params", array("hash"=>$hash, "filename"=>$file_name));
-            echo json_encode($params);
+            echo json_encode(array("hash"=>$hash, "filename"=>$file_name));
         }
     }
 

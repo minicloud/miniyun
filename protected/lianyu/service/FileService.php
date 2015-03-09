@@ -58,19 +58,6 @@ class FileService extends MiniService{
         return $content;
 
     }
-
-    /**
-     * office文件预览
-     * @return string
-     */
-    public function preViewDoc(){
-        $path = MiniHttp::getParam("path","");
-        $signature = MiniHttp::getParam("signature","");
-        $biz = new FileBiz();
-        $url  = $biz->doc($path,$signature);
-        return $url;
-    }
-
     /**
      * 上传文件
      */

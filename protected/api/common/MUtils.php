@@ -609,7 +609,7 @@ class MUtils
         }
         // 当文件历史版本超过一定数量后，扎断处理
         $count = count($versions);
-        $fileMaxVersion = apply_filters("max_file_version_count", MConst::MAX_VERSION_CONUNT);
+        $fileMaxVersion = MiniConst::MAX_VERSION_COUNT;
         if ($count >= $fileMaxVersion) {
             $limit    = $count - $fileMaxVersion + 1;
             $versions = CUtils::mergeFileMetaVersion($versions, $limit);
@@ -857,21 +857,5 @@ class MUtils
         }
         $permission = Yii::app()->privilege->generatePermission($read,intval($perm[1]),intval($perm[2]),intval($perm[3]),intval($perm[4]),intval($perm[5]),intval($perm[6]),intval($perm[7]),intval($perm[8]));
         return $permission;
-    }
-
-    /**
-     * 判断是否属于共享类型的目录
-     * @param string $type
-     * @return bool
-     */
-    public static function isShareFolder($type){
-        if ($type == MConst::OBJECT_TYPE_BESHARED){
-            return true;
-        }
-        $is_share_folder = apply_filters("is_share_folder", $type);
-        if ($is_share_folder === true){
-            return true;
-        }
-        return false;
     }
 }
