@@ -84,6 +84,31 @@ class PluginMiniDocNode extends MiniCache{
     }
 
     /**
+     * 获得指定version在miniDoc服务器上下载地址
+     * @param $id
+     * @param $version
+     * @param $extend
+     * @return string
+     */
+    public function getDownloadUrl($id,$version,$extend){
+        $node = $this->getNodeById($id);
+        if(empty($node)){
+            return null;
+        }
+        $signature = $version["file_signature"];
+        $data = array(
+            "route"     => "file/download",
+            "signature" => $signature,
+            "file_name" => $signature.".".$extend,
+            "mime_type" => $version["mime_type"]
+        );
+        $url = $node["host"]."/api.php?";
+        foreach($data as $key=>$value ){
+            $url.="&".$key."=".urlencode($value);
+        }
+        return $url;
+    }
+    /**
      * 获得迷你文档所有节点列表
      */
     public function getNodeList(){

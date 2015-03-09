@@ -20,10 +20,9 @@ class PluginMiniSearchBiz extends MiniBiz
             //根据文件内容输出文件内容
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"doc_id");
             if(!empty($meta)){
-                $node = PluginMiniDocNode::getInstance()->getNodeById($meta["meta_value"]);
-                if(!empty($node)){
-                    $url = $node["host"]."/".$signature."/".$signature.".txt";
-                    header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
+                $url = PluginMiniDocNode::getInstance()->getDownloadUrl($meta["meta_value"],$version,"txt");
+                if(!empty($url)){
+                    header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently");
                     header( "Location: ". $url );
                     exit;
                 }
@@ -116,8 +115,9 @@ class PluginMiniSearchBiz extends MiniBiz
         //向迷你搜索服务器发送搜索请求
         $node = PluginMiniSearchNode::getInstance()->getBestNode();
         if(!empty($node)){
-            $url = $node["host"].'/api.php?route=file/search';
+            $url = $node["host"].'/api.php';
             $data = array (
+                'route'=>"file/search",
                 'site_id'=>$siteId,//站点ID
                 'key'=>$key,//搜索的关键字
             );

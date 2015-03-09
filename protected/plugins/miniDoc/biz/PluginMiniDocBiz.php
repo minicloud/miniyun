@@ -166,7 +166,7 @@ class PluginMiniDocBiz extends MiniBiz{
                 MUtils::MkDirsLocal($parentPath);
             }
             //文件不存在，则需要从迷你文档拉取文件内容
-            $url = $node["host"]."/".$signature."/".$signature.".".$type;
+            $url  = PluginMiniDocNode::getInstance()->getDownloadUrl($node["id"],$version,$type);
             $http = new HttpClient();
             $http->get($url);
             $status = $http->get_status();
