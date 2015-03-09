@@ -60,12 +60,6 @@ class MMoveAfter{
                     Yii::app()->privilege->updatedAllFilePath($from_path, $to_path);
                 }
                 $isRename = true;
-            } else { //移动等情况，需要进行（源路径的删除权限）   的删除
-                if (apply_filters("remain_move_privilege", $this)){
-                    if ($file_detail->file_type != MConst::OBJECT_TYPE_FILE){  //属于文件夹时
-                        Yii::app()->privilege->deleteAllPrivilege($from_path);
-                    }
-                }
             }
         }
     }
