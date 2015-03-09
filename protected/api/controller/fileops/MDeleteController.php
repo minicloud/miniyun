@@ -18,10 +18,6 @@ class MDeleteController extends MApplicationComponent implements MIController
     public  $result   = array();
     /**
      * 控制器执行主逻辑函数, 处理删除文件或者文件夹
-     *
-     * @return mixed $value 返回最终需要执行完的结果
-     * 
-     * @since 1.0.7
      */
     public function invoke($uri=null)
     {
