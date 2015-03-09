@@ -65,18 +65,7 @@ class MAccountInfoController extends MApplicationComponent implements MIControll
             $data['block_size'] = $data['block_size'] - 104858;
         }
 
-        $data = $this->iniCustomMenu($data);
         echo json_encode($data);
     }
 
-    /**
-     *为客户端初始化自定义菜单
-     */
-    private function iniCustomMenu($data){
-        $config = apply_filters('custom_client_menu');
-        if (!empty($config)) {
-            $data["custom_client_menu"] = $config;
-        }
-        return $data;
-    }
 }
