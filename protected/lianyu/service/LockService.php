@@ -7,20 +7,17 @@ class LockService extends MiniService{
      */
     public function status(){
        $filePath = MiniHttp::getParam('file_path','');
-       $lock = new LockBiz();
-       $result = $lock->status($filePath);
+       $result = LockBiz::getInstance()->status($filePath);
        return $result;
    }
    public function create(){
        $filePath = MiniHttp::getParam('file_path','');
-       $lock = new LockBiz();
-       $lock->create($filePath);
+       LockBiz::getInstance()->create($filePath);
        return array('success'=>true);
    }
     public function delete(){
         $filePath = MiniHttp::getParam('file_path','');
-        $lock = new LockBiz();
-        $lock->delete($filePath);
+        LockBiz::getInstance()->delete($filePath);
         return array('success'=>true);
     }
 }

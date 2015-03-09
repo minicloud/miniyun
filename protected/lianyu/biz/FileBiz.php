@@ -205,8 +205,7 @@ class FileBiz  extends MiniBiz{
      */
     public function downloadBySignature($filePath,$signature){
         $item = explode("/",$filePath);
-        $permissionModel = new UserPermissionBiz($filePath,$this->user['id']);
-        $permissionArr = $permissionModel->getPermission($filePath,$this->user['id']);
+        $permissionArr = UserPermissionBiz::getInstance()->getPermission($filePath,$this->user['id']);
         if($item[1]!==$this->user['id']&&count($permissionArr)==0){
             throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
         }
@@ -319,8 +318,7 @@ class FileBiz  extends MiniBiz{
             }
         }
         if($isSharedPath){
-            $permissionModel = new UserPermissionBiz($path,$this->user['id']);
-            $permissionArr = $permissionModel->getPermission($path,$this->user['id']);
+            $permissionArr = UserPermissionBiz::getInstance()->getPermission($path,$this->user['id']);
             if(!isset($permissionArr)){
                 $permission = MConst::SUPREME_PERMISSION;
             }else{

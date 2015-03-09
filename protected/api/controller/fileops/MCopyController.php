@@ -211,9 +211,7 @@ class MCopyController extends MApplicationComponent implements MIController{
         $fromFile = MiniFile::getInstance()->getByFilePath($this->_from_path);
         if ($fromId!=$user['id']){
             //判断文件重命名是否有权限操作
-//            $from_share_filter->hasPermissionExecute($this->_from_path, MPrivilege::RESOURCE_READ);
-            $permissionModel = new UserPermissionBiz($this->_from_path,$user['id']);
-            $permissionArr = $permissionModel->getPermission($this->_from_path,$user['id']);
+            $permissionArr =  UserPermissionBiz::getInstance()->getPermission($this->_from_path,$user['id']);
             if(!isset($permissionArr)){
                 $permission = MConst::SUPREME_PERMISSION;
             }else{
@@ -244,8 +242,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             }
         }
         if($isSharedPath){
-            $permissionModel = new UserPermissionBiz(dirname($this->_to_path),$user['id']);
-            $permissionArr = $permissionModel->getPermission(dirname($this->_to_path),$user['id']);
+            $permissionArr = UserPermissionBiz::getInstance()->getPermission(dirname($this->_to_path),$user['id']);
             if(!isset($permissionArr)){
                 $permission = MConst::SUPREME_PERMISSION;
             }else{

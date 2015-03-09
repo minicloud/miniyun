@@ -141,8 +141,7 @@ class AlbumBiz  extends MiniBiz{
             }
         }
         foreach($albums as $value){
-            $permissionModel = new UserPermissionBiz($value['file_path'],$this->user['user_id']);
-            $permission = $permissionModel->getPermission($value['file_path'],$this->user['user_id']);
+            $permission = UserPermissionBiz::getInstance()->getPermission($value['file_path'],$this->user['user_id']);
             if(!empty($permission)){
                 $filePermission = new MiniPermission($permission['permission']);
                 $data['canDelete'] = $filePermission->canDeleteFile();

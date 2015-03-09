@@ -282,8 +282,7 @@ class MSearchController extends MApplicationComponent implements MIController {
         //外链Key
         $response["share_key"]              = $file["share_key"];
         $response['is_dir'] = false;
-        $permissionModel = new UserPermissionBiz($filePath,$this->_user_id);
-        $permission = $permissionModel->getPermission($filePath,$this->_user_id);
+        $permission = UserPermissionBiz::getInstance()->getPermission($filePath,$this->_user_id);
         if(!empty($permission)){
             if(isset($permission['children_shared'])){
                 $response['children_shared'] = true;

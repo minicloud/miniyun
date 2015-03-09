@@ -198,8 +198,7 @@ class MDeleteController extends MApplicationComponent implements MIController
             }
         }
         if($isSharedPath){
-            $authority = new UserPermissionBiz($file_detail->file_path,$user["user_id"]);
-            $permissionArr = $authority->authority;
+            $permissionArr = UserPermissionBiz::getInstance()->getPermission($file_detail->file_path,$user["user_id"]);
             $permission = $permissionArr['permission'];
             if(!empty($permission)){
                 $privilegeModel = new PrivilegeBiz();

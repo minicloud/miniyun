@@ -76,8 +76,7 @@ class PluginMiniSearchBiz extends MiniBiz
                     continue;
                 }
                 $userId = (int)$this->user['id'];
-                $permissionModel = new UserPermissionBiz($filePath, $userId);
-                $permission = $permissionModel->getPermission($filePath, $userId);
+                $permission = UserPermissionBiz::getInstance()->getPermission($filePath,$userId);
                 if ($permission['permission'] == '000000000' || $permission['permission'] == '011111111') {//没有读权限则不显示出来
                     continue;
                 }

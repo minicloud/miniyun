@@ -153,7 +153,6 @@ class MMoveController
         }
         $from_parent = CUtils::pathinfo_utf($from_path);
         $to_parent   = CUtils::pathinfo_utf($to_path);
-        $fromPermission = new UserPermissionBiz($from_path,$this->_userId);
         $privilegeModel = new PrivilegeBiz();
         if(!(count($to_parts)==3)){
             $isSharedPath = false;
@@ -168,8 +167,7 @@ class MMoveController
                 }
             }
             if($isSharedPath){
-                $toPermission  = new UserPermissionBiz($to_parent['dirname'],$this->_userId);
-                $toPrivilege   = $toPermission->getPermission($to_parent['dirname'],$this->_userId);
+                $toPrivilege   = UserPermissionBiz::getInstance()->getPermission($to_parent['dirname'],$this->_userId);
                 if(empty($toPrivilege)){
                     $toPrivilege['permission'] = MConst::SUPREME_PERMISSION;
                 }else{
@@ -197,8 +195,7 @@ class MMoveController
                     }
                 }
                 if($isSharedPath){
-                    $toPermission  = new UserPermissionBiz($from_path,$this->_userId);
-                    $toPrivilege   = $toPermission->getPermission($from_path,$this->_userId);
+                    $toPrivilege   =  UserPermissionBiz::getInstance()->getPermission($from_path,$this->_userId);
                     if(!empty($toPrivilege)){
                         $this->to_share_filter->slaves =$privilegeModel->getSlaveIdsByPath($toPrivilege['share_root_path']);
                         $this->to_share_filter->is_shared = true;
@@ -224,7 +221,7 @@ class MMoveController
             }
         }
         if($isSharedPath){
-            $fromPrivilege = $fromPermission->getPermission($from_path,$this->_userId);
+            $fromPrivilege = UserPermissionBiz::getInstance()->getPermission($from_path,$this->_userId);
             if(empty($fromPrivilege)){
                 $fromPrivilege['permission'] = MConst::SUPREME_PERMISSION;
             }else{

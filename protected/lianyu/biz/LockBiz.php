@@ -4,6 +4,18 @@
  * 文件锁业务
  */
 class LockBiz extends MiniBiz{
+     static private $_instance = null;
+    /**
+     * 静态方法, 单例统一访问入口
+     * @return object  返回对象的唯一实例
+     */
+    static public function getInstance()
+    {
+        if (is_null(self::$_instance) || !isset(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    }
      private function quickSort($array){
         $len = count($array);
         if($len <= 1)

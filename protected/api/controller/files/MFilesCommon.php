@@ -169,8 +169,7 @@ class MFilesCommon extends MModel {
 
             }
             if($isSharedPath){
-                $authority = new UserPermissionBiz($parentPath,$currentUserId);
-                $permissionArr = $authority->authority;
+                $permissionArr = UserPermissionBiz::getInstance()->getPermission($parentPath,$currentUserId);
                 if(!empty($permissionArr)){
                     $privilegeModel = new PrivilegeBiz();
                     $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);

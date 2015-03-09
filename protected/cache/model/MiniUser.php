@@ -121,42 +121,22 @@ class MiniUser extends MiniCache{
         }
         return NULL;
     }
+
     /**
      * 根据id获得User完整信息
+     * $needSpaceSize 是为了在循环中避免对miniyun_files表操作
      * @param $id
-     * @return array|mixed|null
+     * @param bool $needSpaceSize
+     * @return array|null
      */
-    public function getUser($id){
-        if($this->hasCache===false){//如果没有初始化Cache则直接访问DB
-            $user                  = $this->get4Db($id);
+    public function getUser($id,$needSpaceSize=true){
+        $user                  = $this->get4Db($id);
+        if($needSpaceSize){
             $user["usedSpace"]     = $this->getUsedSize($id);//查询当前用户已经消耗的空间
             //如系统做了总空间控制，且空间已经使用完毕，则进行提示
             if(CUtils::hasOverSysSpace()===false){
                 $user["space"] = $user["usedSpace"]-1;
             }
-            return $user;
-        }
-        //先判断是否已经缓存，否则进行直接缓存
-        $dataStr     = $this->get($this->getCacheKey($id));
-        if($dataStr===false){
-            $user    = $this->get4Db($id);
-            if($user===NULL) return NULL;
-            Yii::trace(MiniUser::$CACHE_KEY." set cache userId:".$id,"miniyun.cache1");
-            $this->set($this->getCacheKey($id),serialize($user));
-        }else{
-            Yii::trace(MiniUser::$CACHE_KEY." get cache userId:".$id,"miniyun.cache1");
-            $user      = unserialize($dataStr);
-            //补偿，如果返回值为NULL，则重新向DB请求
-            if($user===NULL){
-                $user   = $this->get4Db($id);
-                Yii::trace(MiniUser::$CACHE_KEY." set cache userId:".$id,"miniyun.cache1");
-                $this->set($this->getCacheKey($id),serialize($user));
-            }
-        }
-        $user["usedSpace"]= $this->getUsedSize($id);//查询当前用户已经消耗的空间，这里需动态计算
-        //如系统做了总空间控制，且空间已经使用完毕，则进行提示
-        if(CUtils::hasOverSysSpace()===false){
-            $user["space"] = $user["usedSpace"]-1;
         }
         return $user;
     }

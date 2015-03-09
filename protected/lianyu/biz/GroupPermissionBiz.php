@@ -8,10 +8,22 @@
  * @since 1.7
  */
 class GroupPermissionBiz extends MiniBiz{
-    public $authority;
-    public function GroupPermissionBiz($path,$userId){
-        $this->getPermission($path,$userId);
-    }
+    /**
+     *  静态成品变量 保存全局实例
+     *  @access private
+     */
+    static private $_instance = null;
+    /**
+     * 静态方法, 单例统一访问入口
+     * @return object  返回对象的唯一实例
+     */
+    static public function getInstance()
+    {
+        if (is_null(self::$_instance) || !isset(self::$_instance)) {
+            self::$_instance = new self();
+        }
+        return self::$_instance;
+    } 
     public function getPermission($path,$userId){
         $privilegeLength = 9;//权限长度 后期更改则做相应调整
         $userInGroups = MiniUserGroupRelation::getInstance()->getByUserId($userId);//用户所在的部门列表，查表user_group_relation
@@ -45,18 +57,9 @@ class GroupPermissionBiz extends MiniBiz{
                         $permission .='0';
                     }
                 }
-                return
-                    $this->authority = $permission;
-//                        array('success'=>true,'permission'=>$permission);
-            }else{
-                return
-                    $this->authority = null;
-//                        array('success'=>false,'msg'=>'file is not shared by group');
+                return $permission;
             }
-        }else{
-            $this->authority = null;
-//                array('success'=>false,'msg'=>'user is not in a group');
         }
-//        return new MiniPermission();
+        return null;
     }
 }

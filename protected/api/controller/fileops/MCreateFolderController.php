@@ -106,8 +106,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                 }
             }
             if($isSharedPath){
-                $permissionModel = new UserPermissionBiz($parentPath,$this->_user_id);
-                $permissionArr = $permissionModel->getPermission($parentPath,$this->_user_id);
+                $permissionArr = UserPermissionBiz::getInstance()->getPermission($parentPath,$this->_user_id);
                 if(!isset($permissionArr)){
                     $permission = MConst::SUPREME_PERMISSION;
                 }else{

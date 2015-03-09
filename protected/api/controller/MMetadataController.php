@@ -79,7 +79,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["is_deleted"]             = false;
         $response["is_dir"]                 = true;
         $response["hash"]                   = "";
-
         $contents         = array();
         $user             = MUserManager::getInstance()->getCurrentUser();
         $publicFiles      = MiniFile::getInstance()->getPublics();
@@ -113,7 +112,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if(!empty($userMetaData['user_hide_path'])){
             $userHidePaths = unserialize($userMetaData['user_hide_path']);
         }
-
         // 组装子文件数据
         foreach($filePaths as $filePath){
             $file = MiniFile::getInstance()->getByFilePath($filePath);
@@ -216,9 +214,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
     private function assembleResponse($response, $file, $mimeType)
     {
         $filePath                           = $file["file_path"];
-//        $lock = new LockBiz();
-//        $result = $lock->status($filePath);
-        $response['lock']                   = 0;
+        $result                             = LockBiz::getInstance()->status($filePath);
+        $response['lock']                   = $result["success"];
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
@@ -232,6 +229,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["event"]                  = $file["event_uuid"];
         $response["sort"]                   = (int)$file["sort"];
         //外链Key
+
         $link = MiniLink::getInstance()->getByFileId($file['id']);
         if(empty($link['share_key'])){
             $response["share_key"] = '';
@@ -239,29 +237,27 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $response["share_key"] = $link['share_key'];
         }
         $response['is_dir'] = false;
-        //TODO
-//        $permissionModel = new UserPermissionBiz($filePath,$this->userId);
-//        $permission = $permissionModel->getPermission($filePath,$this->userId);
-//        if(!empty($permission)){
-//            if(isset($permission['children_shared'])){
-//                $response['children_shared'] = true;
-//            }else{
-//                $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
-//                if(!empty($childrenFileMeta)){
-//                    $childrenFileCreateId = $childrenFileMeta['meta_value'];
-//                    $currentUser     = Yii::app()->session["user"];
-//                    if((int)$childrenFileCreateId===(int)$currentUser['user_id']){
-//                        $permission['permission']=MConst::SUPREME_PERMISSION;
-//                    }
-//                }
-//                $response['share'] = $permission;
-//            }
-//            $filePermission = new MiniPermission($permission['permission']);
-//            $response['canDelete'] = $filePermission->canDeleteFile();
-//            if(empty($permission['permission'])){
-//                return null;
-//            }
-//        }
+        $permission = UserPermissionBiz::getInstance()->getPermission($filePath,$this->userId);
+        if(!empty($permission)){
+            if(isset($permission['children_shared'])){
+                $response['children_shared'] = true;
+            }else{
+                $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
+                if(!empty($childrenFileMeta)){
+                    $childrenFileCreateId = $childrenFileMeta['meta_value'];
+                    $currentUser     = Yii::app()->session["user"];
+                    if((int)$childrenFileCreateId===(int)$currentUser['user_id']){
+                        $permission['permission']=MConst::SUPREME_PERMISSION;
+                    }
+                }
+                $response['share'] = $permission;
+            }
+            $filePermission = new MiniPermission($permission['permission']);
+            $response['canDelete'] = $filePermission->canDeleteFile();
+            if(empty($permission['permission'])){
+                return null;
+            }
+        }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
             $mimeType = MiniUtil::getMimeType($file['file_path']);
             $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
