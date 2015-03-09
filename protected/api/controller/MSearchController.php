@@ -307,7 +307,6 @@ class MSearchController extends MApplicationComponent implements MIController {
         //外链Key
         $response["share_key"]              = $file["share_key"];
         $response['is_dir'] = false;
-//        if($file['file_type'] != 0){
         $permissionModel = new UserPermissionBiz($filePath,$this->_user_id);
         $permission = $permissionModel->getPermission($filePath,$this->_user_id);
         if(!empty($permission)){
@@ -320,18 +319,10 @@ class MSearchController extends MApplicationComponent implements MIController {
                 return null;
             }
         }
-//        }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
-            //支持类s3数据源的文件下载
-            $data = array("hash" => $file["signature"]);
-            $downloadParam = apply_filters("event_params", $data);
-            if ($downloadParam !== $data){
-                if (is_array($downloadParam)){
-                    $response = array_merge($response, $downloadParam);
-                }
-            }
-            $mimeType = MiniUtil::getMimeType($file['file_path']);
-            $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
+            $response["hash"]         = $file["signature"];
+            $mimeType                 = MiniUtil::getMimeType($file['file_path']);
+            $response["thumb_exists"] = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
         }else{
             $response['is_dir'] = true;
         }
