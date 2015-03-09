@@ -73,19 +73,21 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["is_deleted"]             = false;
         $response["is_dir"]                 = true;
         $response["hash"]                   = "";
-        $contents = array();
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $publicFiles = MiniFile::getInstance()->getPublics();
+
+        $contents         = array();
+        $user             = MUserManager::getInstance()->getCurrentUser();
+        $publicFiles      = MiniFile::getInstance()->getPublics();
         $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
         $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
-        $filePaths  = array();
-        $shareFiles = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
-        $userFiles = MiniFile::getInstance()->getChildrenByFileID(
-            $parentFileId=0,
-            $includeDeleted,
-            $user,
-            $this->userId);
-        $fileData = array_merge($shareFiles,$userFiles);
+        $filePaths        = array();
+        $shareFiles       = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
+        $userFiles        = MiniFile::getInstance()->getChildrenByFileID(
+                                                                    $parentFileId=0,
+                                                                    $includeDeleted,
+                                                                    $user,
+                                                                    $this->userId);
+        $fileData          = array_merge($shareFiles,$userFiles);
+
         //如果没有文件记录
         if (empty($publicFiles) && empty($shareFiles) && empty($userFiles)){
             $response["contents"] = $contents;
@@ -99,12 +101,13 @@ class MMetadataController extends MApplicationComponent implements MIController{
                 }
             }
         }
-        $filePaths = array_unique($filePaths);
+        $filePaths    = array_unique($filePaths);
         $userMetaData = MiniUserMeta::getInstance()->getUserMetas($this->userId);
         $userHidePaths = '';
         if(!empty($userMetaData['user_hide_path'])){
             $userHidePaths = unserialize($userMetaData['user_hide_path']);
         }
+
         // 组装子文件数据
         foreach($filePaths as $filePath){
             $file = MiniFile::getInstance()->getByFilePath($filePath);
@@ -150,11 +153,10 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $currentFile["signature"] = $version["file_signature"];
             $mimeType = $version["mime_type"];
         }
-        $response                   = array();
-        $shareKeyPrivilege = MiniFile::getInstance()->getFolderExtendProperty($currentFile,MUserManager::getInstance()->getCurrentUser());
-        $response['share_key']=$shareKeyPrivilege['share_key'];
+        $response              = array();
+        $shareKeyPrivilege     = MiniFile::getInstance()->getFileExtendProperty($currentFile);
+        $response['share_key'] = $shareKeyPrivilege['share_key'];
         $response = $this->assembleResponse($response, $currentFile, $mimeType);
-        $user = MUserManager::getInstance()->getCurrentUser();
         // 组装子文件数据
         $childrenFiles = MiniFile::getInstance()->getChildrenByFileID(
         $parentFileId  = $currentFile['id'],

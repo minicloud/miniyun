@@ -186,7 +186,7 @@ class MiniFile extends MiniCache{
         if(!empty($user)){
             $data = array();
             foreach($items as $file){
-                $item = $this->getFolderExtendProperty($file,$user);
+                $item = $this->getFileExtendProperty($file);
                 array_push($data,$item);
             }
             return $data;
@@ -197,10 +197,9 @@ class MiniFile extends MiniCache{
     /**
      * 获取share_key和privilege
      * @param array $file
-     * @param array $user
      * @return mixed
      */
-    public function getFolderExtendProperty($file,$user){
+    public function getFileExtendProperty($file){
         $fileType = intval($file["file_type"]);
         //文件外链Key
         $file["share_key"]        = "";
@@ -211,22 +210,24 @@ class MiniFile extends MiniCache{
                 $file["share_key"] = $link["share_key"];
             }
         }
-        //共享目录/被共享目录才有可能有权限信息
-        //TODO
-//        $privilege = MiniUserPrivilege::getInstance()->getFolderPrivilege($user["id"],$file);
-//        $file["privilege"]=$privilege;
+        $file["privilege"]='1111111111';
+        //TODO （目前）普通目录下子文件为共享目录的仍然可以共享
         return $file;
     }
 
     /**
      * 根据目录下所有可显示的子文件
+     * @param int $userId
      * @param string $parentPath
      * @return array
      */
-    public  function getShowChildrenByPath($parentPath) {
+    public  function getShowChildrenByPath($userId,$parentPath) {
         $criteria            = new CDbCriteria();
-        $criteria->condition = "file_path like :file_path and is_deleted=0";
-        $criteria->params    = array("file_path"=>$parentPath."%");
+        $criteria->condition = "user_id=:user_id and file_path like :file_path and is_deleted=0";
+        $criteria->params    = array(
+            "user_id"   => $userId,
+            "file_path" => $parentPath."%"
+        );
         $criteria->order     = "parent_file_id desc";
         $items               = UserFile::model()->findAll($criteria);
         return  $this->db2list($items);

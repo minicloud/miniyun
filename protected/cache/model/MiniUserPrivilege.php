@@ -540,12 +540,11 @@ class MiniUserPrivilege extends MiniCache
             $userId = $file['user_id'];
             //判断下级目录是否有共享目录
             $filePath = $file['file_path'];
-            $children = MiniFile::getInstance()->getShowChildrenByPath($filePath);
+            $children = MiniFile::getInstance()->getShowChildrenByPath($currentUserId,$filePath);
             $userGroupRelation = MiniUserGroupRelation::getInstance()->getByUserId($userId);
             $groupId = $userGroupRelation['group_id'];
             $arr = array();
             array_push($arr,$groupId);
-            $groupIds = MiniGroupPrivilege::getInstance()->getGroupIds($groupId,$arr);
             foreach($children as $child){
                 $childFilePath = $child['file_path'];
                 if($childFilePath==$filePath){
@@ -589,7 +588,7 @@ class MiniUserPrivilege extends MiniCache
      */
     public function getAllUserPrivilege($userId){
         $criteria = new CDbCriteria();
-        $criteria->condition = "user_id like :user_id";
+        $criteria->condition = "user_id = :user_id";
         $criteria->params = array(':user_id'=>$userId);
         $items = UserPrivilege::model()->findAll($criteria);
         return ($this->db2list($items));
