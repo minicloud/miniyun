@@ -39,15 +39,7 @@ class MSharesFilter
      *
      */
     public static function init() {
-        $filter = NULL;
-        //
-        // 添加过滤器
-        //
-        $filter = apply_filters('share_filters', $filter);
-        if (!$filter) {
-            $filter = new MSharesFilter();
-        }
-        return $filter;
+        return new MSharesFilter();
     }
 
     /**
@@ -207,21 +199,14 @@ class MSharesFilter
     /**
      *
      * 根据id检查是否是共享目录
-     * @param int $user_id
-     * @param int $id
      */
-    public function handlerCheckById($user_id, $id) {
+    public function handlerCheckById($userId, $id) {
         $this->stop     = 0;
         $file           = MiniFile::getInstance()->getById($id);
         if ($file === NULL) {
             return false;
         }
         $this->tmp_file = $file;
-        $filter = apply_filters('all_shared_folder', $file['file_type']);
-        if (($file['file_type'] == 2 && $file['user_id'] == $user_id) || $filter === true) {
-            $this->_file = $file;
-            return $file;
-        }
 
         $paths = CUtils::assemblyPaths($file['file_path']);
         $keys  = array_keys($paths);
@@ -230,28 +215,28 @@ class MSharesFilter
             unset($paths[$keys[0]]);
         }
         $access = new SharesAccessFilter();
-        $sharePaths = $access->handleGetAllSharesFolder($user_id);
+        $sharePaths = $access->handleGetAllSharesFolder($userId);
 
-        $sharedpath = '';
+        $sharedPath = '';
         foreach ($sharePaths as $sharePath) {
             if (isset($paths[$sharePath])) {
-                $sharedpath = $sharePath;
+                $sharedPath = $sharePath;
             }
         }
-        $meta        = MiniFileMeta::getInstance()->getFileMeta($sharedpath,'shared_folders');
+        $meta        = MiniFileMeta::getInstance()->getFileMeta($sharedPath,'shared_folders');
         if ($meta ===NULL ) {
             return false;
         }
         $meta_value  = unserialize($meta['meta_value']);
         $slaves      = $meta_value['slaves'];
-        if ($user_id === $meta_value['master']) {
+        if ($userId === $meta_value['master']) {
             return $file;
         }
-        if (!isset($slaves[$user_id])) {
+        if (!isset($slaves[$userId])) {
             return false;
         }
 
-        $this->_file = UserFile::model()->findByAttributes(array('file_path' => $slaves[$user_id]));
+        $this->_file = UserFile::model()->findByAttributes(array('file_path' => $slaves[$userId]));
         if ($file['file_type'] == 3 || $file['file_type'] == 4) {
             $file = UserFile::model()->findByAttributes(array('file_path' => $meta_value['path']));
             $this->stop = $file['parent_file_id'];

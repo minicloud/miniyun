@@ -100,8 +100,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         //
         // 如果删除的是共享目录，则转到ShareManager处理
         //
-        $filter = apply_filters('all_shared_folder', $share_filter->type);
-        if ($filter !== true && $share_filter->_is_shared_path 
+        if ($share_filter->_is_shared_path
             && $share_filter->operator != $share_filter->master) {
             $file = MFiles::queryFilesByPath("/".$share_filter->operator . $share_filter->src_path);
             if (!$file) {
@@ -120,22 +119,21 @@ class MDeleteController extends MApplicationComponent implements MIController
                                         Yii::t('api','Internal Server Error'),
                                         MConst::HTTP_CODE_500);
             }
-            
+
             // 输出返回值
             $path = MUtils::convertStandardPath($share_filter->src_path);
             $this->buildResult(
-                                $root, $path, $handler->_file["version_id"], 
+                                $root, $path, $handler->_file["version_id"],
                                 $handler->_file["file_update_time"], true);
             return ;
         }
-        
-        if ($filter !== true && $share_filter->_is_shared_path  
+        if ($share_filter->_is_shared_path
             && $share_filter->operator != $share_filter->master) {
             throw new MException(
                     Yii::t('api','You do not have permission to perform the delete operation.'),
                     MConst::HTTP_CODE_409);
         }
-        
+
         //
         // 组装对象信息
         //

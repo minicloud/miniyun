@@ -239,15 +239,12 @@ class MSearchController extends MApplicationComponent implements MIController {
                 $sharedpaths[] = $shareFile['file_path'];
         }
         $sharedpaths = array_unique($sharedpaths);
-//        $path = MUtils::convertStandardPath($path);
         //
         // 搜索共享目录,根目录查询
         //
         if($path != '/' . $this->_user_id) {
             return array();
         }
-//        $access = new SharesAccessFilter();
-//        $sharedpaths = $access->handleGetAllSharesFolder($this->_user_id);
         $query = str_replace("%", "\\%", $query);
 //        $sql = ' file_name like "%' . $query . '%"';
         $sql = '';
@@ -260,28 +257,6 @@ class MSearchController extends MApplicationComponent implements MIController {
             }
             $retval = array_merge($retval, $files);
         }
-//        $var = apply_filters('documents_filter', null);
-//        if(is_array($var) && !empty($var)) {
-//            $ids = join(',', $var);
-//            $sql = ' file_name like "%' . $query . '%"';
-//            $sql .= ' and id in (' . $ids . ')';
-//            $files = MFiles::findAll($sql);
-//            $retval = array_merge($retval, $files);
-//        }
-//
-//        // 判断搜索出来的文件是否有权限访问
-//        $share_filter = MSharesFilter::init();
-//        foreach($retval as $index => $ret) {
-//            // 列表权限，如果没有列表权限，则不进行显示
-//            if(MUtils::isShareFolder($ret['file_type'])) {
-//                try {
-//                    $share_filter->hasPermissionExecute($ret['file_path'], MPrivilege::RESOURCE_READ);
-//                } catch(Exception $e) {
-//                    unset($query_db_file[$index]);
-//                    continue;
-//                }
-//            }
-//        }
         
         return $retval;
     }

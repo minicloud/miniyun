@@ -66,7 +66,6 @@ class MFilesCommon extends MModel {
         $fileCommon->conflict         = false; // 生成冲突文件标志
         $fileCommon->space            = $user["space"];
         $fileCommon->used_space       = $user["usedSpace"];
-//        $file_common->share_filter     = MSharesFilter::init();
         $fileCommon->create_event     = true;
         return $fileCommon;
     }
