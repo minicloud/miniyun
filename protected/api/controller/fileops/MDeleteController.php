@@ -150,8 +150,6 @@ class MDeleteController extends MApplicationComponent implements MIController
         }
 
         $data = array("obj"=>$this, "share_filter"=>$share_filter, "query_db_file"=>$query_db_file[0]);
-        //进行删除之前的检测
-        do_action("before_delete_check", $data);
 
         //在共享文件夹中进行删除权限判断
         if ($share_filter->is_shared && $query_db_file[0]["file_type"] != MConst::OBJECT_TYPE_BESHARED) {

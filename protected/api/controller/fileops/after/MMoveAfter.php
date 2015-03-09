@@ -31,8 +31,6 @@ class MMoveAfter{
     public function execute()
     {
         $this->deletePermission();
-        //移动之后执行的hook
-        do_action("after_move", $this);
     }
 
     /**

@@ -32,8 +32,6 @@ class ConsoleController extends AnonymousController{
         return array_merge($list,$newList);
     }
     public function invoke(){
-    	//IP安全检查
-    	do_action('ip_check',false);
         $filter = new MUserFilter();
         $filter->oauth2Judge();
         //check user auth

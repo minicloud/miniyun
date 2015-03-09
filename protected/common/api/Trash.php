@@ -38,8 +38,6 @@ class Trash extends CApiComponent
      */
     public function invoke ($action = 0)
     {
-        // 回收站操作之前做安全密码验证
-        do_action('trash_entry');
 
         switch ($action) {
             case Trash::LIST_TRASH:

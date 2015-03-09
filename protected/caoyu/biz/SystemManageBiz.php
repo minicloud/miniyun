@@ -166,7 +166,6 @@ class SystemManageBiz extends MiniBiz{
         $this->handleCleanFileMeta($limit);
         // 清理ref_count等于0的文件
         $versions = MiniVersion::getInstance()->getCleanFiles(100);
-        do_action("block_delete", $versions);
         foreach ($versions as $version){
             $files = UserFile::model()->findAll('version_id=?', array($version['id']));
             // 如果$file存在此version_id,不删除
@@ -174,8 +173,6 @@ class SystemManageBiz extends MiniBiz{
                 for($i=0;$i<count($files);$i++){
                     MiniVersion::getInstance()->updateRefCount($version["id"]);
                 }
-                //清除缓存文件的hook
-                do_action("cache_clean_version_reset", $version, $files);
                 continue;
             }
 
@@ -185,7 +182,6 @@ class SystemManageBiz extends MiniBiz{
             // 判断文件是否存在
             if ($dataObj->exists($signaturePath) === false){
                 MiniVersion::getInstance()->deleteById($version["id"]);
-                do_action("cache_clean_version_delete", $version, $files);
                 continue;
             }
             // 删除文件
@@ -197,8 +193,7 @@ class SystemManageBiz extends MiniBiz{
             }
             // 删除version记录
             MiniVersion::getInstance()->deleteById($version["id"]);
-            //清除缓存文件的hook
-            do_action("cache_clean_version_delete", $version, $files);
+
         }
         MiniUtil::deleteDir(BASE.'temp');
     }
