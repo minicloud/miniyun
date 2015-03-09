@@ -24,7 +24,6 @@ class PluginService extends MiniService{
     public function enabledList(){
         $model = new PluginBiz();
         $data  = $model->enabledList();
-        $data = apply_filters("account_info_add", $data);
         return $data;
     }
     /**
