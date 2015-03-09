@@ -179,18 +179,6 @@ class MAPIController extends MApplicationComponent implements MIController{
         $paramController = new MParamsController();
         $paramController->invoke($this->commonUri);
     }
-
-    /**
-     * 创建文件的元数据
-     * //上传成功，写入元数据到数据库
-     * @return mixed $value 返回最终需要执行完的结果
-     */
-    private function create_file()
-    {
-        $createFile = new MCreateFileController();
-        $createFile->invoke($this->commonUri);
-    }
-
     /**
      * 处理获取元数据
      *
