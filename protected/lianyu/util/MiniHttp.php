@@ -156,29 +156,41 @@ class MiniHttp{
         }
         return false;
     }
+
     /**
      * 创建基于index.php的绝对地址
+     * @param $url
+     * @return string
      */
     public static function createUrl($url){
         $host = self::getMiniHost();
         return $host."index.php/".$url;
     }
+
     /**
      * 创建基于api.php的绝对地址
+     * @param $url
+     * @return string
      */
     public static function createApiUrl($url){
         $host = self::getMiniHost();
         return $host."api.php/".$url;
     }
+
     /**
      * 创建基于a.php的绝对地址
+     * @param $url
+     * @return string
      */
     public static function createAnonymousUrl($url){
         $host = self::getMiniHost();
         return $host."a.php/1/".$url;
     }
+
     /**
      * 创建基于a.php的绝对地址
+     * @param $url
+     * @return string
      */
     public static function createConsoleUrl($url){
         $host = self::getMiniHost();
@@ -198,8 +210,11 @@ class MiniHttp{
             return $module->assetsUrl."/".$url;
         }
     }
+
     /**
      * 创建基于static的i18n绝对地址
+     * @param $appName
+     * @return string
      */
     public static function createI18nUrl($appName){
         $host = self::getMiniHost();
@@ -221,9 +236,11 @@ class MiniHttp{
         $serverPath = dirname($indexFile)."/";
         return $serverPath;
     }
+
     /**
-     *
      * 根据浏览器的版本返回语言
+     * @param $name
+     * @return null
      */
     public static  function getCookie($name){
         $value = null;
