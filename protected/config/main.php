@@ -207,19 +207,10 @@ $config = array(
             'timeout' => 1800,
         ),
         'db' => $dbConfig,
-        'initSQLs' => array(
-            'set global max_allowed_packet = 15728640', //迷你文档转换成功的最大文本单文件不能超15M
-        ),
         'modules' => array(),
         'log' => array(
             'class' => 'CLogRouter',
             'routes' => array(
-                array(
-                    'class' => 'CFileLogRoute',
-                    'levels' => 'error, warning,info',
-                    'categories' => 'doc.convert',
-                    'logFile' => 'doc.convert.log',
-                ),
                 array(
                     'class' => 'CFileLogRoute',
                     'levels' => 'error, warning',
@@ -231,24 +222,6 @@ $config = array(
                     'categories' => 'system.db.*',
                     'logFile' => 'sql.log',
                 ),
-                array(
-                    'class' => 'CFileLogRoute',
-                    'levels' => 'error, warning',
-                    'categories' => 'miniyun.cache*',
-                    'logFile' => 'cache.log',
-                ),
-                array(
-                    'class' => 'CFileLogRoute',
-                    'levels' => 'warning,error',
-                    'categories' => 'miniyun.api',
-                    'logFile' => 'api.log',
-                ),
-                array(
-                    'class' => 'CFileLogRoute',
-                    'levels' => 'error, warning',
-                    'categories' => 'miniyun.miniStore.*',
-                    'logFile' => 'miniStore.log',
-                )
             )
         ),
         'hook' => array(
