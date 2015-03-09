@@ -27,7 +27,7 @@ class UserBiz  extends MiniBiz{
     public function getFriends($pageSize,$page){
         $userId = $this->user["id"];
         $userCount = MiniUser::getInstance()->getEnableCount()-1;
-        $items = MiniUser::getInstance()->getPageList($userId,"id desc",$pageSize,($page-1)*$pageSize);
+        $items = MiniUser::getInstance()->getPageList($userId,"-id",$pageSize,($page-1)*$pageSize);
         $users = array();
         foreach($items as $item){
             $friend = array();

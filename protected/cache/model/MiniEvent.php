@@ -338,7 +338,7 @@ class MiniEvent extends MiniCache{
             $criteria->addCondition("file_path like :file_path","and");
             $criteria->params[':file_path']=$filePath;
         }
-        $criteria->order     = 'id desc';
+        $criteria->order     = '-id';
         $criteria->limit     = $limit;
         $criteria->offset    = $offset;
         $items = Event::model()->findAll($criteria);

@@ -115,7 +115,7 @@ class MiniClient extends MiniCache{
         $criteria->params=array('clientName'=>"%" . $name . "%");
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=OClients::model()->findAll($criteria);
         $total              	=OClients::model()->count($criteria);
         $data = array();
@@ -182,7 +182,7 @@ class MiniClient extends MiniCache{
         $criteria->condition="user_id != -1 or id in (2,4,6)";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=MClients::model()->findAll($criteria);
         $total              	=MClients::model()->count($criteria);
         $data = array();
@@ -203,7 +203,7 @@ class MiniClient extends MiniCache{
         $criteria->condition="enabled = 0";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=MClients::model()->findAll($criteria);
         $total              	=MClients::model()->count($criteria);
         $data = array();
@@ -225,7 +225,7 @@ class MiniClient extends MiniCache{
         $criteria->condition="enabled = 1 and id not in (1,3,5,7,8)";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=MClients::model()->findAll($criteria);
         $total              	=MClients::model()->count($criteria);
         $data = array();

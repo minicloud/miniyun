@@ -139,7 +139,7 @@ class MiniFile extends MiniCache{
         $criteria            = new CDbCriteria();
         $criteria->condition = "file_path = :file_path";
         $criteria->params    = array("file_path"=>$filePath);
-        $criteria->order     = "id DESC";
+        $criteria->order     = "-id";
         $item               = UserFile::model()->find($criteria);
         return  $this->db2Item($item);
     }
@@ -290,7 +290,7 @@ class MiniFile extends MiniCache{
             "user_id"        => $userId,
             "parent_file_id" => $parentFileId,
         );
-        $criteria->order    = "id desc";
+        $criteria->order    = "-id";
         $items              = UserFile::model()->findAll($criteria);
         $total              = UserFile::model()->count($criteria);
         $data               = array();
@@ -1496,7 +1496,7 @@ class MiniFile extends MiniCache{
         $criteria                = new CDbCriteria();
         $criteria->limit         = $pageSize;
         $criteria->offset        = ($currentPage-1)*$pageSize;
-        $criteria->order         = "id desc";
+        $criteria->order         = "-id";
         $items              	 = UserFile::model()->findAll($criteria);
         $total              	 = UserFile::model()->count($criteria);
         if($total == 0){

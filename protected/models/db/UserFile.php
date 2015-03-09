@@ -772,7 +772,7 @@ class UserFile extends CMiniyunModel
      * @param string $path
      */
     public function getFilesByPath($path, $is_deleted = 0) {
-        return $this->findAll(array('condition' => 'file_path like :file_path and is_deleted =:is_deleted order by id DESC',
+        return $this->findAll(array('condition' => 'file_path like :file_path and is_deleted =:is_deleted order by -id',
                                     'params'    => array(':file_path'=>"$path/%", ':is_deleted' => $is_deleted)));
     }
 
@@ -784,7 +784,7 @@ class UserFile extends CMiniyunModel
      * @param int $type
      */
     public function getChildrenFileByPath($path, $type = 0) {
-        return $this->findAll(array('condition' => 'file_path like :file_path and file_type = :file_type order by id DESC',
+        return $this->findAll(array('condition' => 'file_path like :file_path and file_type = :file_type order by -id',
                                     'params'    => array(':file_path'=>"$path/%", ":file_type" => $type)));
     }
 

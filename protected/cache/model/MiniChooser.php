@@ -84,7 +84,7 @@ class MiniChooser extends MiniCache{
         $criteria->params=array(':type'=>$type);
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items = Chooser::model()->findAll($criteria);
         return $this->db2List($items);
     }

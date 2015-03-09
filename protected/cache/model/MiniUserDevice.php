@@ -102,7 +102,7 @@ class MiniUserDevice extends MiniCache{
         $criteria = new CDbCriteria();
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items = UserDevice::model()->findAll($criteria);
         return $this->db2List($items);
     }
@@ -368,7 +368,7 @@ class MiniUserDevice extends MiniCache{
         );
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	 = UserDevice::model()->findAll($criteria);
         $total              	 = UserDevice::model()->count($criteria);
         $data                    = array();

@@ -653,7 +653,7 @@ class MiniUser extends MiniCache{
             $criteria->condition = 'user_status=1 and id<>:userId';
             $criteria->params    = array(':userId'=>$userId);
             $criteria->addInCondition('id',array_keys($aimIds));
-            $criteria->order     = "id desc";
+            $criteria->order     = "-id";
             $items               = User::model()->findAll($criteria);
             return $this->db2list($items);
         }
@@ -733,7 +733,7 @@ class MiniUser extends MiniCache{
         $criteria->params=array('userName'=>"%" . $name . "%");
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $data = array();
@@ -765,7 +765,7 @@ class MiniUser extends MiniCache{
         $criteria                = new CDbCriteria();
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $data = array();
@@ -782,7 +782,7 @@ class MiniUser extends MiniCache{
      */
     public function ajaxGetAdmins($currentPage,$pageSize){
         $criteria                = new CDbCriteria();
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $arr = array();
@@ -812,7 +812,7 @@ class MiniUser extends MiniCache{
         $criteria->condition="user_status = 0";
         $criteria->limit=$pageSize;
         $criteria->offset=($currentPage-1)*$pageSize;
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $items              	=User::model()->findAll($criteria);
         $total              	=User::model()->count($criteria);
         $data = array();
@@ -830,7 +830,7 @@ class MiniUser extends MiniCache{
     public function getAllUsers(){
         $data = array();
         $criteria                = new CDbCriteria();
-        $criteria->order="id desc";
+        $criteria->order="-id";
         $criteria->limit="1";
         $maxItem              	=User::model()->find($criteria);
         $data[] = $maxItem;
@@ -1000,7 +1000,7 @@ class MiniUser extends MiniCache{
      */
     public function updateAllUserNamePinyin(){
         $criteria            = new CDbCriteria();
-        $criteria->order     = "id desc";
+        $criteria->order     = "-id";
         $items               = User::model()->findAll($criteria);
 
         foreach($items as $item){
