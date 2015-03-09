@@ -59,10 +59,6 @@ class MiniUserMeta extends MiniCache{
 	private function get4Db($userId){
 		
 		$items                       =  UserMeta::model()->findAll("user_id=:user_id",array("user_id"=>$userId));
-        //
-        // 针对特殊数据表zly的meta查询
-        //
-        $items                       = apply_filters("ascync_user_spcial_meta", $items, $userId, 0);
         if(isset($items)){
 			 $value                  = array(); 
 			 foreach($items as $item){
@@ -127,10 +123,6 @@ class MiniUserMeta extends MiniCache{
 			//清空缓存用户信息
 			MiniUser::getInstance()->cleanCache($userId);
          }
-        //
-        // 针对特殊数据表zly的meta更新
-        //
-        apply_filters("ascync_user_spcial_meta", $userMeta, $userId, 1);
         if($key==="nick"){
             //如修改昵称，则将用户的拼音信息一起更换
             MiniUser::getInstance()->updateUserNamePinYin($userId);
@@ -148,10 +140,6 @@ class MiniUserMeta extends MiniCache{
 			$userCacheId       = $this->getCacheKey($userId);
 			$this->deleteCache($userCacheId);
 		}
-        //
-        // 针对特殊数据表zly的meta更新
-        //
-        apply_filters("ascync_user_spcial_meta", null, $userId, 2);
 	}
     public function deleteAvatar($userId,$avatar){
         $criteria            = new CDbCriteria();

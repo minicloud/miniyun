@@ -284,18 +284,12 @@ class MSharesFilter
             }
         }
 
-        $var = apply_filters('documents_filter', $type);
-        if (is_array($var)) {
-            $ids = array_merge($ids, $var);
-        }
 
         return join(',', $ids);
     }
 
     /**
      * 根据path找到共享
-     * @param integer $user_id
-     * @param string $path
      */
     public function handlerFindSlave($user_id, $path)
     {

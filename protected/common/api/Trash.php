@@ -246,7 +246,6 @@ class Trash extends CApiComponent
         $files = UserFile::model()->getFilesByIds($this->fromIds, 1);
 //         $files = UserFile::model()->findAllByAttributes(array("user_id" => $this->_userId, "is_deleted" => 1));
         //为清空回收站文件添加文件
-        $files = apply_filters("clean_recycle", $files, $this->_userId);
         $ids = array();
         foreach ($files as $file) {
             array_push($ids, $file["id"]);

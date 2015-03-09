@@ -38,9 +38,6 @@ class ProfileBiz  extends MiniBiz{
         $data['app_info'] = $app->info();
         //是否系统只有默认账号
         $data['only_default_account'] = $app->onlyDefaultAccount();
-        //迷你存储或第3方存储系统
-        $thirdStoreInfo = MiniHttp::getThirdStoreInfo();
-        $data['third_store'] = $thirdStoreInfo;
         //获得授权码信息
         $code = MiniOption::getInstance()->getOptionValue("code");
         if(empty($code)){

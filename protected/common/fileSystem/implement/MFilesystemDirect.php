@@ -43,11 +43,7 @@ class MFilesystemDirect extends MFilesystemBase {
      * @since 1.1.2
      */
     function documentRootBlock($path) {
-        $block_path = apply_filters("reset_block_path", $path);
-        if ($block_path === $path || $block_path === false){
-            return DOCUMENT_ROOT_BLOCK;
-        }
-        return $block_path;
+        return DOCUMENT_ROOT_BLOCK;
     }
 
     /**

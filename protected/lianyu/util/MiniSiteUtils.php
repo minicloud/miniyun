@@ -61,20 +61,7 @@ class MiniSiteUtils
      * @since 1.1.2
      */
     public static function getUploadSizeLimit(){
-        $upload_size_limit = apply_filters("upload_size_limit");
-        if (empty($upload_size_limit)){
-            $upload_size_limit = Yii::app()->params['app']['uploadSize'];
-        } else {
-            try {
-                $upload_size_limit = intval($upload_size_limit);
-            } catch (Exception $e) {
-                $upload_size_limit = Yii::app()->params['app']['uploadSize'];
-            }
-            if ($upload_size_limit == 0){
-                $upload_size_limit = Yii::app()->params['app']['uploadSize'];
-            }
-        }
-        return $upload_size_limit;
+        return Yii::app()->params['app']['uploadSize'];
     }
 
     /**
@@ -83,27 +70,10 @@ class MiniSiteUtils
      * @since 1.1.2
      */
     public static function getUploadTypeLimit(){
-        $upload_type_limit = apply_filters("upload_type_limit");
-        if (!empty($upload_type_limit) && is_array($upload_type_limit)){
-            $upload_type_limit = "new Array(\"".join("\",\"",$upload_type_limit)."\")";
-        } else {
-            $upload_type_limit = "\"*\"";
-        }
-        return $upload_type_limit;
+        return "\"*\"";
     }
 
-    /**
-     *
-     * 获取web端上传地址
-     * @since 1.1.2
-     */
-    public static function getUploadUrl(){
-        $upload_url = apply_filters("upload_url");
-        if (empty($upload_url)){
-            $upload_url = Yii::app()->createUrl("/api/1/files");
-        }
-        return $upload_url;
-    }
+
 
     /**
      *

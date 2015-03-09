@@ -161,8 +161,6 @@ class MPrivilege extends CApplicationComponent
                  'params'    => array(':user_id'=>$user_id),
                  'order'     => "file_path desc",
         ));
-        //查询用户所拥有权权限时添加权限
-        $privileges = apply_filters("add_privilege", $privileges, $user_id);
         return $privileges;
     }
 
@@ -437,7 +435,7 @@ class MPrivilege extends CApplicationComponent
 
         //添加hook为用户增加额外的文件的权限
         $curPrivileges = array("file_path"=>$file_path,"permission"=>$permission);
-        $retPri = apply_filters("add_privilege_after_user", $curPrivileges);
+        $retPri = $curPrivileges;
         $permission = $retPri["permission"];
         if ($permission){
             $this->permission = $permission;
@@ -850,7 +848,7 @@ class MPrivilege extends CApplicationComponent
 
         //添加hook为用户增加额外的文件的权限
         $curPrivileges = array("file_path"=>$file_path, "user_id"=> $user_id);
-        $retPri = apply_filters("get_user_privilege_file_only", $curPrivileges);
+        $retPri = $curPrivileges;
         if (!$retPri || $retPri == $curPrivileges){
             return false;
         }
@@ -873,7 +871,7 @@ class MPrivilege extends CApplicationComponent
 
         //添加hook为用户增加额外的文件的权限
         $curPrivileges = array("file_path"=>$file_path,"permission"=>$permission);
-        $retPri = apply_filters("add_privilege_after_file", $curPrivileges);
+        $retPri = $curPrivileges;
         $permission = $retPri["permission"];
 
         //返回系统默认的权限

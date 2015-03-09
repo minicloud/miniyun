@@ -75,16 +75,6 @@ class LinkAccessService extends MiniService{
         return $content;
     }
     /**
-     * 获取office文件
-     */
-    public function doc(){
-        $key  = MiniHttp::getParam("key","");
-        $path  = MiniHttp::getParam("path","");
-        $link = new LinkFileBiz();
-        $src = $link->doc($key,$path);
-        return $src;
-    }
-    /**
      * 根據session獲取文件外鏈集合
      */
     public function selected(){

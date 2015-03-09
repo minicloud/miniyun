@@ -313,15 +313,4 @@ class MiniHttp{
             }
         return $iconName;
     }
-    /**
-     * 获取web端上传地址
-     * 这里融合本地存储与迷你存储
-     */
-    public static function getThirdStoreInfo(){
-        $storeInfo = apply_filters("third_store_upload_url");
-        if (empty($storeInfo)){
-            return array();
-        }
-        return $storeInfo;
-    }
 }

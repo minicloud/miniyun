@@ -950,10 +950,7 @@ class CUtils{
             $response['block_size'] = $response['block_size'] - 104858;
         }
         // 获取忘记密码使用短信口子地址
-        $getpwUrl = apply_filters('user_forgetpasswd');
-        if (!empty($getpwUrl)) {
-            $response['forgetPwUrl'] = Yii::app()->params['app']['absoluteUrl'].$getpwUrl;
-        }
+        $response['forgetPwUrl'] = Yii::app()->params['app']['absoluteUrl'];
         return $response;
     }
 

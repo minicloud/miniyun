@@ -245,49 +245,11 @@ class FileBiz  extends MiniBiz{
         return $file;
     }
 
-    /**
-     * 獲取office文件預覽地址
-     * @param $path
-     * @param $signature
-     * @return string
-     */
-    public function doc($path,$signature){
-        $share = new MiniShare();
-        $minFileMeta = $share->getMinFileMetaByPath($path);
-        $type     = explode('/',$minFileMeta['mime_type']);
-        $fileType = '';
-        if($type[1] == 'msexcel'){
-            $fileType = 'xls';
-        }else if($type[1] == 'msword'){
-            $fileType = 'doc';
-        }else if($type[1] == 'mspowerpoint'){
-            $fileType = 'ppt';
-        }else if($type[1] == 'zip'){
-            $fileType = 'zip';
-        }else if($type[1] == 'x-rar-compressed'){
-            $fileType = 'rar';
-        }
-        $isSupport = apply_filters("is_support_doc");
-        if($isSupport){
-            $url = Yii::app()->getBaseUrl().'miniDoc/viewer/'. $fileType.'?path='.$path;
-        }else{
-            $url = "";
-        }
-        return $url;
-    }
+
     /**
      * 上传文件
      */
     public function upload($path){
-        //下面的方式将取得共享目录下的原始路径，如在自己目录下，会返回当前用户目录
-//        $share = new MiniShare();
-//        $minFileMeta = $share->getMinFileMetaByPath($path);
-        //表示没有权限
-//        if($minFileMeta===NULL){
-//            throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
-//            return;
-//        }
-//        $filePath = $minFileMeta["ori_path"];
         $fileHandler = new MFilePostController();
         $uri  = '/files/miniyun' . $path;
         $fileHandler->invoke($uri);

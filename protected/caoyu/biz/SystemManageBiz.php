@@ -163,12 +163,6 @@ class SystemManageBiz extends MiniBiz{
         //data源处理对象
         $dataObj = Yii::app()->data;
         // 回收站插件: -1保留值 0正常 1删除
-        // 这里由is_deleted==1 特别修改为 is_deleted!=0
-        // By Kindac 2012/11/5
-        $super_delete = apply_filters("trash_add");
-        if ($super_delete) {
-            $this->handleCleanSuperDelete($limit);
-        }
         $this->handleCleanFileMeta($limit);
         // 清理ref_count等于0的文件
         $versions = MiniVersion::getInstance()->getCleanFiles(100);

@@ -63,10 +63,7 @@ class SiteBiz extends MiniBiz
             $data['block_size'] = $data['block_size'] - 104858;
         }
         // 获取忘记密码使用短信口子地址
-        $forgetPasswordUrl = apply_filters('user_forgetpasswd');
-        if (empty($forgetPasswordUrl)) {
-            $forgetPasswordUrl = MiniHttp::getSystemParam("absoluteUrl") . $forgetPasswordUrl;
-        }
+        $forgetPasswordUrl = MiniHttp::getSystemParam("absoluteUrl");
         $data['forget_password_url'] = $forgetPasswordUrl;
         return $data;
     }

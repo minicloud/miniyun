@@ -309,20 +309,7 @@ class UserFile extends CMiniyunModel
         MiniLink::getInstance()->unlink($ids);
         FileStar::model()->deleteAll('id in (:ids)', array(':ids' => $ids));
         //后台管理员台实现逻辑
-        //回收站插件
-        $needDelete = false;
-        if($force){
-            $needDelete = true;
-        }
-        $superDelete = apply_filters("trash_add");
-        if (!($superDelete===true)) {
-            $needDelete = true;
-        }
-        if ($needDelete) {
-            $value = $this->deleteAll("id in(".$ids.")");
-        } else {
-            $value = $this->updateAll(array("is_deleted" => -1), "id in ($ids)");
-        }
+        $value = $this->deleteAll("id in(".$ids.")");
         return $value;
 
     }
