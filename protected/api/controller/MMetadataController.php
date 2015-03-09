@@ -73,17 +73,11 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["is_deleted"]             = false;
         $response["is_dir"]                 = true;
         $response["hash"]                   = "";
-        $response["event"]                  = "0";
-        //获得最大的事件ID
-        $lastEvent = MiniEvent::getInstance()->getAll($this->userId, 0, 1);
-        if ($lastEvent && count($lastEvent) > 0) {
-            $response["event"]              = $lastEvent[0]['id'];
-        }
         $contents = array();
         $user = MUserManager::getInstance()->getCurrentUser();
         $publicFiles = MiniFile::getInstance()->getPublics();
         $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
-        $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege();
+        $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
         $filePaths  = array();
         $shareFiles = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
         $userFiles = MiniFile::getInstance()->getChildrenByFileID(
@@ -208,9 +202,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
     private function assembleResponse($response, $file, $mimeType)
     {
         $filePath                           = $file["file_path"];
-        $lock = new LockBiz();
-        $result = $lock->status($filePath);
-        $response['lock']                   = $result['success'];
+//        $lock = new LockBiz();
+//        $result = $lock->status($filePath);
+        $response['lock']                   = 0;
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
@@ -231,39 +225,30 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $response["share_key"] = $link['share_key'];
         }
         $response['is_dir'] = false;
-//        if($file['file_type'] != 0){
-            $permissionModel = new UserPermissionBiz($filePath,$this->userId);
-            $permission = $permissionModel->getPermission($filePath,$this->userId);
-            if(!empty($permission)){
-                if(isset($permission['children_shared'])){
-                    $response['children_shared'] = true;
-                }else{
-                    $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
-                    if(!empty($childrenFileMeta)){
-                        $childrenFileCreateId = $childrenFileMeta['meta_value'];
-                        $currentUser     = Yii::app()->session["user"];
-                        if((int)$childrenFileCreateId===(int)$currentUser['user_id']){
-                            $permission['permission']=MConst::SUPREME_PERMISSION;
-                        }
-                    }
-                    $response['share'] = $permission;
-                }
-                $filePermission = new MiniPermission($permission['permission']);
-                $response['canDelete'] = $filePermission->canDeleteFile();
-                if(empty($permission['permission'])){
-                    return null;
-                }
-            }
+        //TODO
+//        $permissionModel = new UserPermissionBiz($filePath,$this->userId);
+//        $permission = $permissionModel->getPermission($filePath,$this->userId);
+//        if(!empty($permission)){
+//            if(isset($permission['children_shared'])){
+//                $response['children_shared'] = true;
+//            }else{
+//                $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
+//                if(!empty($childrenFileMeta)){
+//                    $childrenFileCreateId = $childrenFileMeta['meta_value'];
+//                    $currentUser     = Yii::app()->session["user"];
+//                    if((int)$childrenFileCreateId===(int)$currentUser['user_id']){
+//                        $permission['permission']=MConst::SUPREME_PERMISSION;
+//                    }
+//                }
+//                $response['share'] = $permission;
+//            }
+//            $filePermission = new MiniPermission($permission['permission']);
+//            $response['canDelete'] = $filePermission->canDeleteFile();
+//            if(empty($permission['permission'])){
+//                return null;
+//            }
 //        }
         if ($file["file_type"] == MConst::OBJECT_TYPE_FILE){
-            //支持类s3数据源的文件下载
-            $data = array("hash" => $file["signature"]);
-            $downloadParam = apply_filters("event_params", $data);
-            if ($downloadParam !== $data){
-                if (is_array($downloadParam)){
-                    $response = array_merge($response, $downloadParam);
-                }
-            }
             $mimeType = MiniUtil::getMimeType($file['file_path']);
             $response["thumb_exists"]       = MUtils::isExistThumbnail($mimeType, (int)$file["file_size"]);
         }else{

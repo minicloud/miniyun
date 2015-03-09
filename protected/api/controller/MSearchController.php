@@ -229,10 +229,11 @@ class MSearchController extends MApplicationComponent implements MIController {
      * 搜索公共目录，共享目录
      */
     public function  handleSearchRoot($path, $query) {
+        $user = MUserManager::getInstance()->getCurrentUser();
         $sharedpaths = array();
         $publicFiles = MiniFile::getInstance()->getPublics();
         $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
-        $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege();
+        $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
         $shareFiles = array_merge($publicFiles,$groupShareFiles,$userShareFiles);
         foreach($shareFiles as $shareFile){
                 $sharedpaths[] = $shareFile['file_path'];

@@ -584,10 +584,13 @@ class MiniUserPrivilege extends MiniCache
     }
     /**
      * 获取所有记录
+     * @param string $userId
      * @return array
      */
-    public function getAllUserPrivilege(){
+    public function getAllUserPrivilege($userId){
         $criteria = new CDbCriteria();
+        $criteria->condition = "user_id like :user_id";
+        $criteria->params = array(':user_id'=>$userId);
         $items = UserPrivilege::model()->findAll($criteria);
         return ($this->db2list($items));
     }

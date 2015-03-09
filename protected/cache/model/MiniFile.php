@@ -164,10 +164,8 @@ class MiniFile extends MiniCache{
             $params["is_deleted"] = intval(false);
         }
         if (isset($userId)){
-            $var                  = array('condition'=>" user_id={$userId}", 'params'=>array('parent_file_id'=>$parentFileId));
-            //增加查询条件
-            $var                  = apply_filters('file_list_filter', $var);
-            $sql                 .= ' AND ' .$var['condition'];
+            $sql                 .= ' AND user_id=:user_id';
+            $params["user_id"]    = $userId;
         }
         if(isset($filePaths)){
             $files = array();
@@ -214,8 +212,9 @@ class MiniFile extends MiniCache{
             }
         }
         //共享目录/被共享目录才有可能有权限信息
-        $privilege = MiniUserPrivilege::getInstance()->getFolderPrivilege($user["id"],$file);
-        $file["privilege"]=$privilege;
+        //TODO
+//        $privilege = MiniUserPrivilege::getInstance()->getFolderPrivilege($user["id"],$file);
+//        $file["privilege"]=$privilege;
         return $file;
     }
 
