@@ -424,7 +424,7 @@ class CUtils{
         }
         // 当文件历史版本超过一定数量后，扎断处理
         $count = count($versions);
-        $fileMaxVersion = apply_filters("max_file_version_count", MConst::MAX_VERSION_CONUNT);
+        $fileMaxVersion = MiniConst::MAX_VERSION_COUNT;
         if ($count >= $fileMaxVersion) {
             $limit    = $count - $fileMaxVersion + 1;
             $versions = CUtils::mergeFileMetaVersion($versions, $limit);
