@@ -183,10 +183,14 @@ class MiniGroup extends MiniCache{
         $group = Group::model()->find($criteria);
         return $this->db2Item($group);
     }
+
     /**
-     *获取目录树
+     * 获取目录树
+     * @param $parentGroupId
+     * @param bool $showUser
+     * @return array
      */
-    public function getTreeNodes($parentGroupId){
+    public function getTreeNodes($parentGroupId,$showUser=true){
         $relations = MiniGroupRelation::getInstance()->getByParentId($parentGroupId);
         $userRelations = MiniUserGroupRelation::getInstance()->getByGroupId($parentGroupId);
         if(isset($relations)){
@@ -201,23 +205,26 @@ class MiniGroup extends MiniCache{
         {
             for($i = 0; $i < count($groups); $i++)
             {
-                $groups[$i]['nodes'] = $this->getTreeNodes($groups[$i]['id']);
+                $groups[$i]['nodes'] = $this->getTreeNodes($groups[$i]['id'],$showUser);
                 if($groups[$i]['nodes']==NULL){
                     $groups[$i]['nodes']=array();
                 }
             }
 
         }
-        if($userRelations){
-            foreach($userRelations as $userRelation){
-                $user = array();
-                $userInfo = MiniUser::getInstance()->getById($userRelation['user_id']);
-                $user['id'] = $userInfo['id'];
-                $user['user_name']= $userInfo['nick'];
-                $user['group_id']=$parentGroupId;
-                $groups[] = $user;
+        if($showUser){
+            if($userRelations){
+                foreach($userRelations as $userRelation){
+                    $user = array();
+                    $userInfo = MiniUser::getInstance()->getById($userRelation['user_id']);
+                    $user['id'] = $userInfo['id'];
+                    $user['user_name']= $userInfo['nick'];
+                    $user['group_id']=$parentGroupId;
+                    $groups[] = $user;
+                }
             }
         }
+
         return $groups;
     }
     /**

@@ -12,7 +12,7 @@ class FrontDepartmentBiz extends MiniBiz{
      * 群组列表
      */
     public function getList(){
-        $data = MiniGroup::getInstance()->getTreeNodes(-1);
+        $data = MiniGroup::getInstance()->getTreeNodes(-1,false);
         return $data;
     }
     /**
