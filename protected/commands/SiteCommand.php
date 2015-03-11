@@ -23,10 +23,26 @@ class SiteCommand extends CConsoleCommand{
     }
     /**
      * 初始化插件
-     * @param $name 需要拉上的插件名称
+     * @param $name
      */
     public function actionInitPlugin($name)
     {
         MiniPlugin::getInstance()->enablePlugin($name);
+    }
+    /**
+     * 初始化插件
+     */
+    public function actionInitOfficePlugin()
+    {
+        //拉上离线版插件
+        MiniPlugin::getInstance()->enablePlugin("offline");
+        //拉上商业版主题
+        MiniPlugin::getInstance()->enablePlugin("businessTheme");
+        //拉上迷你搜索
+        MiniPlugin::getInstance()->enablePlugin("miniSearch");
+        //拉上迷你文档
+        MiniPlugin::getInstance()->enablePlugin("miniDoc");
+        //拉上迷你存储
+        MiniPlugin::getInstance()->enablePlugin("miniStore");
     }
 }
