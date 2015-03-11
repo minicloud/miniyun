@@ -32,7 +32,7 @@ class SiteCommand extends CConsoleCommand{
     /**
      * 初始化插件
      */
-    public function actionInitOfficePlugin()
+    public function actionInitOfflinePlugin()
     {
         //拉上离线版插件
         MiniPlugin::getInstance()->enablePlugin("offline");
