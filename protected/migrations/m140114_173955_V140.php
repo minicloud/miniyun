@@ -30,7 +30,6 @@ class m140114_173955_V140  extends EDbMigration{
      * 为files表添加索引sort
      */
     private function addTable(){
-        $this->createIndex("sort", DB_PREFIX.'_files', "sort");
         $this->createIndex("file_type", DB_PREFIX.'_files', "file_type");
     }
 }
