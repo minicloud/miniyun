@@ -11,7 +11,7 @@
  * 向迷你文档发送转换请求Convert
  * Class DocConvertCommand
  */
-class PluginDocConvertCommand extends CConsoleCommand{
+class PluginDocCommand extends CConsoleCommand{
     /**
      * 定时任务入口
      * 先获得要转换的version列表
