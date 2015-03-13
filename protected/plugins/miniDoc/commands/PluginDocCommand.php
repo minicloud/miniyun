@@ -64,7 +64,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 场景1：检查各个迷你云节点状态
      * 使用方式：每隔5秒执行一次
      */
-    public function actionNodeStatus(){
+    public function actionCheckNodeStatus(){
         PluginMiniDocNode::getInstance()->checkNodesStatus();
     }
 }
