@@ -33,7 +33,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 场景2：新上传的文件时，迷你文档服务器不可用
      * 使用方式：手动执行/定时24点执行一次
      */
-    public function actionConvertAgainFile(){
+    public function actionConvertTimeoutFile(){
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0,true);
         if(!empty($versions)) {
             PluginMiniDocVersion::getInstance()->pushConvert($versions);
