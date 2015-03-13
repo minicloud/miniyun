@@ -18,7 +18,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 每次做多提交40个转换任务
      * 使用方式：手动执行
      */
-    public function actionOldFile()
+    public function actionConvertOldFile()
     { 
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0);
         if(empty($versions)) {
@@ -33,7 +33,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 场景2：新上传的文件时，迷你文档服务器不可用
      * 使用方式：手动执行/定时24点执行一次
      */
-    public function actionAgainFile(){
+    public function actionConvertAgainFile(){
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0,true);
         if(!empty($versions)) {
             PluginMiniDocVersion::getInstance()->pushConvert($versions);
@@ -51,7 +51,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 本次操作将一次性把系统中所有的转换失败的文件转换一次
      * 使用方式：手动执行
      */
-    public function actionFailFile(){
+    public function actionConvertFailFile(){
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(-1);
         if(empty($versions)) {
             echo("没有需要转换的文档了");
@@ -62,9 +62,10 @@ class PluginDocCommand extends CConsoleCommand{
     }
     /**
      * 定时任务入口
-     * 任务1：检查各个迷你云节点状态，如果访问失败，则把该节点拉下并把报警
+     * 场景1：检查各个迷你云节点状态
+     * 使用方式：每隔5秒执行一次
      */
-    public function actionStatus(){
+    public function actionNodeStatus(){
         PluginMiniDocNode::getInstance()->checkNodesStatus();
     }
 }
