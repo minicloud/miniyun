@@ -18,7 +18,7 @@ class PluginDocCommand extends CConsoleCommand{
      * 然后提交到迷你文档服务器进行转换，提交成功后修改该文档的状态
      * 迷你文档转换成功后，将异步方式给迷你云发送成功信息
      */
-    public function actionIndex()
+    public function actionAgain()
     { 
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList();
         if(empty($versions)) {

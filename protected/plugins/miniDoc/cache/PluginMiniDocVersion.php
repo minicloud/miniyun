@@ -244,7 +244,7 @@ class PluginMiniDocVersion extends MiniCache{
     public function pushConvert($versions){
         //修改文档的转换状态为转换中
         foreach ($versions as $version) {
-            $this->pushConvertSignature($version,"");
+            $this->pushConvertSignature($version["file_signature"],"");
         }
     }
 }
