@@ -106,7 +106,7 @@ class PluginMiniDocVersion extends MiniCache{
             $criteria                = new CDbCriteria();
             $criteria->condition     = "doc_convert_status=:doc_convert_status  and  mime_type=:mime_type";
             if($status===0 && !$noPage){
-                $criteria->limit     = 10;
+                $criteria->limit     = 20;
                 $criteria->offset    = 0;
             }
             $criteria->params        = array(

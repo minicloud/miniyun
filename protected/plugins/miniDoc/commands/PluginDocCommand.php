@@ -15,7 +15,7 @@ class PluginDocCommand extends CConsoleCommand{
     /**
      *
      * 场景1：针对1.5升级到1.7的场景
-     * 每次做多提交40个转换任务
+     * 每次做多提交80个转换任务
      * 使用方式：手动执行
      */
     public function actionConvertOldFile()
