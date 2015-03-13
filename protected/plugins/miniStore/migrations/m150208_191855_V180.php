@@ -68,7 +68,7 @@ class m150208_191855_V180  extends EDbMigration{
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
         $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "file_signature");
-        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "status");
+        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature_status',DB_PREFIX.'_store_replicate_tasks', "status");
         //replicate_status=0表示默认状态
         //replicate_status=1表示备份中
         //replicate_status=2表示备份成功
