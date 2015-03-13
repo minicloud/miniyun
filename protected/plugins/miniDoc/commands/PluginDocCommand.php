@@ -21,13 +21,13 @@ class PluginDocCommand extends CConsoleCommand{
     public function actionConvertOldFile()
     { 
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0);
-        echo("本次转换文件有:".count($versions)."个\n");
         if(empty($versions)) {
             echo("没有需要转换的文档了");
             Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
-            return;
+        }else{
+            echo("本次转换文件有:".count($versions)."个\n");
+            PluginMiniDocVersion::getInstance()->pushConvert($versions);
         }
-        PluginMiniDocVersion::getInstance()->pushConvert($versions);
     }
     /**
      * 场景1：针对处理超时的文件，重新提交转换请求
