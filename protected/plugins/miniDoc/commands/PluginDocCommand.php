@@ -21,6 +21,7 @@ class PluginDocCommand extends CConsoleCommand{
     public function actionConvertOldFile()
     { 
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0);
+        echo("本次转换文件有:".count($versions)."个\n");
         if(empty($versions)) {
             echo("没有需要转换的文档了");
             Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
@@ -34,16 +35,15 @@ class PluginDocCommand extends CConsoleCommand{
      * 使用方式：手动执行/定时24点执行一次
      */
     public function actionConvertTimeoutFile(){
+        $fileCount = 0;
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0,true);
+        $fileCount+=count($versions);
         if(!empty($versions)) {
             PluginMiniDocVersion::getInstance()->pushConvert($versions);
         }
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(1);
-        if(empty($versions)) {
-            echo("没有需要转换的文档了");
-            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
-            return;
-        }
+        $fileCount+=count($versions);
+        echo("第二次转换文件有:".$fileCount."个\n");
         PluginMiniDocVersion::getInstance()->pushConvert($versions);
     }
     /**
@@ -53,10 +53,9 @@ class PluginDocCommand extends CConsoleCommand{
      */
     public function actionConvertFailFile(){
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(-1);
-        if(empty($versions)) {
-            echo("没有需要转换的文档了");
-            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
-            return;
+        echo("第二次转换文件有:".count($versions)."个\n");
+        foreach($versions as $version){
+            echo($version["file_signature"]."\n");
         }
         PluginMiniDocVersion::getInstance()->pushConvert($versions);
     }
