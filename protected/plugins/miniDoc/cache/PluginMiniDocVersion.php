@@ -87,7 +87,7 @@ class PluginMiniDocVersion extends MiniCache{
         return  $value;
     }
     /**
-     * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
+     * 获得迷你文档需要转换的文件列表，每次返回最多80条记录
      * @param $status
      * @param $noPage
      * @return array
@@ -110,8 +110,8 @@ class PluginMiniDocVersion extends MiniCache{
                 $criteria->offset    = 0;
             }
             $criteria->params        = array(
-                "mime_type"=>$mimeType,
-                "doc_convert_status"=>$status
+                "doc_convert_status"=>$status,
+                "mime_type"=>$mimeType
             );
             $list = FileVersion::model()->findAll($criteria);
             if(count($list)>0){
@@ -122,27 +122,7 @@ class PluginMiniDocVersion extends MiniCache{
 
             }
         }
-        if($status==0){
-            //如果是status=0，需要把系统下的doc_convert_status=1的状态重新提交一下即可
-            //如果文件比较多，多运行几次即可
-            foreach ($mimeTypeList as $mimeType){
-                $criteria                = new CDbCriteria();
-                $criteria->condition     = "doc_convert_status=1  and  mime_type=:mime_type";
-                $criteria->limit         = 10;
-                $criteria->offset        = 0;
-                $criteria->params        = array(
-                    "mime_type"=>$mimeType,
-                );
-                $list = FileVersion::model()->findAll($criteria);
-                if(count($list)>0){
-                    $list = $this->db2list($list);
-                    foreach($list as $item){
-                        array_push($data,$item);
-                    }
 
-                }
-            }
-        }
         return $data;
 
     }
