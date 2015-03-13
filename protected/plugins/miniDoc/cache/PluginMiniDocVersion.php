@@ -89,6 +89,7 @@ class PluginMiniDocVersion extends MiniCache{
     /**
      * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
      * @param $status
+     * @param $noPage
      * @return array
      * doc_convert_status:-1
      * mime_type:
@@ -97,15 +98,17 @@ class PluginMiniDocVersion extends MiniCache{
      * application/msexcel
      * application/pdf
      */
-    public function getDocConvertList($status=0){
+    public function getDocConvertList($status=0,$noPage=false){
 
         $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
         $data = array();
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
             $criteria->condition     = "doc_convert_status=:doc_convert_status  and  mime_type=:mime_type";
-            $criteria->limit         = 10;
-            $criteria->offset        = 0;
+            if($status===0 && !$noPage){
+                $criteria->limit     = 10;
+                $criteria->offset    = 0;
+            }
             $criteria->params        = array(
                 "mime_type"=>$mimeType,
                 "doc_convert_status"=>$status
