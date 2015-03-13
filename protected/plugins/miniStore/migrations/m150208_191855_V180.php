@@ -22,11 +22,7 @@ class m150208_191855_V180  extends EDbMigration{
         }
     } 
     private  function newTable(){
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql";
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
         $extend = "";
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";

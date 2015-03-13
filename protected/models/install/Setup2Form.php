@@ -259,7 +259,6 @@ class Setup2Form extends CFormModel
                     Yii::app()->setComponent("dbInstall", $dbComponent);
 
                     define('DB_PREFIX',$this->tablePrefix);
-                    define('DB_TYPE',"mysql");
 
                     $migration = new MiniMigration();
                     $migration->connectionID = "dbInstall";

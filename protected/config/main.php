@@ -92,18 +92,16 @@ if (file_exists($configPath)) {
     $tablePrefix = DB_PREFIX . "_";
     $key = KEY;
     $path = BASE;
-    if (!defined('DB_TYPE') || DB_TYPE == "mysql") {
-        $dbConfig = array(
-            'connectionString' => 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';port=' . DB_PORT . ";",
-            'emulatePrepare' => true,
-            'username' => DB_USER,
-            'password' => DB_PASSWORD,
-            'charset' => DB_CHARSET,
-            'schemaCachingDuration' => 3600,
-            'enableProfiling' => true,
-            'enableParamLogging' => true,
-        );
-    }
+    $dbConfig = array(
+        'connectionString' => 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';port=' . DB_PORT . ";",
+        'emulatePrepare' => true,
+        'username' => DB_USER,
+        'password' => DB_PASSWORD,
+        'charset' => DB_CHARSET,
+        'schemaCachingDuration' => 3600,
+        'enableProfiling' => true,
+        'enableParamLogging' => true,
+    );
 } else {
     if (!empty($_SESSION)) {
         unset($_SESSION['user']);

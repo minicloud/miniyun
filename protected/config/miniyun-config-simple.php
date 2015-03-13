@@ -10,8 +10,6 @@
  * @package Miniyun
  */
 
-/** Miniyun 数据库的类型 */
-define('DB_TYPE', '#dBType#');
 
 /** Miniyun 数据库的名称 */
 define('DB_NAME', '#dBName#');

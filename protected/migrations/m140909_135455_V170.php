@@ -27,11 +27,7 @@ class m140909_135455_V170  extends EDbMigration{
      * 添加表
      */
     public  function addTable(){
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql";
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
         $extend = "";
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";

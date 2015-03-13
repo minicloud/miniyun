@@ -32,11 +32,7 @@ class m131016_104855_V121  extends EDbMigration{
      * 添加数据库表miniyun_logs
      */
     private function addTable(){
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql";
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
         $extend = "";
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";

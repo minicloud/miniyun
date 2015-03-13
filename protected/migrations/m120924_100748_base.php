@@ -39,11 +39,7 @@ class m120924_100748_base extends EDbMigration
     public function executeMigrate(){
         $data = date("Y-m-d H:i:s",time());
 
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql"; 
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
 
         $extend = "";
         if ($dbType == "mysql"){
