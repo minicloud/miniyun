@@ -30,9 +30,6 @@ define('DB_CHARSET', 'utf8');
 /**#@-*/
 
 
-/** SQLITE 数据库路径 */
-define('DB_PATH', '#dBPath#'); 
-
 /**
  * Miniyun 数据表前缀。
  *
