@@ -128,6 +128,7 @@ class PluginMiniSearchBiz extends MiniBiz
             $body =  $http->get_body();
             $body = json_decode($body,true);
             if($body['status']==1){
+                PluginMiniSearchNode::getInstance()->newSearch($node["id"]);
                 return $body["result"];
             }
         }
