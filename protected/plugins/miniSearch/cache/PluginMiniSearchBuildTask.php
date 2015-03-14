@@ -86,16 +86,14 @@ class PluginMiniSearchBuildTask extends MiniCache{
     }
 
     /**
-     * 后台检查所有的searchFile记录，为其生成索引文件
-     * 定时每日凌晨做此工作
+     * 为新节点编制索引
      */
-    public function backupCreateTask(){
+    public function buildNewNode(){
         $files = SearchFile::model()->findAll();
         foreach($files as $file){
             $this->createTask($file["node_ids"],$file["file_signature"]);
         }
-        //向迷你搜索服务器发送请求
-        $this->pushTask();
+        return count($files);
     }
     /**
      * 编制索引
@@ -147,28 +145,13 @@ class PluginMiniSearchBuildTask extends MiniCache{
         return count($tasks);
     }
     /**
-     * 向迷你搜索服务器推送消息
-     * 选出status=0的所有记录，为其迷你搜索节点发送请求，发送请求成功后修改状态status=1
-     */
-    public function pushTask(){
-        $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
-        $siteId   = MiniSiteUtils::getSiteID();
-        $criteria = new CDbCriteria();
-        $criteria->condition     = "status=0";
-        $tasks = SearchBuildTask::model()->findAll($criteria);
-        if(count($tasks)>0){
-            foreach($tasks as $task){
-                $this->buildTask($miniHost,$siteId,$task);
-            }
-
-        }
-    }
-    /**
      * 为searchFile对象生成索引编制对象
      * @param string $nodeIds
      * @param string $signature
      */
     public function createTask($nodeIds,$signature){
+        $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
+        $siteId   = MiniSiteUtils::getSiteID();
         $ids = explode(",",$nodeIds);
         //为索引服务器生成索引记录记录
         $nodes = PluginMiniSearchNode::getInstance()->getValidNodeList();
@@ -181,16 +164,23 @@ class PluginMiniSearchBuildTask extends MiniCache{
                 }
             }
             if(!$existed){
-                $task = new SearchBuildTask();
-                $task->file_signature = $signature;
-                $task->node_id = $node["id"];
-                $task->status = 0;
-                $task->save();
+                $task = SearchBuildTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+                    array(
+                        "file_signature" => $signature,
+                        "node_id" => $node["id"]
+                    ));
+                if(!isset($task)){
+                    $task = new SearchBuildTask();
+                    $task->file_signature = $signature;
+                    $task->node_id = $node["id"];
+                    $task->status = 0;
+                    $task->save();
+                }
+                //向迷你搜索服务器发送编制索引任务
+                $this->buildTask($miniHost,$siteId,$task);
             }
 
         }
-        //向迷你搜索服务器发送请求
-        $this->pushTask();
     }
 
 }

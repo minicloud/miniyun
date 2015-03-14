@@ -42,11 +42,12 @@ class PluginSearchCommand extends CConsoleCommand
         echo("本次索引的文件有:" . $count . "个\n");
     }
     /**
-     * 场景1：新加迷你搜索节点时候，如果系统中已经有文件
+     * 场景1：新拉上迷你搜索节点时，系统中已有文件，通过这个指令为新节点编制所有文件的索引
      * 使用方式：手动执行
      */
-    public function actionBuildNewNode($nodeName){
-
+    public function actionBuildNewNode(){
+        $count = PluginMiniSearchBuildTask::getInstance()->buildNewNode();
+        echo("本次索引的文件有:" . $count . "个\n");
     }
     /**
      * 场景1：检查各个迷你云节点状态
@@ -54,12 +55,5 @@ class PluginSearchCommand extends CConsoleCommand
      */
     public function actionCheckNodeStatus(){
         PluginMiniSearchNode::getInstance()->checkNodesStatus();
-    }
-    /**
-     * 定时12点为新节点生成索引库
-     * 这里也可手工执行
-     */
-    public function actionTask(){
-        PluginMiniSearchBuildTask::getInstance()->backupCreateTask();
     }
 }
