@@ -10,7 +10,7 @@
  * @license http://www.miniyun.cn/license.html
  * @since 1.8
  */
-class MiniSearchFile extends MiniCache{
+class PluginMiniSearchFile extends MiniCache{
     /**
      *
      * Cache Key的前缀

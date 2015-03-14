@@ -44,7 +44,7 @@ class PluginMiniSearchBiz extends MiniBiz
      */
     public function report($signature,$nodeId){
         //编制索引成功
-        $buildSuccess = MiniSearchFile::getInstance()->buildSuccess($signature,$nodeId);
+        $buildSuccess = PluginMiniSearchFile::getInstance()->buildSuccess($signature,$nodeId);
         if($buildSuccess){
             //为迷你搜索节点服务器增加索引数
             PluginMiniSearchNode::getInstance()->newBuildFile($nodeId);

@@ -52,7 +52,7 @@ class MiniSearchModule extends MiniPluginModule {
             $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
             foreach($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
-                    MiniSearchFile::getInstance()->create($signature);
+                    PluginMiniSearchFile::getInstance()->create($signature);
                     return;
                 }
             }
@@ -61,7 +61,7 @@ class MiniSearchModule extends MiniPluginModule {
                 if($mimeType===$version["mime_type"]){
                     //文档类增量转换
                     //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
-                    MiniSearchFile::getInstance()->create($signature);
+                    PluginMiniSearchFile::getInstance()->create($signature);
                 }
             }
 
