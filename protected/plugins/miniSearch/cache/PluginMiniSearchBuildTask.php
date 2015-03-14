@@ -114,13 +114,13 @@ class PluginMiniSearchBuildTask extends MiniCache{
             $data = array (
                 'signature'=>$signature,
                 'site_id'=>$siteId,//站点ID
-                'downloadUrl' =>$downloadUrl,//文件内容下载地址
-                "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
+                'download_url' =>$downloadUrl,//文件内容下载地址
+                "callback_url"=>$callbackUrl//文档转换成功后的回调地址
             );
             $http = new HttpClient();
             $http->post($url,$data);
             $result =  $http->get_body();
-            $result = json_decode($result,true);
+            $result = @json_decode($result,true);
             if($result['status']==1){
                 //修改task状态
                 $task->status=1;

@@ -208,8 +208,8 @@ class PluginMiniDocVersion extends MiniCache{
                 'signature'   => $signature,
                 'site_id'     => $siteId,//站点ID
                 'mime_type'   => $mimeType,//文件类型
-                'downloadUrl' => $downloadUrl,//文件内容下载地址
-                "callbackUrl" => $callbackUrl//文档转换成功后的回调地址
+                'download_url' => $downloadUrl,//文件内容下载地址
+                "callback_url" => $callbackUrl//文档转换成功后的回调地址
             );
             $http   = new HttpClient();
             $http->post($url,$data);

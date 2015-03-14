@@ -126,8 +126,8 @@ class PluginMiniReplicateTask extends MiniCache{
                     'site_id'=>$siteId,//站点ID
                     'size'=>$version["file_size"],
                     'signature'=>$signature,
-                    'downloadUrl'=>$downloadUrl,
-                    "callbackUrl"=>$callbackUrl
+                    'download_url'=>$downloadUrl,
+                    "callback_url"=>$callbackUrl
                 );
                 $http = new HttpClient();
                 $http->post($node["host"]."/api.php",$data);
