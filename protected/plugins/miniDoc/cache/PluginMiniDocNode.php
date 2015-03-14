@@ -173,7 +173,7 @@ class PluginMiniDocNode extends MiniCache{
         $url      = $host.'/api.php';
         $data = array (
             'route'        => "doc/status",
-            'callback_url' => PluginMiniDocOption::getInstance()->getMiniyunHost()."info.php"
+            'callback_url' => PluginMiniDocOption::getInstance()->getMiniyunHost()."info.htm"
         );
         $http   = new HttpClient();
         $http->post($url,$data);
