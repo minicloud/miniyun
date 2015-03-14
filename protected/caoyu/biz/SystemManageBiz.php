@@ -36,16 +36,6 @@ class SystemManageBiz extends MiniBiz{
     public function testMail(){
         //TODO 合法性检测
         $this->saveMail();
-//        if(1){
-//            $result = CEmailSender::sendMail($this->receiver, "测试邮件", "测试邮件",$this);
-//            if(is_bool($result) && $result){
-//                $this->saveMail();
-//                return true;
-//            }else{
-//                return array('success'=>false);
-//            }
-//        }
-//        return false;
     }
     /**
      * 清除过期事件
@@ -95,15 +85,10 @@ class SystemManageBiz extends MiniBiz{
         $tempSize = $tempDirectory['size'];
         return $tempSize+$sum_size;
     }
-    /**
-     * 回收站插件: -1保留值 0正常 1删除
-     * 这里需要删除is_delete=-1的已删除文件
-     */
-    private function handleCleanSuperDelete($limit){
-        UserFile::model()->deleteAll("is_deleted=-1 limit ?", array($limit));
-    }
+
     /**
      * 处理meta信息
+     * @param $metas
      */
     private function handleMeta($metas) {
         $list = array();
@@ -140,8 +125,10 @@ class SystemManageBiz extends MiniBiz{
         }
         FileVersion::model()->updateRefCountByIds($list);
     }
+
     /**
      * 清理file meta中多余的值
+     * @param $limit
      */
     private function handleCleanFileMeta($limit) {
         $condition = 'meta_key="version" and file_path not in (';
@@ -156,8 +143,10 @@ class SystemManageBiz extends MiniBiz{
             $fileMeta->delete();
         }
     }
+
     /**
      * 清理全部的缓存,包括多余的file_meta
+     * @param $limit
      */
     public function cleanCache($limit) {
         //data源处理对象
@@ -208,6 +197,9 @@ class SystemManageBiz extends MiniBiz{
     }
     /**
      * 验证网址格式，如不全，添加http://
+     * @param $userCreateUrl
+     * @param $userGetpwdUrl
+     * @return array
      */
     public function checkUrl($userCreateUrl,$userGetpwdUrl){
         $url = array();
@@ -221,20 +213,24 @@ class SystemManageBiz extends MiniBiz{
         $url['userGetpwdUrl'] = $userGetpwdUrl;
         return $url;
     }
+
     /**
      * 设置文件存储路径
+     * @param $newFilePath
      */
-    public function setStorePath($new_filePath){
+    public function setStorePath($newFilePath){
         $conf_filePath   =  dirname(__FILE__).'/../../config/miniyun-config.php';
         $conf_content    =  file_get_contents($conf_filePath);
-        $str2 = preg_replace("/\('BASE',.*\)/" , "('BASE',\"".utf8_encode($new_filePath).'")' , $conf_content );
+        $str2 = preg_replace("/\('BASE',.*\)/" , "('BASE',\"".utf8_encode($newFilePath).'")' , $conf_content );
         file_put_contents($conf_filePath, $str2);
     }
+
     /**
      * 设置站点信息
+     * @param $site
+     * @return array
      */
     public function settingSiteInfo($site){
-//        $file          = $site['file'];
         $fileStorePath = $site['fileStorePath'];
         //文件存储路径的合法性检测
         if(is_dir($fileStorePath)== false){
@@ -260,29 +256,9 @@ class SystemManageBiz extends MiniBiz{
             return array('success'=>false,'msg'=>'dir_is_not_writable');
         }
 
-        //TODO 站点各信息的合法性检测
-        //存储站点logo
-//        if($file['error'] != 4){
-//            $name = 'logo.png';
-//            list($width, $height) = getimagesize($file['tmp_name']);
-//            if(strpos($file['type'],'image') === false){
-//                return array('success'=>false,'msg'=>'is_not_image');
-//            }
-//            if($width != 256 || $height != 256){
-//                return array('success'=>false,'msg'=>'size_not_right');
-//            }
-//            $logoPath = dirname(__FILE__)."/../../../static/images/".$name;
-//            if($file['error'] == 0){
-//                if(move_uploaded_file($file['tmp_name'],$logoPath)){
-//                    chmod($logoPath, 0755);
-//                }
-//            }else{
-//                return array('success'=>false,'msg'=>'save_fail');
-//            }
-//        }
-        //TODO 权限插件开启后的默认权限设置
         //修改文件存储配置
         $this->setStorePath($site['fileStorePath']);
+        MiniOption::getInstance()->setOptionValue("miniyun_host", $site['miniyun_host']);
         MiniOption::getInstance()->setOptionValue("site_title", $site['siteTitle']);
         MiniOption::getInstance()->setOptionValue("site_name", $site['siteName']);
         MiniOption::getInstance()->setOptionValue("site_default_space", $site['siteDefaultSpace']);
@@ -293,6 +269,8 @@ class SystemManageBiz extends MiniBiz{
 
     /**
      * 设置邮件服务顺
+     * @param $mail
+     * @return array
      */
     public function settingMailInfo($mail){
         if($mail['enabledEmail'] == 0){
@@ -320,8 +298,13 @@ class SystemManageBiz extends MiniBiz{
             return array('success'=>true);
         }
     }
+
     /**
      * 高级选项，清理多余数据
+     * @param $events
+     * @param $errors
+     * @param $files
+     * @return array
      */
     public function cleanExcessData($events,$errors,$files){
         $limit  = 1000;
@@ -357,6 +340,8 @@ class SystemManageBiz extends MiniBiz{
 
     /**
      * 授权信息
+     * @param $key
+     * @return array
      */
     public function getLicenseInfo($key){
         if($key == ''){
@@ -392,12 +377,15 @@ class SystemManageBiz extends MiniBiz{
 
     /**
      * 用户自定义注册与找回密码地址
+     * @param $userCreateUrl
+     * @param $userPwdUrl
+     * @return array
      */
-    public function customUrl($userCreateUrl,$userGetpwdUrl){
-        $url = $this->checkUrl($userCreateUrl,$userGetpwdUrl);
+    public function customUrl($userCreateUrl,$userPwdUrl){
+        $url = $this->checkUrl($userCreateUrl,$userPwdUrl);
         MiniOption::getInstance()->setOptionValue("user_create_url", $url['userCreateUrl']);
         MiniOption::getInstance()->setOptionValue("userGetpwdUrl", $url['userGetpwdUrl']);
-        return array('succuss'=>true);
+        return array('success'=>true);
     }
     /**
      * 获取站点的基本信息
@@ -409,6 +397,12 @@ class SystemManageBiz extends MiniBiz{
         $data['siteDefaultSpace']     = MiniOption::getInstance()->getOptionValue('site_default_space');
         $data['siteCompany']          = MiniOption::getInstance()->getOptionValue('site_company');
         $data['userRegisterEnabled']  = MiniOption::getInstance()->getOptionValue('user_register_enabled');
+        $miniHost                     = MiniOption::getInstance()->getOptionValue('miniyun_host');
+        if(empty($miniHost)){
+            $miniHost = MiniHttp::getMiniHost();
+            MiniOption::getInstance()->setOptionValue('miniyun_host',$miniHost);
+        }
+        $data['miniyun_host']         = $miniHost;
         $data['fileStorePath']        = BASE;
         return $data;
     }
