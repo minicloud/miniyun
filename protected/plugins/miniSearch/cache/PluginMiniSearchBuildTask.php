@@ -98,44 +98,67 @@ class PluginMiniSearchBuildTask extends MiniCache{
         $this->pushTask();
     }
     /**
+     * 编制索引
+     * @param $miniHost
+     * @param $siteId
+     * @param $task
+     */
+    private function buildTask($miniHost,$siteId,$task){
+        $nodeId = $task->node_id;
+        $signature = $task->file_signature;
+        $node = PluginMiniSearchNode::getInstance()->getNodeById($nodeId);
+        if(!empty($node)){
+            $url = $node["host"].'/api.php?route=file/build';
+            $downloadUrl =$miniHost."api.php?route=module/miniSearch/downloadTxt&signature=".$signature;
+            $callbackUrl =$miniHost."api.php?route=module/miniSearch/report&node_id=".$node["id"]."&signature=".$signature;
+            $data = array (
+                'signature'=>$signature,
+                'site_id'=>$siteId,//站点ID
+                'downloadUrl' =>$downloadUrl,//文件内容下载地址
+                "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
+            );
+            $http = new HttpClient();
+            $http->post($url,$data);
+            $result =  $http->get_body();
+            $result = json_decode($result,true);
+            if($result['status']==1){
+                //修改task状态
+                $task->status=1;
+                $task->save();
+            }
+        }
+    }
+    /**
+     * 向迷你搜索服务器推送超时消息
+     * 选出所有记录，为其迷你搜索节点发送请求
+     * @return int
+     */
+    public function buildTimeoutTask(){
+        $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
+        $siteId   = MiniSiteUtils::getSiteID();
+        $criteria = new CDbCriteria();
+        $tasks    = SearchBuildTask::model()->findAll($criteria);
+        if(count($tasks)>0){
+            foreach($tasks as $task){
+                $this->buildTask($miniHost,$siteId,$task);
+            }
+
+        }
+        return count($tasks);
+    }
+    /**
      * 向迷你搜索服务器推送消息
-     * 选出status=1的前30条记录，为其迷你搜索节点发送请求，发送请求成功后修改状态status=1
+     * 选出status=0的所有记录，为其迷你搜索节点发送请求，发送请求成功后修改状态status=1
      */
     public function pushTask(){
         $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
         $siteId   = MiniSiteUtils::getSiteID();
-        //
-        $criteria                = new CDbCriteria();
+        $criteria = new CDbCriteria();
         $criteria->condition     = "status=0";
-        $criteria->limit         = 30;
-        $criteria->offset        = 0;
         $tasks = SearchBuildTask::model()->findAll($criteria);
         if(count($tasks)>0){
             foreach($tasks as $task){
-                $nodeId = $task->node_id;
-                $signature = $task->file_signature;
-                $node = PluginMiniSearchNode::getInstance()->getNodeById($nodeId);
-                if(!empty($node)){
-                    $url = $node["host"].'/api.php?route=file/build';
-                    $downloadUrl =$miniHost."api.php?route=module/miniSearch/downloadTxt&signature=".$signature;
-                    $callbackUrl =$miniHost."api.php?route=module/miniSearch/report&node_id=".$node["id"]."&signature=".$signature;
-                    $data = array (
-                        'signature'=>$signature,
-                        'site_id'=>$siteId,//站点ID
-                        'downloadUrl' =>$downloadUrl,//文件内容下载地址
-                        "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
-                    );
-                    $http = new HttpClient();
-                    $http->post($url,$data);
-                    $result =  $http->get_body();
-                    $result = json_decode($result,true);
-                    if($result['status']==1){
-                        //修改task状态
-                        $task->status=1;
-                        $task->save();
-                    }
-                }
-
+                $this->buildTask($miniHost,$siteId,$task);
             }
 
         }

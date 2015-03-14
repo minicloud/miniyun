@@ -85,5 +85,31 @@ class PluginMiniSearchVersion extends MiniCache{
         $value["createTime"]      = strtotime($item->created_at);
         return  $value;
     }
+    /**
+     *获得文本类文件列表
+     * 默认返回80条记录
+     * @return array
+     */
+    public function getTxtBuildList(){
+        $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
+        $data = array();
+        foreach ($mimeTypeList as $mimeType){
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "mime_type=:mime_type";
+            $criteria->limit         = 20;
+            $criteria->offset        = 0;
+            $criteria->params        = array(
+                "mime_type"=>$mimeType
+            );
+            $list = FileVersion::model()->findAll($criteria);
+            if(count($list)>0){
+                $list = $this->db2list($list);
+                foreach($list as $item){
+                    array_push($data,$item);
+                }
 
+            }
+        }
+        return $data;
+    }
 }

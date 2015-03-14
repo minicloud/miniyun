@@ -13,36 +13,46 @@
  */
 class PluginSearchCommand extends CConsoleCommand
 {
-
     /**
-     * 获得所有转换成功的word/excel/pdf的内容到数据库
+     *
+     * 场景1：针对1.5升级到1.7的场景
+     * 把系统中的文本文件，提交到文件索引节点，每次做多提交80个转换任务
+     * 使用方式：手动执行
      */
-    public function actionIndex()
-    { 
-    	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(2);
+    public function actionBuildOldFile()
+    {
+        $versions = PluginMiniSearchVersion::getInstance()->getTxtBuildList();
         if(empty($versions)) {
-            echo("no doc to pull txt!");
-            return;
-        }
-        $count = 0;
-        foreach($versions as $version){
-            $signature = $version["file_signature"];
-            //先判断文件的signature是否在search_file存在记录，如果不存在才从迷你文档上拉文本内容
-            $searchFile = MiniSearchFile::getInstance()->getBySignature($signature);
-            if(!empty($searchFile)){
-                continue;
+            echo("没有需要索引的文本文档了");
+        }else {
+            foreach($versions as $version){
+                $signature = $version["file_signature"];
+                PluginMiniSearchFile::getInstance()->create($signature);
             }
-            MiniSearchFile::getInstance()->create($signature);
-            $count ++;
+            echo("本次索引的文本文件有:" . count($versions) . "个\n");
         }
-        Yii::log("save txt:".$count." records",CLogger::LEVEL_INFO,"doc.convert");
+    }
+    /**
+     * 场景1：针对处理超时的文件，重新提交编制索引请求
+     * 场景2：新上传的文件时，迷你搜索服务器不可用
+     * 使用方式：手动执行/定时24点执行一次
+     */
+    public function actionBuildTimeoutFile(){
+        $count = PluginMiniSearchBuildTask::getInstance()->buildTimeoutTask();
+        echo("本次索引的文件有:" . $count . "个\n");
+    }
+    /**
+     * 场景1：新加迷你搜索节点时候，如果系统中已经有文件
+     * 使用方式：手动执行
+     */
+    public function actionBuildNewNode($nodeName){
 
     }
     /**
-     * 定时任务入口
-     * 任务1：检查各个迷你搜索节点状态，如果访问失败，则把该节点拉下并把报警
+     * 场景1：检查各个迷你云节点状态
+     * 使用方式：每隔5秒执行一次
      */
-    public function actionStatus(){
+    public function actionCheckNodeStatus(){
         PluginMiniSearchNode::getInstance()->checkNodesStatus();
     }
     /**
@@ -51,11 +61,5 @@ class PluginSearchCommand extends CConsoleCommand
      */
     public function actionTask(){
         PluginMiniSearchBuildTask::getInstance()->backupCreateTask();
-    }
-    /**
-     * 定时把任务推送到迷你搜索服务器
-     */
-    public function actionPushTask(){
-        PluginMiniSearchBuildTask::getInstance()->pushTask();
     }
 }
