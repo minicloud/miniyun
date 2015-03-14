@@ -234,9 +234,9 @@ class PluginMiniSearchNode extends MiniCache{
             $sortNodes      = MiniUtil::arraySort($nodes,"build_file_count",SORT_DESC);
             $sortNodes      = MiniUtil::getFistArray($sortNodes,1);
             $bestNode       = $sortNodes[0];
-            $buildFileCount = $sortNodes[0]["build_file_count"];
-            $searchCount    = $sortNodes[0]["search_count"];
-            foreach($sortNodes as $node){
+            $buildFileCount = $bestNode["build_file_count"];
+            $searchCount    = $bestNode["search_count"];
+            foreach($nodes as $node){
                 if($node["build_file_count"]==$buildFileCount){
                     if($node["search_count"]<$searchCount){
                         $bestNode = $node;
