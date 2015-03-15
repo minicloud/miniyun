@@ -84,72 +84,63 @@ class PluginMiniReplicateTask extends MiniCache{
             $item->delete();
         }
     }
+
     /**
-     * 更新冗余备份记录状态
-     * @param int $id
-     * @param int $status 1表示正在冗余备份
+     * 推送任务到文件冗余备份服务器
+     * @param $miniHost
+     * @param $task
      */
-    private function updateStatus($id,$status){
-        $item = ReplicateTask::model()->find("id=:id",
-            array(
-                "id"=>$id,
-            ));
-        if(isset($item)){
-            $item->status=$status;
-            $item->save();
+    private function replicateTask($miniHost,$task){
+        $node = PluginMiniStoreNode::getInstance()->getNodeById($task->node_id);
+        //如目标服务器不可用，则不用发送请求
+        if($node["status"]==1){
+            $signature = $task->file_signature;
+            $version   = MiniVersion::getInstance()->getBySignature($signature);
+
+            $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
+            $callbackUrl = $miniHost."api.php?route=module/miniStore/replicateReport&signature=".$signature."&node_id=".$node["id"];
+            //向迷你存储发送冗余备份请求
+            $data = array(
+                'route'        => "file/replicate",
+                'size'         => $version["file_size"],
+                'signature'    => $signature,
+                'download_url' => $downloadUrl,
+                "callback_url" => $callbackUrl
+            );
+            $http = new HttpClient();
+            $http->post($node["host"]."/api.php",$data);
+            $content = $http->get_body();
+            if(!empty($content)){
+                $status = @json_decode($content)->{"status"};
+                if($status==1){
+                    //目标服务器接受请求后，更改任务状态
+                    $task->status = 1;
+                    $task->save();
+                }
+            }
+
         }
     }
     /**
-     *为miniyun_replicate_tasks.status=0前30条记录向对应服务器发送请求
+     *向冗余备份服务器推送所有的任务
      */
     public function replicate(){
-        $siteId   = MiniSiteUtils::getSiteID();
-        //文件下载地址
-        $miniHost = PluginMiniStoreOption::getInstance()->getMiniyunHost();
-
+        $miniHost                = PluginMiniStoreOption::getInstance()->getMiniyunHost();
         $criteria                = new CDbCriteria();
         $criteria->condition     = "status=0";
-        $criteria->limit         = 3;
-        $criteria->offset        = 0;
-        $tasks = $this->db2list(ReplicateTask::model()->findAll($criteria));
+        $tasks = ReplicateTask::model()->findAll($criteria);
         foreach($tasks as $task){
-            $node = PluginMiniStoreNode::getInstance()->getNodeById($task["node_id"]);
-            if($node["status"]==1){
-                $signature = $task["file_signature"];
-                $version = MiniVersion::getInstance()->getBySignature($signature);
-
-                $downloadUrl = $miniHost."api.php?route=module/miniStore/download&signature=".$signature;
-                $callbackUrl = $miniHost."api.php?route=module/miniStore/replicateReport&signature=".$signature."&node_id=".$node["id"];
-                //向迷你存储发送冗余备份请求
-                $data = array(
-                    'route'=>"file/replicate",
-                    'site_id'=>$siteId,//站点ID
-                    'size'=>$version["file_size"],
-                    'signature'=>$signature,
-                    'download_url'=>$downloadUrl,
-                    "callback_url"=>$callbackUrl
-                );
-                $http = new HttpClient();
-                $http->post($node["host"]."/api.php",$data);
-                $content = $http->get_body();
-                if(!empty($content)){
-                    $status = @json_decode($content)->{"status"};
-                    if($status==1){
-                        //表示任务正在执行中
-                        $this->updateStatus($task["id"],1);
-                    }
-                }
-
-            }
+            $this->replicateTask($miniHost,$task);
         }
     }
     /**
-     *为miniyun_file_versions.replicate_status=0前10条记录生成冗余备份记录
+     * 为前30个文件生成冗余备份任务
+     * @param int $limit
      */
-    public function createReplicateTask(){
+    public function createReplicateTask($limit=30){
         $criteria                = new CDbCriteria();
         $criteria->condition     = "replicate_status=0";
-        $criteria->limit         = 30;
+        $criteria->limit         = $limit;
         $criteria->offset        = 0;
         $versions = FileVersion::model()->findAll($criteria);
         foreach($versions as $version){
@@ -160,11 +151,18 @@ class PluginMiniReplicateTask extends MiniCache{
             //为其它节点生成冗余备份记录
             $nodes = PluginMiniStoreNode::getInstance()->getReplicateNodes($signature);
             foreach($nodes as $node){
-                $task = new ReplicateTask();
-                $task->file_signature = $signature;
-                $task->node_id = $node["id"];
-                $task->status = 0;
-                $task->save();
+                $task = ReplicateTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+                    array(
+                        "file_signature"=>$signature,
+                        "node_id"=>$node["id"]
+                    ));
+                if(!isset($task)){
+                    $task                 = new ReplicateTask();
+                    $task->file_signature = $signature;
+                    $task->node_id        = $node["id"];
+                    $task->status         = 0;
+                    $task->save();
+                }
             }
         }
     }
