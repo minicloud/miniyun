@@ -38,6 +38,7 @@ class PluginSearchCommand extends CConsoleCommand
      * 使用方式：手动执行/定时24点执行一次
      */
     public function actionBuildTimeoutFile(){
+        Yii::log("handle miniSearch timeout file ",CLogger::LEVEL_INFO,"miniSearch");
         $count = PluginMiniSearchBuildTask::getInstance()->buildTimeoutTask();
         echo("本次索引的文件有:" . $count . "个\n");
     }

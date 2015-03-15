@@ -23,7 +23,7 @@ class PluginDocCommand extends CConsoleCommand{
     	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0);
         if(empty($versions)) {
             echo("没有需要转换的文档了");
-            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"doc.convert");
+            Yii::log("no doc to convert!",CLogger::LEVEL_INFO,"miniDoc");
         }else{
             echo("本次转换文件有:".count($versions)."个\n");
             PluginMiniDocVersion::getInstance()->pushConvert($versions);
@@ -32,9 +32,10 @@ class PluginDocCommand extends CConsoleCommand{
     /**
      * 场景1：针对处理超时的文件，重新提交转换请求
      * 场景2：新上传的文件时，迷你文档服务器不可用
-     * 使用方式：手动执行/定时24点执行一次
+     * 使用方式：手动执行/定时2点执行一次
      */
     public function actionConvertTimeoutFile(){
+        Yii::log("handle miniDoc timeout file ",CLogger::LEVEL_INFO,"miniDoc");
         $fileCount = 0;
         $versions = PluginMiniDocVersion::getInstance()->getDocConvertList(0,true);
         $fileCount+=count($versions);
