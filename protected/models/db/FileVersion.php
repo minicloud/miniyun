@@ -46,19 +46,7 @@ class FileVersion extends CMiniyunModel
         }
     }
 
-    /**
-     * 创建文件版本
-     */
-    public function createFileVersion($signature, $size, $mime_type){
-        $fileVersion = new FileVersion();
-        $fileVersion->file_signature = $signature;
-        $fileVersion->file_size = $size;
-        $fileVersion->block_ids = 0;
-        $fileVersion->ref_count = 0;
-        $fileVersion->mime_type = $mime_type;
-        $fileVersion->save();
-        return $fileVersion;
-    }
+
 
 
 

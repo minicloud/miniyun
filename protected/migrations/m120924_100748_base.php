@@ -159,7 +159,6 @@ class m120924_100748_base extends EDbMigration
              'id'              => 'pk',
              'file_signature'  => 'varchar(64) NOT NULL',
              'file_size'       => 'bigint(64) NOT NULL',
-             'block_ids'       => 'text NOT NULL',
              'ref_count'       => 'int(11) NOT NULL',
              'mime_type'       => 'varchar(255)',
              'created_at'      => 'datetime NOT NULL',

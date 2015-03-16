@@ -65,7 +65,6 @@ class MiniVersion extends MiniCache{
         $value["id"]             = $item->id;
         $value["file_signature"] = $item->file_signature;
         $value["file_size"]      = $item->file_size;
-        $value["block_ids"]      = $item->block_ids;
         $value["ref_count"]      = $item->ref_count;
         $value["mime_type"]      = $item->mime_type;
         $value["created_at"]      = $item->created_at;
@@ -150,7 +149,6 @@ class MiniVersion extends MiniCache{
             $item                 = new FileVersion();
             $item->file_signature = $signature;
             $item->file_size      = $size;
-            $item->block_ids      = 0;
             $item->ref_count      = 0;
             $item->mime_type      = $mimeType;
             $item->save();
