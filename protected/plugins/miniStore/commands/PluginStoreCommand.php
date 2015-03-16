@@ -20,15 +20,11 @@ class PluginStoreCommand extends CConsoleCommand{
      */
     public function actionReplicateOldFile()
     {
-        $versions = PluginMiniSearchVersion::getInstance()->getTxtBuildList();
-        if(empty($versions)) {
-            echo("没有需要索引的文本文档了");
+        $count = PluginMiniReplicateTask::getInstance()->replicateFile();
+        if($count==0) {
+            echo("没有需要冗余备份的文件了");
         }else {
-            foreach($versions as $version){
-                $signature = $version["file_signature"];
-                PluginMiniSearchFile::getInstance()->create($signature);
-            }
-            echo("本次索引的文本文件有:" . count($versions) . "个\n");
+            echo("本次冗余备份文件有:" . $count . "个\n");
         }
     }
     /**
@@ -37,7 +33,8 @@ class PluginStoreCommand extends CConsoleCommand{
      */
     public function actionReplicateTimeoutFile()
     {
-    	PluginMiniReplicateTask::getInstance()->replicate();
+        $count = PluginMiniReplicateTask::getInstance()->pushTimeoutTask();
+        echo("本次备份文件有:" . $count . "个\n");
     }
     /**
      * 场景1：把文件做至多3份备份
@@ -45,8 +42,8 @@ class PluginStoreCommand extends CConsoleCommand{
      */
     public function actionReplicateFile()
     {
-        PluginMiniReplicateTask::getInstance()->createReplicateTask();
-        PluginMiniReplicateTask::getInstance()->replicate();
+        $count = PluginMiniReplicateTask::getInstance()->replicateFile();
+        echo("本次备份文件有:" . $count . "个\n");
     }
     /**
      * 定时任务入口

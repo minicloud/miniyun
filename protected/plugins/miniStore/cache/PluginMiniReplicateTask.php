@@ -90,7 +90,7 @@ class PluginMiniReplicateTask extends MiniCache{
      * @param $miniHost
      * @param $task
      */
-    private function replicateTask($miniHost,$task){
+    private function pushReplicateTask($miniHost,$task){
         $node = PluginMiniStoreNode::getInstance()->getNodeById($task->node_id);
         //如目标服务器不可用，则不用发送请求
         if($node["status"]==1){
@@ -122,27 +122,32 @@ class PluginMiniReplicateTask extends MiniCache{
         }
     }
     /**
-     *向冗余备份服务器推送所有的任务
+     * 把所有超时的任务重新推送
      */
-    public function replicate(){
+    public function pushTimeoutTask(){
+        $fileCount = 0;
         $miniHost                = PluginMiniStoreOption::getInstance()->getMiniyunHost();
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "status=0";
-        $tasks = ReplicateTask::model()->findAll($criteria);
+        $tasks = ReplicateTask::model()->findAll();
         foreach($tasks as $task){
-            $this->replicateTask($miniHost,$task);
+            $this->pushReplicateTask($miniHost,$task);
+            $fileCount++;
         }
+        return $fileCount;
     }
     /**
      * 为前30个文件生成冗余备份任务
+     * 并把任务推送到备份服务器
      * @param int $limit
+     * @return int
      */
-    public function createReplicateTask($limit=30){
+    public function replicateFile($limit=30){
+        $miniHost                = PluginMiniStoreOption::getInstance()->getMiniyunHost();
         $criteria                = new CDbCriteria();
         $criteria->condition     = "replicate_status=0";
         $criteria->limit         = $limit;
         $criteria->offset        = 0;
         $versions = FileVersion::model()->findAll($criteria);
+        $fileCount = 0;
         foreach($versions as $version){
             //设置replicate_status=1
             $signature = $version->file_signature;
@@ -162,8 +167,11 @@ class PluginMiniReplicateTask extends MiniCache{
                     $task->node_id        = $node["id"];
                     $task->status         = 0;
                     $task->save();
+                    $this->pushReplicateTask($miniHost,$task);
+                    $fileCount++;
                 }
             }
         }
+        return $fileCount;
     }
 }
