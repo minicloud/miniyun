@@ -21,7 +21,10 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     * 目录打包下载
+     * 打包下载
+     * @param $paths
+     * @param $filePath
+     * @throws MFileopsException
      */
     public function downloadToPackage($paths,$filePath){
         $arr = explode('/',$filePath);
@@ -158,10 +161,9 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     *
      * 将文件拷贝到临时目录
-     *
-     * @since 1.0.0
+     * @param $files
+     * @return int
      */
     private function calculateSize($files){
         $size = 0;
@@ -174,28 +176,24 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     *
      * 将文件夹添加到临时目录
-     *
-     * @since 1.0.0
+     * @param $zip
+     * @param $storePath
      */
     private function addToFolder($zip, $storePath){
         $zip->addEmptyDir($storePath);
     }
 
     /**
-     *
      * 将文件拷贝到临时目录
-     *
-     * @since 1.0.0
+     * @param $zip
+     * @param $file
+     * @param $storePath
      */
     private function addToFile($zip, $file, $storePath){
         $fileVersion =  MiniVersion::getInstance()->getVersion($file["version_id"]);
-        $basePath  = MiniUtil::getPathBySplitStr ($fileVersion["file_signature"]);
-
-        $dataObj = Yii::app()->data;
-        $contents = $dataObj->get_contents($basePath);
-        $zip->addFromString($storePath, $contents);
+        $content = MiniFile::getInstance()->getFileContentBySignature($fileVersion["file_signature"]);
+        $zip->addFromString($storePath, $content);
     }
     /**
      * 通过signature下载文件
@@ -244,9 +242,10 @@ class FileBiz  extends MiniBiz{
         return $file;
     }
 
-
     /**
      * 上传文件
+     * @param $path
+     * @throws MFilesException
      */
     public function upload($path){
         $fileHandler = new MFilePostController();
