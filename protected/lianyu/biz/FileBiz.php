@@ -46,19 +46,19 @@ class FileBiz  extends MiniBiz{
         }
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
-        $limit = new DownloadPackageLimit();
+        $limit      = new DownloadPackageLimit();
         $limitCount = $limit->getLimitCount();
         $limitSize  = $limit->getLimitSize();
-        $code = '';
-        $fileNames = array();
-        $user = $this->user;
-        $userId = $user['user_id'];
-        $paths = explode(',',$paths);
+        $code       = '';
+        $fileNames  = array();
+        $user       = $this->user;
+        $userId     = $user['user_id'];
+        $paths      = explode(',',$paths);
         foreach($paths as $path){
             $file = MiniFile::getInstance()->getByPath($path);
             if (empty($file)){
-                echo  Yii::t('i18n','error_path');
-                Yii::app()->end();
+                echo  "批量下载的文件存在不存在的文件";
+                exit;
             }
             $code = $code.','.$file['id'] ;
             array_push($fileNames,$file['file_name']);
@@ -90,15 +90,16 @@ class FileBiz  extends MiniBiz{
                 $array = array_merge($array, $files);
             }
         }
+
         if (count($array) > $limitCount){
-            echo  Yii::t('i18n','out_of_count');
-            Yii::app()->end();
+            echo  "批量下载单次最大文件数不能超过:".$limitCount;
+            exit;
         }
 
         $size = $this->calculateSize($array);
         if ($size > $limitSize*1024*1024){
-            echo  Yii::t('i18n','out_of_size');
-            Yii::app()->end();
+            echo  "批量下载单次最大文件大小不能超过:".$limitSize."M";
+            exit;
         }
 
         $path         = CUtils::removeUserFromPath($array[0]["file_path"]);
