@@ -39,7 +39,7 @@ class MiniPermission extends MiniCache{
     }
     //判断删除目录权限
     public function canDeleteFolder(){
-        if($this->permission[self::FOLDER__DELETE] == 1){
+        if($this->permission[self::FILE__READ] == 1){
             return true;
         }else{
             return false;
@@ -47,7 +47,7 @@ class MiniPermission extends MiniCache{
     }
     //判断创建文件权限
     public function canCreateFile(){
-        if($this->permission[self::FILE__CREATE] == 1){
+        if($this->permission[self::FILE__READ] == 1){
             return true;
         }else{
             return false;
