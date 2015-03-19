@@ -77,13 +77,13 @@ class PluginMiniStoreVersionMeta extends MiniCache{
     public function addReplicateNode($signature,$nodeId){
         $version = MiniVersion::getInstance()->getBySignature($signature);
         if(!empty($version)){
-            $meta = FileVersionMeta::model()->find("version_id=:version_id",array("version_id"=>$version["id"]));
+            $meta = FileVersionMeta::model()->find("version_id=:version_id and meta_key='store_id'",array("version_id"=>$version["id"]));
             if(isset($meta)){
                 $value = $meta->meta_value;
                 $isExist = false;
                 $ids = explode(",",$value);
                 foreach($ids as $id){
-                    if($id==$nodeId){
+                    if($id===$nodeId){
                         $isExist = true;
                     }
                 }
@@ -97,6 +97,11 @@ class PluginMiniStoreVersionMeta extends MiniCache{
                         PluginMiniStoreVersion::getInstance()->replicateSuccess($signature);
                     }
                 }
+            }else{
+                $meta = new FileVersionMeta();
+                $meta->version_id = $version["id"];
+                $meta->meta_value = $nodeId;
+                $meta->save();
             }
         }
     }
