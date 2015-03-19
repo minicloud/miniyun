@@ -125,13 +125,17 @@ class PluginMiniSearchNode extends MiniCache{
      * @return int
      */
     public function checkNodeStatus($host){
-        $url = $host."/api.php?route=search/status";
-        $content = @file_get_contents($url);
-        if(!empty($content)){
-            $nodeStatus = @json_decode($content);
-            if($nodeStatus->{"status"}=="1"){
-                return 1;
-            }
+        $url      = $host.'/api.php';
+        $data = array (
+            'route'        => "search/status",
+            'callback_url' => PluginMiniSearchOption::getInstance()->getMiniyunHost()."info.htm"
+        );
+        $http   = new HttpClient();
+        $http->post($url,$data);
+        $result = $http->get_body();
+        $result = @json_decode($result,true);
+        if($result["status"]=="1"){
+            return 1;
         }
         return -1;
     }
@@ -231,11 +235,12 @@ class PluginMiniSearchNode extends MiniCache{
     public function getBestNode(){
         $nodes = $this->getValidNodeList();
         if(count($nodes)>0){
-            $sortNodes = MiniUtil::arraySort($nodes,"build_file_count",SORT_DESC);
-            $bestNode  = $sortNodes[0];
-            $buildFileCount = $sortNodes[0]["build_file_count"];
-            $searchCount = $sortNodes[0]["search_count"];
-            foreach($sortNodes as $node){
+            $sortNodes      = MiniUtil::arraySort($nodes,"build_file_count",SORT_DESC);
+            $sortNodes      = MiniUtil::getFistArray($sortNodes,1);
+            $bestNode       = $sortNodes[0];
+            $buildFileCount = $bestNode["build_file_count"];
+            $searchCount    = $bestNode["search_count"];
+            foreach($nodes as $node){
                 if($node["build_file_count"]==$buildFileCount){
                     if($node["search_count"]<$searchCount){
                         $bestNode = $node;

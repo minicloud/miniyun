@@ -78,7 +78,6 @@ class PluginMiniDocVersion extends MiniCache{
         $value["id"]             = $item->id;
         $value["file_signature"] = $item->file_signature;
         $value["file_size"]      = $item->file_size;
-        $value["block_ids"]      = $item->block_ids;
         $value["ref_count"]      = $item->ref_count;
         $value["mime_type"]      = $item->mime_type;
         $value["created_at"]      = $item->created_at;
@@ -87,8 +86,9 @@ class PluginMiniDocVersion extends MiniCache{
         return  $value;
     }
     /**
-     * 获得迷你文档需要转换的文件列表，每次返回最多10条记录
+     * 获得迷你文档需要转换的文件列表，每次返回最多80条记录
      * @param $status
+     * @param $noPage
      * @return array
      * doc_convert_status:-1
      * mime_type:
@@ -97,18 +97,20 @@ class PluginMiniDocVersion extends MiniCache{
      * application/msexcel
      * application/pdf
      */
-    public function getDocConvertList($status=0){
+    public function getDocConvertList($status=0,$noPage=false){
 
         $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
         $data = array();
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
             $criteria->condition     = "doc_convert_status=:doc_convert_status  and  mime_type=:mime_type";
-            $criteria->limit         = 10;
-            $criteria->offset        = 0;
+            if($status===0 && !$noPage){
+                $criteria->limit     = 20;
+                $criteria->offset    = 0;
+            }
             $criteria->params        = array(
-                "mime_type"=>$mimeType,
-                "doc_convert_status"=>$status
+                "doc_convert_status"=>$status,
+                "mime_type"=>$mimeType
             );
             $list = FileVersion::model()->findAll($criteria);
             if(count($list)>0){
@@ -119,27 +121,7 @@ class PluginMiniDocVersion extends MiniCache{
 
             }
         }
-        if($status==0){
-            //如果是status=0，需要把系统下的doc_convert_status=1的状态重新提交一下即可
-            //如果文件比较多，多运行几次即可
-            foreach ($mimeTypeList as $mimeType){
-                $criteria                = new CDbCriteria();
-                $criteria->condition     = "doc_convert_status=1  and  mime_type=:mime_type";
-                $criteria->limit         = 10;
-                $criteria->offset        = 0;
-                $criteria->params        = array(
-                    "mime_type"=>$mimeType,
-                );
-                $list = FileVersion::model()->findAll($criteria);
-                if(count($list)>0){
-                    $list = $this->db2list($list);
-                    foreach($list as $item){
-                        array_push($data,$item);
-                    }
 
-                }
-            }
-        }
         return $data;
 
     }
@@ -225,8 +207,8 @@ class PluginMiniDocVersion extends MiniCache{
                 'signature'   => $signature,
                 'site_id'     => $siteId,//站点ID
                 'mime_type'   => $mimeType,//文件类型
-                'downloadUrl' => $downloadUrl,//文件内容下载地址
-                "callbackUrl" => $callbackUrl//文档转换成功后的回调地址
+                'download_url' => $downloadUrl,//文件内容下载地址
+                "callback_url" => $callbackUrl//文档转换成功后的回调地址
             );
             $http   = new HttpClient();
             $http->post($url,$data);
@@ -244,7 +226,7 @@ class PluginMiniDocVersion extends MiniCache{
     public function pushConvert($versions){
         //修改文档的转换状态为转换中
         foreach ($versions as $version) {
-            $this->pushConvertSignature($version,"");
+            $this->pushConvertSignature($version["file_signature"],"");
         }
     }
 }

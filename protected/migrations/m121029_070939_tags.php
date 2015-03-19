@@ -19,11 +19,7 @@ class m121029_070939_tags extends EDbMigration
     {
         $data = date("Y-m-d H:i:s",time());
 
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql";
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
 
         $extend = "";
         if ($dbType == "mysql"){

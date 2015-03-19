@@ -86,59 +86,63 @@ class PluginMiniSearchBuildTask extends MiniCache{
     }
 
     /**
-     * 后台检查所有的searchFile记录，为其生成索引文件
-     * 定时每日凌晨做此工作
+     * 为新节点编制索引
      */
-    public function backupCreateTask(){
+    public function buildNewNode(){
         $files = SearchFile::model()->findAll();
         foreach($files as $file){
             $this->createTask($file["node_ids"],$file["file_signature"]);
         }
-        //向迷你搜索服务器发送请求
-        $this->pushTask();
+        return count($files);
     }
     /**
-     * 向迷你搜索服务器推送消息
-     * 选出status=1的前30条记录，为其迷你搜索节点发送请求，发送请求成功后修改状态status=1
+     * 编制索引
+     * @param $miniHost
+     * @param $siteId
+     * @param $task
      */
-    public function pushTask(){
+    private function buildTask($miniHost,$siteId,$task){
+        $nodeId = $task->node_id;
+        $signature = $task->file_signature;
+        $node = PluginMiniSearchNode::getInstance()->getNodeById($nodeId);
+        if(!empty($node)){
+            $url = $node["host"].'/api.php?route=file/build';
+            $downloadUrl =$miniHost."api.php?route=module/miniSearch/downloadTxt&signature=".$signature;
+            $callbackUrl =$miniHost."api.php?route=module/miniSearch/report&node_id=".$node["id"]."&signature=".$signature;
+            $data = array (
+                'signature'=>$signature,
+                'site_id'=>$siteId,//站点ID
+                'download_url' =>$downloadUrl,//文件内容下载地址
+                "callback_url"=>$callbackUrl//文档转换成功后的回调地址
+            );
+            $http = new HttpClient();
+            $http->post($url,$data);
+            $result =  $http->get_body();
+            $result = @json_decode($result,true);
+            if($result['status']==1){
+                //修改task状态
+                $task->status=1;
+                $task->save();
+            }
+        }
+    }
+    /**
+     * 向迷你搜索服务器推送超时消息
+     * 选出所有记录，为其迷你搜索节点发送请求
+     * @return int
+     */
+    public function buildTimeoutTask(){
         $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
         $siteId   = MiniSiteUtils::getSiteID();
-        //
-        $criteria                = new CDbCriteria();
-        $criteria->condition     = "status=0";
-        $criteria->limit         = 30;
-        $criteria->offset        = 0;
-        $tasks = SearchBuildTask::model()->findAll($criteria);
+        $criteria = new CDbCriteria();
+        $tasks    = SearchBuildTask::model()->findAll($criteria);
         if(count($tasks)>0){
             foreach($tasks as $task){
-                $nodeId = $task->node_id;
-                $signature = $task->file_signature;
-                $node = PluginMiniSearchNode::getInstance()->getNodeById($nodeId);
-                if(!empty($node)){
-                    $url = $node["host"].'/api.php?route=file/build';
-                    $downloadUrl =$miniHost."api.php?route=module/miniSearch/downloadTxt&signature=".$signature;
-                    $callbackUrl =$miniHost."api.php?route=module/miniSearch/report&node_id=".$node["id"]."&signature=".$signature;
-                    $data = array (
-                        'signature'=>$signature,
-                        'site_id'=>$siteId,//站点ID
-                        'downloadUrl' =>$downloadUrl,//文件内容下载地址
-                        "callbackUrl"=>$callbackUrl//文档转换成功后的回调地址
-                    );
-                    $http = new HttpClient();
-                    $http->post($url,$data);
-                    $result =  $http->get_body();
-                    $result = json_decode($result,true);
-                    if($result['status']==1){
-                        //修改task状态
-                        $task->status=1;
-                        $task->save();
-                    }
-                }
-
+                $this->buildTask($miniHost,$siteId,$task);
             }
 
         }
+        return count($tasks);
     }
     /**
      * 为searchFile对象生成索引编制对象
@@ -146,6 +150,8 @@ class PluginMiniSearchBuildTask extends MiniCache{
      * @param string $signature
      */
     public function createTask($nodeIds,$signature){
+        $miniHost = PluginMiniSearchOption::getInstance()->getMiniyunHost();
+        $siteId   = MiniSiteUtils::getSiteID();
         $ids = explode(",",$nodeIds);
         //为索引服务器生成索引记录记录
         $nodes = PluginMiniSearchNode::getInstance()->getValidNodeList();
@@ -158,16 +164,23 @@ class PluginMiniSearchBuildTask extends MiniCache{
                 }
             }
             if(!$existed){
-                $task = new SearchBuildTask();
-                $task->file_signature = $signature;
-                $task->node_id = $node["id"];
-                $task->status = 0;
-                $task->save();
+                $task = SearchBuildTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+                    array(
+                        "file_signature" => $signature,
+                        "node_id" => $node["id"]
+                    ));
+                if(!isset($task)){
+                    $task = new SearchBuildTask();
+                    $task->file_signature = $signature;
+                    $task->node_id = $node["id"];
+                    $task->status = 0;
+                    $task->save();
+                }
+                //向迷你搜索服务器发送编制索引任务
+                $this->buildTask($miniHost,$siteId,$task);
             }
 
         }
-        //向迷你搜索服务器发送请求
-        $this->pushTask();
     }
 
 }

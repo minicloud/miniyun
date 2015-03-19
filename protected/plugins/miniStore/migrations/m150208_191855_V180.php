@@ -22,11 +22,7 @@ class m150208_191855_V180  extends EDbMigration{
         }
     } 
     private  function newTable(){
-        if (!defined("DB_TYPE")){
-            $dbType = "mysql";
-        } else {
-            $dbType = DB_TYPE;
-        }
+        $dbType = "mysql";
         $extend = "";
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
@@ -72,7 +68,7 @@ class m150208_191855_V180  extends EDbMigration{
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
         $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "file_signature");
-        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature',DB_PREFIX.'_store_replicate_tasks', "status");
+        $this->createIndex(DB_PREFIX.'_store_replicate_tasks_signature_status',DB_PREFIX.'_store_replicate_tasks', "status");
         //replicate_status=0表示默认状态
         //replicate_status=1表示备份中
         //replicate_status=2表示备份成功

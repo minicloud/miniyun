@@ -13,22 +13,44 @@
  */
 class PluginStoreCommand extends CConsoleCommand{
     /**
-     * 定时任务入口
-     * 任务1：为miniyun_file_versions.replicate_status=0的文件生成miniyun_replicat_tasks记录
-     * 设置miniyun_file_versions.replicate_status=1
-     * 任务2：把miniyun_replicate_tasks.status=0的30条记录推送到迷你存储服务器上
-     * 设置miniyun_replicate_task.status=1
+     *
+     * 场景1：针对1.5升级到1.7的场景
+     * 把系统已有文件冗余备份到其它至多2个节点
+     * 使用方式：手动执行
      */
-    public function actionReplicate()
-    { 
-    	PluginMiniReplicateTask::getInstance()->createReplicateTask();
-        PluginMiniReplicateTask::getInstance()->replicate();
+    public function actionReplicateOldFile()
+    {
+        $count = PluginMiniReplicateTask::getInstance()->replicateFile();
+        if($count==0) {
+            echo("没有需要冗余备份的文件了");
+        }else {
+            echo("本次冗余备份文件有:" . $count . "个\n");
+        }
+    }
+    /**
+     * 场景1：把文件做至多3份备份
+     * 使用方式：每隔30分钟执行一次
+     */
+    public function actionReplicateTimeoutFile()
+    {
+        $count = PluginMiniReplicateTask::getInstance()->pushTimeoutTask();
+        echo("本次备份文件有:" . $count . "个\n");
+    }
+    /**
+     * 场景1：把文件做至多3份备份
+     * 使用方式：每隔1分钟执行一次
+     */
+    public function actionReplicateFile()
+    {
+        $count = PluginMiniReplicateTask::getInstance()->replicateFile();
+        echo("本次备份文件有:" . $count . "个\n");
     }
     /**
      * 定时任务入口
-     * 任务1：检查各个迷你云节点状态，如果访问失败，则把该节点拉下并把报警
+     * 场景1：检查各个迷你云节点状态
+     * 使用方式：每隔15秒执行一次
      */
-    public function actionStatus(){
+    public function actionCheckNodeStatus(){
         PluginMiniStoreNode::getInstance()->checkNodesStatus();
     }
 }

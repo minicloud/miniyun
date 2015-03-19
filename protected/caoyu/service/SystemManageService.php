@@ -13,13 +13,13 @@ class SystemManageService extends MiniService{
      * 设置站点基本信息
      */
     public function settingSiteInfo(){
-//        $site['file']  = $_FILES['siteImage'];
         $site['siteTitle']            = MiniHttp::getParam('siteTitle','miniyun');
         $site['siteName']             = MiniHttp::getParam('siteName','迷你云');
         $site['siteDefaultSpace']     = MiniHttp::getParam('siteDefaultSpace','1024');
         $site['siteCompany']          = MiniHttp::getParam('siteCompany','');
         $site['userRegisterEnabled']  = MiniHttp::getParam('userRegisterEnabled','1');
         $site['fileStorePath']        = MiniHttp::getParam('fileStorePath','');
+        $site['miniyun_host']         = MiniHttp::getParam('miniyun_host',MiniHttp::getMiniHost());
         $model  = new SystemManageBiz();
         $result = $model->settingSiteInfo($site);
         if($result['success'] == false){

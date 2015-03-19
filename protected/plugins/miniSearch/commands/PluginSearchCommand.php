@@ -13,49 +13,48 @@
  */
 class PluginSearchCommand extends CConsoleCommand
 {
-
     /**
-     * 获得所有转换成功的word/excel/pdf的内容到数据库
+     *
+     * 场景1：针对1.5升级到1.7的场景
+     * 把系统中的文本文件，提交到文件索引节点，每次做多提交80个转换任务
+     * 使用方式：手动执行
      */
-    public function actionIndex()
-    { 
-    	$versions = PluginMiniDocVersion::getInstance()->getDocConvertList(2);
+    public function actionBuildOldFile()
+    {
+        $versions = PluginMiniSearchVersion::getInstance()->getTxtBuildList();
         if(empty($versions)) {
-            echo("no doc to pull txt!");
-            return;
-        }
-        $count = 0;
-        foreach($versions as $version){
-            $signature = $version["file_signature"];
-            //先判断文件的signature是否在search_file存在记录，如果不存在才从迷你文档上拉文本内容
-            $searchFile = MiniSearchFile::getInstance()->getBySignature($signature);
-            if(!empty($searchFile)){
-                continue;
+            echo("没有需要索引的文本文档了");
+        }else {
+            foreach($versions as $version){
+                $signature = $version["file_signature"];
+                PluginMiniSearchFile::getInstance()->create($signature);
             }
-            MiniSearchFile::getInstance()->create($signature);
-            $count ++;
+            echo("本次索引的文本文件有:" . count($versions) . "个\n");
         }
-        Yii::log("save txt:".$count." records",CLogger::LEVEL_INFO,"doc.convert");
-
     }
     /**
-     * 定时任务入口
-     * 任务1：检查各个迷你搜索节点状态，如果访问失败，则把该节点拉下并把报警
+     * 场景1：针对处理超时的文件，重新提交编制索引请求
+     * 场景2：新上传的文件时，迷你搜索服务器不可用
+     * 使用方式：手动执行/定时24点执行一次
      */
-    public function actionStatus(){
+    public function actionBuildTimeoutFile(){
+        Yii::log("handle miniSearch timeout file ",CLogger::LEVEL_INFO,"miniSearch");
+        $count = PluginMiniSearchBuildTask::getInstance()->buildTimeoutTask();
+        echo("本次索引的文件有:" . $count . "个\n");
+    }
+    /**
+     * 场景1：新拉上迷你搜索节点时，系统中已有文件，通过这个指令为新节点编制所有文件的索引
+     * 使用方式：手动执行
+     */
+    public function actionBuildNewNode(){
+        $count = PluginMiniSearchBuildTask::getInstance()->buildNewNode();
+        echo("本次索引的文件有:" . $count . "个\n");
+    }
+    /**
+     * 场景1：检查各个迷你云节点状态
+     * 使用方式：每隔15秒执行一次
+     */
+    public function actionCheckNodeStatus(){
         PluginMiniSearchNode::getInstance()->checkNodesStatus();
-    }
-    /**
-     * 定时12点为新节点生成索引库
-     * 这里也可手工执行
-     */
-    public function actionTask(){
-        PluginMiniSearchBuildTask::getInstance()->backupCreateTask();
-    }
-    /**
-     * 定时把任务推送到迷你搜索服务器
-     */
-    public function actionPushTask(){
-        PluginMiniSearchBuildTask::getInstance()->pushTask();
     }
 }

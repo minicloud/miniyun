@@ -5,15 +5,15 @@
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
- * @since 1.8
+ * @since 1.7
  */
-class PluginMiniStoreVersion extends MiniCache{
+class PluginMiniSearchVersion extends MiniCache{
     /**
      *
      * Cache Key的前缀
      * @var string
      */
-    private static $CACHE_KEY = "cache.model.PluginMiniDocVersion";
+    private static $CACHE_KEY = "cache.model.PluginMiniSearchVersion";
 
     /**
      *  静态成品变量 保存全局实例
@@ -44,7 +44,7 @@ class PluginMiniStoreVersion extends MiniCache{
      * 按照id逐一放入内存
      */
     private function getCacheKey($id){
-        return PluginMiniDocVersion::PluginMiniStoreVersion."_".$id;
+        return PluginMiniSearchVersion::$CACHE_KEY."_".$id;
     }
     /**
      * 把数据库值序列化
@@ -82,19 +82,33 @@ class PluginMiniStoreVersion extends MiniCache{
         $value["mime_type"]      = $item->mime_type;
         $value["created_at"]      = $item->created_at;
         $value["createTime"]      = strtotime($item->created_at);
-        $value['replicate_status'] = $item->replicate_status;
         return  $value;
     }
-
     /**
-     * 冗余备份成功
-     * @param $signature
+     *获得文本类文件列表
+     * 默认返回80条记录
+     * @return array
      */
-    public function replicateSuccess($signature){
-        $item = FileVersion::model()->find("file_signature=:file_signature",array("file_signature"=>$signature));
-        if(isset($item)){
-            $item->replicate_status = 2;
-            $item->save();
+    public function getTxtBuildList(){
+        $mimeTypeList = array("text/plain","text/html","application/javascript","text/css","application/xml");
+        $data = array();
+        foreach ($mimeTypeList as $mimeType){
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "mime_type=:mime_type";
+            $criteria->limit         = 20;
+            $criteria->offset        = 0;
+            $criteria->params        = array(
+                "mime_type"=>$mimeType
+            );
+            $list = FileVersion::model()->findAll($criteria);
+            if(count($list)>0){
+                $list = $this->db2list($list);
+                foreach($list as $item){
+                    array_push($data,$item);
+                }
+
+            }
         }
+        return $data;
     }
 }

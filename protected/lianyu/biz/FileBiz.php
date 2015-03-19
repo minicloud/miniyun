@@ -21,7 +21,10 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     * 目录打包下载
+     * 打包下载
+     * @param $paths
+     * @param $filePath
+     * @throws MFileopsException
      */
     public function downloadToPackage($paths,$filePath){
         $arr = explode('/',$filePath);
@@ -43,19 +46,19 @@ class FileBiz  extends MiniBiz{
         }
         //打包下载限制
         header("Content-type: text/html; charset=utf-8");
-        $limit = new DownloadPackageLimit();
+        $limit      = new DownloadPackageLimit();
         $limitCount = $limit->getLimitCount();
         $limitSize  = $limit->getLimitSize();
-        $code = '';
-        $fileNames = array();
-        $user = $this->user;
-        $userId = $user['user_id'];
-        $paths = explode(',',$paths);
+        $code       = '';
+        $fileNames  = array();
+        $user       = $this->user;
+        $userId     = $user['user_id'];
+        $paths      = explode(',',$paths);
         foreach($paths as $path){
             $file = MiniFile::getInstance()->getByPath($path);
             if (empty($file)){
-                echo  Yii::t('i18n','error_path');
-                Yii::app()->end();
+                echo  "批量下载的文件存在不存在的文件";
+                exit;
             }
             $code = $code.','.$file['id'] ;
             array_push($fileNames,$file['file_name']);
@@ -87,15 +90,16 @@ class FileBiz  extends MiniBiz{
                 $array = array_merge($array, $files);
             }
         }
+
         if (count($array) > $limitCount){
-            echo  Yii::t('i18n','out_of_count');
-            Yii::app()->end();
+            echo  "批量下载单次最大文件数不能超过:".$limitCount;
+            exit;
         }
 
         $size = $this->calculateSize($array);
         if ($size > $limitSize*1024*1024){
-            echo  Yii::t('i18n','out_of_size');
-            Yii::app()->end();
+            echo  "批量下载单次最大文件大小不能超过:".$limitSize."M";
+            exit;
         }
 
         $path         = CUtils::removeUserFromPath($array[0]["file_path"]);
@@ -158,10 +162,9 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     *
      * 将文件拷贝到临时目录
-     *
-     * @since 1.0.0
+     * @param $files
+     * @return int
      */
     private function calculateSize($files){
         $size = 0;
@@ -174,28 +177,24 @@ class FileBiz  extends MiniBiz{
     }
 
     /**
-     *
      * 将文件夹添加到临时目录
-     *
-     * @since 1.0.0
+     * @param $zip
+     * @param $storePath
      */
     private function addToFolder($zip, $storePath){
         $zip->addEmptyDir($storePath);
     }
 
     /**
-     *
      * 将文件拷贝到临时目录
-     *
-     * @since 1.0.0
+     * @param $zip
+     * @param $file
+     * @param $storePath
      */
     private function addToFile($zip, $file, $storePath){
         $fileVersion =  MiniVersion::getInstance()->getVersion($file["version_id"]);
-        $basePath  = MiniUtil::getPathBySplitStr ($fileVersion["file_signature"]);
-
-        $dataObj = Yii::app()->data;
-        $contents = $dataObj->get_contents($basePath);
-        $zip->addFromString($storePath, $contents);
+        $content = MiniFile::getInstance()->getFileContentBySignature($fileVersion["file_signature"]);
+        $zip->addFromString($storePath, $content);
     }
     /**
      * 通过signature下载文件
@@ -244,9 +243,10 @@ class FileBiz  extends MiniBiz{
         return $file;
     }
 
-
     /**
      * 上传文件
+     * @param $path
+     * @throws MFilesException
      */
     public function upload($path){
         $fileHandler = new MFilePostController();

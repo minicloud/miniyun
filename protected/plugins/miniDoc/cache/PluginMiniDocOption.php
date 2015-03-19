@@ -60,7 +60,7 @@ class PluginMiniDocOption extends MiniCache{
     public function getMiniyunHost(){
         $value = MiniOption::getInstance()->getOptionValue("miniyun_host");
         if(empty($value)){
-            $value = "http://127.0.0.1";
+            $value = "http://127.0.0.1/";
         }
         return $value;
     }

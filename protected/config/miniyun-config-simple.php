@@ -10,8 +10,6 @@
  * @package Miniyun
  */
 
-/** Miniyun 数据库的类型 */
-define('DB_TYPE', '#dBType#');
 
 /** Miniyun 数据库的名称 */
 define('DB_NAME', '#dBName#');
@@ -31,9 +29,6 @@ define('DB_HOST', '#dBHost#');
 define('DB_CHARSET', 'utf8');
 /**#@-*/
 
-
-/** SQLITE 数据库路径 */
-define('DB_PATH', '#dBPath#'); 
 
 /**
  * Miniyun 数据表前缀。

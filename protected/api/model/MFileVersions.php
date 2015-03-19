@@ -37,24 +37,7 @@ class MFileVersions extends MModel {
         return $db_manager->selectDb($sql);
     }
     
-    /**
-     * 创建文件版本
-     * @param string $signature
-     * @param int $size
-     */
-    public static function createFileVersion($signature, $size, $mime_type) {
-        //
-        // 组装sql
-        //
-        $sql  = "insert into " . DB_PREFIX . "_file_versions";
-        $sql .= "(file_signature,file_size,block_ids,ref_count,mime_type,created_at,updated_at)";
-        $sql .= " VALUES(";
-        $sql .= "\"$signature\",$size,'0',0,\"$mime_type\",now(),now()";
-        $sql .= ")";
-        Yii::trace("function: '{__FUNCTION__}',sql:'{$sql}'");
-        $db_manager = MDbManager::getInstance();
-        return $db_manager->insertDb($sql);
-    }
+
     
     /**
      * 更新文件引用次数

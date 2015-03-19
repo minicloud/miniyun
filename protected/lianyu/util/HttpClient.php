@@ -243,7 +243,7 @@ class HttpClient {
             }
 
         }else {
-            if(!socket_connect($sock,$host,$port)) {
+            if(!@socket_connect($sock,$host,$port)) {
                 $this->_error = "Cann't connect to {$host}:{$port}";
                 return false;
             }

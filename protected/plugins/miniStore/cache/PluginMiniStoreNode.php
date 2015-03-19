@@ -133,13 +133,17 @@ class PluginMiniStoreNode extends MiniCache{
      * @return int
      */
     public function checkNodeStatus($host){
-        $url = $host."/api.php?route=store/status";
-        $content = @file_get_contents($url);
-        if(!empty($content)){
-            $nodeStatus = @json_decode($content);
-            if($nodeStatus->{"status"}=="1"){
-                return 1;
-            }
+        $url      = $host.'/api.php';
+        $data = array (
+            'route'        => "store/status",
+            'callback_url' => PluginMiniSearchOption::getInstance()->getMiniyunHost()."info.htm"
+        );
+        $http   = new HttpClient();
+        $http->post($url,$data);
+        $result = $http->get_body();
+        $result = @json_decode($result,true);
+        if($result["status"]=="1"){
+            return 1;
         }
         return -1;
     }
