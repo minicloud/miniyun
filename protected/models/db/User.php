@@ -181,12 +181,14 @@ class User extends CMiniyunModel
 			} 
 			//删除用户的文件信息
 			$userFile->deleteUserFile($userIds);
+            //删除用户的群组部门关系
+            MiniUserGroupRelation::getInstance()->deleteUserRelation($userIds);
 			//删除用户的事件信息
             MiniEvent::getInstance()->deleteByIds($userIds);
 			//删除用户Meta以及用户自己
 			foreach($ids as $id) {
 				//删除用户自身
-				MiniUser::getInstance()->deleteUser($id); 
+				MiniUser::getInstance()->deleteUser($id);
 			}
 		}
 	}
