@@ -113,7 +113,7 @@ class MiniUser extends MiniCache{
                     if(strpos($value,"http")===0){
                         $user["avatar"] = $value;
                     }else{
-                        $user["avatar"] = MiniHttp::getMiniHost()."static/thumbnails/avatar/".$value;
+                        $user["avatar"] = MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$value;
                     }
                 }
             }

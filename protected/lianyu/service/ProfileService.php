@@ -78,7 +78,7 @@ class ProfileService extends MiniService{
      * @return string
      */
     public function saveAvatar(){
-        $url = MiniHttp::getParam("thumbnail_link","");
+        $url = rawurldecode(MiniHttp::getParam("thumbnail_link",""));
         $model = new ProfileBiz();
         $avatar = $model->saveAvatar($url);
         return array('url'=>$avatar);
