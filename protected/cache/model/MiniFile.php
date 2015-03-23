@@ -1769,4 +1769,12 @@ class MiniFile extends MiniCache{
         $fileDetail          = $this->createFileMeta($folderPath, $parentFileId, $hadFileDelete,$userId);
         return $fileDetail;
     }
+
+    /**
+     * 获得整个系统的文件总数
+     * @return string
+     */
+    public function getSystemCount(){
+        return UserFile::model()->count();
+    }
 }
