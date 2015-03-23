@@ -6,8 +6,8 @@ class PluginBusinessThemeOption extends MiniCache{
     public static function getDefaultParams(){
         $host = MiniHttp::getMiniHost();
         $data = array(
-            'companyName' => '成都迷你云科技有限公司',
-            'companyEnglishName' => 'Chengdu Mini cloud Technology Co. Ltd.',
+            'companyName' => '让文件管理更简单',
+            'companyEnglishName' => 'make document management easier',
             'productName' => '迷你云',
             'logo'     => $host.'static/images/logo.png',
             'carouselImagesUrl' => array($host.'static/images/plugins/pluginTheme/default.png'),
