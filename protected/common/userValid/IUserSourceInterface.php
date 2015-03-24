@@ -26,4 +26,3 @@ interface IUserSourceInterface
      */
     public function judgeSelf();
 }
-?>
