@@ -78,8 +78,7 @@ class PluginAdCommand extends CConsoleCommand{
                 }
             }
             if(!$isExist){
-                $this->create($data[$i],$parentId);
-                $id = Yii::app()->db->getLastInsertID();
+                $id = $this->create($data[$i],$parentId);
                 $groupRelation = MiniGroupRelation::getInstance()->getById($id);
                 $groupId = $groupRelation['group_id'];
                 $createCount++;
