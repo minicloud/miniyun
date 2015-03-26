@@ -532,7 +532,11 @@ class MiniUser extends MiniCache{
             }
             $user["salt"]        = $salt;
             $user["user_pass"]   = MiniUtil::signPassword($password, $salt);
-            $user["user_status"] = 1;
+            if($userData['user_status'] !== NULL){
+                $user["user_status"] = $userData['user_status'];
+            }else{
+                $user["user_status"] = 1;
+            }
             $user->save();
             //存储用户扩展信息
             MiniUserMeta::getInstance()->create($user, $userData);
@@ -542,6 +546,9 @@ class MiniUser extends MiniCache{
         }else{
             //更新扩展信息
             MiniUserMeta::getInstance()->create($user, $userData);
+            if($userData['user_status'] !== NULL){
+                $this->updateStatus($user['id'],$userData['user_status']);
+            }
             $userData['user_id'] = $user['id'];
             $this->updateUserNamePinYin($user['id']);
             return $this->db2Item($user);
