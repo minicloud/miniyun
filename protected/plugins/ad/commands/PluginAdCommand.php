@@ -157,13 +157,19 @@ class PluginAdCommand extends CConsoleCommand{
         @ldap_set_option($ldapConn, LDAP_OPT_PROTOCOL_VERSION, 3);
         @ldap_set_option($ldapConn, LDAP_OPT_REFERRALS, 0);
         @ldap_bind($ldapConn,iconv('utf-8', $adInfo['ad_coding'],$adInfo['ad_test_user_name'].$ldapUsrDom),$adInfo['ad_test_password']); //验证账号与密码
-        $attrItems = array( "ou","dn","mail","telephonenumber","displayname");
+        $attrItems = array( "ou","dn","mail","telephonenumber","displayname","useraccountcontrol");
         $results   = @ldap_search($ldapConn,$adInfo['ad_ldap_base_cn'],"(|(sn=*)(givenname=*))",$attrItems);
         $entries   = @ldap_get_entries($ldapConn, $results);
         foreach($entries as $entry){
             $userData       = array();
             $extend         = array();
             if(!empty($entry['dn'])){
+                $userStatusNum = $entry['useraccountcontrol'][0];
+                if($userStatusNum == '66050'){
+                    $userData['user_status'] = 0;
+                }else{
+                    $userData['user_status'] = 1;
+                }
                 $dn = $entry['dn'];
                 $cn = explode(',',$dn)[0];
                 $department = $this->getDepartment($dn);
