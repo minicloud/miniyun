@@ -632,6 +632,17 @@ class MiniUtil{
 
         return $newArray;
     }
+
+    /**
+     * 判断是否是混合云版本
+     */
+    public function isMixCloudVersion(){
+        $path = MiniUtil::joinPath(MINIYUN_PATH,"protected","plugins","offline");
+        if(file_exists($path)){
+            return true;
+        }
+        return false;
+    }
     /**
      * 获得文件扩展类型
      * @param string $filename

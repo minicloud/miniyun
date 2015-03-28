@@ -347,4 +347,27 @@ class PluginMiniStoreNode extends MiniCache{
         }
         return null;
     }
+
+    /**
+     * 创建默认站点
+     */
+    public function createDefault(){
+        $nodes = $this->getNodeList();
+        if(count($nodes)>2){
+            return true;
+        }
+        if(count($nodes)==1){
+            $node = StoreNode::model()->find("id=:id",array("id"=>$nodes[0]["id"]));
+        }else{
+            $node = new StoreNode();
+            $node->saved_file_count=0;
+            $node->downloaded_file_count=0;
+            $node->safe_code = "uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS";
+            $node->name      = "store1";
+        }
+        $host = MiniHttp::getMiniHost();
+        $node->host = substr($host,0,strlen($host)-1).":6081";
+        $node->status = 1;
+        $node->save();
+    }
 }
