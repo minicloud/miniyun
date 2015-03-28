@@ -639,9 +639,9 @@ class MiniUtil{
     public static function isMixCloudVersion(){
         $path = MiniUtil::joinPath(MINIYUN_PATH,"protected","plugins","offline");
         if(file_exists($path)){
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
     /**
      * 获得文件扩展类型
