@@ -14,7 +14,11 @@ class DepartmentService extends MiniService{
         $parentDepartmentId = MiniHttp::getParam('parent_department_id','-1');
         $biz = new DepartmentBiz();
         $result = $biz->create($departmentName,$parentDepartmentId);
-        return $result;
+        if(is_null($result)){
+            return array('success'=>false,'msg'=>'name existed');
+        }else{
+            return array('success'=>true,'msg'=>'success');
+        }
     }
     /**
      * 删除部门

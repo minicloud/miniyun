@@ -19,8 +19,8 @@ class PluginAdService extends MiniService{
         $adInfo['ad_coding']           = MiniHttp::getParam('ad_coding',"");
         $adInfo['ad_white_list_open']  = MiniHttp::getParam('ad_white_list_open',"");
         $adInfo['ad_sync_department']  = MiniHttp::getParam('ad_sync_department',"");
-        $adInfo['user_name']           = MiniHttp::getParam('user_name',"");
-        $adInfo['password']            = MiniHttp::getParam('password',"");
+        $adInfo['ad_test_user_name']   = MiniHttp::getParam('user_name',"");
+        $adInfo['ad_test_password']    = MiniHttp::getParam('password',"");
         $model = new PluginAdBiz();
         return $model->setAdInfo($adInfo);
     }

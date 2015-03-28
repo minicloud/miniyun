@@ -36,8 +36,6 @@ class PluginAdBiz extends MiniBiz{
     public function setAdInfo($adInfo){
         $checkResult = $this->checkAdInfo($adInfo);
         if($checkResult){
-            unset($adInfo['user_name']);
-            unset($adInfo['password']);
             foreach($adInfo as $key=>$val){
                MiniOption::getInstance()->setOptionValue($key,$val);
             }
@@ -65,15 +63,24 @@ class PluginAdBiz extends MiniBiz{
      * 根据用户名+密码查询账号是否在AD服务器中
      */
     function checkAdInfo($adInfo) {
-        $ldap_usr_dom = "@".$this->getHost($adInfo['ad_ldap_base_cn']);
-        $userName = str_replace($ldap_usr_dom, "", $adInfo['user_name']);
-        $ldap_conn = @ldap_connect($adInfo['ad_ldap_host'],$adInfo['ad_ldap_port']);
-        if (!$ldap_conn){
+        $ldapUsrDom = "@".$this->getHost($adInfo['ad_ldap_base_cn']);
+        $userName = str_replace($ldapUsrDom, "", $adInfo['ad_test_user_name']);
+        $ldapConn = @ldap_connect($adInfo['ad_ldap_host'],$adInfo['ad_ldap_port']);
+        if (!$ldapConn){
             $this->code = -1;
             return false;
         }
-        $loginResult = @ldap_bind($ldap_conn,iconv('utf-8', $adInfo['ad_coding'],$userName.$ldap_usr_dom),$adInfo['password']); //验证账号与密码
+        @ldap_set_option($ldapConn, LDAP_OPT_PROTOCOL_VERSION, 3);
+        @ldap_set_option($ldapConn, LDAP_OPT_REFERRALS, 0);
+        $loginResult = @ldap_bind($ldapConn,iconv('utf-8', $adInfo['ad_coding'],$userName.$ldapUsrDom),$adInfo['ad_test_password']); //验证账号与密码
         if (!$loginResult){
+            $this->code = -2;
+            return false;
+        }
+        $query = "(&(userprincipalname=".iconv('utf-8', $adInfo['ad_coding'],$userName.$ldapUsrDom)."))"; //验证账号是否在过滤条件中
+        $results   = @ldap_search($ldapConn,$adInfo['ad_ldap_base_cn'],$query);
+        $entries   = @ldap_get_entries($ldapConn, $results);
+        if ($entries['count'] == 0){
             $this->code = -2;
             return false;
         }

@@ -90,11 +90,16 @@ class AD{
         $attrItems = array( "ou", "sn","mail","telephonenumber","displayname","department");
         $query = "(&(userprincipalname=".iconv('utf-8', $this->coding,$userName.$ldapUsrDom)."))"; //验证账号是否在过滤条件中
         $results   = @ldap_search($ldapConn,$dn,$query,$attrItems);
+        $entries   = @ldap_get_entries($ldapConn, $results);
+        if($entries['count'] == 0){
+            $this->code = -2;#测试帐号与密码错误
+            return false;
+        }
         $output    = array();
         $extend             = array();
         $extend["nick"]     = $userName;
         $output["user_name"]= $userName;
-        if($results!=false){
+        if($entries['count'] != 0){
         	$entries = @ldap_get_entries($ldapConn, $results);
         	array_shift($entries);
         	if(count($entries)>0){//获得更加详细的信息
