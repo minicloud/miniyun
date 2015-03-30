@@ -5,7 +5,7 @@
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html 
- * @since 1.6
+ * @since 1.8
  */
 class SystemManageBiz extends MiniBiz{
     public  $enabledEmail;//是否开启电子邮件发送功能
@@ -264,6 +264,11 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("site_default_space", $site['siteDefaultSpace']);
         MiniOption::getInstance()->setOptionValue("site_company", $site['siteCompany']);
         MiniOption::getInstance()->setOptionValue("user_register_enabled", $site['userRegisterEnabled']);
+        //如果是混合云版，则调整迷你存储的访问地址
+        if(MiniUtil::isMixCloudVersion()){
+            //创建默认迷你存储站点
+            PluginMiniStoreNode::getInstance()->createDefault();
+        }
         return array('success'=>true);
     }
 
