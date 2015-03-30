@@ -24,6 +24,7 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege['name'] = $user['user_name'];
             $privilege['nick'] = $user['nick'];
             $privilege['avatar'] = $user['avatar'];
+            $privilege['user_status'] = $user['user_status'];
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
             $modifyValue = substr($permission,1);
