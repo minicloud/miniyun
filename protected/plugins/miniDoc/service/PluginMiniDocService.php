@@ -12,7 +12,8 @@ class PluginMiniDocService extends MiniService{
     protected function anonymousActionList(){
         return array(
             "download",
-            "report"
+            "report",
+            "previewContent"
         );
     }
     protected function adminActionList(){

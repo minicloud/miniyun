@@ -235,6 +235,11 @@ class FileBiz  extends MiniBiz{
      */
     public function txtContent($path,$signature){
         $share = new MiniShare();
+        $fileBiz = new FileBiz();
+        $canRead = $fileBiz->privilege($path);
+        if(!$canRead){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         $minFileMeta = $share->getMinFileMetaByPath($path);
         $file = array();
         $content = MiniFile::getInstance()->getTxtContent($minFileMeta['ori_path'],$signature);
@@ -311,6 +316,37 @@ class FileBiz  extends MiniBiz{
         $masterId = $pathArr[1];
         if($masterId!=$this->user['id']){
             $isSharedPath = true;
+            //$masterId!=$this->user['id']的情况有两种，一种是未登录，一种是真不同
+            if(empty($this->user['id'])){//如果用户未登录，则判断该文件（或者其父级目录）是否生成外链，
+                $fileObj = MiniFile::getInstance()->getByPath($path);
+                $fileId = (int)$fileObj['id'];
+                $isLinkExist = MiniLink::getInstance()->getByFileId($fileId);//判断是否为外链，不是则判断其父级是否为外链
+                $isParentLinked = false;
+                if(empty($isLinkExist)){//如果该文件不存在外链,则判断父级目录是否做外链
+                    $jointPath = '/'.$pathArr[1];
+                    for($i=2;$i<count($pathArr);$i++){
+                        $jointPath .= '/'.$pathArr[$i];
+                        $parentFileObj = MiniFile::getInstance()->getByPath($jointPath);
+                        $parentFileId = (int)$parentFileObj['id'];
+                        $parentLinkObj = MiniLink::getInstance()->getByFileId($parentFileId);
+                        $isParentLinkExist = !empty($parentLinkObj);
+                        if($isParentLinkExist){//如果父级目录存在外链
+                            $isParentLinked = true;
+                            break;
+                        }else{
+                            $isParentLinked = false;
+                        }
+                    }
+                }else{
+                    return $canRead = true;//如果该文件本身就是外链文件，则可读
+                }
+                //如果父亲目录是外链目录，则可读；否则不可
+                if($isParentLinked){
+                    return $canRead = true;
+                }else{
+                    return $canRead = false;
+                }
+            }
         }else{
             $model = new GeneralFolderPermissionBiz($path);
             if($model->isParentShared($path)){//如果是父目录被共享
@@ -331,5 +367,6 @@ class FileBiz  extends MiniBiz{
         $canRead = $miniPermission->canRead();
         return $canRead;
     }
+
 }
 

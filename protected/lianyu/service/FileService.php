@@ -9,6 +9,11 @@
  * @since 1.6
  */
 class FileService extends MiniService{
+    protected function anonymousActionList(){
+        return array(
+            "preViewTxt"
+        );
+    }
     /**
      * download file
      */
