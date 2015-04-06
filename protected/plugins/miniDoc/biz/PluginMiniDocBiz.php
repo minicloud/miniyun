@@ -237,4 +237,10 @@ class PluginMiniDocBiz extends MiniBiz{
         }
         return PluginMiniDocNode::getInstance()->modifyNodeStatus($name,$status);
     }
+    public function convertStatus($path){
+        $file = MiniFile::getInstance()->getByPath($path);
+        $version = PluginMiniDocVersion::getInstance()->getVersion($file['version_id']);
+        return array('status'=>$version['doc_convert_status']);
+
+    }
 }

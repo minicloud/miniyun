@@ -12,7 +12,8 @@ class PluginMiniDocService extends MiniService{
     protected function anonymousActionList(){
         return array(
             "download",
-            "report"
+            "report",
+            "previewContent"
         );
     }
     protected function adminActionList(){
@@ -98,5 +99,11 @@ class PluginMiniDocService extends MiniService{
         }
         $biz = new PluginMiniDocBiz();
         return $biz->modifyNodeStatus($name,$status);
+    }
+    public function convertStatus(){
+        $path = MiniHttp::getParam("path","");
+        $path = rawurldecode($path);
+        $biz = new PluginMiniDocBiz();
+        return $biz->convertStatus($path);
     }
 }
