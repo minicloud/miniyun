@@ -142,7 +142,7 @@ class ProfileBiz  extends MiniBiz{
         //save image to avatar folder,file name is user_uuid.png
         $user = MiniUser::getInstance()->getUser($this->user["id"]);
         $avatarName = MiniUtil::getRandomName(8).".png";
-        $savePath = THUMBNAIL_TEMP . "avatar/";
+        $savePath = THUMBNAIL_TEMP . "avatar";
         $path = $savePath.'/'.$avatarName;
         if(!file_exists($savePath)){
             mkdir($savePath);
@@ -150,7 +150,7 @@ class ProfileBiz  extends MiniBiz{
         file_put_contents($path, file_get_contents($url));
         //save to db
         MiniUserMeta::getInstance()->updateMeta($user["id"],"avatar",$avatarName);
-        return MiniHttp::getMiniHost()."static/thumbnails/avatar/".$avatarName;
+        return MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$avatarName;
     }
     /**
      * delete头像

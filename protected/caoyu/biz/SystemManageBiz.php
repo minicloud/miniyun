@@ -319,13 +319,13 @@ class SystemManageBiz extends MiniBiz{
             $result['events'] = $this->getCountEvents();//查询过期事件条数
         }
 
-        if ($errors == '1'){//删除错误日志
-            $errors = APIErrorLog::model()->findAll(array('limit'=>$limit));
-            foreach ($errors as $error){
-                $error->delete();
-            }
-            $result['errors'] = $this->getCountErrors();//查询错误日志条数
-        }
+//        if ($errors == '1'){//删除错误日志
+//            $errors = APIErrorLog::model()->findAll(array('limit'=>$limit));/**/
+//            foreach ($errors as $error){
+//                $error->delete();
+//            }
+//            $result['errors'] = $this->getCountErrors();//查询错误日志条数
+//        }
 
         if ($files == '1'){//删除无关联文件
             $this->cleanCache($limit);
