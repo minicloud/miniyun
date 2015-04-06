@@ -249,4 +249,12 @@ class MiniUserGroupRelation extends MiniCache{
         }
         return NULL;
     }
+    /**
+     * 此方法专为删除用户时，删除其与所有群组的关系
+     */
+    public function deleteUserRelation($userIds){
+        if($userIds!='' && strlen($userIds)>0){
+            UserGroupRelation::model()->deleteAll("user_id in (".$userIds.")");
+        }
+    }
 }
