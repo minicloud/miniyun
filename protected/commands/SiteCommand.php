@@ -30,6 +30,14 @@ class SiteCommand extends CConsoleCommand{
         MiniPlugin::getInstance()->enablePlugin($name);
     }
     /**
+     * 禁用插件
+     * @param $name
+     */
+    public function actionDisablePlugin($name)
+    {
+        MiniPlugin::getInstance()->disablePlugin($name);
+    }
+    /**
      * 初始化插件
      */
     public function actionInitOfflinePlugin()
