@@ -136,7 +136,7 @@ class PluginMiniStoreNode extends MiniCache{
         $url      = $host.'/api.php';
         $data = array (
             'route'        => "store/status",
-            'callback_url' => PluginMiniSearchOption::getInstance()->getMiniyunHost()."info.htm"
+            'callback_url' => PluginMiniStoreOption::getInstance()->getMiniyunHost()."info.htm"
         );
         $http   = new HttpClient();
         $http->post($url,$data);
