@@ -1,0 +1,10 @@
+/*
+* Plugin Name: AD活动目录
+* Plugin Type: thirdUserSource
+* Plugin URI: http://www.miniyun.cn
+* Description: 支持AD活动目录
+* Author: MiniYun
+* Version: 1.0.0
+* Author URI: http://www.miniyun.cn
+* ErrorCode: 100400
+*/

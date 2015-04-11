@@ -32,61 +32,55 @@ class CUserValid extends CUserComponent
      */
     public function validUser($userName, $password){
         //迷你云第三方源验证
-        // admin为系统保留账号，不能进行第三方用户源的验证
-        if ($userName == "admin"){
-            return $this->validUserSelf($userName, $password);
-        } else {
+        //admin为系统保留账号，不能进行第三方用户源的验证
+        if ($userName !== "admin"){
             //是否开启用户源插件
-            $userSource = apply_filters('user_source', false);
-            //
+            $userSource = apply_filters('third_user_source', false);
             //用户源插件未开启时
-            //
-            if ($userSource === false) {
-                //
-                //未开启则验证自有系统中是否存在此用户
-                //
-                return $this->validUserSelf($userName, $password);
-            }
-        }
-
-        $userInfo = array();
-        $userInfo['userName'] = $userName;
-        $userInfo['password'] = $password;
-        $userData = $userSource->getUser($userInfo);
-
-        //
-        //返回false的情况
-        //
-        if (!$userData){
-            //
-            //不存在judgeSelf方法则直接返回错误码
-            //
-            if (!method_exists($userSource,'judgeSelf')){
-                //
-                //设置错误码
-                //
-                $this->errorCode = $userSource->errorCode;
-                return false;
-            }
-            //迷你云系统进行验证
-            if ($userSource->judgeSelf()){
-                $user = $this->validUserSelf($userName, $password);
+            if ($userSource !== false) {
+                $userInfo = array();
+                $userInfo['userName'] = $userName;
+                $userInfo['password'] = $password;
+                $userData = $userSource->getUser($userInfo);
+                //返回false的情况
+                if (!$userData){
+                    //
+                    //不存在judgeSelf方法则直接返回错误码
+                    //
+                    if (!method_exists($userSource,'judgeSelf')){
+                        //
+                        //设置错误码
+                        //
+                        $this->errorCode = $userSource->errorCode;
+                        return false;
+                    }
+                    //迷你云系统进行验证
+                    if ($userSource->judgeSelf()){
+                        $user = $this->validUserSelf($userName, $password);
+                        return $user;
+                    }
+                    //
+                    //设置错误码
+                    //
+                    $this->errorCode = $userSource->errorCode;
+                    return false;
+                }
+                //存在该账号 则存储部分信息至迷你云数据库
+                $userData["name"] = $userData["user_name"];
+                $user = MiniUser::getInstance()->create($userData);
+                if(!empty($userData['departmentData'])){
+                    $model = new DepartmentBiz();
+                    $model->import($userData['departmentData']);
+                }
+                if($user["user_status"]==0){
+                    $this->errorCode = MConst::ERROR_USER_DISABLED;
+                    return false;
+                }
                 return $user;
             }
-            //
-            //设置错误码
-            //
-            $this->errorCode = $userSource->errorCode;
-            return false;
         }
-        //存在该账号 则存储部分信息至迷你云数据库
-        $userData["name"] = $userData["user_name"];
-        $user = MiniUser::getInstance()->create($userData);
-        if($user["user_status"]==0){
-            $this->errorCode = MConst::ERROR_USER_DISABLED;
-            return false;
-        }
-        return $user;
+        //未开启则验证自有系统中是否存在此用户
+        return $this->validUserSelf($userName, $password);
     }
 
     /**
