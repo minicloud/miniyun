@@ -14,8 +14,8 @@ class DepartmentBiz extends MiniBiz{
      */
     public function create($departmentName,$parentDepartmentId){
         $userId = $this->userId;
-        $result = MiniGroup::getInstance()->create($departmentName,$userId,$parentDepartmentId);
-        return $result;
+        $departmentId = MiniGroup::getInstance()->create($departmentName,$userId,$parentDepartmentId);
+        return $departmentId;
     }
     /**
      * 删除部门
@@ -154,8 +154,8 @@ class DepartmentBiz extends MiniBiz{
                 }
             }
             if(!$isExist){
-                $this->create($data[$i],$parentId);
-                $id = Yii::app()->db->getLastInsertID();
+                $id = $this->create($data[$i],$parentId);
+//                $id = Yii::app()->db->getLastInsertID();
                 $groupRelation = MiniGroupRelation::getInstance()->getById($id);
                 $groupId = $groupRelation['group_id'];
                 $createCount++;

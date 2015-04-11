@@ -103,9 +103,9 @@ class MiniGroup extends MiniCache{
                 $relation ['parent_group_id'] = $parentGroupId;
                 $relation->save ();
             }
-            return array('success'=>true,'msg'=>'success');
+            return $group->id;
         }else{
-            return array('success'=>false,'msg'=>'name existed');
+            return NULL;
         }
     }
     /**
