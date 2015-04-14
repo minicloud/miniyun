@@ -28,7 +28,12 @@ class GroupService extends MiniService{
     public function create(){
         $groupName = MiniHttp::getParam("group_name","");
         $biz = new GroupBiz();
-        return $biz->create($groupName);
+        $result =  $biz->create($groupName);
+        if(is_null($result)){
+            return array('success'=>false,'msg'=>'name existed');
+        }else{
+            return array('success'=>true,'msg'=>'success');
+        }
     }
     /**
      * 删除群组
