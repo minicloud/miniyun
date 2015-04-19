@@ -237,10 +237,17 @@ class PluginMiniDocBiz extends MiniBiz{
         }
         return PluginMiniDocNode::getInstance()->modifyNodeStatus($name,$status);
     }
+    /**
+     * 获得当前文档转换状态
+     * 如状态为0，可能是老文件，以补偿形式开始转换
+     * @param string $path 文件路径 
+     */
     public function convertStatus($path){
-        $file = MiniFile::getInstance()->getByPath($path);
+        $file    = MiniFile::getInstance()->getByPath($path);
         $version = PluginMiniDocVersion::getInstance()->getVersion($file['version_id']);
+        if($version["doc_convert_status"]==0){
+            PluginMiniDocVersion::getInstance()->pushConvertSignature($version["file_signature"],""); 
+        }
         return array('status'=>$version['doc_convert_status']);
-
     }
 }
