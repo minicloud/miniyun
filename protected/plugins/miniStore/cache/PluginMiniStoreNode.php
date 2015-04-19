@@ -101,7 +101,14 @@ class PluginMiniStoreNode extends MiniCache{
         $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
         $nodes = MiniUtil::getFistArray($validNodes,1);
         if(count($nodes)>0){
-            return $nodes[0];
+            $node    = $nodes[0];
+            $urlInfo = parse_url($node["host"]);
+            if($urlInfo["host"]=="127.0.0.1"){
+                //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
+                $defaultHost  = MiniHttp::getMiniHost();
+                $node['host'] = substr($defaultHost,0,strlen($defaultHost)-1).":".$urlInfo["port"];
+            }
+            return $node;
         }
         return null;
     }
@@ -340,7 +347,14 @@ class PluginMiniStoreNode extends MiniCache{
                 $validNodes = MiniUtil::arraySort($validNodes,"downloaded_file_count",SORT_ASC);
                 $nodes = MiniUtil::getFistArray($validNodes,1);
                 if(count($nodes)>0){
-                    return $nodes[0];
+                    $node    = $nodes[0];
+                    $urlInfo = parse_url($node["host"]);
+                    if($urlInfo["host"]=="127.0.0.1"){
+                        //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
+                        $defaultHost  = MiniHttp::getMiniHost();
+                        $node['host'] = substr($defaultHost,0,strlen($defaultHost)-1).":".$urlInfo["port"];
+                    }
+                    return $node;
                 }
                 return null;
             }
