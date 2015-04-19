@@ -61,8 +61,8 @@ class MThumbnailBase extends MModel {
             $size = $_REQUEST["size"];
         }
         // 解析文件路径，若返回false，则错误处理
-        $url_manager = new MUrlManager();
-        $path = $url_manager->parsePathFromUrl($uri);
+        $urlManager = new MUrlManager();
+        $path = $urlManager->parsePathFromUrl($uri);
         if ($path == false) {
             throw new MException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_404);
         }
