@@ -51,9 +51,13 @@ class ProfileBiz  extends MiniBiz{
      * @password 用户密码
      */
     public function unlock($password){
-        $user = $this->user;
-        $isPass = MiniUser::getInstance()->valid($user["user_name"],$password);
-        return array("success"=>$isPass);
+        $user         = $this->user;
+        $uerObject    = new CUserValid();
+        $userObj      = $uerObject->validUser($user["user_name"], $password);
+        if(!isset($userObj) || !$userObj){
+            return array("success"=>false);
+        }
+        return array("success"=>true);
 
     }
     /**
