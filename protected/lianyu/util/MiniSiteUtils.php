@@ -54,7 +54,18 @@ class MiniSiteUtils
         }
         return $siteId;
     }
-
+    /**
+     *
+     * 获得站点code
+     * @since 2.0
+     */
+    public static function getSiteCode(){
+        $code = MiniOption::getInstance()->getOptionValue("code");
+        if ($code===NULL){
+            $code = "";
+        }
+        return $code;
+    }
     /**
      *
      * 获取web端上传限制大小

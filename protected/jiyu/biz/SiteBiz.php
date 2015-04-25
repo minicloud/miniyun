@@ -16,10 +16,10 @@ class SiteBiz extends MiniBiz
     public static function getSiteInfo()
     {
         $data = array();
-        $data['version'] = APP_VERSION;
-        $data['status'] = "done";
-        $data['app_name'] = 100;
-        $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . "/static/images/logo.png";
+        $data['version']      = APP_VERSION;
+        $data['status']       = "done";
+        $data['app_name']     = 100;
+        $data['app_logo']     = MiniHttp::getSystemParam("absoluteUrl") . "/static/images/logo.png";
         $data['default_size'] = 100;
         $data['can_register'] = true;
         $data['register_url'] = "";
@@ -29,7 +29,8 @@ class SiteBiz extends MiniBiz
             $data['app_name'] = $value;
         }
         //站点ID
-        $data['site_id'] = MiniSiteUtils::getSiteID();
+        $data['code']     = MiniSiteUtils::getSiteCode();
+        $data['site_id']  = MiniSiteUtils::getSiteID();
         $data['wx_token'] = MiniSiteUtils::getWxToken();
         //产品Logo
         $value = MiniOption::getInstance()->getOptionValue('site_logo_url');

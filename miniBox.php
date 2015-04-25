@@ -503,9 +503,11 @@ class MiniBox{
         }
         $this->version = $v;
         $header = "";
+        $site          = $this->appInfo->getSiteInfo();
+        $serverVersion = $site["version"];
 		//生产状态，将会把js/css文件进行合并处理，提高加载效率
-		$header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."' charset=\"utf-8\"></script>";
-		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$v."&l=".$this->language."'/>";
+		$header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."' charset=\"utf-8\"></script>";
+		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."'/>";
         $this->loadHtml($header);
     }
      
