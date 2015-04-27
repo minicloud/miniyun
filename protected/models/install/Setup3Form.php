@@ -62,6 +62,7 @@ class Setup3Form extends CFormModel
                 "email"=>$this->email
             );
             MiniUser::getInstance()->create($userData);
+            MiniPlugin::getInstance()->enablePlugin("businessTheme");
             return true;
         }
         return false;
