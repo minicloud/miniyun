@@ -546,7 +546,7 @@ class MiniUser extends MiniCache{
         }else{
             //更新扩展信息
             MiniUserMeta::getInstance()->create($user, $userData);
-            if($userData['user_status'] !== NULL){
+            if(array_key_exists("user_status", $userData) && $userData['user_status'] !== NULL){
                 $this->updateStatus($user['id'],$userData['user_status']);
             }
             $userData['user_id'] = $user['id'];
