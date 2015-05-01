@@ -266,8 +266,16 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("user_register_enabled", $site['userRegisterEnabled']);
         //如果是混合云版，则调整迷你存储的访问地址
         if(MiniUtil::isMixCloudVersion()){
-            //创建默认迷你存储站点
-            PluginMiniStoreNode::getInstance()->createDefault();
+            $plugins = MiniUtil::getActivedPluginsInfo();
+            if(!empty($plugins)){
+                foreach ($plugins as $plugin) { 
+                    if($plugin["name"]==="miniStore"){
+                        //创建默认迷你存储站点
+                        PluginMiniStoreNode::getInstance()->createDefault();
+                    }
+                }
+            }
+            
         }
         return array('success'=>true);
     }

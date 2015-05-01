@@ -106,7 +106,8 @@ class PluginMiniStoreNode extends MiniCache{
             if($urlInfo["host"]=="127.0.0.1"){
                 //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
                 $defaultHost  = MiniHttp::getMiniHost();
-                $node['host'] = substr($defaultHost,0,strlen($defaultHost)-1).":".$urlInfo["port"];
+                $miniHostInfo = parse_url($defaultHost);
+                $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":".$urlInfo["port"].$miniHostInfo["path"];
             }
             return $node;
         }
@@ -290,7 +291,7 @@ class PluginMiniStoreNode extends MiniCache{
      * @return string
      */
     public function getDownloadUrl($signature,$fileName,$mimeType,$forceDownload){
-        $node = $this->getDownloadNode($signature);
+        $node = $this->getDownloadNode($signature); 
         if(!empty($node)){
             //迷你存储服务器下载文件地址
             //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
@@ -348,11 +349,13 @@ class PluginMiniStoreNode extends MiniCache{
                 $nodes = MiniUtil::getFistArray($validNodes,1);
                 if(count($nodes)>0){
                     $node    = $nodes[0];
-                    $urlInfo = parse_url($node["host"]);
+                    $urlInfo = parse_url($node["host"]); 
                     if($urlInfo["host"]=="127.0.0.1"){
                         //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
                         $defaultHost  = MiniHttp::getMiniHost();
-                        $node['host'] = substr($defaultHost,0,strlen($defaultHost)-1).":".$urlInfo["port"];
+                        $miniHostInfo = parse_url($defaultHost);
+                        $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":".$urlInfo["port"].$miniHostInfo["path"];
+                        
                     }
                     return $node;
                 }
@@ -379,8 +382,9 @@ class PluginMiniStoreNode extends MiniCache{
             $node->safe_code = "uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS";
             $node->name      = "store1";
         }
-        $host = MiniHttp::getMiniHost();
-        $node->host = substr($host,0,strlen($host)-1).":6081";
+        $host         = MiniHttp::getMiniHost();
+        $miniHostInfo = parse_url($host);
+        $node->host   = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":6081".$miniHostInfo["path"];
         $node->status = 1;
         $node->save();
     }
