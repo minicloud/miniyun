@@ -1032,6 +1032,9 @@ abstract class OAuth2 {
       //兼容PC客户端的http://192.168.0.183:10089/miniyun/作为迷你云访问入口
       $url2    = "{$host}:{$port}:{$port}{$uri}?access_token={$accessToken}&client_id={$clientId}&client_secret={$clientSecret}";
       $signs[] = md5($url2); 
+      //在线编辑兼容非80端口
+      $url3    = "{$host}:{$port}:{$port}/api.php?access_token={$accessToken}&client_id={$clientId}&client_secret={$clientSecret}";
+      $signs[] = md5($url3); 
       return $signs;
   }
 
