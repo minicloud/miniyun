@@ -917,8 +917,15 @@ abstract class OAuth2 {
 
     if ($sign != $signWithout)
     {
-        $signWith = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"], $_SERVER["REQUEST_URI"]);
-        if ($sign != $signWith) {
+        $signs = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"], $_SERVER["REQUEST_URI"]);
+        $isValid = false;
+        foreach ($signs as $signCode) {
+          if ($sign == $signCode) {
+            $isValid = true;
+            break;
+          }
+        }
+        if (!$isValid) {
             return $exitInvalid ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_UNAUTHORIZED, $realm, OAUTH2_ERROR_INVALID_SIGN, 'The Signature is error.', NULL, $scope) : FALSE;
         }
     }
@@ -1019,8 +1026,13 @@ abstract class OAuth2 {
       if($port=="443"){
           $port = "80";
       }
-      $url = "{$host}:{$port}{$uri}?access_token={$accessToken}&client_id={$clientId}&client_secret={$clientSecret}";
-      return md5($url);
+      $signs   = array();
+      $url1    = "{$host}:{$port}{$uri}?access_token={$accessToken}&client_id={$clientId}&client_secret={$clientSecret}";
+      $signs[] = md5($url1); 
+      //兼容PC客户端的http://192.168.0.183:10089/miniyun/作为迷你云访问入口
+      $url2    = "{$host}:{$port}:{$port}{$uri}?access_token={$accessToken}&client_id={$clientId}&client_secret={$clientSecret}";
+      $signs[] = md5($url2); 
+      return $signs;
   }
 
     /**
