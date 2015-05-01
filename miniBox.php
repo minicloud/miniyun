@@ -100,11 +100,8 @@ class Util{
 		//兼容Linux 一键安装的安装向导错误
 		if($serverName==="demo.miniyun.cn"){
 		   $serverName = $_SERVER["HTTP_HOST"];
-		}
-        $url .=$serverName;
-        if(!($serverPort==="80" || $serverPort==="443")){
-            $url .=":".$serverPort;
-        }
+		} 
+        $url .=$serverName; 
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
         $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
@@ -114,7 +111,7 @@ class Util{
         $path = str_replace("\\","/",$path);
         if($path!=="/"){
             $path.="/";
-        }
+        } 
         return $url.$path;
     }
 

@@ -37,6 +37,16 @@ class MiniHttp{
         return false;
     }
     /**
+     * 判断是否在控制台下
+     */
+    public static function isConsole(){
+        if(empty($_SERVER)){
+            return true;
+        }else{
+            return false;
+        };
+    }
+    /**
      * 判断是否是iPhone客户端
      */
     public static function isiPhone(){
@@ -109,10 +119,7 @@ class MiniHttp{
 		if($serverName==="demo.miniyun.cn"){
 		   $serverName = $_SERVER["HTTP_HOST"];
 		}
-        $url .=$serverName;
-        if(!($serverPort==="80" || $serverPort==="443")){
-            $url .=":".$serverPort;
-        }
+        $url .=$serverName; 
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
         $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
@@ -122,7 +129,7 @@ class MiniHttp{
         $path = str_replace("\\","/",$path);
         if($path!=="/"){
             $path.="/";
-        }
+        } 
         return $url.$path;
     }
     /**

@@ -86,7 +86,11 @@ class MiniUser extends MiniCache{
             $user["created_at"]     = $item->created_at;
             $user["updated_at"]     = $item->updated_at;
             //查询用户Meta信息
-            $user["avatar"]         = Yii::app()->params["defaultAvatar"];
+            $avatar                 = Yii::app()->params["defaultAvatar"];
+            if(!MiniHttp::isConsole()){
+                $avatar             = MiniHttp::getMiniHost().$avatar;
+            }
+            $user["avatar"]         = $avatar;
             $user["nick"]           = $user["user_name"];
             $user["phone"]          = "";
             $user["email"]          = "";
