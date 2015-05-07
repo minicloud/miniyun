@@ -1122,17 +1122,22 @@ class MiniFile extends MiniCache{
     private function hasContentPrivilege($path,$signature="",$contentType="",$forceDownload=false){
         $file = $this->getByPath($path);
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
-        $hasPrivilege = false;
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
-        $versions = unserialize($fileMeta['meta_value']);
-        if(isset($fileMeta)){
-            foreach($versions as $item){
-                if(intval($item['version_id']) === intval($version['id'])){
-                    $hasPrivilege = true;
-                    break;
+        if(empty($signature)){
+            $hasPrivilege = true;
+        }else{
+            //下载历史版本时，要对权限判断
+            $hasPrivilege = false;
+            $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
+            $versions = unserialize($fileMeta['meta_value']);
+            if(isset($fileMeta)){
+                foreach($versions as $item){
+                    if(intval($item['version_id']) === intval($version['id'])){
+                        $hasPrivilege = true;
+                        break;
+                    }
                 }
             }
-        }
+        } 
         if($hasPrivilege){
             if(empty($contentType)){
                 $contentType = $version["mime_type"];
