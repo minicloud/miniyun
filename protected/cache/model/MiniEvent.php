@@ -313,8 +313,7 @@ class MiniEvent extends MiniCache{
             $criteria->params[':user_device_id']=$device["id"];
         }
         if($filePath!==""){
-            $criteria->addCondition("file_path like :file_path","and");
-            $criteria->params[':file_path']=$filePath;
+            $criteria->addCondition("file_path like '".$filePath."/%'","and");
         }
         return Event::model()->count($criteria);
     }
@@ -335,8 +334,7 @@ class MiniEvent extends MiniCache{
             $criteria->params[':user_device_id']=$device["id"];
         }
         if($filePath!==""){
-            $criteria->addCondition("file_path like :file_path","and");
-            $criteria->params[':file_path']=$filePath;
+            $criteria->addCondition("file_path like '".$filePath."/%'","and");
         }
         $criteria->order     = '-id';
         $criteria->limit     = $limit;
