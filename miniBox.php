@@ -91,7 +91,11 @@ class Util{
      * 获得迷你云Host
      */
     public static function getMiniHost(){
-        $serverPort = $_SERVER["SERVER_PORT"];
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+            $serverPort = $_SERVER["HTTP_PROXY_PORT"];
+        }else{
+            $serverPort = $_SERVER["SERVER_PORT"];
+        }  
         $url = "http://";
         if($serverPort==="443"){
             $url = "https://";
@@ -102,6 +106,9 @@ class Util{
 		   $serverName = $_SERVER["HTTP_HOST"];
 		} 
         $url .=$serverName; 
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+            $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
+        }
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
         $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
