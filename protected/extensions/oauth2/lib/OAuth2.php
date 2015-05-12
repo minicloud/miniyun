@@ -914,10 +914,14 @@ abstract class OAuth2 {
     }
     $client = $this->getClient($token["client_id"]);
     $signWithout = $this->signWithout($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["REQUEST_URI"]);
-
     if ($sign != $signWithout)
     {
-        $signs = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $_SERVER["SERVER_PORT"], $_SERVER["REQUEST_URI"]);
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+            $serverPort = $_SERVER["HTTP_PROXY_PORT"];
+        }else{
+            $serverPort = $_SERVER["SERVER_PORT"];
+        }  
+        $signs = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $serverPort, $_SERVER["REQUEST_URI"]);
         $isValid = false;
         foreach ($signs as $signCode) {
           if ($sign == $signCode) {
