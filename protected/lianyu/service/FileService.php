@@ -67,7 +67,7 @@ class FileService extends MiniService{
      * 上传文件
      */
     public function upload(){
-        $path = MiniHttp::getParam("path","");
+        $path = $_POST['path'];
         $biz = new FileBiz();
         $biz->upload($path);
     }

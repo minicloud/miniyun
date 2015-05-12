@@ -122,11 +122,14 @@ class MFilePostController extends MApplicationComponent  implements MIController
                     MiniFile::getInstance()->createFolder($parentPath, $user['id']);
                 }
             }
+            $regex = "/\/|\\$|\%|\&|\*|\:|\<|\>|\?|\/|\=|\\\|\|/";
+            $fileName = preg_replace($regex,"_",$fileName);
             $createFileHandler->size = $size;
             $createFileHandler->parent_path = MUtils::convertStandardPath($parentPath);
             $createFileHandler->file_name = $fileName;
             $createFileHandler->root = $root;
-            $createFileHandler->path = MUtils::convertStandardPath($path);;
+            $regex2 = "/\\$|\%|\&|\*|\:|\<|\>|\?|\=|\|/";
+            $createFileHandler->path = preg_replace($regex2,"_",MUtils::convertStandardPath($path));
             $createFileHandler->type = $type;
             // 文件不存在,保存文件
             $createFileHandler->saveFile($tmpName, $signature, $size);
