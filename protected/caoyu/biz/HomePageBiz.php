@@ -44,6 +44,8 @@ class HomePageBiz extends MiniBiz{
             if($totalSpace>0){
                 $usedPercentage = round($usedSpace/$totalSpace,3)*100;
             }
+            $usedSpace = round($usedSpace/1024/1024,2);
+            $totalSpace = round($totalSpace/1024/1024,2);
         }     
         //获得缓存空间大小
         $tempDirectory = $this->getDirectorySize(BASE.'temp');
