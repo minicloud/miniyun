@@ -50,6 +50,47 @@ class PluginMiniDocBiz extends MiniBiz{
         }
         return array("success"=>true);
     }
+    private function getSharedDoc($page,$pageSize,$sharedList,$mimeType){
+        $cursor = $pageSize;
+        $data   = array();
+        $num    = 0;
+        $index  = 0;
+        for($i=0;$i<count($sharedList);$i++){
+            $item  = $sharedList[$i];
+            $path  = $item[0];
+            $count = $item[1];
+            if($cursor==0){
+                return $data;
+            }
+            if($page<=$num+$count){
+                if($page-$num+$cursor<=$count){
+                    $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,$page-$num,$cursor);
+                    array_splice($data,count($data),0,$doc);
+                    break;
+                }else{
+                    if($index==0){
+                        $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,$page-$num,$cursor);
+                        array_splice($data,count($data),0,$doc);
+                        $cursor = $cursor-($num+$count-$page);
+                        if($cursor<=0){
+                            $cursor = 0;
+                        }
+                    }else{
+                        $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,0,$cursor);
+                        array_splice($data,count($data),0,$doc);
+                        $cursor = $cursor-$count;
+                        if($cursor<=0){
+                            $cursor = 0;
+                        }
+                    }
+                    $index++;
+                }
+            }
+            $num = $num+$count;
+        }
+        return $data;
+
+    }
     /**
      * 获得账号里所有的指定文件类型列表
      * @param int $page 当前页码
@@ -59,6 +100,7 @@ class PluginMiniDocBiz extends MiniBiz{
      */
     public function getList($page,$pageSize,$mimeType){
         $isValid = false;
+        $sharedList = array();
         $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
         foreach ($mimeTypeList as $validMimeType) {
             if($validMimeType===$mimeType){
@@ -75,34 +117,31 @@ class PluginMiniDocBiz extends MiniBiz{
         $fileTotal = MiniFile::getInstance()->getTotalByMimeType($userId,$mimeType);
         $pageSet=($page-1)*$pageSize;
         $albumBiz = new AlbumBiz();
-        $filePaths = $albumBiz->getAllSharedPath($userId);
+        $shares = $albumBiz->getAllSharedPath($userId);
         $sharedTotal = 0;
         $files = array();
-        if(count($filePaths)!=0){
+        if(count($shares)!=0){
             //获取当前文件夹下的子文件
-            foreach($filePaths as $filePath){
-                $sharedFiles = MiniFile::getInstance()->getSharedDocByPathType($filePath,$mimeType);
-                if(count($sharedFiles)==0){
-                    continue;
-                }
-                foreach($sharedFiles as $sharedFile){
-                    $sharedDocs[] = $sharedFile;
+            $sharedTotal = 0;
+            foreach($shares as $filePath){
+                $count = MiniFile::getInstance()->getSharedDocTotal($filePath,$mimeType);
+                $sharedTotal = $count+$sharedTotal;
+                if($count>0){
+                    $item = array();
+                    $item[] = $filePath;
+                    $item[] = $count;
+                    $sharedList[] = $item;
                 }
             }
-            $sharedTotal = count($sharedDocs);
         }
         if($pageSet>=$sharedTotal){
             $pageSet = $pageSet-$sharedTotal;
             $files = MiniFile::getInstance()->getByMimeType($userId,$mimeType,$pageSet,$pageSize);
         }else{
             if($page*$pageSize<$sharedTotal){
-                for($index=$pageSet;$index<=$page*$pageSize-1;$index++){
-                    $files[] = $sharedDocs[$index];
-                }
+                $files = $this->getSharedDoc($pageSet,$pageSize,$sharedList,$mimeType);
             }else{
-                for($index=$pageSet;$index<$sharedTotal;$index++){
-                    $fileArr[] = $sharedDocs[$index];
-                }
+                $fileArr = $this->getSharedDoc($pageSet,$sharedTotal,$sharedList,$mimeType);
                 $fileList =  MiniFile::getInstance()->getByMimeType($userId,$mimeType,0,$pageSize*$page-$sharedTotal);
                 if(count($fileList)!=0){
                     $files = array_merge($fileArr,$fileList);

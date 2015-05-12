@@ -91,7 +91,11 @@ class Util{
      * 获得迷你云Host
      */
     public static function getMiniHost(){
-        $serverPort = $_SERVER["SERVER_PORT"];
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+            $serverPort = $_SERVER["HTTP_PROXY_PORT"];
+        }else{
+            $serverPort = $_SERVER["SERVER_PORT"];
+        }  
         $url = "http://";
         if($serverPort==="443"){
             $url = "https://";
@@ -100,10 +104,10 @@ class Util{
 		//兼容Linux 一键安装的安装向导错误
 		if($serverName==="demo.miniyun.cn"){
 		   $serverName = $_SERVER["HTTP_HOST"];
-		}
-        $url .=$serverName;
-        if(!($serverPort==="80" || $serverPort==="443")){
-            $url .=":".$serverPort;
+		} 
+        $url .=$serverName; 
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+            $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
         }
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
@@ -114,7 +118,7 @@ class Util{
         $path = str_replace("\\","/",$path);
         if($path!=="/"){
             $path.="/";
-        }
+        } 
         return $url.$path;
     }
 

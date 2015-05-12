@@ -754,6 +754,21 @@ class MiniFile extends MiniCache{
 
     }
 
+    /*获得当前用户自己的图片总数
+     * @param $userId
+     * @param $type
+     * @return mixed
+     */
+    public function getImageTotal($userId,$type){
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "is_deleted=0 and user_id=:user_id and mime_type like '".$type."%'";
+        $criteria->params        = array(
+            "user_id"=>$userId
+        );
+        $total              	 =UserFile::model()->count($criteria);
+        return $total;
+    }
+
     /**
      * 根据文件名模糊查找文件
      * @param int $userId
@@ -1107,17 +1122,22 @@ class MiniFile extends MiniCache{
     private function hasContentPrivilege($path,$signature="",$contentType="",$forceDownload=false){
         $file = $this->getByPath($path);
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
-        $hasPrivilege = false;
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
-        $versions = unserialize($fileMeta['meta_value']);
-        if(isset($fileMeta)){
-            foreach($versions as $item){
-                if(intval($item['version_id']) === intval($version['id'])){
-                    $hasPrivilege = true;
-                    break;
+        if(empty($signature)){
+            $hasPrivilege = true;
+        }else{
+            //下载历史版本时，要对权限判断
+            $hasPrivilege = false;
+            $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
+            $versions = unserialize($fileMeta['meta_value']);
+            if(isset($fileMeta)){
+                foreach($versions as $item){
+                    if(intval($item['version_id']) === intval($version['id'])){
+                        $hasPrivilege = true;
+                        break;
+                    }
                 }
             }
-        }
+        } 
         if($hasPrivilege){
             if(empty($contentType)){
                 $contentType = $version["mime_type"];
@@ -1210,7 +1230,7 @@ class MiniFile extends MiniCache{
         $criteria                = new CDbCriteria();
         $criteria->select   ='*';
         $criteria->condition     = "is_deleted=0 and user_id=:user_id and (mime_type='image/jpeg' or mime_type='image/png' or mime_type='image/gif')";
-        $criteria->order    ='file_create_time desc';
+        $criteria->order    ='-file_create_time';
         $criteria->params        = array(
             "user_id"=>$userId
         );
@@ -1226,7 +1246,7 @@ class MiniFile extends MiniCache{
         $criteria                = new CDbCriteria();
         $criteria->select   ='*';
         $criteria->condition     = "is_deleted=0 and user_id=:user_id and (mime_type=:mime_type)";
-        $criteria->order    =     'file_create_time desc';
+        $criteria->order    =     '-file_create_time';
         $criteria->params        = array(
             "user_id"=>$userId,'mime_type'=>$mimeType
         );
@@ -1247,26 +1267,35 @@ class MiniFile extends MiniCache{
         $total              	 =UserFile::model()->count($criteria);
         return $total;
     }
-    public function getSharedDocByPathType($path,$mimeType){
+    public function getSharedDocByPathType($path,$mimeType,$offset,$limit){
         $criteria                = new CDbCriteria();
-        $criteria->select   ='*';
-        $criteria->condition     = "is_deleted=0 and mime_type =:mime_type and file_path like '%".$path."%'";;
+        $criteria->select        ='*';
+        $criteria->condition     = "is_deleted=0 and mime_type =:mime_type and file_path like '".$path."/%'";;
         $criteria->params        = array('mime_type'=>$mimeType);
-        $criteria->order    =     'file_create_time desc';
-        $items                   =UserFile::model()->findAll($criteria);
+        $criteria->limit    = $limit;
+        $criteria->offset   = $offset;
+        $criteria->order         =  '-file_create_time';
+        $items                   = UserFile::model()->findAll($criteria);
         return $this->db2list($items);
     }
-
+    public function getSharedDocTotal($path,$mimeType){
+        $criteria                = new CDbCriteria();
+        $criteria->select        ='*';
+        $criteria->condition     = "is_deleted=0 and mime_type =:mime_type and file_path like '".$path."/%'";;
+        $criteria->params        = array('mime_type'=>$mimeType);
+        $count                   = UserFile::model()->count($criteria);
+        return $count;
+    }
     /**
      * 根据filePath和mine_type获取图片
-     * @param string $filePath
-     * @return array|null
      */
-    public function searchFileByPathType($filePath){
+    public function searchFileByPathType($filePath,$offset,$limit){
         $criteria                = new CDbCriteria();
-        $criteria->select   ='*';
-        $criteria->condition     = "is_deleted=0 and  mime_type like 'image%' and file_path like '%".$filePath."%'";
-        $criteria->order    ='file_create_time desc';
+        $criteria->select        ='*';
+        $criteria->condition     = "is_deleted=0 and  mime_type like 'image%' and file_path like '".$filePath."/%'";
+        $criteria->limit    = $limit;
+        $criteria->offset   = $offset;
+        $criteria->order    ='-file_create_time';
         $items              	 =UserFile::model()->findAll($criteria);
         $total              	 =UserFile::model()->count($criteria);
         if($total == 0){
@@ -1274,6 +1303,18 @@ class MiniFile extends MiniCache{
         }else{
             return $this->db2list($items);
         }
+    }
+    /**
+     * 获得指定目录下所有的图片总数
+     * @param $filePath
+     * @return mixed
+     */
+    public function getImageTotalByPath($filePath){
+        $criteria                = new CDbCriteria();
+        $criteria->select        ='*';
+        $criteria->condition     = "is_deleted=0 and  mime_type like 'image%' and file_path like '".$filePath."/%'";
+        $total              	 =UserFile::model()->count($criteria);
+        return $total;
     }
 
     /**

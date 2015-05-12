@@ -27,7 +27,11 @@ class MiniUser extends MiniCache{
      *  @access private
      */
     static private $_instance = null;
-
+    /**
+     *  静态成品变量
+     *  @access private
+     */
+    private $userList = array();
     /**
      *  私有化构造函数，防止外界实例化对象
      */
@@ -86,7 +90,11 @@ class MiniUser extends MiniCache{
             $user["created_at"]     = $item->created_at;
             $user["updated_at"]     = $item->updated_at;
             //查询用户Meta信息
-            $user["avatar"]         = Yii::app()->params["defaultAvatar"];
+            $avatar                 = Yii::app()->params["defaultAvatar"];
+            if(!MiniHttp::isConsole()){
+                $avatar             = MiniHttp::getMiniHost().$avatar;
+            }
+            $user["avatar"]         = $avatar;
             $user["nick"]           = $user["user_name"];
             $user["phone"]          = "";
             $user["email"]          = "";
@@ -130,6 +138,9 @@ class MiniUser extends MiniCache{
      * @return array|null
      */
     public function getUser($id,$needSpaceSize=true){
+        if(array_key_exists($id,$this->userList)){
+           return $this->userList[$id];
+        }
         $user                  = $this->get4Db($id);
         if($needSpaceSize){
             $user["usedSpace"]     = $this->getUsedSize($id);//查询当前用户已经消耗的空间
@@ -138,6 +149,7 @@ class MiniUser extends MiniCache{
                 $user["space"] = $user["usedSpace"]-1;
             }
         }
+        $this->userList[$id] = $user;
         return $user;
     }
     /**

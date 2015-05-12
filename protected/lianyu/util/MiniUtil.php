@@ -554,7 +554,7 @@ class MiniUtil{
      * 获得系统所有启用的插件信息 
      * @return array
      */
-    private static function getActivedPluginsInfo(){
+    public static function getActivedPluginsInfo(){
         $pluginInfo = array();
         $pluginInfo = apply_filters("plugin_info", $pluginInfo);
         return $pluginInfo;

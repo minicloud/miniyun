@@ -9,7 +9,6 @@
  */
 class AlbumBiz  extends MiniBiz{
 
-
     public function getTimeLine(){
         $timeLine=array();
         $list=array();
@@ -105,35 +104,88 @@ class AlbumBiz  extends MiniBiz{
         }
         return $paths;
     }
+    private function getSharedImgPage($page,$pageSize,$sharedList){
+        $cursor = $pageSize;
+        $data   = array();
+        $num    = 0;
+        $index  = 0;
+        for($i=0;$i<count($sharedList);$i++){
+            $item  = $sharedList[$i];
+            $path  = $item[0];
+            $count = $item[1];
+            if($cursor==0){
+                return $data;
+            }
+            if($page<=$num+$count){
+                if($page-$num+$cursor<=$count&&$page!=0){
+                    $img = MiniFile::getInstance()->searchFileByPathType($path,$page-$num,$cursor);
+                    array_splice($data,count($data),0,$img);
+                    break;
+                }else{
+                    if($index==0){
+                        $img = MiniFile::getInstance()->searchFileByPathType($path,$page-$num,$cursor);
+                        array_splice($data,count($data),0,$img);
+                        $cursor = $cursor-($num+$count-$page);
+                        if($cursor<=0){
+                            $cursor = 0;
+                        }
+                    }else{
+                        $img = MiniFile::getInstance()->searchFileByPathType($path,0,$cursor);
+                        array_splice($data,count($data),0,$img);
+                        $cursor = $cursor-$count;
+                        if($cursor<=0){
+                            $cursor = 0;
+                        }
+                    }
+                    $index++;
+                }
+            }
+            $num = $num+$count;
+        }
+        return $data;
+
+    }
+
+    /**
+     * 图片列表分页
+     * @param $page
+     * @param $pageSize
+     * @return mixed
+     */
     public function getPage($page,$pageSize){
-        $list=array();
-        $pageSet=($page-1)*$pageSize;
-        $user      = $this->user;
-        $filePaths = $this->getAllSharedPath($user['id']);
-        $albumList = MiniFile::getInstance()->getFileByUserType($user["id"],"image");
-        //获取当前文件夹下的子文件
-        foreach($filePaths as $filePath){
-            $images = MiniFile::getInstance()->searchFileByPathType($filePath);
-            foreach($images as $image){
-                $imageArr[] = $image;
+        $fileList = array();
+        $list   = array();
+        $sharedList = array();
+        $limit  = ($page-1)*$pageSize;
+        $user   = $this->user;
+        $shares = $this->getAllSharedPath($user['id']);
+        $albumTotal = MiniFile::getInstance()->getImageTotal($user["id"],"image");
+        //获得当前用户被共享目录里面的每个共享目录的子图片总数
+        $sharedImgTotal = 0;
+        foreach($shares as $filePath){
+            $count = MiniFile::getInstance()->getImageTotalByPath($filePath);
+            $sharedImgTotal = $count+$sharedImgTotal;
+            if($count>0){
+                $item = array();
+                $item[] = $filePath;
+                $item[] = $count;
+                $sharedList[] = $item;
             }
         }
-        $sharedImgTotal = count($imageArr);
-        $fileList["total"]=count($albumList)+$sharedImgTotal;
-        if( $pageSet>=$sharedImgTotal){
-            $pageSet = $pageSet-$sharedImgTotal;
-            $albums = MiniFile::getInstance()->getFileListPage( $pageSet,$pageSize,$user["id"],"image");
+        $fileList["total"]=$albumTotal+$sharedImgTotal;
+        //共享目录图片取完后，取自己的图片
+        if( $limit>=$sharedImgTotal){
+            $limit = $limit-$sharedImgTotal;
+            $albums = MiniFile::getInstance()->getFileListPage( $limit,$pageSize,$user["id"],"image");
         }else{
+            //共享目录图片下的图片
             if($page*$pageSize<$sharedImgTotal){
-                 for($index=$pageSet;$index<=$page*$pageSize-1;$index++){
-                     $albums[] = $imageArr[$index];
-                 }
+                $albums = $this->getSharedImgPage($limit,$pageSize,$sharedList);
             }else{
-                for($index=$pageSet;$index<$sharedImgTotal;$index++){
-                    $albumShared[] = $imageArr[$index];
-                }
-                $albumList =  MiniFile::getInstance()->getFileListPage(0,$pageSize*$page-$sharedImgTotal,$user["id"],"image");
-                if(count($albumList)!=0){
+                //部分共享目录，部分自己的图片
+                $albumShared = $this->getSharedImgPage($limit,$sharedImgTotal,$sharedList);
+                $albumList   =  MiniFile::getInstance()->getFileListPage(0,$pageSize*$page-$sharedImgTotal,$user["id"],"image");
+                if(count($albumList)>0){
                     $albums = array_merge($albumList,$albumShared);
                 }else{
                     $albums = $albumShared;
