@@ -713,7 +713,7 @@ class MUtils
         if ($fileName{strlen($fileName)-1} == ".") {
             return true;
         }
-        return preg_match("/[\\/".preg_quote("|?*\\<\":>")."]/",$fileName);
+        return preg_match("/[\\/".preg_quote("|?*&=%$\\<\":>")."]/",$fileName);
     }
 
     /**
