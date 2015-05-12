@@ -12,16 +12,44 @@ class HomePageBiz extends MiniBiz{
      * 获取系统已用空间
      */
     public function getUsedSpace(){
-        $remain    = $this->getDiskFreeSpace();//空闲空间 字节
-        $total     = $this->getDiskTotalSpace();//总空间 字节
-//        $usedSpace = $this->_byteFormat($total - $remain);//磁盘已用的空间单位G(包括miniyun以外文件)
-        $usedSpace = $this->_byteFormat(MiniVersion::getInstance()->getTotalSize());
-        $totalSpace = $this->_byteFormat($total);
-        $usedPercentage = $this->getUsedPercent();//已用空间占的百分比
+        $storeData = MiniUtil::getPluginMiniStoreData();
+        if(empty($storeData)){
+            //非迷你存储模式
+            $remain    = $this->getDiskFreeSpace();//空闲空间 字节
+            $total     = $this->getDiskTotalSpace();//总空间 字节
+            $usedSpace = $this->_byteFormat(MiniVersion::getInstance()->getTotalSize());
+            $totalSpace = $this->_byteFormat($total);
+            $usedPercentage = $this->getUsedPercent();//已用空间占的百分比
+            
+        }else{
+            //迷你存储模式下，获得迷你存储所有节点的空间使用情况
+            $usedSpace = 0;
+            $totalSpace = 0;
+            $usedPercentage = 100;
+            $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
+            foreach ($nodes as $node) {
+                if($node["status"]==1){
+                    $url = $node["host"]."/api.php?route=store/info";
+                    $content = file_get_contents($url); 
+                    if($content!=""){
+                        $disks = json_decode($content);
+                        foreach ($disks as $disk) {
+                            $usedSpace += $disk->{"used"};
+                            $totalSpace += $disk->{"total"}; 
+                        }
+                        
+                    }    
+                }
+            }
+            if($totalSpace>0){
+                $usedPercentage = round($usedSpace/$totalSpace,3)*100;
+            }
+        }     
+        //获得缓存空间大小
         $tempDirectory = $this->getDirectorySize(BASE.'temp');
         $tempSize = $tempDirectory['size'];
         $cacheSize = $this->countCache();
-        $cacheSpace = MiniUtil::formatSize($tempSize+$cacheSize);
+        $cacheSpace = MiniUtil::formatSize($tempSize+$cacheSize);   
         $data = array();
         $data['usedSpace'] = $usedSpace;
         $data['totalSpace'] = $totalSpace;
