@@ -13,8 +13,10 @@ class Setup3Form extends CFormModel
     public  $password;//密码
     public  $passwordConfirm;//确认密码
     public  $email;//电子邮件
+    public  $space;//默认空间大小
     public function init(){
         $this->userName="admin";
+        $this->space = "1048576";
     }
     public function rules()
     {
@@ -59,7 +61,8 @@ class Setup3Form extends CFormModel
                 "name"=>$this->userName,
                 "password"=>$this->password,
                 "is_admin"=>1,
-                "email"=>$this->email
+                "email"=>$this->email,
+                "extend"=>array("space"=>$this->space)
             );
             MiniUser::getInstance()->create($userData);
             MiniPlugin::getInstance()->enablePlugin("businessTheme");
