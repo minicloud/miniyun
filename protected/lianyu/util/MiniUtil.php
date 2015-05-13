@@ -22,7 +22,13 @@ class MiniUtil{
         }
         return $path;
     }
-
+    /**
+    * 正则替换path里的特殊字符
+    */
+    public static function specialWordReplace($path){
+        $regex = '/\\$|\\\\|\%|\&|\*|\:|\"|\<|\>|\?|\=|\|/';
+        return preg_replace($regex,"_",$path);
+    }
     /**
      * 获得相对根目录的路径
      * /1/abc/bcd/1.png转化为/abc/bcd/1.png

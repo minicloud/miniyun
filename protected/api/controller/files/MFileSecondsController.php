@@ -45,8 +45,8 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
                 throw new MFilesException(Yii::t('api',MConst::PATH_ERROR), MConst::HTTP_CODE_411);
             }
         }
-        
-        //$path        = "/" . $path;
+         
+        $path       = MiniUtil::specialWordReplace($path);
         $pathInfo   = MUtils::pathinfo_utf($path);
         $fileName   = $pathInfo["basename"];
         $parentPath = $pathInfo["dirname"];
@@ -61,13 +61,11 @@ class MFileSecondsController extends MApplicationComponent implements MIControll
             $filePath = "/".$userId.$path;
             $shareFilter->hasPermissionExecute($filePath, MPrivilege::FILE_CREATE);
         }
-
         // 检查版本是否存在
         if ($this->handleCheckFileVersion($hash,$fileName) == FALSE)
         {
             return;
         }
-        
         $this->handler = MFilesCommon::initMFilesCommon();
         $this->handler->parent_path    = MUtils::convertStandardPath($parentPath);;
         $this->handler->file_name      = $fileName;

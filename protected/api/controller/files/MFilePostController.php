@@ -105,7 +105,8 @@ class MFilePostController extends MApplicationComponent  implements MIController
             //完整文件上传
             $signature = MiniUtil::getFileHash($tmpName);
             // 解析路径
-            $path = "/" . $urlManager->parsePathFromUrl($uri);
+            $path = MiniHttp::getParam("path","");
+            $path       = MiniUtil::specialWordReplace($path);
             $parentPath = dirname($path);
             $user = MUserManager::getInstance()->getCurrentUser();
             $parentFile = MiniFile::getInstance()->getByPath($parentPath);
@@ -122,14 +123,11 @@ class MFilePostController extends MApplicationComponent  implements MIController
                     MiniFile::getInstance()->createFolder($parentPath, $user['id']);
                 }
             }
-            $regex = "/\/|\\$|\%|\&|\*|\:|\<|\>|\?|\/|\=|\\\|\|/";
-            $fileName = preg_replace($regex,"_",$fileName);
             $createFileHandler->size = $size;
             $createFileHandler->parent_path = MUtils::convertStandardPath($parentPath);
-            $createFileHandler->file_name = $fileName;
+            $createFileHandler->file_name = MiniUtil::specialWordReplace($fileName);
             $createFileHandler->root = $root;
-            $regex2 = "/\\$|\%|\&|\*|\:|\<|\>|\?|\=|\|/";
-            $createFileHandler->path = preg_replace($regex2,"_",MUtils::convertStandardPath($path));
+            $createFileHandler->path = MUtils::convertStandardPath($path);
             $createFileHandler->type = $type;
             // 文件不存在,保存文件
             $createFileHandler->saveFile($tmpName, $signature, $size);

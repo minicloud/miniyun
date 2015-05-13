@@ -134,6 +134,7 @@ class MFilesCommon extends MModel {
         $currentUserId = $this->user_id;
         $this->currentUserId = $currentUserId;
 
+        //echo("5555");exit;
         // 检查文件名是否有效
         if (MUtils::checkNameInvalid($this->file_name)){
             throw new MFileopsException(Yii::t('api','bad request'."6"), MConst::HTTP_CODE_400);
