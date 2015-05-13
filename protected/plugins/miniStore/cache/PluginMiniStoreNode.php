@@ -303,7 +303,11 @@ class PluginMiniStoreNode extends MiniCache{
                 "mime_type"=>$mimeType,
                 "force_download"=>$forceDownload
             );
-            $url = $node["host"]."/api.php?";
+            $url = $node["host"];
+            if(substr($url, strlen($url)-1,1)!="/"){
+                $url .="/";
+            }
+            $url.="api.php?";
             foreach($data as $key=>$value){
                 $url .="&".$key."=".$value;
             }
