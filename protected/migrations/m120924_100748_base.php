@@ -231,6 +231,7 @@ class m120924_100748_base extends EDbMigration
              'updated_at'      => 'datetime NOT NULL',
         ),$extend);
         $this->insert(DB_PREFIX.'_user_metas', array("id"=>1,"user_id"=>1,"meta_key"=>"is_admin","meta_value"=>"1","created_at"=>$data,"updated_at"=>$data));
+        $this->insert(DB_PREFIX.'_user_metas', array("id"=>2,"user_id"=>1,"meta_key"=>"space","meta_value"=>"1048576","created_at"=>$data,"updated_at"=>$data));
 
 
         $this->createTable(DB_PREFIX.'_user_devices',

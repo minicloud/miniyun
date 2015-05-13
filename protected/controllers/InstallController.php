@@ -89,28 +89,29 @@ class InstallController extends CController {
             $this->render('setup2', array('model' => $model));
         }
     }
-    /**
-     * 初始化管理员
-     */
-    public function actionSetup3() {
-        if($this->checkInitDbConfigFile()) {
-            $this->layout = '//layouts/install';
-            $model = new Setup3Form();
-            if(Yii::app()->request->isPostRequest) {
-                $model->attributes = $_POST['Setup3Form'];
-                if($model->save()) {
-                    $this->redirect(Yii::app()->createUrl("install/setup4"));
-                }
-            }
-            $this->render('setup3', array('model' => $model));
-        }
-    }
+//    /**
+//     * 初始化管理员
+//     */
+//    public function actionSetup3() {
+//        if($this->checkInitDbConfigFile()) {
+//            $this->layout = '//layouts/install';
+//            $model = new Setup3Form();
+//            if(Yii::app()->request->isPostRequest) {
+//                $model->attributes = $_POST['Setup3Form'];
+//                if($model->save()) {
+//                    $this->redirect(Yii::app()->createUrl("install/setup4"));
+//                }
+//            }
+//            $this->render('setup3', array('model' => $model));
+//        }
+//    }
     /**
      * 成功安装页面
      */
-    public function actionSetup4() {
+    public function actionSetup3() {
         $this->layout = '//layouts/install';
-        $this->render('setup4', array());
+        MiniPlugin::getInstance()->enablePlugin("businessTheme");
+        $this->render('setup3', array());
     }
 
 }
