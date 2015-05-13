@@ -101,6 +101,12 @@
             setCookie("cloudVersion",data.version);
             var accessToken = getCookie("accessToken");
             if(accessToken==""){
+                var backUrl = getParameter("back");
+                backUrlArr = backUrl.split('/');
+                if(backUrlArr[2]=="chooser"){
+                    window.location.href = decodeURIComponent(backUrl); 
+                    return;
+                }
                 window.location.href = "index.php/site/login";
             }else{
                 var backUrl = getParameter("back");
