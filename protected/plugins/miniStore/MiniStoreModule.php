@@ -104,10 +104,11 @@ class MiniStoreModule extends MiniPluginModule {
             PluginMiniBreakFile::getInstance()->create($signature,$node["id"]);
         }
         //回调地址
-        $callbackUrl = MiniHttp::getMiniHost()."api.php?node_id=".$node["id"];
+        $callbackUrl = MiniHttp::getMiniHost()."api.php?node_id=".base64_encode($node["id"]);
         foreach ($params as $key => $value) {
-            $callbackUrl .="&".$key."=".$value;
+            $callbackUrl .="&".$key."=".base64_encode($value);
         }
+        $callbackUrl .="&encode=base64";
         $siteId   = MiniSiteUtils::getSiteID();
         $data['callback'] =  $callbackUrl;
         $data['url'] =  $node["host"]."/api.php";

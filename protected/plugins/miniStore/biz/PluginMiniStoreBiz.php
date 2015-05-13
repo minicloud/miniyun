@@ -70,14 +70,16 @@ class PluginMiniStoreBiz extends MiniBiz{
      * @return array
      */
     public function getNodeList(){
-        $data =  PluginMiniStoreNode::getInstance()->getNodeList();
-        $stores = array();
-        foreach($data as $value){
-            $url = $value['host'].":6081/api.php?route=store/info";
-            $value['spaceInfo'] = file_get_contents($url);
-            array_push($stores,$value);
+        $nodes =  PluginMiniStoreNode::getInstance()->getNodeList(); 
+        foreach($nodes as $node){
+            if($node["status"]==1){
+                $url = $node["host"]."/api.php?route=store/info"; 
+                $node['space_info'] = json_decode(file_get_contents($url));  
+            }else{
+                $node['space_info'] = array();
+            }  
         }
-        return $stores;
+        return $node;
     }
     /**
      * 创建迷你存储节点
