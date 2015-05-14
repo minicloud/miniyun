@@ -115,10 +115,7 @@ class MiniHttp{
         if($serverPort==="443"){
             $url = "https://";
         }
-        $serverName = $_SERVER["SERVER_NAME"];
-		if($serverName==="demo.miniyun.cn"){
-		   $serverName = $_SERVER["HTTP_HOST"];
-		}
+        $serverName = $_SERVER["HTTP_HOST"];
         $url .=$serverName; 
         if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
             $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
