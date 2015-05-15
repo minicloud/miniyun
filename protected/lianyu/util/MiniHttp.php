@@ -268,69 +268,69 @@ class MiniHttp{
             if(!empty($ext)){
                 $type = "page_white";
                 if($ext==="pdf"){
-                    $type = "page_white_acrobat";
+                    $type = "page-white-acrobat";
                 }
                 if($ext==="psd"){
-                    $type = "page_white_paint";
+                    $type = "page-white-paint";
                 }
                 $mimeTypes = array("c","c++","m","php","java","h","py","js","css","xml","sql");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_code";
+                        $type = "page-white-code";
                     }
                 }
                 $mimeTypes = array("zip","rar","7z","gz");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_compressed";
+                        $type = "page-white-compressed";
                     }
                 }
                 $mimeTypes = array("iso");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_dvd";
+                        $type = "page-white-dvd";
                     }
                 }
                 $mimeTypes = array("xls","xlsx");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_excel";
+                        $type = "page-white-excel";
                     }
                 }
                 $mimeTypes = array("mp4","rm","avi","rmvb","mov","asf","wmv","3gp","flv");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_film";
+                        $type = "page-white-film";
                     }
                 }
                 $mimeTypes = array("exe","dll");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_gear";
+                        $type = "page-white-gear";
                     }
                 }
                 $mimeTypes = array("jpg","jpeg","png","bmp","gif");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_picture";
+                        $type = "page-white-picture";
                     }
                 }
                 $mimeTypes = array("ppt","pptx");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_powerpoint";
+                        $type = "page-white-powerpoint";
                     }
                 }
                 $mimeTypes = array("mp3","mid","wav","ape","flac");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_sound";
+                        $type = "page-white-sound";
                     }
                 }
                 $mimeTypes = array("doc","docx");
                 foreach($mimeTypes as $code){
                     if($ext===$code){
-                        $type = "page_white_word";
+                        $type = "page-white-word";
                     }
                 }
                 $iconName = $type.".png";
