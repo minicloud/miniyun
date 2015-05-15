@@ -117,9 +117,9 @@ class MiniHttp{
         }
         $serverName = $_SERVER["HTTP_HOST"];
         $url .=$serverName; 
-        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER) && $_SERVER["HTTP_PROXY_PORT"]!=80){
             $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
-        }
+        } 
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
         $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
@@ -129,7 +129,7 @@ class MiniHttp{
         $path = str_replace("\\","/",$path);
         if($path!=="/"){
             $path.="/";
-        } 
+        }  
         return $url.$path;
     }
     /**

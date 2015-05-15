@@ -20,7 +20,7 @@ class LinkSelectedBiz extends MiniBiz{
         $fileType        = $file["file_type"];
         if($fileType==0){
             $data["icon"] = MiniHttp::getIcon4File($file["file_name"]);
-            if(MiniUtil::isMixCloudVersion()){
+            if(!MiniUtil::isMixCloudVersion()){
                 $data["icon"] = MiniHttp::getMiniHost()."statics/static/mini-box/images/link/".$data["icon"];
             }else{
                 $data["icon"] = "http://static.miniyun.cn/static/mini-box/images/link/".$data["icon"];
