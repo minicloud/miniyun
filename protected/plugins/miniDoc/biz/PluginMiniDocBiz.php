@@ -215,7 +215,7 @@ class PluginMiniDocBiz extends MiniBiz{
                 file_put_contents($localPath, $content);
                 Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
             }else{
-                if($version["doc_convert_status"]!==-1){
+                if(!($version["doc_convert_status"]==-1)){
                     //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
                     //这个时候自动启动负载均衡机制，把文档重新转换
                     PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
