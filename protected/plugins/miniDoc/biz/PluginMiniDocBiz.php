@@ -231,7 +231,8 @@ class PluginMiniDocBiz extends MiniBiz{
             if($type==="pdf"){
                 $contentType = "Content-type: application/pdf";
             }
-            header('Location: '.MiniHttp::getMiniHost()."/assets/minidoc/".$signature."/".$signature.".".$type);
+            Header("Content-type: ".$contentType);
+            header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
         }
     }
     /**
