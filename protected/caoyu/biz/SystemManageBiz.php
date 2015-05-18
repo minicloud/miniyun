@@ -231,33 +231,36 @@ class SystemManageBiz extends MiniBiz{
      * @return array
      */
     public function settingSiteInfo($site){
-        $fileStorePath = $site['fileStorePath'];
-        //文件存储路径的合法性检测
-        if(is_dir($fileStorePath)== false){
-            return array('success'=>false,'msg'=>'dir_is_not_exist');
+        //迷你存储没有启用，将判断用户存储路径的完整性
+        $storeData = MiniUtil::getPluginMiniStoreData();
+        if(empty($storeData)){
+            $fileStorePath = $site['fileStorePath'];
+            //文件存储路径的合法性检测
+            if(is_dir($fileStorePath)== false){
+                return array('success'=>false,'msg'=>'dir_is_not_exist');
+            }
+            //
+            // 判断父目录是否存在
+            //
+            if (file_exists(dirname($fileStorePath)) == false){
+                return array('success'=>false,'msg'=>'parent_dir_is_not_exist');
+            }
+            //
+            // 文件不存在
+            //
+            if (file_exists($fileStorePath) == false){
+                mkdir($fileStorePath);
+                chmod($fileStorePath, 0755);
+            }
+            //
+            // 文件夹不可写
+            //
+            if (is_writable($fileStorePath) == false){
+                return array('success'=>false,'msg'=>'dir_is_not_writable');
+            }
+            //修改文件存储配置
+            $this->setStorePath($site['fileStorePath']);
         }
-        //
-        // 判断父目录是否存在
-        //
-        if (file_exists(dirname($fileStorePath)) == false){
-            return array('success'=>false,'msg'=>'parent_dir_is_not_exist');
-        }
-        //
-        // 文件不存在
-        //
-        if (file_exists($fileStorePath) == false){
-            mkdir($fileStorePath);
-            chmod($fileStorePath, 0755);
-        }
-        //
-        // 文件夹不可写
-        //
-        if (is_writable($fileStorePath) == false){
-            return array('success'=>false,'msg'=>'dir_is_not_writable');
-        }
-
-        //修改文件存储配置
-        $this->setStorePath($site['fileStorePath']);
         MiniOption::getInstance()->setOptionValue("miniyun_host", $site['miniyun_host']);
         MiniOption::getInstance()->setOptionValue("site_title", $site['siteTitle']);
         MiniOption::getInstance()->setOptionValue("site_name", $site['siteName']);

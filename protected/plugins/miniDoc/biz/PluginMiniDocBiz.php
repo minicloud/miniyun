@@ -189,7 +189,7 @@ class PluginMiniDocBiz extends MiniBiz{
             throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
         }
         //获得文件当前版本对应的version
-        $version   = MiniVersion::getInstance()->getVersion($file["version_id"]);
+        $version   = PluginMiniDocVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
         $localPath = PluginMiniDocOption::getInstance()->getMiniDocCachePath().$signature."/".$signature.".".$type;
         if(!file_exists($localPath)){
@@ -215,10 +215,12 @@ class PluginMiniDocBiz extends MiniBiz{
                 file_put_contents($localPath, $content);
                 Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
             }else{
-                //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
-                //这个时候自动启动负载均衡机制，把文档重新转换
-                PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
-                Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
+                if(!($version["doc_convert_status"]==-1)){
+                    //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
+                    //这个时候自动启动负载均衡机制，把文档重新转换
+                    PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
+                    Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
+                }                
             }
         }
 
@@ -229,8 +231,8 @@ class PluginMiniDocBiz extends MiniBiz{
             if($type==="pdf"){
                 $contentType = "Content-type: application/pdf";
             }
-            Header ( "Content-type: ".$contentType);
-            echo(file_get_contents($localPath));
+            Header("Content-type: ".$contentType);
+            header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
         }
     }
     /**
