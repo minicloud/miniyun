@@ -29,7 +29,7 @@ class EventBiz extends MiniBiz
         $userId = $user['id'];
         $time = $this->getTime($time);
         if ($path != "") {
-            $path = MiniUtil::joinPath($path) . "/%";
+            $path = MiniUtil::joinPath($path);
         }
         $total = MiniEvent::getInstance()->getTotal($path, $time, $userId, $deviceUuid);
         $totalPage = ceil($total / $pageSize);
