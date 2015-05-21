@@ -237,9 +237,22 @@ class PluginMiniDocBiz extends MiniBiz{
             }
             if($type==="pdf"){
                 $contentType = "Content-type: application/pdf";
+            } 
+            //Firefox+混合云模式下直接输出内容 
+            //其它浏览器使用sendfile模式输出内容
+            $isSendFile = true;
+            if(MiniUtil::isMixCloudVersion()){
+                $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+                if (strpos($ua,"Firefox")>0 || strpos($ua,"Safari")>0){
+                    $isSendFile = false; 
+                }
             }
-            Header("Content-type: ".$contentType);
-            header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
+            if($isSendFile){
+                header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
+            }else{
+                Header("Content-type: ".$contentType);
+                echo(file_get_contents($localPath));exit;
+            }
         }
     }
     /**
