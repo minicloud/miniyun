@@ -5,7 +5,7 @@
  * @author app <app@miniyun.cn>
  * @link http://www.miniyun.cn
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
 /**
@@ -50,7 +50,7 @@ class OldVersion{
         $this->actionName = $actionInfo[0];
         $this->whiteList = array(
             "install",
-			"db",
+            "db",
         );
         $this->blackList = array(
             "site/login"
@@ -95,16 +95,16 @@ class Util{
             $serverPort = $_SERVER["HTTP_PROXY_PORT"];
         }else{
             $serverPort = $_SERVER["SERVER_PORT"];
-        }  
+        }
         $url = "http://";
         if($serverPort==="443"){
             $url = "https://";
         }
-        $serverName = $_SERVER["HTTP_HOST"]; 
-        $url .=$serverName; 
+        $serverName = $_SERVER["HTTP_HOST"];
+        $url .=$serverName;
         if(array_key_exists("HTTP_PROXY_PORT",$_SERVER) && $_SERVER["HTTP_PROXY_PORT"]!=80){
             $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
-        } 
+        }
         //计算相对地址
         $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
         $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
@@ -117,7 +117,16 @@ class Util{
         }
         return $url.$path;
     }
-
+    /**
+     * 判断是否混合云模式下
+     */
+    public static function isMixCloudVersion(){
+        $path = dirname(__FILE__)."/protected/plugins/offline";
+        if(file_exists($path)){
+            return false;
+        }
+        return true;
+    }
     /**
      * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀
      * @return string
@@ -133,8 +142,8 @@ class Util{
             $relativePath .= "/".$info[$i];
         }
         $requestUri = $_SERVER["REQUEST_URI"];
-		//增加过滤//的URL地址
-		$requestUri = str_replace("//","/",$requestUri);
+        //增加过滤//的URL地址
+        $requestUri = str_replace("//","/",$requestUri);
         return substr($requestUri,strlen($relativePath),strlen($requestUri)-strlen($relativePath));
 
     }
@@ -325,6 +334,11 @@ class MiniBox{
      */
     private $isWeb = true;
     private $appInfo;
+    /**
+     *是否是混合云
+     * @var
+     */
+    private $isMixCloudVersion = true;
 
     /**
      *
@@ -332,6 +346,7 @@ class MiniBox{
     private $webApp = NULL;
     public function MiniBox(){
         $requestUri   = Util::getRequestUri();
+        $this->isMixCloudVersion = Util::isMixCloudVersion();
         //如果系统尚未初始化，则直接跳转到安装页面
         $configPath  = dirname(__FILE__).'/protected/config/miniyun-config.php';
         if (!file_exists($configPath) && !strpos($requestUri,"install")) {
@@ -367,16 +382,19 @@ class MiniBox{
         }
         //根据物理路径判断网页客户端本地是否存在
         $this->offline = $this->isOffline();
-
-        $port = $_SERVER["SERVER_PORT"];
-        if($port=="443"){
-            $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
+        if($this->isMixCloudVersion){
+            $port = $_SERVER["SERVER_PORT"];
+            if($port=="443"){
+                $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
+            }else{
+                $this->staticServerHost = "http://".STATIC_SERVER_HOST."/";
+            }
         }else{
-            $this->staticServerHost = "http://".STATIC_SERVER_HOST."/";
+            //私有云模式下
+            $this->staticServerHost = "http://".$_SERVER["HTTP_HOST"]."/statics/";
         }
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
-
         $uriInfo      = explode("/",$requestUri);
         if(count($uriInfo)===1){
             //用户输入的是根路径
@@ -392,9 +410,9 @@ class MiniBox{
             $this->redirectUrl($url);
         }
         if(count($uriInfo)===2||empty($uriInfo[2])){
-			if(empty($this->controller)){
-				$this->controller = "box";
-			}
+            if(empty($this->controller)){
+                $this->controller = "box";
+            }
             $url = Util::getMiniHost()."index.php/".$this->controller."/index";
             $this->redirectUrl($url);
         }else{
@@ -477,7 +495,9 @@ class MiniBox{
         $this->appInfo = new SiteAppInfo();
         //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
         if($this->isWeb){
-            $this->syncNewVersion();
+            if($this->isMixCloudVersion){
+                $this->syncNewVersion();
+            }
         }
         //默认业务主路径
         $this->cloudFolderName = "mini-box";
@@ -505,23 +525,27 @@ class MiniBox{
         $header = "";
         $site          = $this->appInfo->getSiteInfo();
         $serverVersion = $site["version"];
-		//生产状态，将会把js/css文件进行合并处理，提高加载效率
-		$header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."' charset=\"utf-8\"></script>";
-		$header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."'/>";
+        //生产状态，将会把js/css文件进行合并处理，提高加载效率
+        $header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."' charset=\"utf-8\"></script>";
+        $header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."'/>";
         $this->loadHtml($header);
     }
-     
+
 
     /**
      * 判断网页客户端是否离线
      * @return bool
      */
     private function isOffline(){
-        $syncTime = $this->getCookie("syncTime");
-        if(!empty($syncTime) && $syncTime==="-1"){
-            return true;
+        if($this->isMixCloudVersion){
+            $syncTime = $this->getCookie("syncTime");
+            if(!empty($syncTime) && $syncTime==="-1"){
+                return true;
+            }
+            return false;
+        }else{
+            return false;
         }
-        return false;
     }
     /**
      *每隔24小时与云端同步一次版本信息，用户在不清理缓存的情况下，24小时更新到最新版本迷你云网页版
@@ -539,11 +563,11 @@ class MiniBox{
         }else{
             $needSyncCloud = true;
         }
-		//如是外链访问，则不用跳转进行是否在线检测
-		$requestUri   = Util::getRequestUri();
-		if(strpos($requestUri,"link/access/key")){
-			$needSyncCloud = false;
-		}
+        //如是外链访问，则不用跳转进行是否在线检测
+        $requestUri   = Util::getRequestUri();
+        if(strpos($requestUri,"link/access/key")){
+            $needSyncCloud = false;
+        }
         if($needSyncCloud===true){
             $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticServerHost=".$this->staticServerHost;
             $this->redirectUrl($url);

@@ -312,6 +312,7 @@ class PDOOAuth2 extends OAuth2 {
 			$userName = $_POST['username'];
 		}
         $name   = urldecode($userName);
+        
         $isLock = MiniUser::getInstance()->isLock($name);
         $user   = false;
         if(!($isLock && MiniHttp::clientIsBrowser())){

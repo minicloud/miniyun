@@ -222,6 +222,21 @@ class MiniUser extends MiniCache{
      * @param $userName
      * @return bool|int
      */
+    public function isEnabled($userName){
+        $user = $this->getUserByName($userName);
+        if(empty($user)){
+            return false;
+        }
+        if($user["user_status"]==0){
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 当前用户是否锁定
+     * @param $userName
+     * @return bool|int
+     */
     public function isLock($userName){
         $user = $this->getUserByName($userName);
         if(empty($user)){
