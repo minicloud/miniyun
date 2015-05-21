@@ -1259,11 +1259,19 @@ abstract class OAuth2 {
 			if(empty($userName)){
 				$userName = $_POST['username'];
 			}
-            $name = urldecode($userName);
-            $isLock = MiniUser::getInstance()->isLock($name);
-            $errorCount = MiniUser::getInstance()->getPasswordErrorCount($name);
-            $errorDescription = array("is_lock"=>$isLock,"error_count"=>$errorCount);
-            $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_GRANT,$errorDescription);
+            $name = urldecode($userName); 
+            $isEnabled  = MiniUser::getInstance()->isEnabled($name);
+            if(!$isEnabled){
+              $errorDescription = array("is_disabled"=>1);
+              $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_GRANT,$errorDescription);
+          
+            }else{
+              $isLock = MiniUser::getInstance()->isLock($name);
+              $errorCount = MiniUser::getInstance()->getPasswordErrorCount($name);
+              $errorDescription = array("is_lock"=>$isLock,"error_count"=>$errorCount);
+              $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_GRANT,$errorDescription);
+          
+            }
         }
         break;
       case OAUTH2_GRANT_TYPE_ASSERTION:

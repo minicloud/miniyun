@@ -312,10 +312,7 @@ class PDOOAuth2 extends OAuth2 {
 			$userName = $_POST['username'];
 		}
         $name   = urldecode($userName);
-        $isEnabled  = MiniUser::getInstance()->isEnabled($name);
-        if(!$isEnabled){
-          throw new MAuthorizationException("User has disabled.", MConst::HTTP_CODE_407);
-        }
+        
         $isLock = MiniUser::getInstance()->isLock($name);
         $user   = false;
         if(!($isLock && MiniHttp::clientIsBrowser())){
