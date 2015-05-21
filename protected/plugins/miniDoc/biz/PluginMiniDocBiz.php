@@ -59,11 +59,18 @@ class PluginMiniDocBiz extends MiniBiz{
             $item  = $sharedList[$i];
             $path  = $item[0];
             $count = $item[1];
+            //当共享文件为共享者的时候进行过滤
+            $userId = $this->user['id'];
+            $arr = explode("/",$path);
+            $slaveId = $arr[1];
+            if($slaveId==$userId){
+                continue;
+            }
             if($cursor==0){
                 return $data;
             }
             if($page<=$num+$count){
-                if($page-$num+$cursor<=$count){
+                if(($page-$num+$cursor)<=$count&&$page>0){
                     $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,$page-$num,$cursor);
                     array_splice($data,count($data),0,$doc);
                     break;
