@@ -88,6 +88,7 @@ class AlbumBiz  extends MiniBiz{
                 array_splice($filePaths,0,0,$paths);
             }
         }
+
         $paths = array();
         $filePaths = array_unique($filePaths);
         foreach($filePaths as $filePath){
