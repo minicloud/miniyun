@@ -1050,7 +1050,11 @@ class MiniFile extends MiniCache{
         //data源处理对象
         $dataObj = Yii::app()->data;
         if ($dataObj->exists( $filePath ) === false) {
-            throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
+            //兼容1.4老数据格式
+            $filePath = $filePath."/".$signature;
+            if ($dataObj->exists( $filePath ) === false) {
+                throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
+            }
         }
         // 检查是否输出
         if (headers_sent ()) {
