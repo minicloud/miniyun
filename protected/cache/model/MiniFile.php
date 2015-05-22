@@ -1047,15 +1047,17 @@ class MiniFile extends MiniCache{
             return;
         }
         $filePath = MiniUtil::getPathBySplitStr ($signature);
+        $oldPath = $filePath."/".$signature;
         //data源处理对象
         $dataObj = Yii::app()->data;
-        if ($dataObj->exists( $filePath ) === false) {
-            //兼容1.4老数据格式
-            $filePath = $filePath."/".$signature;
+        if ($dataObj->exists($oldPath)){
+            //兼容1.4老数据
+            $filePath = $oldPath;
+        }else{
             if ($dataObj->exists( $filePath ) === false) {
                 throw new MFilesException ( Yii::t('api',MConst::NOT_FOUND ), MConst::HTTP_CODE_404 );
-            }
-        }
+            }    
+        }  
         // 检查是否输出
         if (headers_sent ()) {
             exit ();
@@ -1070,6 +1072,7 @@ class MiniFile extends MiniCache{
      * @return mix
      */
     public function getFileContentBySignature($signature){
+        echo($signature);exit;
         //下载文件的hook
         $data = array();
         $data["signature"]  = $signature;
@@ -1082,7 +1085,7 @@ class MiniFile extends MiniCache{
             //通过迷你存储存储的文件，通过代理方式直接请求文件内容
             $content = apply_filters("file_content", $signature);
         }else{
-            $filePath = MiniUtil::getPathBySplitStr ( $signature);
+            $filePath = MiniUtil::getPathBySplitStr ($signature); 
             $oldPath = $filePath."/".$signature;
             //data源处理对象
             $dataObj = Yii::app()->data;
