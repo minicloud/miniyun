@@ -60,6 +60,7 @@ class MThumbnailBase extends MModel {
         if (isset($_REQUEST["size"])) {
             $size = $_REQUEST["size"];
         }
+        $signature  = $_REQUEST["signature"];
         // 解析文件路径，若返回false，则错误处理
         $urlManager = new MUrlManager();
         $path = $urlManager->parsePathFromUrl($uri);
@@ -90,6 +91,7 @@ class MThumbnailBase extends MModel {
         $thumbnailBase->path             = MUtils::convertStandardPath($path);
         $thumbnailBase->root             = $root;
         $thumbnailBase->config           = $config;
+        $thumbnailBase->signature           = $signature;
         // 检查共享
         $share_filter                    = MSharesFilter::init();
         if ($share_filter->handlerCheck($thumbnailBase->user_id, $path, true)) {
@@ -141,7 +143,11 @@ class MThumbnailBase extends MModel {
         }
         // 获取文件存储路径
         $isTmp = false;
-        $signature = $version[0]["file_signature"];
+        if(($this->signature)!=="undefined"){
+            $signature = $this->signature;
+        }else{
+            $signature = $version[0]["file_signature"];
+        }
 
         // 缩略图大小
         $sizeInfo = self::$sizes[$this->size];
