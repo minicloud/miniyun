@@ -856,7 +856,20 @@ abstract class OAuth2 {
       $this->setVariable($name, $value);
     }
   }
-
+  /**
+  * 判断客户端是否可用
+  */
+  private function filterPClientEnabled(){
+    $ua = $_SERVER['HTTP_USER_AGENT']; 
+    if(strpos($ua, "miniClient")>0){ 
+      $client = $this->getClient("d6n6Hy8CtSFEVqNh"); 
+      if($client["enabled"]==="0"){ 
+          $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_VERIFICATION, $realm, OAUTH2_ERROR_INVALID_TOKEN, 'The access token provided is invalid.', NULL, $scope);
+          exit;
+      }  
+    }
+    return true;
+  }
   // Resource protecting (Section 5).
 
     /**
@@ -912,6 +925,8 @@ abstract class OAuth2 {
       	return FALSE;
       } 
     }
+    //客户端禁用，给出提示
+    $this->filterPClientEnabled();
     $client = $this->getClient($token["client_id"]);
     $signWithout = $this->signWithout($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["REQUEST_URI"]);
     if ($sign != $signWithout)
@@ -1244,7 +1259,8 @@ abstract class OAuth2 {
       case OAUTH2_GRANT_TYPE_USER_CREDENTIALS:
         if (!$input["username"] || !$input["password"])
           $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_REQUEST, 'Missing parameters. "username" and "password" required');
-
+        //客户端禁用，给出提示
+        $this->filterPClientEnabled();
         $stored = $this->checkUserCredentials($client[0], $input["username"], $input["password"]);
 
         //store the device_id
@@ -1255,11 +1271,13 @@ abstract class OAuth2 {
         }
         if ($stored === FALSE){
             //为密码锁定与错误提示提供数据
-			$userName = $_REQUEST['username'];
-			if(empty($userName)){
-				$userName = $_POST['username'];
-			}
+      			$userName = $_REQUEST['username'];
+      			if(empty($userName)){
+      				$userName = $_POST['username'];
+      			}
             $name = urldecode($userName); 
+           
+            
             $isEnabled  = MiniUser::getInstance()->isEnabled($name);
             if(!$isEnabled){
               $errorDescription = array("is_disabled"=>1);
