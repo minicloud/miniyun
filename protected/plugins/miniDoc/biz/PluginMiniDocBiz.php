@@ -59,11 +59,18 @@ class PluginMiniDocBiz extends MiniBiz{
             $item  = $sharedList[$i];
             $path  = $item[0];
             $count = $item[1];
+            //当共享文件为共享者的时候进行过滤
+            $userId = $this->user['id'];
+            $arr = explode("/",$path);
+            $slaveId = $arr[1];
+            if($slaveId==$userId){
+                continue;
+            }
             if($cursor==0){
                 return $data;
             }
             if($page<=$num+$count){
-                if($page-$num+$cursor<=$count){
+                if(($page-$num+$cursor)<=$count&&$page>0){
                     $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,$page-$num,$cursor);
                     array_splice($data,count($data),0,$doc);
                     break;
@@ -230,9 +237,22 @@ class PluginMiniDocBiz extends MiniBiz{
             }
             if($type==="pdf"){
                 $contentType = "Content-type: application/pdf";
+            } 
+            //Firefox+混合云模式下直接输出内容 
+            //其它浏览器使用sendfile模式输出内容
+            $isSendFile = true;
+            if(MiniUtil::isMixCloudVersion()){
+                $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+                if (strpos($ua,"Firefox")>0 || strpos($ua,"Safari")>0){
+                    $isSendFile = false; 
+                }
             }
-            Header("Content-type: ".$contentType);
-            header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
+            if($isSendFile){
+                header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
+            }else{
+                Header("Content-type: ".$contentType);
+                echo(file_get_contents($localPath));exit;
+            }
         }
     }
     /**

@@ -77,7 +77,7 @@ class AlbumBiz  extends MiniBiz{
                 }
             }
             array_splice($groupIdsArr,0,0,$ids);
-            $commonGroupIds = array_intersect($groupIdsArr,$groupIds);
+            $commonGroupIds = array_merge($groupIdsArr,$groupIds);
             foreach($commonGroupIds as $commonGroupId){
                 $groupInfos = MiniGroupPrivilege::getInstance()->getByGroupId($commonGroupId);
                 foreach($groupInfos as $groupInfo){
@@ -88,11 +88,19 @@ class AlbumBiz  extends MiniBiz{
                 array_splice($filePaths,0,0,$paths);
             }
         }
+
         $paths = array();
         $filePaths = array_unique($filePaths);
         foreach($filePaths as $filePath){
             $result = MiniFile::getInstance()->getByPath($filePath);
             if(count($result)==0){
+                continue;
+            }
+            //当共享文件为共享者的时候进行过滤
+            $arr = explode("/",$filePath);
+            $userId = $this->user['id'];
+            $slaveId = $arr[1];
+            if($slaveId==$userId){
                 continue;
             }
             $fileBiz = new FileBiz();
@@ -113,6 +121,12 @@ class AlbumBiz  extends MiniBiz{
             $item  = $sharedList[$i];
             $path  = $item[0];
             $count = $item[1];
+            $arr = explode("/",$path);
+            $userId = $this->user['id'];
+            $slaveId = $arr[1];
+            if($slaveId==$userId){
+                continue;
+            }
             if($cursor==0){
                 return $data;
             }

@@ -748,7 +748,6 @@ class MiniUtil{
 
             // adobe
             'pdf' => 'application/pdf',
-            'psd' => 'image/vnd.adobe.photoshop',
             'ai'  => 'application/postscript',
             'eps' => 'application/postscript',
             'ps'  => 'application/postscript',
