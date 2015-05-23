@@ -74,16 +74,7 @@ class MiniClient extends MiniCache{
 		if($this->hasCache===false){//如果没有初始化Cache则直接访问DB
 			return $this->get4Db($clientId);
 		}
-		//先判断是否已经缓存，否则进行直接缓存
-		$datastr     = $this->get($this->getCacheKey($clientId));
-		if($datastr===false){
-			Yii::trace(MiniClient::$CACHE_KEY." set cache clientId:".$clientId,"miniyun.cache1");
-			$object = $this->get4Db($clientId);
-			$this->set($this->getCacheKey($clientId),serialize($object));
-		}else{
-			Yii::trace(MiniClient::$CACHE_KEY." get cache clientId:".$clientId,"miniyun.cache1");
-			$object = unserialize($datastr);
-		}
+		$object = $this->get4Db($clientId);
 		return $object;
 	}
     /**
