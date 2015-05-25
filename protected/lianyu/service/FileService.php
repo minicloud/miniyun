@@ -106,4 +106,14 @@ class FileService extends MiniService{
         $data = $biz->sec();
         return $data;
     }
+    /**
+     * 获取文件的相关信息
+     */
+    public function info(){
+        $path = MiniHttp::getParam("path","");
+        $biz = new FileBiz();
+        $data = $biz->info($path);
+        return $data;
+
+    }
 }
