@@ -1071,8 +1071,7 @@ class MiniFile extends MiniCache{
      * @throws
      * @return mix
      */
-    public function getFileContentBySignature($signature){
-        echo($signature);exit;
+    public function getFileContentBySignature($signature){ 
         //下载文件的hook
         $data = array();
         $data["signature"]  = $signature;

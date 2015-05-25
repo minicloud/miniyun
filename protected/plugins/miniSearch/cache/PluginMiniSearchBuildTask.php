@@ -118,7 +118,7 @@ class PluginMiniSearchBuildTask extends MiniCache{
             $http = new HttpClient();
             $http->post($url,$data);
             $result =  $http->get_body();
-            $result = @json_decode($result,true);
+            $result = @json_decode($result,true); 
             if($result['status']==1){
                 //修改task状态
                 $task->status=1;
@@ -154,7 +154,9 @@ class PluginMiniSearchBuildTask extends MiniCache{
         $siteId   = MiniSiteUtils::getSiteID();
         $ids = explode(",",$nodeIds);
         //为索引服务器生成索引记录记录
+        //剔除已生成的索引记录
         $nodes = PluginMiniSearchNode::getInstance()->getValidNodeList();
+        $needCreateTaskNodeIds = array();
         foreach($nodes as $node){
             $existed = false;
             $nodeId = $node["id"];
@@ -164,22 +166,24 @@ class PluginMiniSearchBuildTask extends MiniCache{
                 }
             }
             if(!$existed){
-                $task = SearchBuildTask::model()->find("file_signature=:file_signature and node_id=:node_id",
-                    array(
-                        "file_signature" => $signature,
-                        "node_id" => $node["id"]
-                    ));
-                if(!isset($task)){
-                    $task = new SearchBuildTask();
-                    $task->file_signature = $signature;
-                    $task->node_id = $node["id"];
-                    $task->status = 0;
-                    $task->save();
-                }
-                //向迷你搜索服务器发送编制索引任务
-                $this->buildTask($miniHost,$siteId,$task);
+                array_push($needCreateTaskNodeIds, $node["id"]); 
+            } 
+        } 
+        foreach ($needCreateTaskNodeIds as $nodeId) {
+            $task = SearchBuildTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+                array(
+                    "file_signature" => $signature,
+                    "node_id" => $nodeId
+                ));
+            if(!isset($task)){
+                $task = new SearchBuildTask();
+                $task->file_signature = $signature;
+                $task->node_id = $nodeId;
+                $task->status = 0;
+                $task->save();
             }
-
+            //向迷你搜索服务器发送编制索引任务
+            $this->buildTask($miniHost,$siteId,$task);
         }
     }
 
