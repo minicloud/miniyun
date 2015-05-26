@@ -402,10 +402,17 @@ class MiniUser extends MiniCache{
         if(isset($user)){
             $user["user_status"] = 1;
             $user->save();
+            //把账号锁定操作去掉
+            $criteria            = new CDbCriteria();
+            $criteria->condition = 'user_id=:user_id and meta_key="password_error_count"';
+            $criteria->params    = array('user_id'=> $userId);
+            $userMeta = UserMeta::model()->find($criteria);
+            if(isset($userMeta)){
+                $userMeta->meta_value = 0;
+                $userMeta->save(); 
+            }
             //清空cache
-            $this->cleanCache($userId);
-            //清理Token
-//            MiniToken::getInstance()->cleanByUserId($userId);
+            $this->cleanCache($userId); 
         }
     }
     /**
