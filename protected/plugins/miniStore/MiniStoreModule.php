@@ -96,9 +96,10 @@ class MiniStoreModule extends MiniPluginModule {
         $breakFile = PluginMiniBreakFile::getInstance()->getBySignature($signature);
         if(!empty($breakFile)){ 
             $node = PluginMiniStoreNode::getInstance()->getNodeById($breakFile["store_node_id"]); 
-        }
+        } 
         //如果断点文件不存在或无效则重新分配一个存储节点
         if(empty($node)||$node["status"]===-1){
+
             $node = PluginMiniStoreNode::getInstance()->getUploadNode(); 
             //更新断点表该文件的状态
             PluginMiniBreakFile::getInstance()->create($signature,$node["id"]);
@@ -111,6 +112,14 @@ class MiniStoreModule extends MiniPluginModule {
         $callbackUrl .="&encode=base64";
         $siteId   = MiniSiteUtils::getSiteID();
         $data['callback'] =  $callbackUrl;
+        //兼容127.0.0.1
+        $urlInfo = parse_url($node["host"]);
+        if($urlInfo["host"]=="127.0.0.1"){
+            //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
+            $defaultHost  = MiniHttp::getMiniHost();
+            $miniHostInfo = parse_url($defaultHost);
+            $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":".$urlInfo["port"].$miniHostInfo["path"];
+        }
         $data['url'] =  $node["host"]."/api.php";
         echo json_encode($data);exit;
     }
