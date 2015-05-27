@@ -107,6 +107,7 @@ class MiniGroup extends MiniCache{
                 $relation ['group_id'] = $group['id'];
                 $relation ['parent_group_id'] = $parentGroupId;
                 $relation->save ();
+                return $relation->id;
             }
             return $group->id;
         }else{
