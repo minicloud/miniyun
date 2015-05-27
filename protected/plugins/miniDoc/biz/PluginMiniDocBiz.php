@@ -59,11 +59,18 @@ class PluginMiniDocBiz extends MiniBiz{
             $item  = $sharedList[$i];
             $path  = $item[0];
             $count = $item[1];
+            //当共享文件为共享者的时候进行过滤
+            $userId = $this->user['id'];
+            $arr = explode("/",$path);
+            $slaveId = $arr[1];
+            if($slaveId==$userId){
+                continue;
+            }
             if($cursor==0){
                 return $data;
             }
             if($page<=$num+$count){
-                if($page-$num+$cursor<=$count){
+                if(($page-$num+$cursor)<=$count&&$page>0){
                     $doc = MiniFile::getInstance()->getSharedDocByPathType($path,$mimeType,$page-$num,$cursor);
                     array_splice($data,count($data),0,$doc);
                     break;
@@ -189,7 +196,7 @@ class PluginMiniDocBiz extends MiniBiz{
             throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
         }
         //获得文件当前版本对应的version
-        $version   = MiniVersion::getInstance()->getVersion($file["version_id"]);
+        $version   = PluginMiniDocVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
         $localPath = PluginMiniDocOption::getInstance()->getMiniDocCachePath().$signature."/".$signature.".".$type;
         if(!file_exists($localPath)){
@@ -215,10 +222,12 @@ class PluginMiniDocBiz extends MiniBiz{
                 file_put_contents($localPath, $content);
                 Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
             }else{
-                //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
-                //这个时候自动启动负载均衡机制，把文档重新转换
-                PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
-                Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
+                if(!($version["doc_convert_status"]==-1)){
+                    //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
+                    //这个时候自动启动负载均衡机制，把文档重新转换
+                    PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
+                    Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
+                }                
             }
         }
 
@@ -228,9 +237,22 @@ class PluginMiniDocBiz extends MiniBiz{
             }
             if($type==="pdf"){
                 $contentType = "Content-type: application/pdf";
+            } 
+            //Firefox+混合云模式下直接输出内容 
+            //其它浏览器使用sendfile模式输出内容
+            $isSendFile = true;
+            if(MiniUtil::isMixCloudVersion()){
+                $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
+                if (strpos($ua,"Firefox")>0 || strpos($ua,"Safari")>0){
+                    $isSendFile = false; 
+                }
             }
-            Header ( "Content-type: ".$contentType);
-            echo(file_get_contents($localPath));
+            if($isSendFile){
+                header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
+            }else{
+                Header("Content-type: ".$contentType);
+                echo(file_get_contents($localPath));exit;
+            }
         }
     }
     /**

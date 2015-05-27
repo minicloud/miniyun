@@ -66,7 +66,7 @@ class MSearchController extends MApplicationComponent implements MIController {
         if(isset($params["callback"])) {
             $callback = $params["callback"];
         }
-        if(empty($path)){
+        if(empty($path)||"/".$this->_user_id==$path){
             $path = '/'.$this->_user_id;
             $userFiles = array();
             $query_db_file = MFiles::searchFilesByPath($path, $query, $this->_user_id, $include_deleted);

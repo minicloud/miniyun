@@ -368,5 +368,12 @@ class FileBiz  extends MiniBiz{
         return $canRead;
     }
 
+    /**
+     * 获取文件的相关信息
+     */
+    public function info($path){
+        $data = MiniFile::getInstance()->getByFilePath($path);
+        return $data;
+    }
 }
 
