@@ -277,6 +277,10 @@ class SiteAppInfo{
             $data['phone']             = $user["phone"];
             $data['avatar']            = $user["avatar"];
             $data['is_admin']          = $user["is_admin"];
+            if(!empty($user['file_sort_type'])&&!empty($user['file_sort_order'])){
+                $data['file_sort_type']    = $user['file_sort_type'];
+                $data['file_sort_order']   = $user['file_sort_order'];
+            }
             $code = MiniOption::getInstance()->getOptionValue("code");
             if(empty($code)){
                 $code = "";

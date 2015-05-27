@@ -106,4 +106,10 @@ class UserBiz  extends MiniBiz{
         $token["site_id"] = MiniSiteUtils::getSiteID();
         return $token;
     }
+
+    public function saveSortType($type,$sortOrder){
+        $user = $this->user;
+        $metas['extend'] = ['file_sort_type'=>$type,'file_sort_order'=>$sortOrder];
+        return MiniUserMeta::getInstance()->create($user,$metas);
+    }
 }

@@ -124,6 +124,12 @@ class MiniUser extends MiniCache{
                         $user["avatar"] = MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$value;
                     }
                 }
+                if($key==='file_sort_type'){
+                    $user["file_sort_type"]   = $value;
+                }
+                if($key==='file_sort_order'){
+                    $user["file_sort_order"]   = $value;
+                }
             }
             return  $user;
         }

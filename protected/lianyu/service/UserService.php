@@ -54,4 +54,10 @@ class UserService extends MiniService{
         $data  = $model->getCodeByUserId();
         return $data;
     }
+    public function saveSortType(){
+        $type      = MiniHttp::getParam("type","");
+        $sortOrder      = MiniHttp::getParam("sortOrder","");
+        $biz    = new UserBiz();
+        return $biz->saveSortType($type,$sortOrder);
+    }
 }
