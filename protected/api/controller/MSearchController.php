@@ -71,9 +71,9 @@ class MSearchController extends MApplicationComponent implements MIController {
             $userFiles = array();
             $query_db_file = MFiles::searchFilesByPath($path, $query, $this->_user_id, $include_deleted);
             foreach($query_db_file as $db_file){
-                if(($db_file['parent_file_id'] == 0) and ($db_file['file_type'] != 4) and ($db_file['file_type'] != 2)){
+                // if(($db_file['parent_file_id'] == 0) and ($db_file['file_type'] != 4) and ($db_file['file_type'] != 2)){
                     $userFiles[] = $db_file;
-                }
+                // }
             }
             $retval = $this->handleSearchRoot($path, $query);
             $files  = array_merge($retval,$userFiles);
@@ -289,7 +289,7 @@ class MSearchController extends MApplicationComponent implements MIController {
             }else{
                 $response['share'] = $permission;
             }
-            if(empty($permission['permission'])){
+            if(empty($permission['permission'])){//如果没有$permission['permission']权限 则直接返回null
                 return null;
             }
         }
