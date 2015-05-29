@@ -94,9 +94,31 @@ class PluginMiniSearchVersion extends MiniCache{
         $data = array();
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
-            $criteria->condition     = "mime_type=:mime_type";
-            $criteria->limit         = 20;
-            $criteria->offset        = 0;
+            $criteria->condition     = "mime_type=:mime_type"; 
+            $criteria->params        = array(
+                "mime_type"=>$mimeType
+            );
+            $list = FileVersion::model()->findAll($criteria);
+            if(count($list)>0){
+                $list = $this->db2list($list);
+                foreach($list as $item){
+                    array_push($data,$item);
+                }
+
+            }
+        }
+        return $data;
+    }
+    /**
+     *获得文档类所有的文档
+     * @return array
+     */
+    public function getDocBuildList(){
+        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+        $data = array();
+        foreach ($mimeTypeList as $mimeType){
+            $criteria                = new CDbCriteria();
+            $criteria->condition     = "mime_type=:mime_type"; 
             $criteria->params        = array(
                 "mime_type"=>$mimeType
             );

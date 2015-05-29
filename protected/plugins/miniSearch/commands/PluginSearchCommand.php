@@ -31,6 +31,17 @@ class PluginSearchCommand extends CConsoleCommand
             }
             echo("本次索引的文本文件有:" . count($versions) . "个\n");
         }
+        $versions = PluginMiniSearchVersion::getInstance()->getDocBuildList();
+        if(empty($versions)) {
+            echo("没有需要索引的文档了");
+        }else {
+            foreach($versions as $version){
+                $signature = $version["file_signature"];
+                PluginMiniSearchFile::getInstance()->create($signature);
+            }
+            echo("本次索引的文档有:" . count($versions) . "个\n");
+        }
+        
     }
     /**
      * 场景1：针对处理超时的文件，重新提交编制索引请求
