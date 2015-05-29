@@ -1831,17 +1831,6 @@ class MiniFile extends MiniCache{
     public function getSystemCount(){
         return UserFile::model()->count();
     }
-
-    /**
-     *根据文件名获得拼音
-     */
-    private function getPinYinByName($name){
-        $py = new PinYin();
-        $allPY = $py->getAllPY($name);
-        $firstPY = $py->getFirstPY($name);
-        $namePY = $allPY."|".$firstPY;
-        return $namePY;
-    }
      /**
      * 更新单个文件的拼音信息
      * @param $id
