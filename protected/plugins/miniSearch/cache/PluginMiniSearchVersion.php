@@ -118,7 +118,7 @@ class PluginMiniSearchVersion extends MiniCache{
         $data = array();
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
-            $criteria->condition     = "mime_type=:mime_type"; 
+            $criteria->condition     = "mime_type=:mime_type and doc_convert_status=2"; 
             $criteria->params        = array(
                 "mime_type"=>$mimeType
             );
