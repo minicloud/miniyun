@@ -650,6 +650,22 @@ class MiniUtil{
         return true;
     }
     /**
+     * 获得文件名全拼及简拼
+     */
+    public static function getPinYinByName($name){
+        $py = new PinYin();
+        $allPY = $py->getAllPY($name);
+        if(empty($allPY)){
+            $allPY = $name;
+        }
+        $firstPY = $py->getFirstPY($name);
+        if(empty($firstPY)){
+            $firstPY = $name;
+        }
+        $namePY = $allPY."|".$firstPY;
+        return $namePY;
+    }
+    /**
      * 获得文件扩展类型
      * @param string $filename
      * @param string $path
