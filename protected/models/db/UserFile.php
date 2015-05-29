@@ -19,7 +19,17 @@ class UserFile extends CMiniyunModel
     {
         return parent::model($className);
     }
+    /**
+     * 存储前的时间补全, 密码加密
+     * @see CActiveRecord::beforeSave()
+     */
+    public function beforeSave()
+    {
+        parent::beforeSave();
+        $this->file_name_pinyin = MiniUtil::getPinYinByName($this->file_name);
+        return true;
 
+    }
     public function tableName()
     {
         return Yii::app()->params['tablePrefix'].'files';

@@ -219,6 +219,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["size"]                   = MUtils::getSizeByLocale($this->locale, $file["file_size"]);
         $response["bytes"]                  = (int)$file["file_size"];
         $response["path"]                   = $filePath;
+        $response["file_name_pinyin"]       = $file['file_name_pinyin'];
         $response["modified"]               = MUtils::formatIntTime($file["file_update_time"]);
         $response["create_time"]            = $file["file_create_time"];
         $response["update_time"]            = $file["file_update_time"];

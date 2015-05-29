@@ -23,7 +23,7 @@ class MFiles extends MModel {
         $file_detail->file_path               = $file_path;
         return $file_detail;
     }
-    
+     
     /**
      * 通过path查询文件信息
      * @param string path
@@ -53,7 +53,7 @@ class MFiles extends MModel {
     public static function CreateFileDetail($file_detail, $user_id) {
         $sql = "insert into " . DB_PREFIX . "_files(user_id,file_type,parent_file_id,";
         $sql .= "file_create_time,file_update_time,file_name,version_id,";
-        $sql .= "file_size,file_path,event_uuid,mime_type,created_at,updated_at) values ";
+        $sql .= "file_size,file_path,event_uuid,mime_type,created_at,updated_at,file_name_pinyin) values ";
         //
         // 新建对象，需要生成对应的长度信息
         //
@@ -75,7 +75,7 @@ class MFiles extends MModel {
         } else {
             $sql .= "\"{$file_detail->mime_type}\",";
         }
-        $sql .= "now(),now())";
+        $sql .= "now(),now(),'".MiniUtil::getPinYinByName($file_detail->file_name)."')";
         $db_manager = MDbManager::getInstance ();
         $result = $db_manager->insertDb ( $sql );
         if ($result === false) {
