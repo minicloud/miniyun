@@ -1831,19 +1831,6 @@ class MiniFile extends MiniCache{
     public function getSystemCount(){
         return UserFile::model()->count();
     }
-     /**
-     * 更新单个文件的拼音信息
-     * @param $id
-     */
-    public function updateFileNamePinYin($id){
-        $item  = UserFile::model()->findByPk($id);
-        if(!empty($item)){
-            //把文件名转化为拼音
-            $name = $item->file_name;
-            $item->file_name_pinyin = $this->getPinYinByName($name);
-            $item->save();
-        }
-    }
     /**
      * 把系统中的中文文件名转化为拼音
      */
@@ -1855,7 +1842,7 @@ class MiniFile extends MiniCache{
             if($item->file_name_pinyin==null){
                 //把文件名转化为拼音
                 $name = $item->file_name;
-                $item->file_name_pinyin = $this->getPinYinByName($name);
+                $item->file_name_pinyin = MiniUtil::getPinYinByName($name);
                 $item->save();
             }
         }
