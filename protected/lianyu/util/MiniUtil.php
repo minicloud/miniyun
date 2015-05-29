@@ -654,13 +654,16 @@ class MiniUtil{
      */
     public static function getPinYinByName($name){
         $py = new PinYin();
-        $allPY = $py->getAllPY($name);
-        if(empty($allPY)){
-            $allPY = $name;
+        $len = mb_strlen($name,'utf-8');
+        $allPY = "";
+        $firstPY = "";
+        for($i=0;$i<$len;$i++){
+          $subName  = mb_substr($name,$i,1,"utf-8");
+          $allPY   .= $py->getAllPY($subName);
+          $firstPY .= $py->getFirstPY($subName);
         }
-        $firstPY = $py->getFirstPY($name);
-        if(empty($firstPY)){
-            $firstPY = $name;
+        if(empty($allPY)){
+                $allPY = $firstPY =$name;
         }
         $namePY = $allPY."|".$firstPY;
         return $namePY;
