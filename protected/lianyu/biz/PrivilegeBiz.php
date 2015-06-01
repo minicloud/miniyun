@@ -229,26 +229,22 @@ class PrivilegeBiz  extends MiniBiz{
         MiniUserPrivilege::getInstance()->deleteByFilePath($filePath);
         MiniGroupPrivilege::getInstance()->deleteByFilePath($filePath);
         MiniFile::getInstance()->cancelPublic($filePath);
-        $event_action                    = MConst::CANCEL_SHARED;
-        $ret_value                       = MiniEvent::getInstance()->createEvent(
+        $eventAction                    = MConst::CANCEL_SHARED;
+        MiniEvent::getInstance()->createEvent(
             $this->user['id'],
             $userDeviceId,
-            $event_action,
+            $eventAction,
             $filePath,
             $filePath,
             MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID),
             $this->share_filter->type
         );
         $this->share_filter->is_shared = true;
-        if ($ret_value === false)
-        {
-            throw new MFileopsException(
-                Yii::t('api','Internal Server Error'),
-                MConst::HTTP_CODE_500);
-        }
-
+         
+        //把共享目录下的共享目录设置记录删除
+        MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath,"share_model");
         // 为每个共享用户创建事件
-        $this->share_filter->handlerAction($event_action, $userDeviceId, $filePath, $filePath);
+        $this->share_filter->handlerAction($eventAction, $userDeviceId, $filePath, $filePath);
         return true;
     }
     /**
