@@ -666,6 +666,9 @@ class MiniUtil{
                 $allPY = $firstPY =$name;
         }
         $namePY = $allPY."|".$firstPY;
+        if(strlen($namePY)>255){
+            $namePY = substr($namePY, 0,254);
+        }
         return $namePY;
     }
     /**
