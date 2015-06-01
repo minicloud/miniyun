@@ -25,10 +25,10 @@ class m150528_113755_v210  extends EDbMigration{
             $transaction->commit();
         }
     }
-    public  function updateData(){
+    private  function updateData(){
         MiniFile::getInstance()->updateAllFileNamePinyin();
     }
-    public  function addTable(){
+    private  function addTable(){
         $this->addColumn(DB_PREFIX.'_files', 'file_name_pinyin', 'varchar(255)');
   }
 }
