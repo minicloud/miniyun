@@ -69,13 +69,14 @@ class PrivilegeBiz  extends MiniBiz{
     /**
      * 保存用户权限
      * @param $filePath
+     * @param $shareModel
      * @param $slaves
      * @return bool
      */
-    public function save($filePath,$slaves){
+    public function save($filePath,$shareModel,$slaves){
         $device                   = MUserManager::getInstance()->getCurrentDevice();
         $userDeviceId             = $device["device_id"];
-        $this->share_filter = MSharesFilter::init();
+        $this->share_filter       = MSharesFilter::init();
         //delete privilege
         $oldGroupPrivileges = MiniGroupPrivilege::getInstance()->getPrivilegeList($filePath);
         $oldUserPrivileges = MiniUserPrivilege::getInstance()->getPrivilegeList($filePath);
@@ -143,36 +144,28 @@ class PrivilegeBiz  extends MiniBiz{
         $ids = array_unique(array_merge($departmentPrivilege->ids,$userIds));
         foreach($ids as $id){
             $this->share_filter->slaves[$id] = $id;
-        }
-//        $meta_key = MConst::SHARED_FOLDERS;
-//        $meta_value = MConst::SHARE_FOLDER;
-//        MiniFileMeta::getInstance()->createFileMeta($filePath, $meta_key, $meta_value);
+        } 
+        //存储共享模式
+        MiniFileMeta::getInstance()->createFileMeta($filePath, "share_model", $shareModel);
         //todo创建共享事件
 
-        $event_action                    = MConst::SHARE_FOLDER;
-        $ret_value                       = MiniEvent::getInstance()->createEvent(
+        $eventAction                    = MConst::SHARE_FOLDER;
+        MiniEvent::getInstance()->createEvent(
             $this->user['id'],
             $userDeviceId,
-            $event_action,
+            $eventAction,
             $filePath,
             $filePath,
             MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID),
             $this->share_filter->type
-        );
-        if ($ret_value === false)
-        {
-            throw new MFileopsException(
-                Yii::t('api','Internal Server Error'),
-                MConst::HTTP_CODE_500);
-        }
+        ); 
         $this->share_filter->is_shared = true;
         // 为每个共享用户创建事件
-        $this->share_filter->handlerAction($event_action, $userDeviceId, $filePath, $filePath);
+        $this->share_filter->handlerAction($eventAction, $userDeviceId, $filePath, $filePath);
         /**
          * 存储权限之后更新被分享文件的file_type = 2，出现分享图标
          */
-        $fileValue = array('updated_at'=>time());
-        MiniFile::getInstance()->updateByPath($filePath,$fileValue);
+        MiniFile::getInstance()->updateTime($filePath);
         MiniFile::getInstance()->togetherShareFile($filePath, MConst::OBJECT_TYPE_SHARED);
         return array('success'=>true);
     }

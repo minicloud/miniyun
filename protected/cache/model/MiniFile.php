@@ -1847,4 +1847,16 @@ class MiniFile extends MiniCache{
             }
         }
     }
+    /**
+     * 更新时间
+     */
+    public function updateTime($filePath){
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "file_path = :file_path";
+        $criteria->params    = array("file_path"=>$filePath); 
+        $item                = UserFile::model()->find($criteria);
+        if(isset($item)){
+            $item->save();
+        }
+    }
 }

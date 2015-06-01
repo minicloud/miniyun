@@ -139,6 +139,22 @@ class MMetadataController extends MApplicationComponent implements MIController{
         return $response;
     }
     /**
+     * 获得共享模式，普通模式or高级模式
+     * @param $filePath 
+     */
+    private function getShareModel($filePath){
+        //读取共享模式，默认是普通模式，否则是高级模式
+        //高级模式下有多重权限控制
+        $shareModel = "normal";
+        $shareModelItem = MiniFileMeta::getInstance()->getFileMeta($filePath,'share_model');
+        if(!empty($shareModelItem)){
+            if($shareModelItem["meta_value"]=="advance"){
+                $shareModel = "advance";
+            }                    
+        }
+        return $shareModel;
+    }
+    /**
      * 处理非根目录下文件查询
      * @param $path
      * @param $includeDeleted
@@ -185,7 +201,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                             if($childrenFileCreateId!=$currentUser['user_id']){//当没有只读权限时，过滤(用户只能看见共享目录中自己的文件)
                                 continue;
                             }
-                        }
+                        } 
                     }
                 }
                 $content = array();
@@ -251,6 +267,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
                         $permission['permission']=MConst::SUPREME_PERMISSION;
                     }
                 }
+                $permission["share_model"] = $this->getShareModel($filePath);
                 $response['share'] = $permission;
             }
             $filePermission = new MiniPermission($permission['permission']);

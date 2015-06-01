@@ -27,13 +27,13 @@ class PrivilegeService extends MiniService
     public function create()
     {
         $filePath = MiniHttp::getParam("file_path", '');
+        $shareModel = MiniHttp::getParam("share_model", 'normal');
         $data = MiniHttp::getParam("slaves", array());
         if(count($data)<1){
             return false;
         }
         $privilege = new PrivilegeBiz();
-        $result = $privilege->save($filePath, $data);
-//        return array('success'=>true);
+        $result = $privilege->save($filePath,$shareModel,$data); 
         return $result;
     }
     /**
