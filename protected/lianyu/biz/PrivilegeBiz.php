@@ -27,6 +27,7 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege['user_status'] = $user['user_status'];
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
+            $modifyValue = substr($permission,1);
             $dirCreateValue = substr($permission,1,1);
             $dirRenameValue = substr($permission,2,1);
             $dirDelValue = substr($permission,3,1);
@@ -80,11 +81,11 @@ class PrivilegeBiz  extends MiniBiz{
             }else{
                 $privilege['preview'] = false;
             }
-            // if($modifyValue=='11111111'){
-            //     $privilege['modified'] = true;
-            // }else{
-            //     $privilege['modified'] = false;
-            // }
+            if($modifyValue=='11111111'){
+                $privilege['modified'] = true;
+            }else{
+                $privilege['modified'] = false;
+            }
             $privilege['type'] = "0";
             array_push($data,$privilege);
         }
@@ -97,6 +98,7 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege['avatar'] = MiniHttp::getMiniHost()."static/images/icon_group.png";
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
+            $modifyValue = substr($permission,1);
             $dirCreateValue = substr($permission,1,1);
             $dirRenameValue = substr($permission,2,1);
             $dirDelValue = substr($permission,3,1);
@@ -150,11 +152,11 @@ class PrivilegeBiz  extends MiniBiz{
             }else{
                 $privilege['preview'] = false;
             }
-            // if($modifyValue=='11111111'){
-            //     $privilege['modified'] = true;
-            // }else{
-            //     $privilege['modified'] = false;
-            // }
+            if($modifyValue=='11111111'){
+                $privilege['modified'] = true;
+            }else{
+                $privilege['modified'] = false;
+            }
             $privilege['type'] = "1";
             array_push($data,$privilege);
         }
