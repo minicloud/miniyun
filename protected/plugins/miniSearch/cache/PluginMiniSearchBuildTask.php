@@ -90,7 +90,10 @@ class PluginMiniSearchBuildTask extends MiniCache{
      */
     public function buildNewNode(){
         $files = SearchFile::model()->findAll();
+        $countFiles = count($files);
         foreach($files as $file){
+            echo("剩余：".$countFiles."个文件尚未编制索引，请稍后"); 
+            $countFiles--;
             $this->createTask($file["node_ids"],$file["file_signature"]);
         }
         return count($files);

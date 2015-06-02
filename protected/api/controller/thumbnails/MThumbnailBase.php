@@ -91,7 +91,6 @@ class MThumbnailBase extends MModel {
         $thumbnailBase->path             = MUtils::convertStandardPath($path);
         $thumbnailBase->root             = $root;
         $thumbnailBase->config           = $config;
-        $thumbnailBase->signature           = $signature;
         // 检查共享
         $share_filter                    = MSharesFilter::init();
         if ($share_filter->handlerCheck($thumbnailBase->user_id, $path, true)) {
@@ -136,6 +135,8 @@ class MThumbnailBase extends MModel {
         $versionId = $file["version_id"];
         // 检查是否支持缩略图
         $this->checkExistThumbnail($fileName, $fileSize);
+
+        
         // 获取文件版本
         $version = MFileVersions::queryFileVersionByID($versionId);
         if (count($version) == 0) {
@@ -143,12 +144,10 @@ class MThumbnailBase extends MModel {
         }
         // 获取文件存储路径
         $isTmp = false;
-        if(($this->signature)!=="undefined"){
-            $signature = $this->signature;
-        }else{
+        $signature  = $_REQUEST["signature"];        
+        if(empty($signature)){
             $signature = $version[0]["file_signature"];
         }
-
         // 缩略图大小
         $sizeInfo = self::$sizes[$this->size];
         if($sizeInfo===NULL){

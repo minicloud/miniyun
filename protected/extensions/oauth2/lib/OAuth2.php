@@ -913,6 +913,8 @@ abstract class OAuth2 {
     $tokenParam = $this->getAccessTokenParams();
 
     $sign = isset($_REQUEST["sign"]) ? $_REQUEST["sign"] : null;
+    $infos = explode("_", $sign);
+    $sign = $infos[0];
     if ($tokenParam === FALSE || empty($sign)) // Access token was not provided
       return $exitNotPresent ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_BAD_REQUEST, $realm, OAUTH2_ERROR_INVALID_REQUEST, 'The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed.', NULL, $scope) : FALSE;
     // Get the stored token data (from the implementing subclass)
