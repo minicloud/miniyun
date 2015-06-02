@@ -27,17 +27,64 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege['user_status'] = $user['user_status'];
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
-            $modifyValue = substr($permission,1);
+            $dirCreateValue = substr($permission,1,1);
+            $dirRenameValue = substr($permission,2,1);
+            $dirDelValue = substr($permission,3,1);
+            $fileUploadValue = substr($permission,4,1);
+            $fileRenameValue = substr($permission,5,1);
+            $contentValue = substr($permission,6,1);
+            $fileDelValue = substr($permission,7,1);
+            $previewValue = substr($permission,8,1);
             if($readValue=='1'){//read权限 与js格式转化为一致
                 $privilege['read'] = true;
             }else{
                 $privilege['read'] = false;
             }
-            if($modifyValue=='11111111'){
-                $privilege['modified'] = true;
+            if($dirCreateValue=='1'){//dir_create权限 与js格式转化为一致
+                $privilege['dir_create'] = true;
             }else{
-                $privilege['modified'] = false;
+                $privilege['dir_create'] = false;
             }
+            if($dirRenameValue=='1'){//dir_rename权限 与js格式转化为一致
+                $privilege['dir_rename'] = true;
+            }else{
+                $privilege['dir_rename'] = false;
+            }
+            if($dirDelValue=='1'){//dir_del权限 与js格式转化为一致
+                $privilege['dir_del'] = true;
+            }else{
+                $privilege['dir_del'] = false;
+            }
+            if($fileUploadValue=='1'){//file_upload权限 与js格式转化为一致
+                $privilege['file_upload'] = true;
+            }else{
+                $privilege['file_upload'] = false;
+            }
+            if($fileRenameValue=='1'){//file_rename权限 与js格式转化为一致
+                $privilege['file_rename'] = true;
+            }else{
+                $privilege['file_rename'] = false;
+            }
+            if($contentValue=='1'){//content权限 与js格式转化为一致
+                $privilege['content'] = true;
+            }else{
+                $privilege['content'] = false;
+            }
+            if($fileDelValue=='1'){//file_del权限 与js格式转化为一致
+                $privilege['file_del'] = true;
+            }else{
+                $privilege['file_del'] = false;
+            }
+            if($previewValue=='1'){//preview权限 与js格式转化为一致
+                $privilege['preview'] = true;
+            }else{
+                $privilege['preview'] = false;
+            }
+            // if($modifyValue=='11111111'){
+            //     $privilege['modified'] = true;
+            // }else{
+            //     $privilege['modified'] = false;
+            // }
             $privilege['type'] = "0";
             array_push($data,$privilege);
         }
@@ -50,17 +97,64 @@ class PrivilegeBiz  extends MiniBiz{
             $privilege['avatar'] = MiniHttp::getMiniHost()."static/images/icon_group.png";
             $permission = $item['permission'];
             $readValue = substr($permission,0,1);
-            $modifyValue = substr($permission,1);
+            $dirCreateValue = substr($permission,1,1);
+            $dirRenameValue = substr($permission,2,1);
+            $dirDelValue = substr($permission,3,1);
+            $fileUploadValue = substr($permission,4,1);
+            $fileRenameValue = substr($permission,5,1);
+            $contentValue = substr($permission,6,1);
+            $fileDelValue = substr($permission,7,1);
+            $previewValue = substr($permission,8,1);
             if($readValue=='1'){//read权限 与js格式转化为一致
                 $privilege['read'] = true;
             }else{
                 $privilege['read'] = false;
             }
-            if($modifyValue=='11111111'){
-                $privilege['modified'] = true;
+            if($dirCreateValue=='1'){//dir_create权限 与js格式转化为一致
+                $privilege['dir_create'] = true;
             }else{
-                $privilege['modified'] = false;
+                $privilege['dir_create'] = false;
             }
+            if($dirRenameValue=='1'){//dir_rename权限 与js格式转化为一致
+                $privilege['dir_rename'] = true;
+            }else{
+                $privilege['dir_rename'] = false;
+            }
+            if($dirDelValue=='1'){//dir_del权限 与js格式转化为一致
+                $privilege['dir_del'] = true;
+            }else{
+                $privilege['dir_del'] = false;
+            }
+            if($fileUploadValue=='1'){//file_upload权限 与js格式转化为一致
+                $privilege['file_upload'] = true;
+            }else{
+                $privilege['file_upload'] = false;
+            }
+            if($fileRenameValue=='1'){//file_rename权限 与js格式转化为一致
+                $privilege['file_rename'] = true;
+            }else{
+                $privilege['file_rename'] = false;
+            }
+            if($contentValue=='1'){//content权限 与js格式转化为一致
+                $privilege['content'] = true;
+            }else{
+                $privilege['content'] = false;
+            }
+            if($fileDelValue=='1'){//file_del权限 与js格式转化为一致
+                $privilege['file_del'] = true;
+            }else{
+                $privilege['file_del'] = false;
+            }
+            if($previewValue=='1'){//preview权限 与js格式转化为一致
+                $privilege['preview'] = true;
+            }else{
+                $privilege['preview'] = false;
+            }
+            // if($modifyValue=='11111111'){
+            //     $privilege['modified'] = true;
+            // }else{
+            //     $privilege['modified'] = false;
+            // }
             $privilege['type'] = "1";
             array_push($data,$privilege);
         }
