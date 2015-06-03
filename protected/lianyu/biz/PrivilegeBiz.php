@@ -32,8 +32,8 @@ class PrivilegeBiz  extends MiniBiz{
             $dirRenameValue = substr($permission,2,1);
             $dirDelValue = substr($permission,3,1);
             $fileUploadValue = substr($permission,4,1);
-            $fileRenameValue = substr($permission,5,1);
-            $contentValue = substr($permission,6,1);
+            $contentValue = substr($permission,5,1);
+            $fileRenameValue = substr($permission,6,1);
             $fileDelValue = substr($permission,7,1);
             $previewValue = substr($permission,8,1);
             if($readValue=='1'){//read权限 与js格式转化为一致
