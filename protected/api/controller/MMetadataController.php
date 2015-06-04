@@ -197,7 +197,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
                         if($response['share']['permission']==='000000000'){
                             continue;
                         }
-                        if($response['share']['permission']==='011111111'){//如果父目录没有只读权限
+                        $readPrivilege = substr($response['share']['permission'],0,1);
+                        if($readPrivilege === '0'){//如果父目录没有只读权限
                             if($childrenFileCreateId!=$currentUser['user_id']){//当没有只读权限时，过滤(用户只能看见共享目录中自己的文件)
                                 continue;
                             }
@@ -259,14 +260,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
             if(isset($permission['children_shared'])){
                 $response['children_shared'] = true;
             }else{
-                $childrenFileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'create_id');
-                if(!empty($childrenFileMeta)){
-                    $childrenFileCreateId = $childrenFileMeta['meta_value'];
-                    $currentUser     = Yii::app()->session["user"];
-                    if((int)$childrenFileCreateId===(int)$currentUser['user_id']){
-                        $permission['permission']=MConst::SUPREME_PERMISSION;
-                    }
-                }
                 $permission["share_model"] = $this->getShareModel($filePath);
                 $response['share'] = $permission;
             }
