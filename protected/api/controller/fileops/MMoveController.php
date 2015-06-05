@@ -262,9 +262,9 @@ class MMoveController
                     MConst::HTTP_CODE_409);
             }
         }else{
-            $canModifyFile = $fromFilter->canModifyFile();
-            $canModifyFile2 = $toFilter->canModifyFile();
-            if((!$canModifyFile2) || (!$canModifyFile)){
+            $canDeleteFile = $fromFilter->canDeleteFile();
+            $canDeleteFile2 = $toFilter->canDeleteFile();
+            if((!$canDeleteFile) || (!$canDeleteFile1)){
                 throw new MFileopsException(
                     Yii::t('api','have no permission to move file'),
                     MConst::HTTP_CODE_409);
