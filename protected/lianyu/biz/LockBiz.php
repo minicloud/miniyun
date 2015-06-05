@@ -47,10 +47,16 @@ class LockBiz extends MiniBiz{
         //判断是否有该内容权限
         $userId = $this->user['id'];
         $parentPath        = dirname($filePath);
+        $file = MiniFile::getInstance()->getByPath($filePath);
+        $fileType = $file['file_type'];
+        if($fileType!==0){
+            return array('success'=>false,'data'=>array());
+        }
         $isSharedPath = false;//主要用于判断是否为被共享文件
         if(dirname(MiniUtil::getRelativePath($filePath)) == "/".$userId){
             $permission = MConst::SUPREME_PERMISSION;
-        }else{
+        }
+        else{
             $pathArr = explode('/',$filePath);
             $masterId = $pathArr[1];
             if($masterId!=$userId){
