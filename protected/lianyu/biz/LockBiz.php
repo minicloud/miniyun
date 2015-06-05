@@ -44,6 +44,45 @@ class LockBiz extends MiniBiz{
      * 查找文件是否被锁定
      */
     public function status($filePath){
+        //判断是否有该内容权限
+        $userId = $this->user['id'];
+        $parentPath        = dirname($filePath);
+        $isSharedPath = false;//主要用于判断是否为被共享文件
+        if(dirname(MiniUtil::getRelativePath($filePath)) == "/".$userId){
+            $permission = MConst::SUPREME_PERMISSION;
+        }else{
+            $pathArr = explode('/',$filePath);
+            $masterId = $pathArr[1];
+            if($masterId!=$userId){
+                $isSharedPath = true;
+            }else{
+                $model = new GeneralFolderPermissionBiz($parentPath);
+                if($model->isParentShared($parentPath)){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
+            }
+            if($isSharedPath){
+                $permissionArr = UserPermissionBiz::getInstance()->getPermission($parentPath,$userId);
+                if(!isset($permissionArr)){
+                    $permission = MConst::SUPREME_PERMISSION;
+                }else{
+                    $permission = $permissionArr['permission'];
+                    $privilegeModel = new PrivilegeBiz();
+                    $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                    $this->share_filter->is_shared = true;
+                }
+            }else{
+                $permission = MConst::SUPREME_PERMISSION;
+            }
+
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canModifyFile = $miniPermission->canModifyFile();
+        if(!$canModifyFile){//如果没有改内容权限
+            $isLock = true;
+            return array('success'=>$isLock,'data'=>array());
+        }
+
         $fileMeta = MiniFileMeta::getInstance()->getFileMeta($filePath,'lock');
         $isLock = false;
         $userId = $this->user['id'];
