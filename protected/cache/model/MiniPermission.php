@@ -14,6 +14,7 @@ class MiniPermission extends MiniCache{
     const    FILE__MODIFY   = 5;
     const    FILE__RENAME   = 6;
     const    FILE__DELETE   = 7;
+    const    PERMISSION_GRANT = 8;
     const    FILE__READ     = 0;
     public   $permission;
     //构造函数
@@ -84,6 +85,14 @@ class MiniPermission extends MiniCache{
         }
         if($type>0){
             return $this->canCreateFolder();
+        }
+    }
+    //能否下载权限
+    public function canDownload(){
+        if($this->permission[self::PERMISSION_GRANT] == 1){
+            return true;
+        }else{
+            return false;
         }
     }
     public function canRead(){

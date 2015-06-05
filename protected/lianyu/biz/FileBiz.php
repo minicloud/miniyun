@@ -15,6 +15,42 @@ class FileBiz  extends MiniBiz{
      * @return mixed
      */
     public function download($path){
+        $userId = $this->user['id'];
+        $parentPath        = dirname($path);
+        $isSharedPath = false;//主要用于判断是否为被共享文件
+        if(dirname(MiniUtil::getRelativePath($path)) == "/".$userId){
+            $permission = MConst::SUPREME_PERMISSION;
+        }else{
+            $pathArr = explode('/',$path);
+            $masterId = $pathArr[1];
+            if($masterId!=$userId){
+                $isSharedPath = true;
+            }else{
+                $model = new GeneralFolderPermissionBiz($parentPath);
+                if($model->isParentShared($parentPath)){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
+            }
+            if($isSharedPath){
+                $permissionArr = UserPermissionBiz::getInstance()->getPermission($parentPath,$userId);
+                if(!isset($permissionArr)){
+                    $permission = MConst::SUPREME_PERMISSION;
+                }else{
+                    $permission = $permissionArr['permission'];
+                    $privilegeModel = new PrivilegeBiz();
+                    $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                    $this->share_filter->is_shared = true;
+                }
+            }else{
+                $permission = MConst::SUPREME_PERMISSION;
+            }
+
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canDownload = $miniPermission->canDownload();
+        if(!$canDownload){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         $share = new MiniShare();
         $minFileMeta = $share->getMinFileMetaByPath($path);
         MiniFile::getInstance()->download($minFileMeta['ori_path']);
@@ -27,6 +63,42 @@ class FileBiz  extends MiniBiz{
      * @throws MFileopsException
      */
     public function downloadToPackage($paths,$filePath){
+        $userId = $this->user['id'];
+        $parentPath        = dirname($filePath);
+        $isSharedPath = false;//主要用于判断是否为被共享文件
+        if(dirname(MiniUtil::getRelativePath($filePath)) == "/".$userId){
+            $permission = MConst::SUPREME_PERMISSION;
+        }else{
+            $pathArr = explode('/',$filePath);
+            $masterId = $pathArr[1];
+            if($masterId!=$userId){
+                $isSharedPath = true;
+            }else{
+                $model = new GeneralFolderPermissionBiz($parentPath);
+                if($model->isParentShared($parentPath)){//如果是父目录被共享
+                    $isSharedPath = true;
+                }
+            }
+            if($isSharedPath){
+                $permissionArr = UserPermissionBiz::getInstance()->getPermission($parentPath,$userId);
+                if(!isset($permissionArr)){
+                    $permission = MConst::SUPREME_PERMISSION;
+                }else{
+                    $permission = $permissionArr['permission'];
+                    $privilegeModel = new PrivilegeBiz();
+                    $this->share_filter->slaves =$privilegeModel->getSlaveIdsByPath($permissionArr['share_root_path']);
+                    $this->share_filter->is_shared = true;
+                }
+            }else{
+                $permission = MConst::SUPREME_PERMISSION;
+            }
+
+        }
+        $miniPermission = new MiniPermission($permission);
+        $canDownload = $miniPermission->canDownload();
+        if(!$canDownload){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         $arr = explode('/',$filePath);
         $isRoot = false;
         $isMine = false;
