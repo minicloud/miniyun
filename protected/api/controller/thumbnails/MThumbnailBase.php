@@ -145,7 +145,7 @@ class MThumbnailBase extends MModel {
         // 获取文件存储路径
         $isTmp = false;
         $signature  = $_REQUEST["signature"];        
-        if(empty($signature)){
+        if(empty($signature)||$signature==="undefined"){
             $signature = $version[0]["file_signature"];
         }
         // 缩略图大小

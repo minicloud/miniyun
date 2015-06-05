@@ -240,22 +240,23 @@ class MMoveController
             $canRenameFolder = $fromFilter->canModifyFolderName();
             $canRenameFile2 = $toFilter->canModifyFileName();
             $canRenameFolder2 = $toFilter->canModifyFolderName();
+          
             if( $file['file_type']>0 && !$canRenameFolder && !$isSelfFile){//如果目标是目录，则当其不为己文件，且无更名权限时 exception
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename folder'),
                     MConst::HTTP_CODE_409);
             }
-            if( $file['file_type']=0 && !$canRenameFile && !$isSelfFile){//如果目标是文件，则当其不为己文件，且无更名权限时 exception
+            if( $file['file_type']==0 && !$canRenameFile && !$isSelfFile){//如果目标是文件，则当其不为己文件，且无更名权限时 exception
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
                     MConst::HTTP_CODE_409);
             }
-            if( $file['file_type']>0 && !$canRenameFile2 && !$isSelfFile){//如果目标是目录，则当其不为己文件，且无更名权限时 exception
+            if( $file['file_type']>0 && !$canRenameFolder2 && !$isSelfFile){//如果目标是目录，则当其不为己文件，且无更名权限时 exception
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename folder'),
                     MConst::HTTP_CODE_409);
             }
-            if( $file['file_type']=0 && !$canRenameFolder2 && !$isSelfFile){//如果目标是文件，则当其不为己文件，且无更名权限时 exception
+            if( $file['file_type']==0 && !$canRenameFile2 && !$isSelfFile){//如果目标是文件，则当其不为己文件，且无更名权限时 exception
                 throw new MFileopsException(
                     Yii::t('api','have no permission to rename file'),
                     MConst::HTTP_CODE_409);
