@@ -314,11 +314,11 @@ class FileBiz  extends MiniBiz{
      */
     public function txtContent($path,$signature){
         $share = new MiniShare();
-        $fileBiz = new FileBiz();
-        $canRead = $fileBiz->privilege($path);
-        if(!$canRead){
-            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
-        }
+        // $fileBiz = new FileBiz();
+        // $canRead = $fileBiz->privilege($path);
+        // if(!$canRead){
+        //     throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        // }
         $minFileMeta = $share->getMinFileMetaByPath($path);
         $file = array();
         $content = MiniFile::getInstance()->getTxtContent($minFileMeta['ori_path'],$signature);
