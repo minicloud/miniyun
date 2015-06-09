@@ -37,9 +37,9 @@ class PrivilegeBiz  extends MiniBiz{
             $fileDelValue = substr($permission,7,1);
             $previewValue = substr($permission,8,1);
             if($readValue=='1'){//read权限 与js格式转化为一致
-                $privilege['read'] = true;
+                $privilege['view'] = true;
             }else{
-                $privilege['read'] = false;
+                $privilege['view'] = false;
             }
             if($dirCreateValue=='1'){//dir_create权限 与js格式转化为一致
                 $privilege['dir_create'] = true;
@@ -52,9 +52,9 @@ class PrivilegeBiz  extends MiniBiz{
                 $privilege['dir_rename'] = false;
             }
             if($dirDelValue=='1'){//dir_del权限 与js格式转化为一致
-                $privilege['dir_del'] = true;
+                $privilege['dir_delete'] = true;
             }else{
-                $privilege['dir_del'] = false;
+                $privilege['dir_delete'] = false;
             }
             if($fileUploadValue=='1'){//file_upload权限 与js格式转化为一致
                 $privilege['file_upload'] = true;
@@ -67,19 +67,19 @@ class PrivilegeBiz  extends MiniBiz{
                 $privilege['file_rename'] = false;
             }
             if($contentValue=='1'){//content权限 与js格式转化为一致
-                $privilege['content'] = true;
+                $privilege['file_edit'] = true;
             }else{
-                $privilege['content'] = false;
+                $privilege['file_edit'] = false;
             }
             if($fileDelValue=='1'){//file_del权限 与js格式转化为一致
-                $privilege['file_del'] = true;
+                $privilege['file_delete'] = true;
             }else{
-                $privilege['file_del'] = false;
+                $privilege['file_delete'] = false;
             }
             if($previewValue=='1'){//preview权限 与js格式转化为一致
-                $privilege['preview'] = true;
+                $privilege['download'] = true;
             }else{
-                $privilege['preview'] = false;
+                $privilege['download'] = false;
             }
             if($modifyValue=='11111111'){
                 $privilege['modified'] = true;
@@ -108,9 +108,9 @@ class PrivilegeBiz  extends MiniBiz{
             $fileDelValue = substr($permission,7,1);
             $previewValue = substr($permission,8,1);
             if($readValue=='1'){//read权限 与js格式转化为一致
-                $privilege['read'] = true;
+                $privilege['view'] = true;
             }else{
-                $privilege['read'] = false;
+                $privilege['view'] = false;
             }
             if($dirCreateValue=='1'){//dir_create权限 与js格式转化为一致
                 $privilege['dir_create'] = true;
@@ -123,9 +123,9 @@ class PrivilegeBiz  extends MiniBiz{
                 $privilege['dir_rename'] = false;
             }
             if($dirDelValue=='1'){//dir_del权限 与js格式转化为一致
-                $privilege['dir_del'] = true;
+                $privilege['dir_delete'] = true;
             }else{
-                $privilege['dir_del'] = false;
+                $privilege['dir_delete'] = false;
             }
             if($fileUploadValue=='1'){//file_upload权限 与js格式转化为一致
                 $privilege['file_upload'] = true;
@@ -138,19 +138,19 @@ class PrivilegeBiz  extends MiniBiz{
                 $privilege['file_rename'] = false;
             }
             if($contentValue=='1'){//content权限 与js格式转化为一致
-                $privilege['content'] = true;
+                $privilege['file_edit'] = true;
             }else{
-                $privilege['content'] = false;
+                $privilege['file_edit'] = false;
             }
             if($fileDelValue=='1'){//file_del权限 与js格式转化为一致
-                $privilege['file_del'] = true;
+                $privilege['file_delete'] = true;
             }else{
-                $privilege['file_del'] = false;
+                $privilege['file_delete'] = false;
             }
             if($previewValue=='1'){//preview权限 与js格式转化为一致
-                $privilege['preview'] = true;
+                $privilege['download'] = true;
             }else{
-                $privilege['preview'] = false;
+                $privilege['download'] = false;
             }
             if($modifyValue=='11111111'){
                 $privilege['modified'] = true;
