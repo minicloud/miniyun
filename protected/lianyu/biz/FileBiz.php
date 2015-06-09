@@ -390,61 +390,51 @@ class FileBiz  extends MiniBiz{
      * @return bool
      */
     public function privilege($path){
-        $isSharedPath = false;
+        if(empty($this->user['id'])){//用户未登陆情况下预览权限判断，为外链预览
+            $fileObj = MiniFile::getInstance()->getByPath($path);
+            $fileId = (int)$fileObj['id'];
+            $isLinkExist = MiniLink::getInstance()->getByFileId($fileId);//判断是否为外链，不是则判断其父级是否为外链
+            $isParentLinked = false;
+            if(empty($isLinkExist)){//如果该文件不存在外链,则判断父级目录是否做外链
+                $jointPath = '/'.$pathArr[1];
+                for($i=2;$i<count($pathArr);$i++){
+                    $jointPath .= '/'.$pathArr[$i];
+                    $parentFileObj = MiniFile::getInstance()->getByPath($jointPath);
+                    $parentFileId = (int)$parentFileObj['id'];
+                    $parentLinkObj = MiniLink::getInstance()->getByFileId($parentFileId);
+                    $isParentLinkExist = !empty($parentLinkObj);
+                    if($isParentLinkExist){//如果父级目录存在外链
+                        $isParentLinked = true;
+                        break;
+                    }else{
+                        $isParentLinked = false;
+                    }
+                }
+            }else{
+                return $canRead = true;//如果该文件本身就是外链文件，则可读
+            }
+            //如果父亲目录是外链目录，则可读；否则不可
+            if($isParentLinked){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return true;
+        }
+        //用户已登陆情况下，判断文件是否属于自己
         $pathArr = explode('/',$path);
         $masterId = $pathArr[1];
-        if($masterId!=$this->user['id']){
-            $isSharedPath = true;
-            //$masterId!=$this->user['id']的情况有两种，一种是未登录，一种是真不同
-            if(empty($this->user['id'])){//如果用户未登录，则判断该文件（或者其父级目录）是否生成外链，
-                $fileObj = MiniFile::getInstance()->getByPath($path);
-                $fileId = (int)$fileObj['id'];
-                $isLinkExist = MiniLink::getInstance()->getByFileId($fileId);//判断是否为外链，不是则判断其父级是否为外链
-                $isParentLinked = false;
-                if(empty($isLinkExist)){//如果该文件不存在外链,则判断父级目录是否做外链
-                    $jointPath = '/'.$pathArr[1];
-                    for($i=2;$i<count($pathArr);$i++){
-                        $jointPath .= '/'.$pathArr[$i];
-                        $parentFileObj = MiniFile::getInstance()->getByPath($jointPath);
-                        $parentFileId = (int)$parentFileObj['id'];
-                        $parentLinkObj = MiniLink::getInstance()->getByFileId($parentFileId);
-                        $isParentLinkExist = !empty($parentLinkObj);
-                        if($isParentLinkExist){//如果父级目录存在外链
-                            $isParentLinked = true;
-                            break;
-                        }else{
-                            $isParentLinked = false;
-                        }
-                    }
-                }else{
-                    return $canRead = true;//如果该文件本身就是外链文件，则可读
-                }
-                //如果父亲目录是外链目录，则可读；否则不可
-                if($isParentLinked){
-                    return $canRead = true;
-                }else{
-                    return $canRead = false;
-                }
-            }
-        }else{
-            $model = new GeneralFolderPermissionBiz($path);
-            if($model->isParentShared($path)){//如果是父目录被共享
-                $isSharedPath = true;
-            }
-        }
-        if($isSharedPath){
-            $permissionArr = UserPermissionBiz::getInstance()->getPermission($path,$this->user['id']);
-            if(!isset($permissionArr)){
-                $permission = MConst::SUPREME_PERMISSION;
+        if($masterId==$this->user['id']){//如果文件是自己文件，则拥有预览权限
+            return true;
+        }else{//如果文件不为自己文件
+            $permission = UserPermissionBiz::getInstance()->getPermission($path,$this->user['id']);
+            if(empty($permission)){
+                return false;
             }else{
-                $permission = $permissionArr['permission'];
+                return true;
             }
-        }else{
-            $permission = MConst::SUPREME_PERMISSION;
         }
-        $miniPermission = new MiniPermission($permission);
-        $canRead = $miniPermission->canRead();
-        return $canRead;
     }
 
     /**

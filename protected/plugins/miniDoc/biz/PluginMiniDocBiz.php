@@ -190,11 +190,11 @@ class PluginMiniDocBiz extends MiniBiz{
         if(empty($file)){
             return array('success' =>false ,'msg'=>'file not existed');
         }
-        // $fileBiz = new FileBiz();
-        // $canRead = $fileBiz->privilege($path);
-        // if(!$canRead){
-        //     throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
-        // }
+        $fileBiz = new FileBiz();
+        $canRead = $fileBiz->privilege($path);
+        if(!$canRead){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         //获得文件当前版本对应的version
         $version   = PluginMiniDocVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
