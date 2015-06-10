@@ -284,7 +284,8 @@ class FileBiz  extends MiniBiz{
         }
         $miniPermission = new MiniPermission($permission);
         $canModifyFile = $miniPermission->canModifyFile();
-        if($item[1]!==$this->user['id']&&!$canModifyFile){
+        $canDownload = $miniPermission->canDownload();
+        if($item[1]!==$this->user['id']&&(!$canModifyFile||!$canDownload)){
             throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
         }
         $this->content($filePath,$signature,true);
