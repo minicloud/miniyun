@@ -284,7 +284,8 @@ class FileBiz  extends MiniBiz{
         }
         $miniPermission = new MiniPermission($permission);
         $canModifyFile = $miniPermission->canModifyFile();
-        if($item[1]!==$this->user['id']&&!$canModifyFile){
+        $canDownload = $miniPermission->canDownload();
+        if($item[1]!==$this->user['id']&&(!$canModifyFile||!$canDownload)){
             throw new MFilesException(Yii::t('api',MConst::PARAMS_ERROR), MConst::HTTP_CODE_400);
         }
         $this->content($filePath,$signature,true);
@@ -314,11 +315,11 @@ class FileBiz  extends MiniBiz{
      */
     public function txtContent($path,$signature){
         $share = new MiniShare();
-        // $fileBiz = new FileBiz();
-        // $canRead = $fileBiz->privilege($path);
-        // if(!$canRead){
-        //     throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
-        // }
+        $fileBiz = new FileBiz();
+        $canRead = $fileBiz->privilege($path);
+        if(!$canRead){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
         $minFileMeta = $share->getMinFileMetaByPath($path);
         $file = array();
         $content = MiniFile::getInstance()->getTxtContent($minFileMeta['ori_path'],$signature);
@@ -419,8 +420,6 @@ class FileBiz  extends MiniBiz{
             }else{
                 return false;
             }
-        }else{
-            return true;
         }
         //用户已登陆情况下，判断文件是否属于自己
         $pathArr = explode('/',$path);
