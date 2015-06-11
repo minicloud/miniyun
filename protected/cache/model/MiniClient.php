@@ -114,23 +114,6 @@ class MiniClient extends MiniCache{
         $data['total'] = $total;
         return $data;
     }
-    /**
-	 * 删除应用
-	 * @param int $id
-	 */
-	public function deleteClient($id){
-		//更新DB
-		$item         = OClients::model()->findByPk($id);
-		if(isset($item)){
-			$clientId = $item->client_id;
-			$item->delete();
-			//更新一级缓存
-			if($this->hasCache){
-				$key  = $this->getCacheKey($clientId);
-				$this->deleteCache($key);
-			}
-		}
-	}
 	/**
 	 * 禁用应用
 	 */
