@@ -78,15 +78,6 @@ class AppManageService extends MiniService{
         return $data;
     }
     /**
-     * 删除app
-     */
-    public function deleteApp(){
-        $id    = MiniHttp::getParam('id',"");
-        $model = new AppManageBiz();
-        $data  = $model->deleteApp($id);
-        return $data;
-    }
-    /**
      * 添加app
      */
     public function createApp(){

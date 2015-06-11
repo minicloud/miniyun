@@ -62,13 +62,6 @@ class AppManageBiz extends MiniBiz{
         return true;
     }
     /**
-     * 删除app
-     */
-    public function deleteApp($id){
-        MiniClient::getInstance()->deleteClient($id);
-        return true;
-    }
-    /**
      * 新建app
      */
     public function createApp($name,$description,$client_id,$client_secret){
