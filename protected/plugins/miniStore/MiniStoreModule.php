@@ -107,7 +107,8 @@ class MiniStoreModule extends MiniPluginModule {
         //回调地址
         $callbackUrl = MiniHttp::getMiniHost()."api.php?node_id=".base64_encode($node["id"]);
         foreach ($params as $key => $value) {
-            $callbackUrl .="&".$key."=".base64_encode(urlencode($value));
+            $value = str_replace(" ","+",$value);
+            $callbackUrl .="&".$key."=".base64_encode($value);
         }
         $callbackUrl .="&encode=base64";
         $siteId   = MiniSiteUtils::getSiteID();

@@ -116,8 +116,9 @@ class FileManageService extends MiniService{
      */
     public function setToPublic(){
         $filePath = MiniHttp::getParam('file_path',"");
+        $privilege = MiniHttp::getParam('privilege',"");
         $model     = new FileManageBiz();
-        return $model->setToPublic($filePath);
+        return $model->setToPublic($filePath,$privilege);
     }
     /**
      * 设置为公共目录
