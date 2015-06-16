@@ -171,11 +171,16 @@ class MThumbnailBase extends MModel {
             header('Location: '.$url);
             exit;
         }
-        //为迷你存储缩略图添加hook
+        //判断文件是否在迷你存储中，兼容非迷你存储的文件
+        $version = MiniVersion::getInstance()->getBySignature($signature);
+        $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"store_id");
         $thumbnailData = array();
-        $thumbnailData["signature"] = $signature;
-        $storePath = apply_filters("image_path", $thumbnailData);
-        if ($storePath === $thumbnailData || empty($storePath)){
+        if(!empty($meta)){
+            //为迷你存储缩略图添加hook            
+            $thumbnailData["signature"] = $signature;
+            $storePath = apply_filters("image_path", $thumbnailData); 
+        }
+        if (empty($storePath)||$storePath === $thumbnailData){
             //data源处理对象
             $dataObj = Yii::app()->data;
             $signaturePath = MiniUtil::getPathBySplitStr($signature);
@@ -189,7 +194,6 @@ class MThumbnailBase extends MModel {
         $pathInfo  = MUtils::pathinfo_utf($fileName);
         $extension = $pathInfo["extension"];
         $tmpPath  = DOCUMENT_TEMP . $signature . ".$extension";
-         
         // 缩略图对象
         $this->handler = NULL;
         $this->image   = $tmpPath;
