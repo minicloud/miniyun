@@ -116,19 +116,30 @@ class MiniUser extends MiniCache{
                 }
                 if($key==="is_admin"){
                     $user["is_admin"] = ($value==="1"?true:false);
-                }
-                if($key==="avatar"){
-                    if(strpos($value,"http")===0){
-                        $user["avatar"] = $value;
-                    }else{
-                        $user["avatar"] = MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$value;
-                    }
-                }
+                } 
                 if($key==='file_sort_type'){
                     $user["file_sort_type"]   = $value;
                 }
                 if($key==='file_sort_order'){
                     $user["file_sort_order"]   = $value;
+                }
+            }
+            //获得用户头像，如本地没有图片，则重新下载原始图片
+            if(array_key_exists("avatar", $metas)){
+                $value = $metas["avatar"];
+                if(strpos($value,"http")===0){
+                    $user["avatar"] = $value;
+                }else{ 
+                    $savePath = THUMBNAIL_TEMP . "avatar";
+                    $path = $savePath.'/'.$value;
+                    if(!file_exists($path)){
+                        if(!file_exists($savePath)){
+                            mkdir($savePath);
+                        } 
+                        $url = $metas["avatar_url"];
+                        file_put_contents($path, file_get_contents($url));
+                    }
+                    $user["avatar"] = MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$value;
                 }
             }
             return  $user;

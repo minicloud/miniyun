@@ -154,6 +154,8 @@ class ProfileBiz  extends MiniBiz{
         file_put_contents($path, file_get_contents($url));
         //save to db
         MiniUserMeta::getInstance()->updateMeta($user["id"],"avatar",$avatarName);
+        //保存原始图片，便于其它迷你云节点可显示该图片的缩略图
+        MiniUserMeta::getInstance()->updateMeta($user["id"],"avatar_url",$url);
         return MiniHttp::getMiniHost()."assets/thumbnails/avatar/".$avatarName;
     }
     /**
