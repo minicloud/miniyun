@@ -108,7 +108,7 @@ class MThumbnailBase extends MModel {
      * @throws MException
      */
     public function checkExistThumbnail($fileName,$size) {
-        if ($size == 0 || $size > MConst::MAX_IMAGE_SIZE) {
+        if ($size == 0) {
             throw new MException(Yii::t('api',"The image is invalid and cannot be thumbnailed."), MConst::HTTP_CODE_415);
         }
         $pathInfo  = MUtils::pathinfo_utf($fileName);
