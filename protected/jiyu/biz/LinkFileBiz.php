@@ -42,7 +42,8 @@ class LinkFileBiz  extends MiniBiz{
                 }else{
                     $info["is_owner"] = false;
                 }
-
+                $user = MiniUser::getInstance()->getById($file["user_id"]);
+                $info["user_name"] = $user["user_name"];
                 $data["info"] = $info;
                 return $data;
             }
