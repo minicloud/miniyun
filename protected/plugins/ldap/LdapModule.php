@@ -5,7 +5,7 @@
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
- * @since 2.1
+ * @since 2.2
  */
 /**
  *

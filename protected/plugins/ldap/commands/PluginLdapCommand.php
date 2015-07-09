@@ -5,7 +5,7 @@
  * @link http://www.miniyun.cn
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
  * @license http://www.miniyun.cn/license.html
- * @since 1.8
+ * @since 2.2
  */
 class PluginLdapCommand extends CConsoleCommand{
     private  $userId = -1;//当为-1时，表示部门
