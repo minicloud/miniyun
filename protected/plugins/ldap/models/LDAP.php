@@ -66,6 +66,7 @@ class LDAP{
     function getMember($userName,$password) {
         $ldapWhiteListOpen     = MiniOption::getInstance()->getOptionValue('ldap_white_list_open');
         $ldapPrimaryKey     = MiniOption::getInstance()->getOptionValue('ldap_primary_key');
+        $ldapNick     = MiniOption::getInstance()->getOptionValue('ldap_nick');
         if($ldapWhiteListOpen == 'true'){
             $user = MiniUser::getInstance()->getUserByName($userName);
             if(empty($user)){
@@ -92,7 +93,7 @@ class LDAP{
         	return false;
         }
         $dn        = $this->filter;
-        $attrItems = array( "ou", "sn","mail","telephonenumber","displayname","department");
+        $attrItems = array( "ou", "sn","mail","telephonenumber",$ldapNick,"department");
         $query = $ldapPrimaryKey."=".$userName;
         $results   = @ldap_search($ldapConn,$dn,$query,$attrItems);
         $entries   = @ldap_get_entries($ldapConn, $results);
@@ -113,7 +114,7 @@ class LDAP{
         		if($phoneInfo!=null){
         			$extend["phone"] = $phoneInfo;
         		}
-                $displayNameInfo = $this->getValue("displayname", $entry);//获得昵称与全名
+                $displayNameInfo = $this->getValue($ldapNick, $entry);//获得昵称与全名
         		if($displayNameInfo!=null){
         			$extend["nick"]     =  $displayNameInfo;
                 }else{

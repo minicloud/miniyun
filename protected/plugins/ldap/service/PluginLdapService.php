@@ -13,11 +13,12 @@ class PluginLdapService extends MiniService{
      */
     public function setLdapInfo(){
         $ldapInfo = array();
-        $ldapInfo['ldap_host']        = MiniHttp::getParam('ldap_host',"");
-        $ldapInfo['ldap_port']        = MiniHttp::getParam('ldap_port',"");
-        $ldapInfo['ldap_base_cn']     = MiniHttp::getParam('ldap_base_cn',"");
-        $ldapInfo['ldap_primary_key']     = MiniHttp::getParam('ldap_primary_key',"");
-        $ldapInfo['ldap_nick']     = MiniHttp::getParam('ldap_nick',"");
+        $ldapInfo['ldap_host']             = MiniHttp::getParam('ldap_host',"");
+        $ldapInfo['ldap_port']             = MiniHttp::getParam('ldap_port',"");
+        $ldapInfo['ldap_base_cn']          = MiniHttp::getParam('ldap_base_cn',"");
+        $ldapInfo['ldap_primary_key']      = strtolower(MiniHttp::getParam('ldap_primary_key',""));
+        $ldapInfo['ldap_nick']             = strtolower(MiniHttp::getParam('ldap_nick',""));
+        $ldapInfo['ldap_department_name']  = strtolower(MiniHttp::getParam('ldap_department_name',""));
         $ldapInfo['ldap_coding']           = MiniHttp::getParam('ldap_coding',"");
         $ldapInfo['ldap_white_list_open']  = MiniHttp::getParam('ldap_white_list_open',"");
         $ldapInfo['ldap_sync_department']  = MiniHttp::getParam('ldap_sync_department',"");
