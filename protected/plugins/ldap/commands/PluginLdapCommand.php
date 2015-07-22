@@ -124,10 +124,16 @@ class PluginLdapCommand extends CConsoleCommand{
      * 导入部门
      */
     private function importDepartment($userName,$department,$departmentEntries,$departmentAlias){
+        $arr = explode('|',$department);
+        $num = count($arr);
+        $department = $arr[$num-1];
         $departmentArray = array_splice($departmentEntries,1);
-        foreach ($departmentArray as $key => $value) {
-            if($departmentArray[$key]['ou'][0] == $department){
-                $departmentName = $value[$departmentAlias][0];
+        for($i=0;$i<count($departmentArray);$i++){
+            if($departmentArray[$i]['ou'][0] == $department){
+                $departmentName = $departmentArray[$i][$departmentAlias][0];
+            }
+            if(count($departmentArray[$i]['ou'])>2 && $departmentArray[$i]['ou'][1] == $department){
+                $departmentName = $departmentArray[$i][$departmentAlias][0];
             }
         }
         $departmentNames = array();
