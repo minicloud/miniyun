@@ -101,6 +101,10 @@ class MiniUser extends MiniCache{
             $user["space"]          = MUtils::defaultTotalSize();
             $user["is_admin"]       = false;
             $metas                  = MiniUserMeta::getInstance()->getUserMetas($user["id"]);
+            //用户拼音添加补偿操作
+            if(empty($item->user_name_pinyin)){
+                $this->updateUserNamePinYin($item->id);
+            }
             foreach ($metas as $key=>$value){
                 if($key==="nick"){
                     $user["nick"]    = $value;
