@@ -21,9 +21,9 @@ class MUserDeviceMeta extends MModel
      */
     public static function createUserDeviceMeta($user_id, $device_id, $meta_name, $meta_value) {
         $sql = "INSERT INTO " . DB_PREFIX . "_user_devices_metas";
-        $sql .= " (user_id,device_id,meta_name,meta_value,created_at,updated_at)";
+        $sql .= " (device_id,meta_name,meta_value,created_at,updated_at)";
         $sql .= " VALUES(";
-        $sql .= "'{$user_id}','{$device_id}','{$meta_name}','{$meta_value}',now(),now()";
+        $sql .= "'{$device_id}','{$meta_name}','{$meta_value}',now(),now()";
         $sql .= ")";
         Yii::trace("function: '{createFileMeta}',sql:'{$sql}'");
         $db_manager = MDbManager::getInstance();

@@ -28,6 +28,7 @@ class m150626_104055_v220  extends EDbMigration{
         if ($dbType == "mysql"){
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
         }
+        //新加oauth_access_tokens/oauth_refresh_tokens
         $this->createTable('oauth_access_tokens',array(
                 'id'                   => 'pk',
                 'access_token'         => 'varchar(64) NOT NULL',
@@ -45,7 +46,33 @@ class m150626_104055_v220  extends EDbMigration{
                 'expires'              => 'bigint(20) NOT NULL',
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
-            ),$extend); 
+            ),$extend);
+        //把miniyun_user_devices添加client_id
+        $this->addColumn(DB_PREFIX.'_user_devices', 'client_id', 'varchar(64)'); 
+        $criteria = new CDbCriteria(); 
+        $items = UserDevice::model()->findAll($criteria);
+        foreach ($items as $key => $item) {
+            $userDeviceType = $item->user_device_type;
+            if($userDeviceType==1){
+                $item->client_id='JsQCsjF3yr7KACyT';
+            }
+            if($userDeviceType==2){
+                $item->client_id='d6n6Hy8CtSFEVqNh';
+            }
+            if($userDeviceType==3){
+                $item->client_id='c9Sxzc47pnmavzfy';
+            }
+            if($userDeviceType==4){
+                $item->client_id='MsUEu69sHtcDDeCp';
+            }
+            if($userDeviceType==4){
+                $item->client_id='V8G9svK8VDzezLum';
+            }
+            if($userDeviceType==5){
+                $item->client_id='Lt7hPcA6nuX38FY4';
+            }
+            $item->save();
+        }
         
     } 
 

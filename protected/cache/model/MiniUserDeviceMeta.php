@@ -68,8 +68,7 @@ class MiniUserDeviceMeta extends MiniCache{
 	 * @param string $meta_value
 	 */
 	public function create($user_id, $device_id, $meta_name, $meta_value){
-		$model             = new UserDeviceMeta();
-		$model->user_id    = $user_id;
+		$model             = new UserDeviceMeta(); 
 		$model->device_id  = $device_id;
 		$model->meta_name  = $meta_name;
 		$model->meta_value = $meta_value;
@@ -81,8 +80,7 @@ class MiniUserDeviceMeta extends MiniCache{
 	private function db2Item($item){
 		if(!isset($item)) return NULL;
 		$value               = array();
-		$value["id"]         = $item->id;
-		$value["user_id"]    = $item->user_id;
+		$value["id"]         = $item->id; 
 		$value["device_id"]  = $item->device_id;
 		$value["meta_name"]  = $item->meta_name;
 		$value["meta_value"] = $item->meta_value;

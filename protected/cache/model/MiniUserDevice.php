@@ -78,6 +78,29 @@ class MiniUserDevice extends MiniCache{
         if(array_key_exists("device_status",$item->metaData->columns)){
             $value["device_status"] = $item["device_status"];
         }
+        //兼容V2.2逻辑
+        if(empty($item->client_id)){
+        	$userDeviceType = $item->user_device_type;
+            if($userDeviceType==1){
+                $item->client_id='JsQCsjF3yr7KACyT';
+            }
+            if($userDeviceType==2){
+                $item->client_id='d6n6Hy8CtSFEVqNh';
+            }
+            if($userDeviceType==3){
+                $item->client_id='c9Sxzc47pnmavzfy';
+            }
+            if($userDeviceType==4){
+                $item->client_id='MsUEu69sHtcDDeCp';
+            }
+            if($userDeviceType==4){
+                $item->client_id='V8G9svK8VDzezLum';
+            }
+            if($userDeviceType==5){
+                $item->client_id='Lt7hPcA6nuX38FY4';
+            }
+            $item->save();
+        }
 		return  $value;
 	}
     /**

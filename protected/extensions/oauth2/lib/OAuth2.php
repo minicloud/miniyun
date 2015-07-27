@@ -930,26 +930,26 @@ abstract class OAuth2 {
     //客户端禁用，给出提示
     $this->filterPClientEnabled();
     $client = $this->getClient($token["client_id"]);
-    $signWithout = $this->signWithout($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["REQUEST_URI"]);
-    if ($sign != $signWithout)
-    {
-        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
-            $serverPort = $_SERVER["HTTP_PROXY_PORT"];
-        }else{
-            $serverPort = $_SERVER["SERVER_PORT"];
-        }  
-        $signs = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $serverPort, $_SERVER["REQUEST_URI"]);
-        $isValid = false;
-        foreach ($signs as $signCode) {
-          if ($sign == $signCode) {
-            $isValid = true;
-            break;
-          }
-        }
-        if (!$isValid) {
-            return $exitInvalid ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_UNAUTHORIZED, $realm, OAUTH2_ERROR_INVALID_SIGN, 'The Signature is error.', NULL, $scope) : FALSE;
-        }
-    }
+    // $signWithout = $this->signWithout($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["REQUEST_URI"]);
+    // if ($sign != $signWithout)
+    // {
+    //     if(array_key_exists("HTTP_PROXY_PORT",$_SERVER)){
+    //         $serverPort = $_SERVER["HTTP_PROXY_PORT"];
+    //     }else{
+    //         $serverPort = $_SERVER["SERVER_PORT"];
+    //     }  
+    //     $signs = $this->sign($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["HTTP_HOST"], $serverPort, $_SERVER["REQUEST_URI"]);
+    //     $isValid = false;
+    //     foreach ($signs as $signCode) {
+    //       if ($sign == $signCode) {
+    //         $isValid = true;
+    //         break;
+    //       }
+    //     }
+    //     if (!$isValid) {
+    //         return $exitInvalid ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_UNAUTHORIZED, $realm, OAUTH2_ERROR_INVALID_SIGN, 'The Signature is error.', NULL, $scope) : FALSE;
+    //     }
+    // }
     // Check token expiration (I'm leaving this check separated, later we'll fill in better error messages)
     // TODO 暂时去掉对于过期的处理
     //    if (isset($token["expires"]) && time() > $token["expires"])
