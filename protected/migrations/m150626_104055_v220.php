@@ -65,15 +65,40 @@ class m150626_104055_v220  extends EDbMigration{
             if($userDeviceType==4){
                 $item->client_id='MsUEu69sHtcDDeCp';
             }
-            if($userDeviceType==4){
+            if($userDeviceType==5){
                 $item->client_id='V8G9svK8VDzezLum';
             }
-            if($userDeviceType==5){
+            if($userDeviceType==6){
                 $item->client_id='Lt7hPcA6nuX38FY4';
             }
             $item->save();
         }
-        
+        //把miniyun_online_devices添加client_id
+        $this->addColumn(DB_PREFIX.'_online_devices', 'client_id', 'varchar(64)'); 
+        $criteria = new CDbCriteria(); 
+        $items = OnlineDevice::model()->findAll($criteria);
+        foreach ($items as $key => $item) {
+            $userDeviceType = $item->application_id;
+            if($userDeviceType==1){
+                $item->client_id='JsQCsjF3yr7KACyT';
+            }
+            if($userDeviceType==2){
+                $item->client_id='d6n6Hy8CtSFEVqNh';
+            }
+            if($userDeviceType==3){
+                $item->client_id='c9Sxzc47pnmavzfy';
+            }
+            if($userDeviceType==4){
+                $item->client_id='MsUEu69sHtcDDeCp';
+            }
+            if($userDeviceType==5){
+                $item->client_id='V8G9svK8VDzezLum';
+            }
+            if($userDeviceType==6){
+                $item->client_id='Lt7hPcA6nuX38FY4';
+            }
+            $item->save();
+        }
     } 
 
 }

@@ -78,7 +78,7 @@ class MiniUserDevice extends MiniCache{
         if(array_key_exists("device_status",$item->metaData->columns)){
             $value["device_status"] = $item["device_status"];
         }
-        //兼容V2.2逻辑
+        //兼容V2.2逻辑，PHP兼容Nodejs
         if(empty($item->client_id)){
         	$userDeviceType = $item->user_device_type;
             if($userDeviceType==1){
@@ -93,14 +93,15 @@ class MiniUserDevice extends MiniCache{
             if($userDeviceType==4){
                 $item->client_id='MsUEu69sHtcDDeCp';
             }
-            if($userDeviceType==4){
+            if($userDeviceType==5){
                 $item->client_id='V8G9svK8VDzezLum';
             }
-            if($userDeviceType==5){
+            if($userDeviceType==6){
                 $item->client_id='Lt7hPcA6nuX38FY4';
             }
             $item->save();
         }
+        
 		return  $value;
 	}
     /**

@@ -85,6 +85,26 @@ class MiniOnlineDevice extends MiniCache{
 			$onlineDevice->user_id        = $userId;
 			$onlineDevice->application_id = $appId;
 			$onlineDevice->device_id      = $deviceId; 
+			//兼容V2.2逻辑，PHP兼容Nodejs  
+            if($appId==1){
+                $clientId='JsQCsjF3yr7KACyT';
+            }
+            if($appId==2){
+                $clientId='d6n6Hy8CtSFEVqNh';
+            }
+            if($appId==3){
+                $clientId='c9Sxzc47pnmavzfy';
+            }
+            if($appId==4){
+                $clientId='MsUEu69sHtcDDeCp';
+            }
+            if($appId==5){
+                $clientId='V8G9svK8VDzezLum';
+            }
+            if($appId==6){
+                $clientId='Lt7hPcA6nuX38FY4';
+            } 
+	        $onlineDevice->client_id = $clientId;
 			$onlineDevice->save();
 		}
 		return true;
