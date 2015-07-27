@@ -19,6 +19,7 @@ class m150626_104055_v220  extends EDbMigration{
             $this->createOAuthTable();
             $transaction->commit();
         } catch (Exception $e) {
+            var_dump($e);exit;
             $transaction->commit();
         }
     }
@@ -98,6 +99,26 @@ class m150626_104055_v220  extends EDbMigration{
                 $item->client_id='Lt7hPcA6nuX38FY4';
             }
             $item->save();
+        }
+        //把miniyun_logs记录转移到miniyun_events中
+        $this->alterColumn(DB_PREFIX.'_events', 'action', 'int(11) NULL'); 
+        $this->alterColumn(DB_PREFIX.'_events', 'file_path', 'varchar(300) NULL'); 
+        $this->alterColumn(DB_PREFIX.'_events', 'context', 'text NULL'); 
+        $this->alterColumn(DB_PREFIX.'_events', 'event_uuid', 'varchar(64) NULL');
+        $criteria = new CDbCriteria();  
+        $criteria->condition = "type='0'";
+        $items = Logs::model()->findAll($criteria);
+        foreach ($items as $key => $item) {
+            $ip = $item->message;
+            $context = unserialize($item->context);
+            $newContent = array();
+            $newContent["ip"] = $ip; 
+            $event = new Event();
+            $event->user_id = $item->user_id;
+            $event->user_device_id = $context["device_id"]; 
+            $event->type = 1;
+            $event->context = serialize($newContent);
+            $event->save(); 
         }
     } 
 
