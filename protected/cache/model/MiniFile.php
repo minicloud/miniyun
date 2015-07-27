@@ -80,6 +80,12 @@ class MiniFile extends MiniCache{
         $value["file_create_time"] = $item->file_create_time;
         $value["file_update_time"] = $item->file_update_time;
         $value["file_name"]        = $item->file_name;
+        if(empty($item->file_name_pinyin)){
+            //把文件名转化为拼音
+            $name = $item->file_name;
+            $item->file_name_pinyin = MiniUtil::getPinYinByName($name);
+            $item = $item->save();
+        }
         $value["file_name_pinyin"] = $item->file_name_pinyin;
         $value["version_id"]       = $item->version_id;
         $value["file_size"]        = $item->file_size;
