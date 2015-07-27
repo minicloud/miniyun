@@ -55,6 +55,7 @@ class PluginLdapBiz extends MiniBiz{
         $ldapInfo['ldap_base_cn']        = MiniOption::getInstance()->getOptionValue('ldap_base_cn');
         $ldapInfo['ldap_primary_key']        = MiniOption::getInstance()->getOptionValue('ldap_primary_key');
         $ldapInfo['ldap_nick']        = MiniOption::getInstance()->getOptionValue('ldap_nick');
+        $ldapInfo['ldap_department_name']        = MiniOption::getInstance()->getOptionValue('ldap_department_name');
         $ldapInfo['ldap_white_list_open']     = MiniOption::getInstance()->getOptionValue('ldap_white_list_open');
         $ldapInfo['ldap_sync_department']     = MiniOption::getInstance()->getOptionValue('ldap_sync_department');
         $ldapInfo['ldap_coding']              = MiniOption::getInstance()->getOptionValue('ldap_coding');
@@ -80,7 +81,7 @@ class PluginLdapBiz extends MiniBiz{
             $this->code = -2;
             return false;
         }
-        $filter="uid=*";
+        $filter="cn=*";
         $results   = @ldap_search($ldapConn,$ldapInfo['ldap_base_cn'],$filter);
         $entries   = @ldap_get_entries($ldapConn, $results);
         if ($entries['count'] == 0){

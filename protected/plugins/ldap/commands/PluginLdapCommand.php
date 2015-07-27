@@ -55,30 +55,31 @@ class PluginLdapCommand extends CConsoleCommand{
     /**
      * 添加部门
      */
-    private function create($departmentName,$parentDepartmentId){
-        $result = MiniGroup::getInstance()->create($departmentName,$this->userId,$parentDepartmentId);
+    private function create($departmentName,$parentDepartmentId,$departmentOu){
+        $result = MiniGroup::getInstance()->create4Ldap($departmentName,$this->userId,$parentDepartmentId,$departmentOu);
         return $result;
     }
 
     /**
      * 获取部门ID
      */
-    private function getId($data,$parentId=-1,$index=0,$createCount=0){
+    private function getId($data,$departmentOu,$parentId=-1,$index=0,$createCount=0){
         for($i=$index;$i<count($data);$i++){
             $groupRelations = MiniGroupRelation::getInstance()->getByParentId($parentId);
             $isExist = false;
             if(!empty($groupRelations)){
                 foreach($groupRelations as $groupRelation){
                     $group = MiniGroup::getInstance()->findById($groupRelation['group_id']);
-                    if($group['group_name']==$data[$i]){
+                    if($group['description']==$departmentOu){//以group的description为主键，当ou=description时则成立
                         $isExist = true;
                         $groupId = $groupRelation['group_id'];
+                        $this->create($data[$i],$parentId,$departmentOu);
                         break;
                     }
                 }
             }
             if(!$isExist){
-                $id = $this->create($data[$i],$parentId);
+                $id = $this->create($data[$i],$parentId,$departmentOu);
                 $groupRelation = MiniGroupRelation::getInstance()->getById($id);
                 $groupId = $groupRelation['group_id'];
                 $createCount++;
@@ -110,6 +111,7 @@ class PluginLdapCommand extends CConsoleCommand{
                     }
                 }
             }
+
         }
         $group = MiniGroup::getInstance()->findById($departmentId);
         if($isExist){
@@ -121,14 +123,27 @@ class PluginLdapCommand extends CConsoleCommand{
     /**
      * 导入部门
      */
-    private function importDepartment($userName,$department){
-        $departmentNames = array();
-        if(strpos($department,'|')){
-            $departmentNames = explode('|',trim($department));
-        }else{
-            $departmentNames[] = $department;
+    private function importDepartment($userName,$department,$departmentEntries,$departmentAlias){
+        $arr = explode('|',$department);
+        $num = count($arr);
+        $department = $arr[$num-1];
+        $departmentArray = array_splice($departmentEntries,1);
+        for($i=0;$i<count($departmentArray);$i++){
+            if($departmentArray[$i]['ou'][0] == $department){
+                $departmentName = $departmentArray[$i][$departmentAlias][0];
+            }
+            if(count($departmentArray[$i]['ou'])>2 && $departmentArray[$i]['ou'][1] == $department){
+                $departmentName = $departmentArray[$i][$departmentAlias][0];
+            }
         }
-        $departmentId = $this->getId($departmentNames);
+        $departmentNames = array();
+        if(strpos($departmentName,'|')){
+            $departmentNames = explode('|',trim($departmentName));
+        }else{
+            $departmentNames[] = $departmentName;
+        }
+        $departmentOu = $department;
+        $departmentId = $this->getId($departmentNames,$departmentOu);
         $this->saveData($userName,$departmentId);
     }
     /**
@@ -141,13 +156,15 @@ class PluginLdapCommand extends CConsoleCommand{
         if($userSource == false){
             echo 'LDAP插件未启用';exit;
         }
-        $ldapInfo['ldap_host']           = MiniOption::getInstance()->getOptionValue('ldap_host');
-        $ldapInfo['ldap_port']           = MiniOption::getInstance()->getOptionValue('ldap_port');
-        $ldapInfo['ldap_base_cn']        = MiniOption::getInstance()->getOptionValue('ldap_base_cn');
-        $ldapInfo['ldap_primary_key']        = MiniOption::getInstance()->getOptionValue('ldap_primary_key');
-        $ldapInfo['ldap_test_user_name']      = MiniOption::getInstance()->getOptionValue('ldap_test_user_name');
-        $ldapInfo['ldap_test_password']       = MiniOption::getInstance()->getOptionValue('ldap_test_password');
-        $ldapInfo['ldap_sync_department']     = MiniOption::getInstance()->getOptionValue('ldap_sync_department');
+        $ldapInfo['ldap_host']              = MiniOption::getInstance()->getOptionValue('ldap_host');
+        $ldapInfo['ldap_port']              = MiniOption::getInstance()->getOptionValue('ldap_port');
+        $ldapInfo['ldap_base_cn']           = MiniOption::getInstance()->getOptionValue('ldap_base_cn');
+        $ldapInfo['ldap_primary_key']       = MiniOption::getInstance()->getOptionValue('ldap_primary_key');
+        $ldapInfo['ldap_nick']              = MiniOption::getInstance()->getOptionValue('ldap_nick');
+        $ldapInfo['department_alias']       = MiniOption::getInstance()->getOptionValue('ldap_department_name');
+        $ldapInfo['ldap_test_user_name']    = MiniOption::getInstance()->getOptionValue('ldap_test_user_name');
+        $ldapInfo['ldap_test_password']     = MiniOption::getInstance()->getOptionValue('ldap_test_password');
+        $ldapInfo['ldap_sync_department']   = MiniOption::getInstance()->getOptionValue('ldap_sync_department');
         foreach($ldapInfo as $info){
             if(empty($info)){
                 echo 'LDAP插件未设置！';exit;
@@ -159,9 +176,12 @@ class PluginLdapCommand extends CConsoleCommand{
         @ldap_set_option($ldapConn, LDAP_OPT_REFERRALS, 0);
         // @ldap_bind($ldapConn,iconv('utf-8', $ldapInfo['ldap_coding'],$ldapInfo['ldap_test_user_name'].$ldapUsrDom),$ldapInfo['ldap_test_password']); //验证账号与密码
         @ldap_bind($ldapConn);
-        $attrItems = array( "ou","dn","mail","telephoneNumber","displayName","useraccountcontrol");
+        $attrItems = array( "ou","dn","mail","telephoneNumber",$ldapInfo['ldap_nick'],"useraccountcontrol",$ldapInfo['department_alias']);
         $results   = @ldap_search($ldapConn,$ldapInfo['ldap_base_cn'],"(|(sn=*)(givenname=*))",$attrItems);
         $entries   = @ldap_get_entries($ldapConn, $results);
+
+        $results2   = @ldap_search($ldapConn,$ldapInfo['ldap_base_cn'],"(ou=*)",$attrItems);
+        $entries2   = @ldap_get_entries($ldapConn, $results2);
         foreach($entries as $key => $entry){
             $userData       = array();
             $extend         = array();
@@ -176,8 +196,8 @@ class PluginLdapCommand extends CConsoleCommand{
                 if(!empty($entry['telephonenumber'])){
                     $extend['phone'] = $entry['telephonenumber'][0];
                 }
-                if(!empty($entry['displayname'])){
-                    $extend['nick'] = $entry['displayname'][0];
+                if(!empty($entry[$ldapInfo['ldap_nick']])){
+                    $extend['nick'] = $entry[$ldapInfo['ldap_nick']][0];
                 }
                 if(!empty($entry['mail'])){
                     $extend['email'] = $entry['mail'][0];
@@ -196,7 +216,7 @@ class PluginLdapCommand extends CConsoleCommand{
                     echo('共导入'.$entries['count']."位用户\n");
                 }
                 if($ldapInfo['ldap_sync_department'] != 'false' && !empty($department)){
-                    $this->importDepartment($userName,$department);
+                    $this->importDepartment($userName,$department,$entries2,$ldapInfo['department_alias']);
                 }
             }
         }

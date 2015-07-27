@@ -928,7 +928,7 @@ abstract class OAuth2 {
       } 
     }
     //客户端禁用，给出提示
-    $this->filterPClientEnabled();
+    $this->filterPClientEnabled(); 
     $client = $this->getClient($token["client_id"]);
     // $signWithout = $this->signWithout($token["client_id"], $client["client_secret"], $token["oauth_token"], $_SERVER["REQUEST_URI"]);
     // if ($sign != $signWithout)
@@ -954,7 +954,7 @@ abstract class OAuth2 {
     // TODO 暂时去掉对于过期的处理
     //    if (isset($token["expires"]) && time() > $token["expires"])
 //      return $exit_expired ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_UNAUTHORIZED, $realm, OAUTH2_ERROR_EXPIRED_TOKEN, 'The access token provided has expired.', NULL, $scope) : FALSE;
-
+ 
     // Check scope, if provided
     // If token doesn't have a scope, it's NULL/empty, or it's insufficient, then throw an error
     if ($scope && (!isset($token["scope"]) || !$token["scope"] || !$this->checkScope($scope, $token["scope"]))) 

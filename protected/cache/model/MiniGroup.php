@@ -61,6 +61,7 @@ class MiniGroup extends MiniCache{
             $value["user_id"]      = $item->user_id;
 //        }
         $value["group_name"]    = $item->name;
+        $value["description"]   = $item->description;
         return $value;
     }
     /**
@@ -112,6 +113,43 @@ class MiniGroup extends MiniCache{
             return $group->id;
         }else{
             return NULL;
+        }
+    }
+     /**
+     * 新建群组
+     */
+    public function create4Ldap($groupName,$userId,$parentGroupId,$departmentOu=""){
+        $groupName = trim($groupName);
+        $criteria = new CDbCriteria();
+        if(!isset($parentGroupId)){
+            $parentGroupId = -1;
+        }
+        $criteria->condition = "user_id=:user_id and parent_group_id =:parent_group_id and description =:description";
+        $criteria->params = array('user_id'=> $userId,'parent_group_id'=>$parentGroupId,'description'=>$departmentOu);
+        $item = Group::model()->find($criteria);
+        if (empty($item)){
+            $group = new Group();
+            $group['name']=$groupName;
+            $group['user_id']=$userId;
+            if($userId==-1){
+                $group['parent_group_id'] = $parentGroupId;
+            }else{
+                $group['parent_group_id'] = -1;
+            }
+            $group['description']=$departmentOu;
+            $group->save();
+            if($userId==-1){
+                $relation = new GroupRelation();
+                $relation ['group_id'] = $group['id'];
+                $relation ['parent_group_id'] = $parentGroupId;
+                $relation->save ();
+                return $relation->id;
+            }
+            return $group->id;
+        }else{
+            $item->name = $groupName;
+            $item->save();
+            return $item->id;
         }
     }
     /**
