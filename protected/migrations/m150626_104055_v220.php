@@ -112,6 +112,7 @@ class m150626_104055_v220  extends EDbMigration{
             $ip = $item->message;
             $context = unserialize($item->context);
             $newContent = array();
+            $newContent["action"] = $context["action"]; 
             $newContent["ip"] = $ip; 
             $event = new Event();
             $event->user_id = $item->user_id;

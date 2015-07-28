@@ -33,39 +33,26 @@ class MiniLog extends MiniCache{
         }
         return self::$_instance;
     }
-
-    /**
-     * 得到日志的数量
-     */
-    public function getCount($criteria) {
-        $count = Logs::model()->count($criteria);
-        return $count;
-    }
-    /**
-     * 通过db获得日志记录
-     */
-    public function getAll($criteria) {
-        $rows = Logs::model()->findAll($criteria);
-        if(isset($rows)){
-            $retVal          = array();
-            foreach ($rows as $item){
-                $retVal[]    = $this->db2Item($item);
-            }
-            return $retVal;
-        }
-        return NULL;
-    }
-    private function db2Item($item){
+ 
+    private function db2Item($item){ 
         if(empty($item)) return NULL;
-        $value                     = array();
+        $value                   = array();
         $value["id"]             = $item->id;
-        $value["type"]           = $item->type;
+        $value["type"]           = "0";
         $value["user_id"]        = $item->user_id;
-        $value["message"]        = $item->message;
-        $value["context"]        = $item->context;
+        $context                 = unserialize($item->context);
+        $value["message"]        = $context["ip"];
+        
+        $newContext              = array();
+        $newContext["action"]    = $context["action"];
+        $device = MiniUserDevice::getInstance()->getById($item->user_device_id);
+        $newContext["device_id"]   = $device["id"];
+        $newContext["device_type"] = $device["user_device_type"]."";
+        $value["context"]        = serialize($newContext);
+
         $value["created_at"]     = $item->created_at;
         $value["updated_at"]     = $item->updated_at;
-        $value["is_deleted"]     = $item->is_deleted;
+        $value["is_deleted"]     = 0;
         return $value;
     }
     /**
@@ -84,16 +71,13 @@ class MiniLog extends MiniCache{
     public function getByType($userId,$type,$limit,$offset){
         $criteria = new CDbCriteria();
         $criteria->order = 'created_at  desc';
-        $criteria->addCondition("type=:type");
-        $criteria->params[':type']=$type;
+        $criteria->addCondition("type=1"); 
         $criteria->addCondition("user_id=:user_id");
-        $criteria->params[':user_id']=$userId;
-        $criteria->addCondition("is_deleted=:is_deleted");
-        $criteria->params[':is_deleted']=0;
+        $criteria->params[':user_id']=$userId; 
         $criteria->limit     = $limit;
         $criteria->offset    = $offset;
-        $logs = Logs::model()->findAll($criteria);
-        return $this->db2list($logs);
+        $events = Event::model()->findAll($criteria);
+        return $this->db2list($events);
     }
 
     /**
@@ -104,26 +88,12 @@ class MiniLog extends MiniCache{
      */
     public function getCountByType($userId,$type){
         $criteria = new CDbCriteria();
-        $criteria->condition="type=:type and is_deleted=:is_deleted";
-        $criteria->params[':type']=$type;
-        $criteria->params[':is_deleted']=0;
+        $criteria->condition="type=1"; 
         $criteria->addCondition("user_id=:user_id");
         $criteria->params[':user_id']=$userId;
-        $count = logs::model()->count($criteria);
+        $count = Event::model()->count($criteria);
         return $count;
-    }
-    /**
-     * 添加操作日志
-     */
-    public function createOperateLog($user_id,$newPath){
-        $logs = new Logs();
-        $logs['message']  = $this->getIP();
-        $logs['type']     = 1;
-        $logs['user_id'] = $user_id;
-        $logs['context'] = $newPath;
-        $logs->save();
-        return $logs;
-    }
+    } 
 
     /**
      * 添加登陆日志
@@ -135,20 +105,19 @@ class MiniLog extends MiniCache{
             return;
         }
         $device = MiniUserDevice::getInstance()->getById($deviceId);
-        $logs = new Logs();
-        $logs['message'] = $this->getIP();//当前登陆用户的IP
-        $logs['user_id'] = $device["user_id"];
-        $logs['type'] = 0;
+        $event = new Event();
+        $event['user_device_id'] = $deviceId;
+        $event['user_id'] = $device["user_id"];
+        $event['type'] = 1;
 
         $arr = array(
-            "action"       => MConst::LOGIN,
-            "device_id"    => $deviceId,
-            "device_type"  => $device["user_device_type"]
+            "action"   => 0,
+            "ip"       => $this->getIP()
         );
-        $logs['context'] = serialize($arr);
-        $logs->save();
+        $event['context'] = serialize($arr);
+        $event->save();
         MiniUserDevice::getInstance()->updateLastModifyTime($deviceId);
-        return $logs;
+        return $event;
     }
 
     /**
@@ -158,17 +127,17 @@ class MiniLog extends MiniCache{
      * @return Logs
      */
     public function createLogout($userId, $device_type){
-        $logs = new Logs();
-        $logs['message']=$this->getIP();//当前登出用户的IP
-        $logs['user_id'] = $userId;
-        $logs['type'] = 0;
+        $event = new Logs();
+        $event['user_device_id'] = $deviceId;
+        $event['user_id'] = $device["user_id"];
+        $logs['type'] = 1;
         $arr = array(
-            "action"       => MConst::LOGOUT,
-            "device_type"  => $device_type
+            "action"   => 1,
+            "ip"       => $this->getIP()
         );
-        $logs['context'] = serialize($arr);
-        $logs->save();
-        return $logs;
+        $event['context'] = serialize($arr);
+        $event->save();
+        return $event;
     }
     /**
      * 获取IP地址
@@ -199,18 +168,8 @@ class MiniLog extends MiniCache{
         $criteria->condition = 'user_id=:user_id';
         $criteria->params    = array(
             ':user_id'=>$userId
-        );
-        $attributes          = array(
-            'is_deleted'=>1
-        );
-        if($type=='0'){
-            $criteria->addCondition("type =:type","and");
-            $criteria->params[':type']=$type;
-        }
-        Logs::model()->updateAll($attributes,$criteria);
-        if($this->hasCache===true){
-            $this->cleanCache($userId);
-        }
+        ); 
+        Event::model()->deleteAll($criteria);       
 
     }
 }

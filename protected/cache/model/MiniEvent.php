@@ -159,7 +159,6 @@ class MiniEvent extends MiniCache{
             $new = $context;
         }
         $context = array($path,$new,$action);
-        MiniLog::getInstance()->createOperateLog($user_id, serialize($context));
         return $new;
     }
 
