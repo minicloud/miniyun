@@ -30,7 +30,7 @@ class m150626_104055_v220  extends EDbMigration{
             $extend = "ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
         }
         //新加oauth_access_tokens/oauth_refresh_tokens
-        $this->createTable('oauth_access_tokens',array(
+        $this->createTable(DB_PREFIX.'_oauth_access_tokens',array(
                 'id'                   => 'pk',
                 'access_token'         => 'varchar(64) NOT NULL',
                 'client_id'            => 'varchar(64) NOT NULL',
@@ -39,7 +39,7 @@ class m150626_104055_v220  extends EDbMigration{
                 'created_at'           => 'datetime NOT NULL',
                 'updated_at'           => 'datetime NOT NULL',
             ),$extend); 
-        $this->createTable('oauth_refresh_tokens',array(
+        $this->createTable(DB_PREFIX.'_oauth_refresh_tokens',array(
                 'id'                   => 'pk',
                 'refresh_token'        => 'varchar(64) NOT NULL',
                 'client_id'            => 'varchar(64) NOT NULL',
