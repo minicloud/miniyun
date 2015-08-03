@@ -121,6 +121,15 @@ class m150626_104055_v220  extends EDbMigration{
             $event->context = serialize($newContent);
             $event->save(); 
         }
+        //创建miniyun_cursors表
+        $this->createTable(DB_PREFIX.'_cursors',array(
+                'id'                   => 'pk',
+                'cursor'               => 'varchar(64) NOT NULL',
+                'value'                => 'bigint(20) NOT NULL',
+                'created_at'           => 'datetime NOT NULL',
+                'updated_at'           => 'datetime NOT NULL',
+        ),$extend); 
+        $this->createIndex(DB_PREFIX.'_cursors'."_crusor", DB_PREFIX.'_cursors', "cursor");
     } 
 
 }
