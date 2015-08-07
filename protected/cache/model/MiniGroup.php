@@ -102,14 +102,7 @@ class MiniGroup extends MiniCache{
                 $group['parent_group_id'] = -1;
             }
             $group['description']='';
-            $group->save();
-            if($userId==-1){
-                $relation = new GroupRelation();
-                $relation ['group_id'] = $group['id'];
-                $relation ['parent_group_id'] = $parentGroupId;
-                $relation->save ();
-                return $relation->id;
-            }
+            $group->save(); 
             return $group->id;
         }else{
             return NULL;
@@ -137,14 +130,7 @@ class MiniGroup extends MiniCache{
                 $group['parent_group_id'] = -1;
             }
             $group['description']=$departmentOu;
-            $group->save();
-            if($userId==-1){
-                $relation = new GroupRelation();
-                $relation ['group_id'] = $group['id'];
-                $relation ['parent_group_id'] = $parentGroupId;
-                $relation->save ();
-                return $relation->id;
-            }
+            $group->save();            
             return $group->id;
         }else{
             $item->name = $groupName;

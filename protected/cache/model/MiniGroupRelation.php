@@ -52,7 +52,7 @@ class MiniGroupRelation extends MiniCache{
         if(empty($item)) return NULL;
         $value                     = array();
         $value["id"]           = $item->id;
-        $value["group_id"]      = $item->group_id;
+        $value["group_id"]      = $item->id;
         $value["parent_group_id"]    = $item->parent_group_id;
         return $value;
     }
@@ -61,9 +61,9 @@ class MiniGroupRelation extends MiniCache{
      */
     public function getByGroupId($groupId){
         $criteria = new CDbCriteria();
-        $criteria->condition = "group_id=:group_id";
-        $criteria->params = array('group_id'=> $groupId);
-        $item = GroupRelation::model()->find($criteria);
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $groupId);
+        $item = Group::model()->find($criteria);
         if(empty($item)){
             return NULL;
         }
@@ -73,7 +73,7 @@ class MiniGroupRelation extends MiniCache{
         $criteria = new CDbCriteria();
         $criteria->condition = "id=:id";
         $criteria->params = array('id'=> $id);
-        $item = GroupRelation::model()->find($criteria);
+        $item = Group::model()->find($criteria);
         if(empty($item)){
             return NULL;
         }
@@ -84,22 +84,23 @@ class MiniGroupRelation extends MiniCache{
      */
     public function getByParentId($parentGroupId){
         $criteria = new CDbCriteria();
-        $criteria->condition = "parent_group_id=:parent_group_id";
+        $criteria->condition = "parent_group_id=:parent_group_id and user_id=-1";
         $criteria->params = array('parent_group_id'=> $parentGroupId);
-        $items = GroupRelation::model()->findAll($criteria);
+        $items = Group::model()->findAll($criteria);
         return $this->db2list($items);
     }
     /**
      * 新建群组
      */
-    public function create($groupId,$parentGroupId){
+    public function create($id,$parentGroupId){
         $criteria = new CDbCriteria();
-        $criteria->condition = "group_id=:group_id and parent_group_id =:parent_group_id";
-        $criteria->params = array('group_id'=> $groupId,'parent_group_id'=>$parentGroupId);
-        $item = GroupRelation::model()->find($criteria);
+        $criteria->condition = "id=:id and parent_group_id =:parent_group_id";
+        $criteria->params = array('id'=> $id,'parent_group_id'=>$parentGroupId);
+        $item = Group::model()->find($criteria);
         if (empty($item)){
             $group = new GroupRelation();
-            $group['group_id']=$groupId;
+            $group['user_id']=-1;
+            $group['id']=$id;
             $group['parent_group_id']=$parentGroupId;
             $group->save();
             return array('success'=>true,'msg'=>'success');
@@ -110,11 +111,11 @@ class MiniGroupRelation extends MiniCache{
     /**
      * 删除群组
      */
-    public function delete($groupId){
+    public function delete($id){
         $criteria = new CDbCriteria();
-        $criteria->condition = "group_id=:group_id";
-        $criteria->params = array('group_id'=> $groupId);
-        $item = GroupRelation::model()->find($criteria);
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $id);
+        $item = Group::model()->find($criteria);
         if(!empty($item)){
             $item->delete();
             return array('success'=>true,'msg'=>'success');
@@ -125,11 +126,11 @@ class MiniGroupRelation extends MiniCache{
     /**
      * 群组更名
      */
-    public function update($parentGroupId,$groupId){
+    public function update($parentGroupId,$id){
         $criteria = new CDbCriteria();
-        $criteria->condition = "group_id=:group_id";
-        $criteria->params = array('group_id'=> $groupId);
-        $oldGroup = GroupRelation::model()->find($criteria);;
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $id);
+        $oldGroup = Group::model()->find($criteria);;
         $oldGroup['parent_group_id']=$parentGroupId;
         $oldGroup->save();
         return array('success'=>true,'msg'=>'success');
