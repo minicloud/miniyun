@@ -75,6 +75,9 @@ class MiniFileMeta extends MiniCache{
      * @return Array|NULL
 	 */
 	public function getFileMeta($path,$key){
+        if($key==="version"){
+            $key="versions";
+        }
 		$model = $this->getModelByPath($path,$key);
 		if($model){
 			return  $this->db2Item($model);
@@ -92,6 +95,9 @@ class MiniFileMeta extends MiniCache{
 	 * 新建Meta
 	 */
 	public function createFileMeta($file_path,$meta_key,$meta_value){
+        if($meta_key==="version"){
+            $meta_key="versions";
+        }
 		$fileMeta              = $this->getModelByPath($file_path, $meta_key);
         if (empty($fileMeta)){
             $fileMeta = new FileMeta();
@@ -99,7 +105,7 @@ class MiniFileMeta extends MiniCache{
         $fileMeta["file_path"]  = $file_path;
         $fileMeta["meta_key"]   = $meta_key;
         $fileMeta["meta_value"] = $meta_value;
-        $fileMeta->save();
+        return $fileMeta->save();
 	}
 	/**
 	 * 根据路径+Key获得Model对象
@@ -108,12 +114,18 @@ class MiniFileMeta extends MiniCache{
      * @return ActiveModel
 	 */
 	private function getModelByPath($filePath,$key){
+        if($key==="version"){
+            $key="versions";
+        }
 		return FileMeta::model()->find("file_path=:file_path AND meta_key=:meta_key",array("file_path"=>$filePath,"meta_key"=>$key));
 	}
     /**
      * 根据文件路径模糊查找文件
      */
     public function getChildrenFileMetaByPath($filePath,$key){
+        if($key==="version"){
+            $key="versions";
+        }
         $criteria                = new CDbCriteria();
         $criteria->condition     = "meta_key=:meta_key and file_path like :file_path";
         $criteria->params        = array(
@@ -136,6 +148,9 @@ class MiniFileMeta extends MiniCache{
      * @return bool
 	 */
 	public function updateFileMeta($filePath,$key, $value){
+        if($key==="version"){
+            $key="versions";
+        }
 		$model                 = $this->getModelByPath($filePath, $key);
 		if(isset($model)){
 			$model->meta_value = $value;
@@ -150,6 +165,9 @@ class MiniFileMeta extends MiniCache{
      * @return array
 	 */
 	public function getFileMetas($key, $files){
+        if($key==="version"){
+            $key="versions";
+        }
 		$value = array();
 		foreach ($files as $file){
 			$item = $this->getFileMeta($file["file_path"], $key);
@@ -166,6 +184,9 @@ class MiniFileMeta extends MiniCache{
      * @return bool
 	 */
 	public function createFileMetas($createArray, $metaKey){
+        if($metaKey==="version"){
+            $metaKey="versions";
+        }
 		 foreach ($createArray as $file_meta) {
 		 	 if ($file_meta["is_add"] === false){
 		 	 	continue;
@@ -181,6 +202,9 @@ class MiniFileMeta extends MiniCache{
      * @return bool
      */
     public function deleteFileMetaByPath($filePath,$key){
+        if($key==="version"){
+            $key="versions";
+        }
         $modal = FileMeta::model()->findAll("file_path=:file_path and meta_key=:meta_key", array(":file_path" => $filePath,":meta_key" => $key));
         if(!empty($modal)){
             foreach($modal as $item){
@@ -230,6 +254,9 @@ class MiniFileMeta extends MiniCache{
      * @return bool
      */
     public function modifyFilePath($fromPath,$key,$toPath,$fileType){
+        if($key==="version"){
+            $key="versions";
+        }
         if($fileType == 0){//文件时候meta信息如下处理
             $criteria                = new CDbCriteria();
             $criteria->condition     = "meta_key=:meta_key and file_path=:file_path";

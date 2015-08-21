@@ -470,7 +470,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         $file_meta = MFileMetas::queryFileMeta($file_path, MConst::VERSION);
         if ($file_meta)
         {
-            $meta_value = MUtils::getFileVersions(
+            $meta_value = CUtils::getFileVersions(
                                                     $deviceName,
                                                     $fileSize,
                                                     $version_id, 
@@ -485,7 +485,7 @@ class MDeleteController extends MApplicationComponent implements MIController
         }
         else 
         {
-            $meta_value = MUtils::getFileVersions(
+            $meta_value = CUtils::getFileVersions(
                                                     $deviceName,
                                                     $fileSize,
                                                     $version_id, 

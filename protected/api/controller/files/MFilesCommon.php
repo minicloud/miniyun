@@ -384,7 +384,7 @@ class MFilesCommon extends MModel {
         //
         // 文件meta属性，版本信息
         //
-        $version = MUtils::getFileVersions ($this->user_device_name, 
+        $version = CUtils::getFileVersions ($this->user_device_name, 
                                             $this->size, 
                                             $this->version_id, 
                                             $this->action, 
@@ -513,7 +513,7 @@ class MFilesCommon extends MModel {
         //
         // 文件meta属性，版本信息
         //
-        $version = MUtils::getFileVersions ($this->user_device_name,
+        $version = CUtils::getFileVersions ($this->user_device_name,
                                             $this->size, 
                                             $this->version_id, 
                                             $this->action, 
@@ -673,7 +673,7 @@ class MFilesCommon extends MModel {
         //
         // 文件meta属性，版本信息
         //
-        $version = MUtils::getFileVersions ( 
+        $version = CUtils::getFileVersions ( 
                                             $this->user_device_name,
                                             $fileDetail->file_size,
                                             $this->version_id, 

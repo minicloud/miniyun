@@ -118,12 +118,13 @@ class MiniEvent extends MiniCache{
      * @param $extends
      */
     public  function createEvent($user_id, $user_device_id, $action, $path, $context, $event_uuid, $extends = NULL) {
+        $context = unserialize($context);
         $event                 = new Event();
         $event->user_id        = $user_id;
         $event->user_device_id = $user_device_id;
         $event->action         = $action;
         $event->file_path      = $path;
-        $event->context        = $context;
+        $event->context        = json_encode($context);
         $event->event_uuid     = $event_uuid;
         $event->type           = MiniEvent::$OBJECT_TYPE_PUBLIC;
         if($extends!==MiniEvent::$OBJECT_TYPE_PUBLIC){
@@ -182,7 +183,7 @@ class MiniEvent extends MiniCache{
      * 获得指定条件下的事件列表
      */
     public  function getAll($userId,$eventId,$limit) {
-        $var                 = array('condition'=>"user_id = {$userId} and id > $eventId", 'params'=>array('id'=>$eventId, 'user_id'=>$userId));
+        $var                 = array('condition'=>"user_id = {$userId} and id > $eventId and type=0", 'params'=>array('id'=>$eventId, 'user_id'=>$userId));
         $condition           = $var['condition'];
         $criteria            = new CDbCriteria;
         $criteria->order     = 'id asc';
@@ -206,7 +207,13 @@ class MiniEvent extends MiniCache{
         $value["user_device_id"]   = $item->user_device_id;
         $value["action"]           = $item->action;
         $value["file_path"]        = $item->file_path;
-        $value["context"]          = $item->context;
+        $context = @json_decode($item->context);
+        if(!$context){
+            $context = serialize($context);
+        }else{
+            $context = $item->context;
+        }
+        $value["context"]          = $context;
         $value['created_at']       = $item->created_at;
         $value["event_uuid"]       = $item->event_uuid;
         $value["type"]             = $item->type;
@@ -249,7 +256,7 @@ class MiniEvent extends MiniCache{
      * 根据条件返回所有信息
      */
     public function queryAllbyCondition($e_user_id,$event_id,$limit) {
-        return Event::model()->findAll(' user_id = ? AND id < ? limit ? ',array($e_user_id,$event_id,$limit) );
+        return Event::model()->findAll('type=0 and user_id = ? AND id < ? limit ? ',array($e_user_id,$event_id,$limit) );
     }
 
     /**
@@ -281,7 +288,7 @@ class MiniEvent extends MiniCache{
                 "update_time" => (int)$file["file_update_time"],
                 "create_time" => (int)$file["file_create_time"]
             );
-            $context = serialize($versionInfo);
+            $context = json_encode($versionInfo);
         }
         $event->context        = $context;
         $event->event_uuid     = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);;
@@ -300,7 +307,7 @@ class MiniEvent extends MiniCache{
      */
     public function getTotal($filePath,$time,$userId,$deviceUuid){
         $criteria            = new CDbCriteria;
-        $criteria->condition = 'user_id = :userId';
+        $criteria->condition = 'type=0 and user_id = :userId';
         $criteria->params    = array('userId' => $userId);
         if($time!=="-1"){
             $criteria->addCondition("created_at <=:created_at","and");
@@ -321,7 +328,7 @@ class MiniEvent extends MiniCache{
      */
     public function getByCondition($filePath,$userId,$time,$deviceUuid,$limit,$offset){
         $criteria            = new CDbCriteria;
-        $criteria->condition = 'user_id = :userId';
+        $criteria->condition = 'type=0 and user_id = :userId';
         $criteria->params    = array('userId' => $userId);
         if($time!=="-1"){
             $criteria->addCondition("created_at <=:created_at","and");

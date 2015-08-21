@@ -16,22 +16,7 @@ class MFileMetas extends MModel {
      * @param string $meta_value
      */
     public static function createFileMeta($file_path, $meta_key, $meta_value) {
-        $file_meta = new MFileMetas();
-        $file_meta->file_path = $file_path;
-        $file_meta->meta_key = $meta_key;
-        $file_meta->meta_value = $meta_value;
-        $meta_value = CUtils::real_escape_string($meta_value);
-        $sql = "INSERT INTO " . DB_PREFIX . "_file_metas";
-        $sql .= "(file_path,meta_key,meta_value,created_at,updated_at)";
-        $sql .= " VALUES(";
-        $sql .= "\"$file_path\",'$meta_key','$meta_value',now(),now()";
-        $sql .= ")";
-        Yii::trace("function: '{createFileMeta}',sql:'{$sql}'");
-        $db_manager = MDbManager::getInstance();
-        if ($db_manager->insertDb($sql) === false){
-            return false;
-        }
-        return $file_meta;
+        return MiniFileMeta::getInstance()->createFileMeta($file_path,$meta_key,$meta_value);
     }
     
     /**
@@ -41,12 +26,7 @@ class MFileMetas extends MModel {
      * @param string $meta_value
      */
     public static function updateFileMeta($file_path,$meta_key, $meta_value) {
-        $meta_value = CUtils::real_escape_string($meta_value);
-        $sql  = "UPDATE " . DB_PREFIX . "_file_metas ";
-        $sql .= "SET meta_value = '$meta_value', updated_at = now() ";
-        $sql .= "WHERE file_path=\"$file_path\" AND meta_key=\"$meta_key\"";
-        $db_manager = MDbManager::getInstance();
-        return $db_manager->updateDb($sql);
+        return MiniFileMeta::getInstance()->createFileMeta($file_path,$meta_key,$meta_value);
     }
     
     /**

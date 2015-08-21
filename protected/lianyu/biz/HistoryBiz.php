@@ -21,24 +21,33 @@ class HistoryBiz extends MiniBiz{
         }
         $file = MiniFile::getInstance()->getByPath($path);
         $version_id = $file['version_id'];
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,"version");
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,"versions");
         $fileVersion = MiniVersion::getInstance()->getVersion($version_id);
         $currentSignature = $fileVersion['file_signature'];
-        $historyArr = array_reverse(unserialize($fileMeta['meta_value']));
+        $historyArr = json_decode($fileMeta['meta_value']);
         // 去掉delete事件版本
         $histories = array();
         foreach ($historyArr as $item){
-            $history = array();
-            if ($item['type'] == CConst::DELETE){
-                continue;
+            $hash = $item->{'hash'};
+            $deviceId = $item->{'device_id'};
+            $time = $item->{'time'};
+            $history = array(); 
+            $version = MiniVersion::getInstance()->getBySignature($hash);
+            $deviceName = "";
+            $userNick = "";
+            $device = MiniUserDevice::getInstance()->getUserDevice($deviceId);
+            if($device){
+                $deviceName = $device['user_device_name'];
+                $user = MiniUser::getInstance()->getUser($device["user_id"],false);
+                if($user){
+                    $userNick = $user['nick'];
+                }
             }
-            $history['type'] = $item['type'];
-            $history['file_size'] = $item['file_size'];
-            $history['user_nick'] = $item['user_nick'];
-            $history['device_name'] = $item['device_name'];
-            $history['datetime'] =  MiniUtil::formatTime(strtotime($item['datetime']));
-            $fileVersion = MiniVersion::getInstance()->getVersion($item['version_id']);
-            $history['signature'] = $fileVersion['file_signature'];
+            $history['file_size'] = $version['file_size'];
+            $history['user_nick'] = $userNick;
+            $history['device_name'] = $deviceName;
+            $history['datetime'] =  MiniUtil::formatTime($time);
+            $history['signature'] = $hash;
             array_push( $histories, $history);
         }
         $data['histories'] = $histories;

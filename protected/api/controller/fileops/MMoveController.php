@@ -387,7 +387,7 @@ class MMoveController
             //
             $file_version = MFileMetas::queryFileMeta($to_path, MConst::VERSION);
             if ($file_version){
-                $meta_value = MUtils::getFileVersions(
+                $meta_value = CUtils::getFileVersions(
                     $this->_user_device_name,
                     $query_db_file[0]['file_size'],
                     $file_meta->version_id,
@@ -398,7 +398,7 @@ class MMoveController
                 );
                 $file_meta->is_add      = false;
             }else{
-                $meta_value = MUtils::getFileVersions(
+                $meta_value = CUtils::getFileVersions(
                     $this->_user_device_name,
                     $query_db_file[0]['file_size'],
                     $file_meta->version_id,
@@ -672,7 +672,7 @@ class MMoveController
             // 取出路径对应对象
             $file_meta = $create_array[$file_version["file_path"]];
             // 针对原有的版本信息，附加新的
-            $meta_value = MUtils::getFileVersions(
+            $meta_value = CUtils::getFileVersions(
                 $device_name,
                 $file_size,
                 $file_meta->version_id,
@@ -735,7 +735,7 @@ class MMoveController
             $file = new MFiles();
             $file->file_path        = $file_path;
             $file->version_id       = $db_file["version_id"];
-            $meta_value = MUtils::getFileVersions(
+            $meta_value = CUtils::getFileVersions(
                 $device_name,
                 $db_file['file_size'],
                 $file->version_id,

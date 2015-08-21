@@ -40,11 +40,11 @@ class MiniLog extends MiniCache{
         $value["id"]             = $item->id;
         $value["type"]           = "0";
         $value["user_id"]        = $item->user_id;
-        $context                 = unserialize($item->context);
-        $value["message"]        = $context["ip"];
+        $context                 = json_decode($item->context);
+        $value["message"]        = $context->{"ip"};
         
         $newContext              = array();
-        $newContext["action"]    = $context["action"];
+        $newContext["action"]    = $context->{"action"};
         $device = MiniUserDevice::getInstance()->getById($item->user_device_id);
         $newContext["device_id"]   = $device["id"];
         $newContext["device_type"] = $device["user_device_type"]."";
@@ -114,7 +114,7 @@ class MiniLog extends MiniCache{
             "action"   => 0,
             "ip"       => $this->getIP()
         );
-        $event['context'] = serialize($arr);
+        $event['context'] = json_encode($arr);
         $event->save();
         MiniUserDevice::getInstance()->updateLastModifyTime($deviceId);
         return $event;
@@ -135,7 +135,7 @@ class MiniLog extends MiniCache{
             "action"   => 1,
             "ip"       => $this->getIP()
         );
-        $event['context'] = serialize($arr);
+        $event['context'] = json_encode($arr);
         $event->save();
         return $event;
     }

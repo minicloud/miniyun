@@ -22,6 +22,20 @@ class FileMeta extends CMiniyunModel
         return Yii::app()->params['tablePrefix'].'file_metas';
     }
 
+    public function beforeSave()
+    {
+        if(parent::beforeSave()){ 
+            $key = $this->meta_key;
+            if($key==="version"){
+                $key = "versions";
+                $this->meta_key = $key;
+            } 
+            $filePath = $this->file_path;
+            $file = MiniFile::getInstance()->getByPath($filePath);
+            $this->file_id=$file["id"];
+        } 
+        return true;
+    }
     /**
      * 把用户的文件元数据删除
      */

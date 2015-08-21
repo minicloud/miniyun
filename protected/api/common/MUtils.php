@@ -583,42 +583,6 @@ class MUtils
     }
 
     /**
-     * 计算文件附加属性
-     * @param string $deviceName
-     * @param int $fileSize
-     * @param int $versionId
-     * @param string $action
-     * @param int $userId
-     * @param string $userNick
-     * @param string $versions
-     * @return string
-     */
-    public static function getFileVersions($deviceName, $fileSize, $versionId, $action, $userId, $userNick,$versions="a:0:{}") {
-        $versions = is_null($versions)||empty($versions) ? "a:0:{}" : $versions;
-        $version               = array();
-        $version["type"]       = $action;
-        $version["version_id"] = $versionId;
-        $version["user_id"]    = $userId;
-        $version["user_nick"]  = $userNick;
-        $version["device_name"]= $deviceName;
-        $version["file_size"]  = $fileSize;
-        $version["datetime"]   = MiniUtil::getCurrentTime();
-        $versions              = @unserialize($versions);
-        if (!$versions) {
-            $versions = array();
-        }
-        // 当文件历史版本超过一定数量后，扎断处理
-        $count = count($versions);
-        $fileMaxVersion = MiniConst::MAX_VERSION_COUNT;
-        if ($count >= $fileMaxVersion) {
-            $limit    = $count - $fileMaxVersion + 1;
-            $versions = CUtils::mergeFileMetaVersion($versions, $limit);
-        }
-        array_push($versions, $version);
-        return serialize($versions);
-    }
-
-    /**
      * 计算size单位转换
      * @param $locale
      * @param $size

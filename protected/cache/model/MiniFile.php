@@ -948,16 +948,13 @@ class MiniFile extends MiniCache{
         $metaData = array();
         $metaValue = array();
         $device    = MUserManager::getInstance()->getCurrentDevice();
-        $metaData['type'] = $file['file_type'];
-        $metaData['version_id'] = $file['version_id'];
-        $metaData['user_id'] = $file['user_id'];
-        $metaData['user_nick'] = "admin";
-        $metaData['device_name'] = $device['user_device_name'];
-        $metaData['file_size'] = $file['file_size'];
-        $metaData['datetime'] = $file['updated_at'];
+        $version = MiniVersion::getInstance()->getVersion($file['version_id']);
+        $metaData['hash'] = $version['file_signature'];
+        $metaData['device_id'] = $deviceId; 
+        $metaData['time'] = strtotime($file['updated_at']);
         array_push($metaValue,$metaData);
-        $metaValue = serialize($metaValue);
-        MiniFileMeta::getInstance()->createFileMeta($file["file_path"],"version",$metaValue);
+        $metaValue = json_encode($metaValue);
+        MiniFileMeta::getInstance()->createFileMeta($file["file_path"],"versions",$metaValue);
         //copy folder
         if($file["file_type"]!==MiniFile::$TYPE_FILE){//不等于0的则为文件夹
             $children = $this->getChildrenByFileID($fileId);
@@ -1146,11 +1143,11 @@ class MiniFile extends MiniCache{
         }else{
             //下载历史版本时，要对权限判断
             $hasPrivilege = false;
-            $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
-            $versions = unserialize($fileMeta['meta_value']);
+            $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'versions');
+            $versions = json_decode($fileMeta['meta_value']);
             if(isset($fileMeta)){
                 foreach($versions as $item){
-                    if(intval($item['version_id']) === intval($version['id'])){
+                    if($item->{'hash'} === $version['file_signature']){
                         $hasPrivilege = true;
                         break;
                     }
@@ -1193,11 +1190,11 @@ class MiniFile extends MiniCache{
         $file = $this->getByPath($path);
         $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
         $hasPrivilege = false;
-        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'version');
-        $versions = unserialize($fileMeta['meta_value']);
+        $fileMeta = MiniFileMeta::getInstance()->getFileMeta($path,'versions');
+        $versions = json_decode($fileMeta['meta_value']);
         if(isset($fileMeta)){
             foreach($versions as $item){
-                if(intval($item['version_id']) === intval($version['id'])){
+                if($item->{'hash'} === $version['file_signature']){
                     $hasPrivilege = true;
                     break;
                 }

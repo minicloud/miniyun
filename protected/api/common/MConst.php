@@ -309,7 +309,7 @@ class MConst
      */
     const CURRENT_SIZE   = "current_size";
     const MIME_TYPE      = "mime_type";
-    const VERSION        = "version";
+    const VERSION        = "versions";
     const SHARED_FOLDERS = "shared_folders";
     const PUBLIC_FOLDER  = "public_folder";
     

@@ -375,7 +375,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             $fileMeta->is_add     = false;
             if ($fileVersion)
             {
-                $metaValue = MUtils::getFileVersions(
+                $metaValue = CUtils::getFileVersions(
                                                 $this->_user_device_name,
                                                 $fileDetail->file_size,
                                                 $fileMeta->version_id,
@@ -386,7 +386,7 @@ class MCopyController extends MApplicationComponent implements MIController{
             }
             else 
             {
-                $metaValue = MUtils::getFileVersions(
+                $metaValue = CUtils::getFileVersions(
                                                 $this->_user_device_name,
                                                 $fileDetail->file_size,
                                                 $fileMeta->version_id,

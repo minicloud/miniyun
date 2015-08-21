@@ -429,13 +429,11 @@ class UserFile extends CMiniyunModel
         //
         // 获取文件旧版本
         //
-        $meta = FileMeta::model()->findByAttributes(array('file_path'=>$filePath,'meta_key'=>'version'));
+        $meta = FileMeta::model()->findByAttributes(array('file_path'=>$filePath,'meta_key'=>'versions'));
         if (!$meta) {
             $meta = new FileMeta();
-            $value = CUtils::getFileVersions($deviceName, $fileSize, $versionId, $action, $userId, $userNick);
             $meta["file_path"]  = $filePath;
-            $meta["meta_key"]   = "version";
-            $meta["meta_value"] = serialize(array());
+            $meta["meta_key"]   = "versions"; 
         }
         $value = CUtils::getFileVersions($deviceName, $fileSize, $versionId, $action, $userId, $userNick, $meta["meta_value"]);
         $meta["meta_value"] = $value;

@@ -49,7 +49,10 @@ class MiniPlugin extends MiniCache
         }
         $value = MiniOption::getInstance()->getOptionValue("active_plugins");
         if ($value !== NULL) {
-            $activePlugins = (array)unserialize($value);
+            $activePlugins = @json_decode($value);
+            if(!$activePlugins){
+                return;
+            }
             $pluginNames = array();
             //判断插件的入口文件是否存在
             foreach ($activePlugins as $pluginName => $value) {
@@ -122,7 +125,7 @@ class MiniPlugin extends MiniCache
             //如插件未启用，则在启用时候升级数据库
             $value = MiniOption::getInstance()->getOptionValue("active_plugins");
             if ($value !== NULL) {
-                $activePlugins = (array)unserialize($value);
+                $activePlugins = json_decode($value);
                 foreach($activePlugins as $id=>$item){
                     if($id===$fileName){
                         try {
@@ -203,7 +206,7 @@ class MiniPlugin extends MiniCache
         $activePlugins = array();
         $value = MiniOption::getInstance()->getOptionValue("active_plugins");
         if ($value !== NULL) {
-            $activePlugins = (array)unserialize($value);
+            $activePlugins = json_decode($value);
         }
         foreach ($tmpPlugins as $row) {
             $meta = $row['data'];
@@ -293,33 +296,32 @@ class MiniPlugin extends MiniCache
         //获得插件元数据
         $pluginMeta = $this->getPluginMeta($path);
         $value = MiniOption::getInstance()->getOptionValue("active_plugins");
-        $list = (array)unserialize($value);
-        foreach ($list as $key => $item) {
+        if(!$value){
+            $value = "{}";
+        }
+        $list = json_decode($value);
+        foreach ($list as $key => $item) { 
             //判断插件是否已经激活
             if ($key === $id) {
                 $data["success"] = true;
                 return $data;
             }
             //判断同类型的插件是否已激活，同类型的插件只能启动一个
-            if($item["type"]===$pluginMeta["type"]){
-                $data["success"] = false;
-                $data["msg"] = Yii::t("common", "plugin_has_install", array("{plugin_name}"=>$item["name"]));
+            if($item->{"type"}===$pluginMeta["type"]){
+                $data["success"] = false; 
                 return $data;
             }
-        }
+        } 
         //把激活插件列表写入到DB中
         $item = array();
-        $item[$id] = array("type"=>$pluginMeta["type"],"name"=>$pluginMeta["name"]);
-        $list = array_merge($item, $list);
-        MiniOption::getInstance()->setOptionValue("active_plugins", serialize($list));
+        $list->{$id} = array("type"=>$pluginMeta["type"],"name"=>$pluginMeta["name"]); 
+        MiniOption::getInstance()->setOptionValue("active_plugins", json_encode($list));
         //数据库增量更新插件相关数据结构
         $data["success"] = true;
         try {
             $migration = new MiniMigration();
             $migration->up($id);
-        } catch (Exception $e) {
-//            Yii::log($e->getMessage(), CLogger::LEVEL_ERROR);
-//            $data["success"] = false;
+        } catch (Exception $e) { 
         }
         return $data;
     }
@@ -337,11 +339,11 @@ class MiniPlugin extends MiniCache
             $data["success"] = false;
             return $data;
         }
-        $list = (array)unserialize($value);
+        $list = json_decode($value);
         //卸载插件
-        unset($list[$id]);
+        unset($list->{$id});
         //将剩下的插件写入到db中
-        MiniOption::getInstance()->setOptionValue("active_plugins", serialize($list));
+        MiniOption::getInstance()->setOptionValue("active_plugins", json_encode($list));
         $data["success"] = true;
         return $data;
     }

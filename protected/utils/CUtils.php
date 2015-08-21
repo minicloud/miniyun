@@ -409,28 +409,41 @@ class CUtils{
      * @return array
      */
     public static function getFileVersions($deviceName, $fileSize, $versionId, $action, $userId, $userNick,$versions="a:0:{}") {
-        $versions = is_null($versions)||empty($versions) ? "a:0:{}" : $versions;
-        $version               = array();
-        $version["type"]       = $action;
-        $version["version_id"] = $versionId;
-        $version["user_id"]    = $userId;
-        $version["user_nick"]  = $userNick;
-        $version["device_name"]= $deviceName;
-        $version["file_size"]  = $fileSize;
-        $version["datetime"]   = MiniUtil::getCurrentTime();
-        $versions              = @unserialize($versions);
-        if (!$versions) {
-            $versions = array();
+        $revs = is_null($versions)||empty($versions) ? "[]" : $versions;
+        $deviceId = "-1";
+        //优先deviceName+userId
+        $criteria = new CDbCriteria();
+        $criteria->condition = "user_id =:user_id and user_device_name=:user_device_name";
+        $criteria->params    = array(
+            'user_id' => $userId,
+            'user_device_name'=>$deviceName
+            );
+        $device  = UserDevice::model()->find($criteria);
+        if(isset($device)){
+            $deviceId = $device->id;
+        }else{
+            //其次userId第一个设备
+            $criteria->condition = "user_id =:user_id";
+            $criteria->params    = array(
+                'user_id' => $userId
+                );
+            $device  = UserDevice::model()->find($criteria);
+            if(isset($device)){
+                $deviceId = $device->id;
+            }
+        }        
+
+        $version = MiniVersion::getInstance()->getVersion($versionId);
+        $rev     = array();
+        $rev["hash"] = $version["file_signature"];
+        $rev["device_id"]    = $deviceId; 
+        $rev["time"]   = strtotime(MiniUtil::getCurrentTime());
+        $revs    = json_decode($revs);
+        if (!$revs) {
+            $revs = array();
         }
-        // 当文件历史版本超过一定数量后，扎断处理
-        $count = count($versions);
-        $fileMaxVersion = MiniConst::MAX_VERSION_COUNT;
-        if ($count >= $fileMaxVersion) {
-            $limit    = $count - $fileMaxVersion + 1;
-            $versions = CUtils::mergeFileMetaVersion($versions, $limit);
-        }
-        array_push($versions, $version);
-        return serialize($versions);
+        array_push($revs, $rev);
+        return json_encode($revs);
     }
 
     /**
