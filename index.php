@@ -17,6 +17,26 @@ function isWeixin(){
         return false;
     }
 }
+function isLowerBrowser(){
+    $agent =  $_SERVER['HTTP_USER_AGENT']; 
+    if(strpos($agent,'MSIE 9.0')>0){
+        return true;
+    }
+    if(strpos($agent,'MSIE 8.0')>0){
+        return true;
+    }
+    if(strpos($agent,'MSIE 7.0')>0){
+        return true;
+    }
+    if(strpos($agent,'MSIE 6.0')>0){
+        return true;
+    }
+    return false;
+}
+if(isLowerBrowser()){
+    header('Location:./oops.html');
+    exit;
+}
 if(isWeixin()){
     define('STATIC_SERVER_HOST',"wxstatic.miniyun.cn");
     include "miniWeixin.php";
