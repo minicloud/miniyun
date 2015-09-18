@@ -30,14 +30,14 @@ class LinkSelectedBiz extends MiniBiz{
         $ext  = MiniUtil::getFileExtension($file["file_name"]);
         $path = MiniUtil::getRelativePath($file["file_path"]);
         if($ext=="jpg" || $ext=="jpeg" || $ext=="png" || $ext=="gif"){
-            $data["thumbnail_link"] = MiniHttp::createAnonymousUrl("linkAccess/thumbnail?key=".$shareKey."&size=256x256&path=".$path);
+            $data["thumbnail_link"] = MiniHttp::createAnonymousUrl("linkAccess/thumbnail?key=".$shareKey."&size=256x256&path=".urlencode($path));
         }else{
             $data["thumbnail_link"] = "";
         }
         if($linkType==MiniLink::$PREVIEW_LINK){
             $data["link"] = MiniHttp::createUrl("link/access/key/".$shareKey);
         }else{
-            $data["link"] = MiniHttp::createAnonymousUrl("linkAccess/download?key=".$shareKey."&path=".$path);
+            $data["link"] = MiniHttp::createAnonymousUrl("linkAccess/download?key=".$shareKey."&path=".urlencode($path));
         }
         return $data;
     }

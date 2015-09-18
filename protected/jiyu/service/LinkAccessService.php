@@ -37,7 +37,7 @@ class LinkAccessService extends MiniService{
      */
     public function thumbnail(){
         $key = MiniHttp::getParam("key","");
-        $path = MiniHttp::getParam("path","");
+        $path = urldecode(MiniHttp::getParam("path",""));
         $size = MiniHttp::getParam("size","");
         $link = new LinkFileBiz();
         $link->thumbnail($key,$path,$size);
