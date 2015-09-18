@@ -1,0 +1,10 @@
+/*
+* Plugin Name: openLDAP用户源
+* Plugin Type: thirdUserSource
+* Plugin URI: http://www.miniyun.cn
+* Description: 支持openLDAP用户源登陆
+* Author: MiniYun
+* Version: 1.0.0
+* Author URI: http://www.miniyun.cn
+* ErrorCode: 100400
+*/
