@@ -1447,7 +1447,26 @@ class MiniFile extends MiniCache{
         $items=UserFile::model()->count($criteria);
         return $items;
     }
-
+    /**
+     * 根据路径，回复假删除文件
+     * @param string $path 
+     * @return bool
+     */
+    public function recoverFile($path) {
+        if(strlen($path)!==0){
+            $pathArr = explode('/',$path); 
+            $currentPath = '/'.$pathArr[1];
+            for($i=2;$i<count($pathArr);$i++){
+                $currentPath .='/'.$pathArr[$i]; 
+                $criteria            = new CDbCriteria();
+                $criteria->condition = "file_path = :path";
+                $criteria->params    = array(":path"=>$currentPath);
+                $item = UserFile::model()->find($criteria);
+                $item->is_deleted=0;
+                $item->save();
+            } 
+        } 
+    }
     /**
      * 根据路径，回复假删除文件
      * @param string $path

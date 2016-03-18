@@ -1,7 +1,7 @@
 <?php
 define('NAME_ZH', '迷你云');
 define('NAME_EN', 'MyCloud');
-define('APP_VERSION',"2.20");
+define('APP_VERSION',"2.21");
 //
 // 适配无REQUEST_URI的情况
 //
@@ -99,8 +99,7 @@ if (file_exists($configPath)) {
         'password' => DB_PASSWORD,
         'charset' => DB_CHARSET,
         'schemaCachingDuration' => 3600,
-        'enableProfiling' => true,
-        'enableParamLogging' => true,
+        'enableProfiling' => false
     );
 } else {
     if (!empty($_SESSION)) {

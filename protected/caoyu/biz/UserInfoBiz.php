@@ -29,6 +29,31 @@ class UserInfoBiz extends MiniBiz{
         $data['website']=$userMeta['website'];
         $data['qq']=$userMeta['qq'];
         $data['realname']=$userMeta['realname'];
+        $policy1=$userMeta['upload_policy_white_list'];
+        $policy2=$userMeta['upload_policy_black_list'];
+        $policy3=$userMeta['upload_policy_file_size'];
+        if(empty($policy1)){
+            $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
+            if(empty($policy1)){
+                $policy1 = '*';
+            }
+        }
+        if(empty($policy2)){
+            $policy2  = MiniOption::getInstance()->getOptionValue('upload_policy_black_list');
+            if(empty($policy2)){
+                $policy2 = '';
+            }
+        }
+        if(empty($policy3)){
+            $policy3  = MiniOption::getInstance()->getOptionValue('upload_policy_file_size');
+            if(empty($policy3)){
+                $policy3 = 102400;
+            }
+        }
+        $policy3 = intval($policy3);
+        $data['upload_policy_white_list'] = $policy1;
+        $data['upload_policy_black_list'] = $policy2;
+        $data['upload_policy_file_size'] = $policy3;
         return $data;
     }
     /**
@@ -51,7 +76,32 @@ class UserInfoBiz extends MiniBiz{
         $data['memo']=($userMeta['memo']===null)?'':$userMeta['memo'];
         $data['website']=($userMeta['website']===null)?'':$userMeta['website'];
         $data['qq']=($userMeta['qq']===null)?'':$userMeta['qq'];
-        $data['realname']=($userMeta['realname']===null)?'':$userMeta['realname'];
+        $data['realname']=($userMeta['realname']===null)?'':$userMeta['realname']; 
+        $policy1=$userMeta['upload_policy_white_list'];
+        $policy2=$userMeta['upload_policy_black_list'];
+        $policy3=$userMeta['upload_policy_file_size'];
+        if(empty($policy1)){
+            $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
+            if(empty($policy1)){
+                $policy1 = '*';
+            }
+        }
+        if(empty($policy2)){
+            $policy2  = MiniOption::getInstance()->getOptionValue('upload_policy_black_list');
+            if(empty($policy2)){
+                $policy2 = '';
+            }
+        }
+        if(empty($policy3)){
+            $policy3  = MiniOption::getInstance()->getOptionValue('upload_policy_file_size');
+            if(empty($policy3)){
+                $policy3 = 102400;
+            }
+        }
+        $policy3 = intval($policy3);
+        $data['upload_policy_white_list'] = $policy1;
+        $data['upload_policy_black_list'] = $policy2;
+        $data['upload_policy_file_size'] = $policy3;
         return $data;
     }
     /**
@@ -267,7 +317,7 @@ class UserInfoBiz extends MiniBiz{
      * @param $space
      * @param $memo
      */
-    public function updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo){
+    public function updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($id);
         $user = MiniUser::getInstance()->getUser($id);
         foreach ($metas as $key=>$value){
@@ -280,6 +330,24 @@ class UserInfoBiz extends MiniBiz{
         $metas['qq']=$qq;
         $metas['website']=$website;
         $metas['memo']=$memo;
+        if(!empty($upload_policy_white_list)){
+            $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
+            if($policy1!==$upload_policy_white_list){
+                $metas['upload_policy_white_list'] = $upload_policy_white_list;
+            }            
+        }
+        if(!empty($upload_policy_black_list)){
+            $policy2  = MiniOption::getInstance()->getOptionValue('upload_policy_black_list');
+            if($policy2!==$upload_policy_black_list){
+                $metas['upload_policy_black_list'] = $upload_policy_black_list;
+            }
+        }
+        if(!empty($upload_policy_file_size)){
+            $policy3  = MiniOption::getInstance()->getOptionValue('upload_policy_file_size');
+            if($policy3!==$upload_policy_file_size){
+                $metas['upload_policy_file_size'] = $upload_policy_file_size;
+            }
+        }
         $userMetas=array();
         $userMetas['extend']=$metas;
         MiniUserMeta::getInstance()->create($user,$userMetas);

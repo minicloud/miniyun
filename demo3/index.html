@@ -1,0 +1,79 @@
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+</head>
+
+<body>
+    <input type="file" id="files" name="files[]" multiple />
+    <input type="file" id="folder" name="files[]" multiple webkitdirectory />
+    <span id='demo'></span>
+    <script type="text/javascript" src='./mini-uploader-helper.js'></script>
+    <script type="text/javascript" src='./mini-uploader.js'></script>
+    <script type="text/javascript" src='./mini-sec-uploader.js'></script>
+    <script type="text/javascript">
+    var fileIndex = 0
+
+    function handleWorkerEvent(event) {
+        var action = event.data.action
+        var index = event.data.index
+
+        if (action === 'uploading') {
+            var progress = event.data.progress
+                //上传中
+            var speed = event.data.speed
+            var progressBar = document.getElementById('progres_' + index)
+            var speedBar = document.getElementById('speed_' + index)
+            progressBar.innerText = progress + '%'
+            speedBar.innerText = speed
+        } else if (action === 'success') {
+            //上传成功 
+            if (event.data.status === 200) {
+                var resultBar = document.getElementById('result_' + index)
+                resultBar.innerText = '上传成功'
+            } else {
+                var resultBar = document.getElementById('result_' + index)
+                resultBar.innerText = '共享目录无权限上传'
+            }
+        } else if (action === 'sec') {
+            //秒传成功
+            if (event.data.status === 200) {
+                var resultBar = document.getElementById('result_' + index)
+                resultBar.innerHTML = "<span style='background-color:orange'>秒传成功</span>"
+            } else {
+                var resultBar = document.getElementById('result_' + index)
+                resultBar.innerHTML = "<span style='background-color:orange'>共享目录无权限上传</span>"
+            }
+        }
+    }
+
+    var miniUploader = new MiniUploader(handleWorkerEvent)
+
+    function uploadFiles(event) {
+        var files = event.dataTransfer ? event.dataTransfer.files : event.target.files
+        for (i = 0; i < files.length; i += 1) {
+            fileIndex++
+            var file = files[i]
+            file = miniUploader.addFile('http://demo1.miniyun.cn/', '/1/测试/test', file, fileIndex)
+            document.getElementById('demo').innerHTML += "<br><span>" + file.newName + "</span>  "
+            document.getElementById('demo').innerHTML += "<span id='progres_" + fileIndex + "'></span> "
+            document.getElementById('demo').innerHTML += "<span id='speed_" + fileIndex + "'></span> "
+            document.getElementById('demo').innerHTML += "<span id='result_" + fileIndex + "'></span> "
+            document.getElementById('demo').innerHTML += "<input type=\"button\"  value=\"停止\" onClick=\"pause(" + fileIndex + ")\">"
+            document.getElementById('demo').innerHTML += "<input type=\"button\"  value=\"开始\" onClick=\"restart(" + fileIndex + ")\"><br> "
+        }
+    }
+
+    function pause(index) {
+        miniUploader.pause(index)
+    }
+
+    function restart(index) {
+        miniUploader.restart(index)
+    }
+    document.getElementById('files').addEventListener('change', uploadFiles, false)
+    document.getElementById('folder').addEventListener('change', uploadFiles, false)
+    </script>
+</body>
+
+</html>

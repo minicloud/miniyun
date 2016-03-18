@@ -910,12 +910,11 @@ abstract class OAuth2 {
      * @ingroup oauth2_section_5
      */
   public function verifyAccessToken($scope = NULL, $exitNotPresent = TRUE, $exitInvalid = TRUE, $exitExpired = TRUE, $exitScope = TRUE, $realm = NULL) {
-    $tokenParam = $this->getAccessTokenParams();
-
+    $tokenParam = $this->getAccessTokenParams(); 
     $sign = isset($_REQUEST["sign"]) ? $_REQUEST["sign"] : null;
     $infos = explode("_", $sign);
     $sign = $infos[0];
-    if ($tokenParam === FALSE || empty($sign)) // Access token was not provided
+    if ($tokenParam === FALSE) // Access token was not provided
       return $exitNotPresent ? $this->errorWWWAuthenticateResponseHeader(OAUTH2_HTTP_BAD_REQUEST, $realm, OAUTH2_ERROR_INVALID_REQUEST, 'The request is missing a required parameter, includes an unsupported parameter or parameter value, repeats the same parameter, uses more than one method for including an access token, or is otherwise malformed.', NULL, $scope) : FALSE;
     // Get the stored token data (from the implementing subclass)
     $token = $this->getAccessToken($tokenParam);
@@ -1105,27 +1104,7 @@ abstract class OAuth2 {
      * @ingroup oauth2_section_5
      */
   private function getAccessTokenParams() {
-    $auth_header = $this->getAuthorizationHeader();
-
-    if ($auth_header !== FALSE) {
-      // Make sure only the auth header is set
-      if (isset($_GET[OAUTH2_TOKEN_PARAM_NAME]) || isset($_POST[OAUTH2_TOKEN_PARAM_NAME]))
-        $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_REQUEST, 'Auth token found in GET or POST when token present in header');
-
-      $auth_header = trim($auth_header);
-
-      // Make sure it's Token authorization
-      if (strcmp(substr($auth_header, 0, 7), "OAuth2 ") !== 0)
-        $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_REQUEST, 'Auth header found that doesn\'t start with "OAuth"');
-
-      // Parse the rest of the header
-      $aa = preg_match('/\s*OAuth2\s*="(.+)"/', substr($auth_header, 6), $matches);
-//      if (preg_match('/\s*OAuth2\s*="(.+)"/', substr($auth_header, 7), $matches) == 0 || count($matches) < 2)
-//        $this->errorJsonResponse(OAUTH2_HTTP_BAD_REQUEST, OAUTH2_ERROR_INVALID_REQUEST, 'Malformed auth header');
-       $matches = array(substr($auth_header,0, 6), substr($auth_header, 7));
-      
-      return $matches[1];
-    }
+    $auth_header = $this->getAuthorizationHeader();   
 
     if (isset($_GET[OAUTH2_TOKEN_PARAM_NAME])) {
       if (isset($_POST[OAUTH2_TOKEN_PARAM_NAME])) // Both GET and POST are not allowed

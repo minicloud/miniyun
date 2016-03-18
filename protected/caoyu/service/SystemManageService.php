@@ -20,6 +20,9 @@ class SystemManageService extends MiniService{
         $site['userRegisterEnabled']  = MiniHttp::getParam('userRegisterEnabled','1');
         $site['fileStorePath']        = MiniHttp::getParam('fileStorePath','');
         $site['miniyun_host']         = MiniHttp::getParam('miniyun_host',MiniHttp::getMiniHost());
+        $site['upload_policy_white_list']         = MiniHttp::getParam('upload_policy_white_list','*');
+        $site['upload_policy_black_list']         = MiniHttp::getParam('upload_policy_black_list','');
+        $site['upload_policy_file_size']         = MiniHttp::getParam('upload_policy_file_size','102400');
         $model  = new SystemManageBiz();
         $result = $model->settingSiteInfo($site);
         if($result['success'] == false){

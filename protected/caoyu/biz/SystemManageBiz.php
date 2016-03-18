@@ -267,6 +267,9 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("site_default_space", $site['siteDefaultSpace']);
         MiniOption::getInstance()->setOptionValue("site_company", $site['siteCompany']);
         MiniOption::getInstance()->setOptionValue("user_register_enabled", $site['userRegisterEnabled']);
+        MiniOption::getInstance()->setOptionValue("upload_policy_white_list", $site['upload_policy_white_list']);
+        MiniOption::getInstance()->setOptionValue("upload_policy_black_list", $site['upload_policy_black_list']);
+        MiniOption::getInstance()->setOptionValue("upload_policy_file_size", $site['upload_policy_file_size']);
         //如果是混合云版，则调整迷你存储的访问地址
         if(MiniUtil::isMixCloudVersion()){
             $plugins = MiniUtil::getActivedPluginsInfo();
@@ -413,6 +416,22 @@ class SystemManageBiz extends MiniBiz{
         $data['siteDefaultSpace']     = MiniOption::getInstance()->getOptionValue('site_default_space');
         $data['siteCompany']          = MiniOption::getInstance()->getOptionValue('site_company');
         $data['userRegisterEnabled']  = MiniOption::getInstance()->getOptionValue('user_register_enabled');
+        $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
+        $policy2  = MiniOption::getInstance()->getOptionValue('upload_policy_black_list');
+        $policy3  = MiniOption::getInstance()->getOptionValue('upload_policy_file_size');
+        
+        if(empty($policy1)){
+            $policy1 = '*';
+        }
+        if(empty($policy2)){
+            $policy2 = '';
+        }
+        if(empty($policy3)){
+            $policy3 = 102400;
+        }
+        $data['upload_policy_white_list'] = $policy1;
+        $data['upload_policy_black_list'] = $policy2;
+        $data['upload_policy_file_size'] = intval($policy3);
         $miniHost                     = MiniOption::getInstance()->getOptionValue('miniyun_host');
         if(empty($miniHost)){
             $miniHost = MiniHttp::getMiniHost();

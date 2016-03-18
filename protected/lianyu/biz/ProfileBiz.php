@@ -43,6 +43,42 @@ class ProfileBiz  extends MiniBiz{
         if(empty($code)){
             $code = "";
         }
+        $userMeta=MiniUserMeta::getInstance()->getUserMetas($user["id"]);
+        $policy1='';
+        if(array_key_exists('upload_policy_white_list',$userMeta)){
+            $policy1=$userMeta['upload_policy_white_list'];
+        }
+        $policy2='';
+        if(array_key_exists('upload_policy_black_list',$userMeta)){
+            $policy2=$userMeta['upload_policy_black_list'];
+        }
+        $policy3='';
+        if(array_key_exists('upload_policy_file_size',$userMeta)){
+            $policy3=$userMeta['upload_policy_file_size'];
+        } 
+        if(empty($policy1)){
+            $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
+            if(empty($policy1)){
+                $policy1 = '*';
+            }
+        }
+        if(empty($policy2)){
+            $policy2  = MiniOption::getInstance()->getOptionValue('upload_policy_black_list');
+            if(empty($policy2)){
+                $policy2 = '';
+            }
+        }
+        if(empty($policy3)){
+            $policy3  = MiniOption::getInstance()->getOptionValue('upload_policy_file_size');
+            if(empty($policy3)){
+                $policy3 = 102400;
+            }
+        }
+        $policy3 = intval($policy3);
+        $data['upload_policy_white_list'] = $policy1;
+        $data['upload_policy_black_list'] = $policy2;
+        $data['upload_policy_file_size'] = $policy3;
+        $data['mini_host']          = MiniHttp::getMiniHost();
         $data['code']          = $code;
         return $data;
     }

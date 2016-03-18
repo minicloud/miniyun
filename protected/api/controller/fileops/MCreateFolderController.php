@@ -226,6 +226,10 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
         $had_file_delete    = false;
         if (isset($file))
         {
+            //创建父目录时进行权限判断,当前文件有权限才进行父目录的创建
+            if ($this->share_filter->is_shared) {
+                $this->share_filter->hasPermissionExecute($path, MPrivilege::FOLDER_CREATE);
+            }
             // 检查父目录是否为文件夹
             if ($file["file_type"] == MConst::OBJECT_TYPE_FILE)
             {
@@ -239,39 +243,35 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                 $this->_parentFilePath = $file["file_path"];
                 $this->_init           = true;
             }
-            // 检查该记录是否已被删除
-            if ($file["is_deleted"] == false)
+            // 检查该记录是否已被删除，则对记录恢复
+            if ($file["is_deleted"])
             {
-                return $file["id"];
+                MiniFile::getInstance()->recoverFile($path);
             }
-            // 记录已被删除
-            $had_file_delete = true;
-        }
-
-        //创建父目录时进行权限判断,当前文件有权限才进行父目录的创建
-        if ($this->share_filter->is_shared) {
-            $this->share_filter->hasPermissionExecute($path, MPrivilege::FOLDER_CREATE);
-        }
-        // 父目录不存在，继续处理父目录
-        $parent_path = dirname($path);
-        // 赋值
-        if ($this->_init === false)
-        {
-            $this->_parentFilePath = $path;
-            $this->_init           = true;
-        }
-        $parent_file_id = $this->handlerParentFolder($parent_path);
-        $this->createFile($path, $parent_file_id, $had_file_delete);
-        $file           = MiniFile::getInstance()->getByPath($path);
-        if ($file === NULL)
-        {
-            throw new MFileopsException(
-                                        Yii::t('api','Internal Server Error'),
-                                        MConst::HTTP_CODE_500);
-        }
-        return $file["id"];
-    }
-    
+            // 记录已被删除 
+            return $file["id"];
+            
+        }else{
+            // 父目录不存在，继续处理父目录
+            $parent_path = dirname($path);
+            // 赋值
+            if ($this->_init === false)
+            {
+                $this->_parentFilePath = $path;
+                $this->_init           = true;
+            }
+            $parent_file_id = $this->handlerParentFolder($parent_path);
+            $this->createFile($path, $parent_file_id, false);
+            $file           = MiniFile::getInstance()->getByPath($path);
+            if ($file === NULL)
+            {
+                throw new MFileopsException(
+                                            Yii::t('api','Internal Server Error'),
+                                            MConst::HTTP_CODE_500);
+            }
+            return $file["id"];
+        } 
+    }    
     /**
      * 处理创建文件信息及事件
      */

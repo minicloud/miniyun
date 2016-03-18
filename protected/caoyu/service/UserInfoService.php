@@ -202,8 +202,11 @@ class UserInfoService extends MiniService{
         $qq = MiniHttp::getParam('qq',"");
         $website = MiniHttp::getParam('website',"");
         $memo = MiniHttp::getParam('memo',"");
+        $upload_policy_white_list = MiniHttp::getParam('upload_policy_white_list',"");
+        $upload_policy_black_list = MiniHttp::getParam('upload_policy_black_list',"");
+        $upload_policy_file_size = MiniHttp::getParam('upload_policy_file_size',"");
         $model = new UserInfoBiz();
-        $data  = $model->updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo);
+        $data  = $model->updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size);
         $status = array();
         $status['success']=$data;
         return $status;
