@@ -54,7 +54,7 @@
         for (i = 0; i < files.length; i += 1) {
             fileIndex++
             var file = files[i]
-            file = miniUploader.addFile('http://demo1.miniyun.cn/', '/1/测试/test', file, fileIndex)
+            file = miniUploader.addFile('http://demo2.miniyun.cn/', '/1/测试/test', file, fileIndex)
             document.getElementById('demo').innerHTML += "<br><span>" + file.newName + "</span>  "
             document.getElementById('demo').innerHTML += "<span id='progres_" + fileIndex + "'></span> "
             document.getElementById('demo').innerHTML += "<span id='speed_" + fileIndex + "'></span> "

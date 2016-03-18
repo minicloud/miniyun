@@ -173,9 +173,10 @@ class MThumbnailBase extends MModel {
         }
         //判断文件是否在迷你存储中，兼容非迷你存储的文件
         $version = MiniVersion::getInstance()->getBySignature($signature);
-        $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],"store_id");
+        $meta1 = MiniVersionMeta::getInstance()->getMeta($version["id"],"store_id");
+        $meta2 = MiniVersionMeta::getInstance()->getMeta($version["id"],"bucket_host");
         $thumbnailData = array();
-        if(!empty($meta)){
+        if(!empty($meta) || !empty($meta2)){
             //为迷你存储缩略图添加hook            
             $thumbnailData["signature"] = $signature;
             $storePath = apply_filters("image_path", $thumbnailData); 

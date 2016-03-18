@@ -9,7 +9,8 @@
  */
 require_once __DIR__.'/aliyun-oss-php-sdk/autoload.php';
 use OSS\OssClient;
-class MiniOssModule extends MiniPluginModule { 
+
+class MiniOssModule extends MiniPluginModule {     
     /**
      *
      * @see CModule::init()
@@ -28,29 +29,49 @@ class MiniOssModule extends MiniPluginModule {
         //获得文件内容
         add_filter("file_content",array($this, "fileContent"));
         //图片缩略图
-        add_filter("image_path",array($this,"imagePath"));
+        add_filter("image_path",array($this,"cacheFile"));
         //文件上传
         add_filter("upload_start",array($this,"start"));
         //文件秒传
         add_filter("upload_sec",array($this,"sec"));
         //文件上传结束
         add_filter("upload_end",array($this,"end"));
+    }   
+    private  function getDownloadUrl($hash){
+        $ossAccessId= 'WPkFoYluMvInP9Eu';
+        $ossAccessKey= '967NOdLushFCkkbKcnnnWi7J1S5lAy';
+        $bucket = 'minicloud-test';
+        $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
+        $ossHost = $bucket.'.'.$endpoint;
+
+        $version = MiniVersion::getInstance()->getBySignature($hash);
+        if($version){
+            $bucketHostMeta = MiniVersionMeta::getInstance()->getMeta($version['id'],'bucket_host');
+            $bucketPathMeta = MiniVersionMeta::getInstance()->getMeta($version['id'],'bucket_path'); 
+            if($bucketHostMeta && $bucketPathMeta){ 
+                $path = $bucketPathMeta['meta_value']; 
+                $ossClient = new OssClient($ossAccessId, $ossAccessKey, $endpoint);
+                $signedUrl = $ossClient->signUrl($bucket, $path, 3600);
+                return $signedUrl;
+            }
+        } 
+        return '';
     }
     /**
      * 获得文件的缩略图
      * @param array $params
      * @return string
      */
-    public  function imagePath($params){
+    public function cacheFile($params){
         $signature = $params["signature"];
         $saveFolder = MINIYUN_PATH."/assets/miniOss/";
-        $filePath = $saveFolder.$signature;
+        $filePath = $saveFolder.$signature; 
         if(!file_exists($filePath)){
             if(!file_exists($saveFolder)){
                 mkdir($saveFolder);
             }
             //把文件下载到本地
-            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
+            $url = $this->getDownloadUrl($signature);            
             file_put_contents($filePath,file_get_contents($url));
         }
         return $filePath;
@@ -60,31 +81,14 @@ class MiniOssModule extends MiniPluginModule {
      * @param array $params
      * @return string
      */
-    public function fileDownloadUrl($params){         
-        $hash = $params["signature"];
-        $fileName = $params["file_name"];
-        $mimeType = $params["mime_type"];
-        $forceDownload = $params["force_download"];
-        $version = MiniVersion::getInstance()->getBySignature($hash);
-        if($version){
-            $bucketHostMeta = MiniVersionMeta::getInstance()->getMeta($version['id'],'bucket_host');
-            $bucketPathMeta = MiniVersionMeta::getInstance()->getMeta($version['id'],'bucket_path'); 
-            if($bucketHostMeta && $bucketPathMeta){
-                $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
-                $path = $bucketPathMeta['meta_value'];
-                $accessKeyId = "WPkFoYluMvInP9Eu";
-                $accessKeySecret = "967NOdLushFCkkbKcnnnWi7J1S5lAy"; 
-                try {
-                    $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-                } catch (OssException $e) {
-                    print $e->getMessage();exit;
-                }
-                $signedUrl = $ossClient->signUrl('minicloud-test', $path, 3600);
-                //下载文件
-                header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
-                header( "Location: ". $signedUrl );
-                exit; 
-            }
+    public function fileDownloadUrl($params){    
+        $hash = $params["signature"]; 
+        $url = $this->getDownloadUrl($hash);
+        if(!empty($url)){
+            //下载文件
+            header( "HTTP/1.1 ".MConst::HTTP_CODE_301." Moved Permanently" );
+            header( "Location: ". $url );
+            exit; 
         } 
     }
     /**
@@ -94,16 +98,8 @@ class MiniOssModule extends MiniPluginModule {
      * @return string
      */
     public function fileContent($signature){
-        $saveFolder = MINIYUN_PATH."/assets/miniStore/";
-        $filePath = $saveFolder.$signature;
-        if(!file_exists($filePath)){
-            if(!file_exists($saveFolder)){
-                mkdir($saveFolder);
-            }
-            //把文件下载到本地
-            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
-            file_put_contents($filePath,file_get_contents($url));
-        }
+        $params = array('signature'=>$signature);
+        $filePath = $this->cacheFile($params);
         return file_get_contents($filePath);
     }
      
@@ -160,9 +156,7 @@ class MiniOssModule extends MiniPluginModule {
                     $bucketPath = MiniHttp::getParam('bucket_path','');
                     MiniVersionMeta::getInstance()->create($version["id"],"bucket_host",$bucketHost);
                     MiniVersionMeta::getInstance()->create($version["id"],"bucket_path",$bucketPath);
-                }else{
-                    //TODO来自迷你存储
-                } 
+                }
             } 
             //创建用户相关元数据 执行文件秒传逻辑
             $filesController = new MFileSecondsController();
@@ -192,16 +186,21 @@ class MiniOssModule extends MiniPluginModule {
     *文件开始上传，先要获得上传需要的上下文信息
     */
     public function start(){
+        $ossAccessId= 'WPkFoYluMvInP9Eu';
+        $ossAccessKey= '967NOdLushFCkkbKcnnnWi7J1S5lAy';
+        $bucket = 'minicloud-test';
+        $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
+        $ossHost = $bucket.'.'.$endpoint;
+
         $user = MUserManager::getInstance()->getCurrentUser();  
         $path = MiniHttp::getParam('path','/'); 
         $token = MiniHttp::getParam('access_token','');
         //存储路径
         $miniyunPath = $path;
         $bucketPath = '迷你云/'.$user['user_name'].$path;
-        //OSS相关信息
-        $id= 'WPkFoYluMvInP9Eu';
-        $key= '967NOdLushFCkkbKcnnnWi7J1S5lAy';
-        $bucketHost = 'minicloud-test.oss-cn-hangzhou.aliyuncs.com'; 
+        //OSS相关信息 
+        $key= $ossAccessKey;
+        $bucketHost = $ossHost; 
         $callbackUrl = MiniHttp::getMiniHost()."/api.php"; 
         //回调地址是阿里云接收文件成功后，反向调用迷你云的地址报竣
         //其中access_token/route/bucket_url是回调需要的地址
@@ -237,7 +236,7 @@ class MiniOssModule extends MiniPluginModule {
         $response = array();
         //上传策略信息
         $uploadContext = array();
-        $uploadContext['accessid'] = $id;
+        $uploadContext['accessid'] = $ossAccessId;
         $uploadContext['host'] = 'https://'.$bucketHost;
         $uploadContext['policy'] = $base64_policy;
         $uploadContext['signature'] = $signature;
@@ -248,7 +247,7 @@ class MiniOssModule extends MiniPluginModule {
 
         //文件秒传上传策略
         $uploadSecContext = array();
-        $uploadSecContext['url'] = MiniHttp::getMiniHost()."/api.php?route=upload/sec&access_token=".$token;
+        $uploadSecContext['url'] = MiniHttp::getMiniHost()."api.php?route=upload/sec&access_token=".$token;
         $uploadSecContext['path'] = $miniyunPath;
         $response['upload_context'] = $uploadContext;
         $response['sec_context'] = $uploadSecContext;
