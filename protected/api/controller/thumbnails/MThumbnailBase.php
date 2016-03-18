@@ -176,7 +176,7 @@ class MThumbnailBase extends MModel {
         $meta1 = MiniVersionMeta::getInstance()->getMeta($version["id"],"store_id");
         $meta2 = MiniVersionMeta::getInstance()->getMeta($version["id"],"bucket_host");
         $thumbnailData = array();
-        if(!empty($meta) || !empty($meta2)){
+        if(!empty($meta1) || !empty($meta2)){
             //为迷你存储缩略图添加hook            
             $thumbnailData["signature"] = $signature;
             $storePath = apply_filters("image_path", $thumbnailData); 

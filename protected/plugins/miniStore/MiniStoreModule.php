@@ -28,7 +28,7 @@ class MiniStoreModule extends MiniPluginModule {
         //获得文件内容
         add_filter("file_content",array($this, "fileContent"));
         //图片缩略图
-        add_filter("image_path",array($this,"imagePath"));
+        add_filter("image_path",array($this,"cacheFile"));
         //文件上传
         add_filter("upload_start",array($this,"start"));
         //文件秒传
@@ -37,12 +37,15 @@ class MiniStoreModule extends MiniPluginModule {
         add_filter("upload_end",array($this,"end"));
 
     }
+    private function getDownloadUrl($signature){
+        return PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);     
+    }
     /**
      * 获得文件的缩略图
      * @param array $params
      * @return string
      */
-    function imagePath($params){
+    function cacheFile($params){
         $signature = $params["signature"];
         $saveFolder = MINIYUN_PATH."/assets/miniStore/";
         $filePath = $saveFolder.$signature;
@@ -51,7 +54,7 @@ class MiniStoreModule extends MiniPluginModule {
                 mkdir($saveFolder);
             }
             //把文件下载到本地
-            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
+            $url = $this->getDownloadUrl($signature); 
             file_put_contents($filePath,file_get_contents($url));
         }
         return $filePath;
@@ -75,16 +78,7 @@ class MiniStoreModule extends MiniPluginModule {
      * @return string
      */
     function fileContent($signature){
-        $saveFolder = MINIYUN_PATH."/assets/miniStore/";
-        $filePath = $saveFolder.$signature;
-        if(!file_exists($filePath)){
-            if(!file_exists($saveFolder)){
-                mkdir($saveFolder);
-            }
-            //把文件下载到本地
-            $url = PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);
-            file_put_contents($filePath,file_get_contents($url));
-        }
+        $filePath = $this->cacheFile($signature);
         return file_get_contents($filePath);
     }
 
