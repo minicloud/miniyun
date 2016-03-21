@@ -112,4 +112,81 @@ class UserBiz  extends MiniBiz{
         $metas['extend'] = ['file_sort_type'=>$type,'file_sort_order'=>$sortOrder];
         return MiniUserMeta::getInstance()->create($user,$metas);
     }
+    /**
+     * 存储隐藏空间密码  
+     */
+    public function newHideSpacePassword($passwd){
+         $user = MUserManager::getInstance()->getCurrentUser();
+         $userMeta = MiniUserMeta::getInstance()->getUserMetas($user['id']);
+         if(!array_key_exists('hide_space_passwd', $userMeta)){
+            $salt = $user['salt'];
+            $meta = array('hide_space_passwd'=>strtolower(md5($passwd.$salt)));
+            $metas = array('extend'=>$meta);
+            MiniUserMeta::getInstance()->create($user,$metas);
+            //创建空目录
+            
+            return array('status'=>'ok');
+         }
+         return array('status'=>'error','msg'=>'has existed');
+    }
+    /**
+     * 验证隐藏空间密码  
+     */
+    public function validHideSpacePassword($passwd){
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $userMeta = MiniUserMeta::getInstance()->getUserMetas($user['id']);
+        if(array_key_exists('hide_space_passwd', $userMeta)){
+           $salt = $user['salt'];
+           $currentPasswd = strtolower(md5($passwd.$salt));
+           $rightPasswd = $userMeta['hide_space_passwd'];
+           if($currentPasswd===$rightPasswd){
+                return array('status'=>'ok');
+           }    
+        }
+        return array('status'=>'error','msg'=>'password invalid');
+    }
+    /**
+     * 重置隐藏空间密码  
+     */
+    public function resetHideSpacePassword($oldPasswd,$newPasswd){
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $userMeta = MiniUserMeta::getInstance()->getUserMetas($user['id']);
+        if(array_key_exists('hide_space_passwd', $userMeta)){
+           $salt = $user['salt'];
+           $currentPasswd = strtolower(md5($oldPasswd.$salt));
+           $rightPasswd = $userMeta['hide_space_passwd'];
+           if($currentPasswd===$rightPasswd){
+                $meta = array('hide_space_passwd'=>strtolower(md5($newPasswd.$salt)));
+                $metas = array('extend'=>$meta);
+                MiniUserMeta::getInstance()->create($user,$metas);
+                return array('status'=>'ok');
+           }else{
+            return array('status'=>'error','msg'=>'old password invalid');
+           }   
+        }
+        return array('status'=>'error');
+    }
+    /**
+     * 管理员重置隐藏空间密码  
+     */
+    public function adminResetHideSpacePassword($userId,$newPasswd){
+        $currentUser = MUserManager::getInstance()->getCurrentUser();
+        $userMeta = MiniUserMeta::getInstance()->getUserMetas($currentUser['id']);
+        if(array_key_exists('is_admin', $userMeta)){
+            $value = $userMeta['is_admin'];
+            if($value==='1'){
+                $user = MiniUser::getInstance()->getById($userId);
+                if($user){
+                    $salt = $user['salt']; 
+                    $meta = array('hide_space_passwd'=>strtolower(md5($newPasswd.$salt)));
+                    $metas = array('extend'=>$meta);
+                    MiniUserMeta::getInstance()->create($user,$metas);
+                    return array('status'=>'ok');   
+                }else{
+                    return array('status'=>'error','msg'=>'user not existed');
+                }                 
+            }          
+        }
+        return array('status'=>'error','msg'=>'no permission');
+    }
 }

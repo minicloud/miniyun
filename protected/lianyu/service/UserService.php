@@ -60,4 +60,38 @@ class UserService extends MiniService{
         $biz    = new UserBiz();
         return $biz->saveSortType($type,$sortOrder);
     }
+    /**
+     * 新建隐藏空间密码 
+     */
+    public function newHideSpacePassword(){ 
+        $biz    = new UserBiz();
+        $passwd      = MiniHttp::getParam("passwd",""); 
+        return $biz->newHideSpacePassword($passwd);
+    }
+    /**
+     * 验证隐藏空间密码 
+     */
+    public function validHideSpacePassword(){
+        $biz    = new UserBiz();
+        $passwd      = MiniHttp::getParam("passwd",""); 
+        return $biz->validHideSpacePassword($passwd);
+    }
+    /**
+     * 重置隐藏空间密码
+     */
+    public function resetHideSpacePassword(){
+        $biz    = new UserBiz();
+        $oldPasswd      = MiniHttp::getParam("old_passwd",""); 
+        $passwd      = MiniHttp::getParam("passwd",""); 
+        return $biz->resetHideSpacePassword($oldPasswd,$passwd);
+    }
+    /**
+     * 管理员重置隐藏空间密码
+     */
+    public function adminResetHideSpacePassword(){
+        $biz    = new UserBiz(); 
+        $userId      = MiniHttp::getParam("user_id",""); 
+        $passwd      = MiniHttp::getParam("passwd",""); 
+        return $biz->adminResetHideSpacePassword($userId,$passwd);
+    }
 }
