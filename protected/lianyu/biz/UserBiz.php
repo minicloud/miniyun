@@ -113,6 +113,23 @@ class UserBiz  extends MiniBiz{
         return MiniUserMeta::getInstance()->create($user,$metas);
     }
     /**
+     * 创建隐藏空间目录  
+     */
+    private function createHideSpaceDir($user){
+        $name = '隐藏空间';
+        $file                     = array();
+        $file["file_create_time"] = time();
+        $file["file_update_time"] = time();
+        $file["file_name"]        = $name;
+        $file["file_path"]        = '/'.$user['id'].'/'.$name;
+        $file["file_size"]        = 0;
+        $file["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
+        $file["parent_file_id"]   = 0;
+        $file["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+        $file["mime_type"]        = NULL;
+        MiniFile::getInstance()->create($file,$user['id']);
+    }
+    /**
      * 存储隐藏空间密码  
      */
     public function newHideSpacePassword($passwd){
@@ -123,8 +140,10 @@ class UserBiz  extends MiniBiz{
             $meta = array('hide_space_passwd'=>strtolower(md5($passwd.$salt)));
             $metas = array('extend'=>$meta);
             MiniUserMeta::getInstance()->create($user,$metas);
-            //创建空目录
-            
+            //创建隐藏目录
+            $this->createHideSpaceDir($user);
+            //为隐藏空间生成session
+            unset($_SESSION['valid_hide_space_passwd']);
             return array('status'=>'ok');
          }
          return array('status'=>'error','msg'=>'has existed');
@@ -140,6 +159,8 @@ class UserBiz  extends MiniBiz{
            $currentPasswd = strtolower(md5($passwd.$salt));
            $rightPasswd = $userMeta['hide_space_passwd'];
            if($currentPasswd===$rightPasswd){
+                //为隐藏空间生成session
+                $_SESSION['valid_hide_space_passwd']=1;
                 return array('status'=>'ok');
            }    
         }
@@ -180,13 +201,34 @@ class UserBiz  extends MiniBiz{
                     $salt = $user['salt']; 
                     $meta = array('hide_space_passwd'=>strtolower(md5($newPasswd.$salt)));
                     $metas = array('extend'=>$meta);
-                    MiniUserMeta::getInstance()->create($user,$metas);
-                    return array('status'=>'ok');   
+                    MiniUserMeta::getInstance()->create($user,$metas); 
+                    //创建隐藏空间目录
+                    $this->createHideSpaceDir($user);
+                    return array('status'=>'ok');
                 }else{
                     return array('status'=>'error','msg'=>'user not existed');
                 }                 
             }          
         }
         return array('status'=>'error','msg'=>'no permission');
+    }
+    /**
+     * 隐藏空间密码状态
+     */
+    public function hideSpacePasswordStatus(){
+        $currentUser = MUserManager::getInstance()->getCurrentUser();
+        $userMeta = MiniUserMeta::getInstance()->getUserMetas($currentUser['id']);
+        //是否设置隐藏空间密码 
+        $data = array();
+        $data['created_hide_space_passwd'] = 0;
+        $data['valid_hide_space_passwd'] = 0;
+        if(array_key_exists('hide_space_passwd', $userMeta)){
+            $data['created_hide_space_passwd'] = 1;
+            //是否通过隐藏空间密码验证
+            if(array_key_exists('valid_hide_space_passwd', $_SESSION)){
+                $data['valid_hide_space_passwd'] = 1;
+            }
+        }
+        return $data;
     }
 }

@@ -100,6 +100,10 @@ class MMetadataController extends MApplicationComponent implements MIController{
         }
         foreach($fileData as $file){
             $file = MiniFile::getInstance()->getByPath($file['file_path']);
+            //把隐藏空间目录直接隐藏
+            // if($file['file_name']==='隐藏空间'){
+            //     continue;
+            // }
             if(!empty($file)){
                 if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];
@@ -165,6 +169,13 @@ class MMetadataController extends MApplicationComponent implements MIController{
     {
         // 查询其是否存在信息
         $currentFile = MiniFile::getInstance()->getByPath($path);
+        $pathParts = pathinfo($path);  
+        //判断隐藏空间子目录访问是否合法
+        if($pathParts['basename']==='隐藏空间' && $currentFile['parent_file_id']==='0'){
+            if(!array_key_exists('valid_hide_space_passwd', $_SESSION)){
+                throw new MFileopsException(Yii::t('api','not permission'),MConst::HTTP_CODE_404);
+            }
+        }
         if (empty($currentFile)){
             throw new MFileopsException(Yii::t('api','not existed'),MConst::HTTP_CODE_404);
         }

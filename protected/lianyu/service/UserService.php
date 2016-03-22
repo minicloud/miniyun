@@ -94,4 +94,12 @@ class UserService extends MiniService{
         $passwd      = MiniHttp::getParam("passwd",""); 
         return $biz->adminResetHideSpacePassword($userId,$passwd);
     }
+    /**
+     * 隐藏空间状态
+     */
+    public function hideSpacePasswordStatus(){ 
+        $biz    = new UserBiz();
+        $passwd      = MiniHttp::getParam("passwd",""); 
+        return $biz->hideSpacePasswordStatus($passwd);
+    }
 }
