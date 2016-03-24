@@ -117,17 +117,21 @@ class UserBiz  extends MiniBiz{
      */
     private function createHideSpaceDir($user){
         $name = '隐藏空间';
-        $file                     = array();
-        $file["file_create_time"] = time();
-        $file["file_update_time"] = time();
-        $file["file_name"]        = $name;
-        $file["file_path"]        = '/'.$user['id'].'/'.$name;
-        $file["file_size"]        = 0;
-        $file["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
-        $file["parent_file_id"]   = 0;
-        $file["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
-        $file["mime_type"]        = NULL;
-        MiniFile::getInstance()->create($file,$user['id']);
+        $filePath = '/'.$user['id'].'/'.$name;
+        $hideSpaceFile = MiniFile::getInstance()->getByFilePath($filePath);
+        if(empty($hideSpaceFile)){
+            $file                     = array();
+            $file["file_create_time"] = time();
+            $file["file_update_time"] = time();
+            $file["file_name"]        = $name;
+            $file["file_path"]        = $filePath;
+            $file["file_size"]        = 0;
+            $file["file_type"]        = MConst::OBJECT_TYPE_DIRECTORY;
+            $file["parent_file_id"]   = 0;
+            $file["event_uuid"]       = MiniUtil::getEventRandomString(MConst::LEN_EVENT_UUID);
+            $file["mime_type"]        = NULL;
+            MiniFile::getInstance()->create($file,$user['id']);
+        }        
     }
     /**
      * 存储隐藏空间密码  
@@ -143,7 +147,7 @@ class UserBiz  extends MiniBiz{
             //创建隐藏目录
             $this->createHideSpaceDir($user);
             //为隐藏空间生成session
-            unset($_SESSION['valid_hide_space_passwd']);
+            $_SESSION['valid_hide_space_passwd']=1;
             return array('status'=>'ok');
          }
          return array('status'=>'error','msg'=>'has existed');
@@ -180,6 +184,8 @@ class UserBiz  extends MiniBiz{
                 $meta = array('hide_space_passwd'=>strtolower(md5($newPasswd.$salt)));
                 $metas = array('extend'=>$meta);
                 MiniUserMeta::getInstance()->create($user,$metas);
+                //为隐藏空间生成session
+                $_SESSION['valid_hide_space_passwd']=1;
                 return array('status'=>'ok');
            }else{
             return array('status'=>'error','msg'=>'old password invalid');
@@ -230,5 +236,12 @@ class UserBiz  extends MiniBiz{
             }
         }
         return $data;
+    }
+    /**
+     * 锁定隐藏空间
+     */
+    public function lockHideSpace(){
+        unset($_SESSION['valid_hide_space_passwd']);
+        return array('status','ok');
     }
 }

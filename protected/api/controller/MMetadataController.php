@@ -101,9 +101,9 @@ class MMetadataController extends MApplicationComponent implements MIController{
         foreach($fileData as $file){
             $file = MiniFile::getInstance()->getByPath($file['file_path']);
             //把隐藏空间目录直接隐藏
-            // if($file['file_name']==='隐藏空间'){
-            //     continue;
-            // }
+            if($file['file_name']==='隐藏空间'){
+                continue;
+            }
             if(!empty($file)){
                 if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];

@@ -86,6 +86,13 @@ class UserService extends MiniService{
         return $biz->resetHideSpacePassword($oldPasswd,$passwd);
     }
     /**
+     * 重新锁定隐藏空间
+     */
+    public function lockHideSpace(){
+        $biz    = new UserBiz(); 
+        return $biz->lockHideSpace();
+    }
+    /**
      * 管理员重置隐藏空间密码
      */
     public function adminResetHideSpacePassword(){
