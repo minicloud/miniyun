@@ -164,12 +164,13 @@ class PrivilegeBiz  extends MiniBiz{
     }
     /**
      * 保存用户权限
+     * @param $isGroupShare
      * @param $filePath
      * @param $shareModel
      * @param $slaves
      * @return bool
      */
-    public function save($filePath,$shareModel,$slaves){
+    public function save($isGroupShare,$filePath,$shareModel,$slaves){
         $device                   = MUserManager::getInstance()->getCurrentDevice();
         $userDeviceId             = $device["device_id"];
         $this->share_filter       = MSharesFilter::init();
@@ -243,8 +244,11 @@ class PrivilegeBiz  extends MiniBiz{
         } 
         //存储共享模式
         MiniFileMeta::getInstance()->createFileMeta($filePath, "share_model", $shareModel);
+        //保持群共享标记
+        if($isGroupShare){
+            MiniFileMeta::getInstance()->createFileMeta($filePath, "is_group_share", '1');
+        }        
         //todo创建共享事件
-
         $eventAction                    = MConst::SHARE_FOLDER;
         MiniEvent::getInstance()->createEvent(
             $this->user['id'],

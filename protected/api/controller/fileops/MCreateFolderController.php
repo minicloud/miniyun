@@ -76,7 +76,18 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                                         Yii::t('api','The folder name is invalid'),
                                         MConst::HTTP_CODE_400);
         }
-        // 检查是否在共享目录
+        // 检查新建群空间名称是否重复
+        // $isGroupShare = MiniHttp::getParam("group_share", -1)===-1?false:true;
+        $isGroupShare = true;
+        if($isGroupShare){
+            $exists = MiniFile::getInstance()->existsGroupSpace($path);
+            if($exists){
+                throw new MFileopsException(
+                                            Yii::t('api','The group name existed'),
+                                            MConst::HTTP_CODE_403);
+            }
+        }        
+        // 检查是否在共享目录 
         $this->share_filter = MSharesFilter::init();
         if ($this->share_filter->handlerCheck($this->_user_id, $path, MConst::CREATE_DIRECTORY)) {
             $this->_user_id = $this->share_filter->master;
@@ -157,6 +168,10 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                 $this->buildWebResponse($fileName, $path);
             }
             return ;
+        }
+        //如是新建群，则需要为该目录添加额外属性
+        if($isGroupShare){
+            MiniFileMeta::getInstance()->createFileMeta($fileDetail['file_path'], "is_group_share", '1');
         }
         $response                   = array();
         $response["size"]           = "0";

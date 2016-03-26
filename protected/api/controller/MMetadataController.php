@@ -70,6 +70,8 @@ class MMetadataController extends MApplicationComponent implements MIController{
                     echo json_encode($response);exit;
                 }else if($key==='群空间'){
                     // 群空间
+                    $response = $this->handleGroupSpace($includeDeleted);
+                    echo json_encode($response);exit;
                 }
             }
             //个人空间非根目录
@@ -160,6 +162,11 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $ids = array();
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
+                //剔除群空间列表
+                $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
+                if($isInGroupSpace){
+                    continue;
+                }
                 $pathArr = explode('/',$filePath); 
                 $userId = $pathArr[1];
                 $ids[$userId] = $userId; 
@@ -205,6 +212,11 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $fileData = array(); 
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
+                //剔除群空间列表
+                $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
+                if($isInGroupSpace){
+                    continue;
+                }
                 $pathArr = explode('/',$filePath); 
                 $userId = $pathArr[1];
                 if($currentUser['id']==$userId){
@@ -264,6 +276,78 @@ class MMetadataController extends MApplicationComponent implements MIController{
         return $response;
     }
     /**
+     * 处理群空间
+     * @param $includeDeleted 
+     */
+    private function handleGroupSpace($path,$includeDeleted)
+    {
+        $contents         = array();     
+        $user = MUserManager::getInstance()->getCurrentUser(); 
+        //共享者身份获得群空间列表
+        $fileData = MiniFile::getInstance()->getGroupSpaceList($user['id']);
+        //被共享者身份获得群空间列表
+        $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);        
+        foreach($shareFiles as $file){
+            $filePath = $file['file_path']; 
+            //判断该文件是否是群空间的文件
+            $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
+            if($isInGroupSpace){
+                array_push($fileData, $file);
+            }
+        }   
+
+        foreach($fileData as $file){
+            $file = MiniFile::getInstance()->getByPath($file['file_path']); 
+            if(!empty($file)){
+                if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
+                    $filePaths[] = $file['file_path'];
+                }
+            }
+        }
+        $filePaths    = array_unique($filePaths);
+        $userMetaData = MiniUserMeta::getInstance()->getUserMetas($this->userId);
+        $userHidePaths = '';
+        if(!empty($userMetaData['user_hide_path'])){
+            $userHidePaths = unserialize($userMetaData['user_hide_path']);
+        }
+        // 组装子文件数据
+        foreach($filePaths as $filePath){
+            $file = MiniFile::getInstance()->getByFilePath($filePath);
+            $item = array();
+            $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
+            $mimeType = null;
+            $signature = null;
+            if ($version != NULL)
+            {
+                $mimeType = $version["mime_type"];
+                $signature = $version["file_signature"];
+                $file["signature"] = $signature;
+            }
+            $item = $this->assembleResponse($item, $file, $mimeType);
+            if(!empty($item)){
+                if(in_array($filePath,$userHidePaths)){
+                    $item['is_hide_path'] = true;
+                }else{
+                    $item['is_hide_path'] = false;
+                }
+                array_push($contents, $item);
+            }
+        } 
+        $response                           = array();
+        $response["size"]                   = MUtils::getSizeByLocale($this->locale, 0);
+        $response["bytes"]                  = 0;
+        $response["path"]                   = "/";
+        $response["modified"]               = MUtils::formatIntTime(time());
+        $response["revision"]               = 0;
+        $response["rev"]                    = "0";
+        $response["root"]                   = $this->root;
+        $response["is_deleted"]             = false;
+        $response["is_dir"]                 = true;
+        $response["hash"]                   = "";        
+        $response["contents"] = $contents;
+        return $response;
+    }
+    /**
      * 处理根目录下文件查询
      * @param $includeDeleted
      * @return array
@@ -282,38 +366,30 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["is_dir"]                 = true;
         $response["hash"]                   = "";
         $contents         = array();
-        $user             = MUserManager::getInstance()->getCurrentUser();
-        $publicFiles      = MiniFile::getInstance()->getPublics();
-        $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
-        $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]); 
-        $filePaths        = array(); 
-        $shareFiles       = array_merge($publicFiles,$groupShareFiles,$userShareFiles); 
-        // $shareFiles       = array();
+        $user             = MUserManager::getInstance()->getCurrentUser(); 
+        $filePaths        = array();  
         $userFiles        = MiniFile::getInstance()->getChildrenByFileID(
                                                                     $parentFileId=0,
                                                                     $includeDeleted,
                                                                     $user,
-                                                                    $this->userId);
-        $fileData          = array_merge($shareFiles,$userFiles);
-
-        //如果没有文件记录
-        if (empty($publicFiles) && empty($shareFiles) && empty($userFiles)){
-            $response["contents"] = $contents;
-            return $response;
-        }
-        foreach($fileData as $file){
-            $file = MiniFile::getInstance()->getByPath($file['file_path']);
+                                                                    $this->userId);  
+        foreach($userFiles as $file){ 
             //把隐藏空间目录直接隐藏
-            if($file['file_name']==='隐藏空间'){
-                continue;
-            }
+            // if($file['file_name']==='隐藏空间' || $file['file_name']==='共享空间' || $file['file_name']==='群空间' || $file['file_name']==='公共空间'){
+            //     continue;
+            // }
             if(!empty($file)){
+                //群空间文件下的目录，将剔除
+                $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($file['file_path']);
+                if($isInGroupSpace){
+                    continue;
+                }
                 if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];
                 }
             }
         }
-        $filePaths    = array_unique($filePaths);
+        $filePaths    = array_unique($filePaths); 
         $userMetaData = MiniUserMeta::getInstance()->getUserMetas($this->userId);
         $userHidePaths = '';
         if(!empty($userMetaData['user_hide_path'])){

@@ -272,4 +272,15 @@ class MiniFileMeta extends MiniCache{
         }
 
     }
+    /**
+     * 判断文件是否在群空间下
+     * @return bool
+     */
+    public function isInGroupSpace($filePath){
+        $meta = $this->getFileMeta($filePath,'is_group_share');
+        if(isset($meta)){
+            return true;
+        }
+        return false;
+    }
 }

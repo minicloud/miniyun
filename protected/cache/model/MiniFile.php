@@ -1878,4 +1878,50 @@ class MiniFile extends MiniCache{
             $item->save();
         }
     }
+    /**
+     * 获得用户创建的群空间列表
+     */
+    public function getGroupSpaceList($userId){
+        $data = array();
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "file_type<>0 and parent_file_id=0 and user_id=:user_id";
+        $criteria->params    = array("user_id"=>$userId); 
+        $items                = UserFile::model()->findAll($criteria);
+        foreach($items as $item){            
+            $filePath = $item['file_path'];
+            $meta = FileMeta::model()->find("file_path=:file_path AND meta_key='is_group_share'",array("file_path"=>$filePath));
+            if(isset($meta)){
+                array_push($data,$this->db2Item($item));
+            }
+        } 
+        return $data;
+    }
+    /**
+     * 判断群空间名称是否重名
+     * 它是在整个系统判断根文件名是否充分
+     */
+    public function existsGroupSpace($filePath){
+        $pathArr = explode('/',$filePath);
+        $name = '';
+        //针对/xxx场景
+        if(sizeof($pathArr)===2){
+            $name = $pathArr[1];
+        }
+        //针对/1/xxx场景
+        if(sizeof($pathArr)===3){
+            $name = $pathArr[2];
+        }
+        if(empty($name)){
+            return false;
+        }
+        $data = array();
+        $criteria            = new CDbCriteria();
+        $criteria->condition = "parent_file_id=0 and file_name=:file_name";
+        $criteria->params    = array("file_name"=>$name); 
+        $item               = UserFile::model()->find($criteria);
+        if(isset($item)){ 
+            return true;
+        }
+        return false;
+    }
 }
