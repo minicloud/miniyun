@@ -1900,21 +1900,21 @@ class MiniFile extends MiniCache{
      * 判断群空间名称是否重名
      * 它是在整个系统判断根文件名是否充分
      */
-    public function existsGroupSpace($filePath){
-        $pathArr = explode('/',$filePath);
-        $name = '';
-        //针对/xxx场景
-        if(sizeof($pathArr)===2){
-            $name = $pathArr[1];
-        }
-        //针对/1/xxx场景
-        if(sizeof($pathArr)===3){
-            $name = $pathArr[2];
-        }
-        if(empty($name)){
-            return false;
-        }
-        $data = array();
+    public function existsGroupSpace($name){
+        // $pathArr = explode('/',$filePath);
+        // $name = '';
+        // //针对/xxx场景
+        // if(sizeof($pathArr)===2){
+        //     $name = $pathArr[1];
+        // }
+        // //针对/1/xxx场景
+        // if(sizeof($pathArr)===3){
+        //     $name = $pathArr[2];
+        // }
+        // if(empty($name)){
+        //     return false;
+        // }
+        // $data = array();
         $criteria            = new CDbCriteria();
         $criteria->condition = "parent_file_id=0 and file_name=:file_name";
         $criteria->params    = array("file_name"=>$name); 

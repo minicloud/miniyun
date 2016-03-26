@@ -116,4 +116,19 @@ class FileService extends MiniService{
         return $data;
 
     }
+    /**
+     * 检查新建群空间名称是否重复
+     */
+    public function existsGroupSpace(){ 
+        $data = array();
+        $name = MiniHttp::getParam("name","");
+        $exists = MiniFile::getInstance()->existsGroupSpace($name);
+        if($exists){
+            $data['status']='error';
+            $data['msg']='has existed';
+        }else{
+            $data['status']='ok';
+        }
+        return $data;
+    }
 }
