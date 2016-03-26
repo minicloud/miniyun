@@ -379,11 +379,6 @@ class MMetadataController extends MApplicationComponent implements MIController{
             //     continue;
             // }
             if(!empty($file)){
-                //群空间文件下的目录，将剔除
-                $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($file['file_path']);
-                if($isInGroupSpace){
-                    continue;
-                }
                 if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];
                 }
