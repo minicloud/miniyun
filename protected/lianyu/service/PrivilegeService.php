@@ -28,8 +28,8 @@ class PrivilegeService extends MiniService
     {
         $filePath = MiniHttp::getParam("file_path", '');
         //1标记是目录共享，2标记群共享
-        // $isGroupShare = MiniHttp::getParam("group_share", -1)===-1?false:true;
-        $isGroupShare = true;
+        $groupShare = MiniHttp::getParam("group_share", '0');
+        $isGroupShare = $groupShare==='1'?true:false; 
         $shareModel = MiniHttp::getParam("share_model", 'normal');
         $data = MiniHttp::getParam("slaves", array());
         if(count($data)<1){

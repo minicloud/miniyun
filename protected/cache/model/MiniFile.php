@@ -1890,7 +1890,7 @@ class MiniFile extends MiniCache{
         foreach($items as $item){            
             $filePath = $item['file_path'];
             $meta = FileMeta::model()->find("file_path=:file_path AND meta_key='is_group_share'",array("file_path"=>$filePath));
-            if(isset($meta)){
+            if(isset($meta) && $meta->meta_value==='1'){
                 array_push($data,$this->db2Item($item));
             }
         } 
@@ -1900,7 +1900,7 @@ class MiniFile extends MiniCache{
      * 判断群空间名称是否重名
      * 它是在整个系统判断根文件名是否充分
      */
-    public function existsGroupSpace($name){
+    public function existsGroupSpace($userId,$name){
         // $pathArr = explode('/',$filePath);
         // $name = '';
         // //针对/xxx场景
@@ -1916,8 +1916,8 @@ class MiniFile extends MiniCache{
         // }
         // $data = array();
         $criteria            = new CDbCriteria();
-        $criteria->condition = "parent_file_id=0 and file_name=:file_name";
-        $criteria->params    = array("file_name"=>$name); 
+        $criteria->condition = "parent_file_id=0 and file_name=:file_name and user_id<>:user_id";
+        $criteria->params    = array("file_name"=>$name,"user_id"=>$userId);  
         $item               = UserFile::model()->find($criteria);
         if(isset($item)){ 
             return true;

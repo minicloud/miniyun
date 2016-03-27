@@ -199,6 +199,9 @@ class FileManageBiz extends MiniBiz{
         $folders = MiniFile::getInstance()->getChildrenFolderByParentId($userId,0,0);
         $folderArr = array();
         foreach($folders as $folder){
+            if($folder['file_name']==='隐藏空间'){
+                continue;
+            }
             $publicFolderPrivilege = MiniGroupPrivilege::getInstance()->getByPublicPath($folder['file_path']);
             $folder['privilege'] = $publicFolderPrivilege;
             array_push($folderArr,$folder);

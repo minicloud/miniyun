@@ -278,7 +278,7 @@ class MiniFileMeta extends MiniCache{
      */
     public function isInGroupSpace($filePath){
         $meta = $this->getFileMeta($filePath,'is_group_share');
-        if(isset($meta)){
+        if(!empty($meta)&&$meta['meta_value']==='1'){
             return true;
         }
         return false;

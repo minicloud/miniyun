@@ -59,7 +59,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
             echo json_encode($response);exit;
         }else{
             if(sizeof($pathPart)>2){
-                $key = $pathPart[2];            
+                $key = $pathPart[2];      
                 if($key==='公共空间'){
                     // 公共空间
                     $response = $this->handlePublicSpace($includeDeleted);
@@ -153,12 +153,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
      */
     private function handleShareSpace($path,$includeDeleted)
     {
-        $pathPart = explode('/',$path); 
+        $pathPart = explode('/',$path);  
         $contents         = array(); 
         if(sizeof($pathPart)===3){
             //共享空间第一层目录：用户列表
             $user = MUserManager::getInstance()->getCurrentUser();
-            $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
+            $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]); 
             $ids = array();
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
@@ -367,33 +367,44 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["hash"]                   = "";
         $contents         = array();
         $user             = MUserManager::getInstance()->getCurrentUser(); 
-        $filePaths        = array();  
         $userFiles        = MiniFile::getInstance()->getChildrenByFileID(
                                                                     $parentFileId=0,
                                                                     $includeDeleted,
                                                                     $user,
                                                                     $this->userId);  
+        if(MiniHttp::isPCClient()||!MiniHttp::clientIsBrowser()){
+            //非浏览器模式下，暂时不支持空间划分
+            $publicFiles      = MiniFile::getInstance()->getPublics();
+            $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
+            $userShareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]); 
+            $shareFiles       = array_merge($publicFiles,$groupShareFiles,$userShareFiles); 
+            $userFiles        = array_merge($shareFiles,$userFiles); 
+        }      
+        $filePaths        = array();  
         foreach($userFiles as $file){ 
             //把隐藏空间目录直接隐藏
-            // if($file['file_name']==='隐藏空间' || $file['file_name']==='共享空间' || $file['file_name']==='群空间' || $file['file_name']==='公共空间'){
-            //     continue;
-            // }
+            if($file['file_name']==='隐藏空间' || $file['file_name']==='共享空间' || $file['file_name']==='群空间' || $file['file_name']==='公共空间'){
+                continue;
+            }
             if(!empty($file)){
                 if((($file['parent_file_id'] == 0) && $file['is_deleted'] == 0) || (($file['file_type'] == 2)&&($file['user_id'] != $this->userId))){
                     $filePaths[] = $file['file_path'];
                 }
             }
         }
-        $filePaths    = array_unique($filePaths); 
+        $filePaths    = array_unique($filePaths);  
         $userMetaData = MiniUserMeta::getInstance()->getUserMetas($this->userId);
         $userHidePaths = '';
         if(!empty($userMetaData['user_hide_path'])){
             $userHidePaths = unserialize($userMetaData['user_hide_path']);
-        }
+        }  
         // 组装子文件数据
-        foreach($filePaths as $filePath){
+        foreach($filePaths as $filePath){ 
             $file = MiniFile::getInstance()->getByFilePath($filePath);
-            $item = array();
+            if(empty($file)){
+                continue;
+            }
+            $item = array(); 
             $version = MiniVersion::getInstance()->getVersion($file["version_id"]);
             $mimeType = null;
             $signature = null;
@@ -531,8 +542,14 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $response["hash"]                   = !empty($file["signature"])? $file["signature"] : "";
         $response["event"]                  = $file["event_uuid"];
         $response["sort"]                   = (int)$file["sort"];
+        //区别群空间
+        $meta = MiniFileMeta::getInstance()->getFileMeta($file['file_path'],'is_group_share');
+        if(!empty($meta) && $meta['meta_value']==='1'){
+            $response["is_group_share"] = true;
+        }else{
+            $response["is_group_share"] = false;
+        }
         //外链Key
-
         $link = MiniLink::getInstance()->getByFileId($file['id']);
         if(empty($link['share_key'])){
             $response["share_key"] = '';

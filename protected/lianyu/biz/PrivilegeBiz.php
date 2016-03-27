@@ -247,6 +247,8 @@ class PrivilegeBiz  extends MiniBiz{
         //保持群共享标记
         if($isGroupShare){
             MiniFileMeta::getInstance()->createFileMeta($filePath, "is_group_share", '1');
+        }else{
+             MiniFileMeta::getInstance()->createFileMeta($filePath, "is_group_share", '0');
         }        
         //todo创建共享事件
         $eventAction                    = MConst::SHARE_FOLDER;
@@ -343,6 +345,8 @@ class PrivilegeBiz  extends MiniBiz{
          
         //把共享目录下的共享目录设置记录删除
         MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath,"share_model");
+        //把是否是群空间共享记录删除
+        MiniFileMeta::getInstance()->deleteFileMetaByPath($filePath,"is_group_share");
         // 为每个共享用户创建事件
         $this->share_filter->handlerAction($eventAction, $userDeviceId, $filePath, $filePath);
         return true;

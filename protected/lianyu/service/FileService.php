@@ -121,8 +121,9 @@ class FileService extends MiniService{
      */
     public function existsGroupSpace(){ 
         $data = array();
+        $user = MUserManager::getInstance()->getCurrentUser();
         $name = MiniHttp::getParam("name","");
-        $exists = MiniFile::getInstance()->existsGroupSpace($name);
+        $exists = MiniFile::getInstance()->existsGroupSpace($user['id'],$name);
         if($exists){
             $data['status']='error';
             $data['msg']='has existed';

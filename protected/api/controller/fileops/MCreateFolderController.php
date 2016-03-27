@@ -157,11 +157,7 @@ class MCreateFolderController extends MApplicationComponent implements MIControl
                 $this->buildWebResponse($fileName, $path);
             }
             return ;
-        }
-        //如是新建群，则需要为该目录添加额外属性
-        if($isGroupShare){
-            MiniFileMeta::getInstance()->createFileMeta($fileDetail['file_path'], "is_group_share", '1');
-        }
+        } 
         $response                   = array();
         $response["size"]           = "0";
         $response["thumb_exists"]   = false;
