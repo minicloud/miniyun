@@ -315,6 +315,11 @@ class MiniFile extends MiniCache{
         if (!isset($file["version_id"])){
             $file["version_id"] = 0;
         }
+        //避免重复创建同名文件
+        $oldFile = $this->getByPath($file["file_path"]);
+        if(!empty($oldFile)){
+            return $oldFile;
+        }
         $file["event_uuid"]      = MiniUtil::getEventRandomString( MConst::LEN_EVENT_UUID );
         $item                    = new UserFile();
         $item->user_id           = $userId;
