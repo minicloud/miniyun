@@ -158,7 +158,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         if(sizeof($pathPart)===3){
             //共享空间第一层目录：用户列表
             $user = MUserManager::getInstance()->getCurrentUser();
+            //获得群共享与部门共享列表
+            $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
+            //被共享者身份获得群空间列表
             $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]); 
+            //合并
+            $shareFiles       = array_merge($groupShareFiles,$shareFiles);  
             $ids = array();
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
@@ -285,8 +290,12 @@ class MMetadataController extends MApplicationComponent implements MIController{
         $user = MUserManager::getInstance()->getCurrentUser(); 
         //共享者身份获得群空间列表
         $fileData = MiniFile::getInstance()->getGroupSpaceList($user['id']);
+        //获得群共享与部门共享列表
+        $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
         //被共享者身份获得群空间列表
-        $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);        
+        $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);  
+        //合并
+        $shareFiles       = array_merge($groupShareFiles,$shareFiles);      
         foreach($shareFiles as $file){
             $filePath = $file['file_path']; 
             //判断该文件是否是群空间的文件
