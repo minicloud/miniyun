@@ -167,14 +167,21 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $ids = array();
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
-                //剔除群空间列表
-                $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
-                if($isInGroupSpace){
-                    continue;
+                $file = MiniFile::getInstance()->getByPath($filePath); 
+                //剔除公共目录
+                if(!empty($file) && $file['file_type']==='2'){
+                    $permission = UserPermissionBiz::getInstance()->getPermission($filePath,$user["id"]);
+                    if(!empty($permission)){ 
+                        //剔除群空间列表
+                        $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
+                        if($isInGroupSpace){
+                            continue;
+                        }
+                        $pathArr = explode('/',$filePath); 
+                        $userId = $pathArr[1];
+                        $ids[$userId] = $userId; 
+                    } 
                 }
-                $pathArr = explode('/',$filePath); 
-                $userId = $pathArr[1];
-                $ids[$userId] = $userId; 
             }   
             //把用户名换成目录名称
             foreach($ids as $userId){ 
