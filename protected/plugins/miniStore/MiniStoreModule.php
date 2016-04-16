@@ -45,16 +45,15 @@ class MiniStoreModule extends MiniPluginModule {
      * @param array $params
      * @return string
      */
-    function cacheFile($params){
-        $signature = $params["signature"];
+    function cacheFile($signature){ 
         $saveFolder = MINIYUN_PATH."/assets/miniStore/";
-        $filePath = $saveFolder.$signature;
+        $filePath = $saveFolder.$signature; 
         if(!file_exists($filePath)){
             if(!file_exists($saveFolder)){
                 mkdir($saveFolder);
-            }
+            } 
             //把文件下载到本地
-            $url = $this->getDownloadUrl($signature); 
+            $url = $this->getDownloadUrl($signature);   
             file_put_contents($filePath,file_get_contents($url));
         }
         return $filePath;
