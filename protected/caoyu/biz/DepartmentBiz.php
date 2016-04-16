@@ -16,11 +16,22 @@ class DepartmentBiz extends MiniBiz{
         $userId = $this->userId;
         $departmentId = MiniGroup::getInstance()->create($departmentName,$userId,$parentDepartmentId);
         return $departmentId;
-    }
+    } 
     /**
      * 删除部门
      */
     public function delete($departmentId){
+        //检查是否有子部门
+        $children = MiniGroup::getInstance()->getChildren($departmentId);
+        if(sizeof($children)>0){
+            return array('success'=>false,'msg'=>'has child department'); 
+        }
+        //检查部门下是否有子用户
+        $childrenUsers = MiniUserGroupRelation::getInstance()->getByGroupId($departmentId);
+        if(sizeof($childrenUsers)>0){
+            return array('success'=>false,'msg'=>'has bind user'); 
+        }
+        //删除部门与相关数据
         $userId = $this->userId;
         $result = MiniGroup::getInstance()->deleteByDepartmentId($departmentId,$userId);
         if($result['success']==true){
@@ -35,18 +46,26 @@ class DepartmentBiz extends MiniBiz{
     /**
      * 更改部门名称
      */
-    public function rename($departmentId,$newDepartmentName){
-        $userId = $this->userId;
-        $result = MiniGroup::getInstance()->getById($departmentId);
-        $oldDepartmentName = $result['group_name'];
-        $result = MiniGroup::getInstance()->rename($oldDepartmentName,$newDepartmentName,$userId);
-        return $result;
+    public function rename($departmentId,$newDepartmentName){ 
+        $isOk = MiniGroup::getInstance()->renameDepartment($departmentId,$newDepartmentName);
+        if($isOk){
+            return array('success'=>true,'msg'=>'success');
+        }else{
+            return array('success'=>false,'msg'=>'name existed');
+        } 
     }
     /**
      * 部门列表
      */
-    public function getList(){
-        $data = MiniGroup::getInstance()->getTreeNodes(-1);
+    public function getList($departmentId){
+        $data = MiniGroup::getInstance()->getChildren($departmentId);
+        return $data;
+    }
+    /**
+     * 子用户列表
+     */
+    public function getUserList($departmentId){
+        $data = MiniGroup::getInstance()->getUserList($departmentId);
         return $data;
     }
     /**
@@ -113,6 +132,7 @@ class DepartmentBiz extends MiniBiz{
         foreach($users as $user){
             $item['id'] = $user['id'];
             $item['user_name'] = $user['nick'];
+            $item['user_name_pinyin'] = $user['user_name_pinyin']; 
             $data[] = $item;
         }
         return array('success'=>true,'msg'=>'success','unbindUsers'=>$data,'total'=>$total);
