@@ -100,6 +100,7 @@ class MiniUser extends MiniCache{
             $user["email"]          = "";
             $user["space"]          = MUtils::defaultTotalSize();
             $user["is_admin"]       = false;
+            $user["user_name_pinyin"] = $item->user_name_pinyin;
             $metas                  = MiniUserMeta::getInstance()->getUserMetas($user["id"]);
             foreach ($metas as $key=>$value){
                 if($key==="nick"){
@@ -122,7 +123,7 @@ class MiniUser extends MiniCache{
                 }
                 if($key==='file_sort_order'){
                     $user["file_sort_order"]   = $value;
-                }
+                } 
             }
             //获得用户头像，如本地没有图片，则重新下载原始图片
             if(array_key_exists("avatar", $metas)){
