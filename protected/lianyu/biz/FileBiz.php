@@ -129,8 +129,7 @@ class FileBiz  extends MiniBiz{
         foreach($paths as $path){
             $file = MiniFile::getInstance()->getByPath($path);
             if (empty($file)){
-                echo  "批量下载的文件存在不存在的文件";
-                exit;
+                continue;
             }
             $code = $code.','.$file['id'] ;
             array_push($fileNames,$file['file_name']);
