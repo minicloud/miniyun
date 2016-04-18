@@ -45,7 +45,7 @@ class MiniStoreModule extends MiniPluginModule {
      * @param array $params
      * @return string
      */
-    function cacheFile($signature){ 
+    function cacheFile($param){ 
         if(is_string($param)){
             $signature = $param;
         }else{
