@@ -46,6 +46,11 @@ class MiniStoreModule extends MiniPluginModule {
      * @return string
      */
     function cacheFile($signature){ 
+        if(is_string($param)){
+            $signature = $param;
+        }else{
+            $signature = $param['signature'];
+        }
         $saveFolder = MINIYUN_PATH."/assets/miniStore/";
         $filePath = $saveFolder.$signature; 
         if(!file_exists($filePath)){
