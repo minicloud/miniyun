@@ -80,6 +80,7 @@ class MiniUser extends MiniCache{
             $user                   = array();
             $user["id"]             = $item->id;
             $user["user_id"]        = $item->id;
+            $user["company_id"]     = $item->company_id;
             $user["user_uuid"]      = $item->user_uuid;
             $user["user_name"]      = $item->user_name;
             $user["user_pass"]      = $item->user_pass;

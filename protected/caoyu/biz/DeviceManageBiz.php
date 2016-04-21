@@ -94,19 +94,20 @@ class DeviceManageBiz extends MiniBiz{
      *根据用户名或设备名查找设备信息
      */
     public function searchDevicesByName($key,$pageSize,$currentPage){
+            $companyId = $_SESSION['company_id'];
             $ids = '';
             $sql_str = "select mud.id from ".DB_PREFIX. "_user_devices mud";
-            $sql_str .= " where mud.user_device_name like \"%$key%\"";
+            $sql_str .= " where mud.user_device_name like \"%$key%\" and mud.company_id={$companyId}";
             $sql = Yii::app()->db->createCommand( $sql_str );
             $byDeviceName = $sql->queryAll ();
 
             $sql_str = " select mud.id from ".DB_PREFIX. "_user_devices mud,".DB_PREFIX. "_users mu";
-            $sql_str .= " where mud.user_id=mu.id and mu.user_name like \"%$key%\"";
+            $sql_str .= " where mud.user_id=mu.id and mu.user_name like \"%$key%\" and mud.company_id={$companyId}";
             $sql = Yii::app()->db->createCommand( $sql_str );
             $byUserName = $sql->queryAll();
 
             $sql_str = " select mud.id from ".DB_PREFIX. "_user_devices mud,".DB_PREFIX. "_user_metas mum";
-            $sql_str .= " where mud.user_id=mum.user_id and mum.meta_key='nick' and mum.meta_value like \"%$key%\"";
+            $sql_str .= " where mud.user_id=mum.user_id and mum.meta_key='nick' and mum.meta_value like \"%$key%\" and mud.company_id={$companyId}";
             $sql = Yii::app()->db->createCommand( $sql_str );
             $byNick = $sql->queryAll();
 

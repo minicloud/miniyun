@@ -25,11 +25,66 @@ class CMiniyunModel extends CActiveRecord
         $data = date("Y-m-d H:i:s",time());
         if ($this->isNewRecord)
         {
+            //如果目标表有company_id字段，自动添加记录
+            $abs = $this->attributes;
+            if(array_key_exists('company_id', $abs)){
+                $companyId = $_SESSION['company_id']; 
+                if(isset($companyId)){ 
+                    $companyId = intval($companyId);
+                    $this->company_id = intval($companyId);
+                }
+            }
             $this->created_at = $data;
         }
-        $this->updated_at = $data;
+        $this->updated_at = $data; 
         return true;
 
+    }
+    /**
+     * 存储前的时间补全, 密码加密
+     * @see CActiveRecord::beforeSave()
+     */
+    public function beforeFind()
+    {
+        $abs = $this->attributes; 
+        if(array_key_exists('company_id', $abs)){
+            if(empty($_SESSION)) return;
+            $companyId = $_SESSION['company_id']; 
+            if(isset($companyId)){ 
+                //如果目标表有company_id字段，自动添加过滤条件
+                $companyId = intval($companyId);
+                $criteria= $this->getDbCriteria(); 
+                $criteria->addCondition("company_id =".$companyId,"and"); 
+            }
+        } 
+    }
+    public function beforeCount()
+    {
+        $abs = $this->attributes;
+        if(array_key_exists('company_id', $abs))
+        {
+            if(empty($_SESSION)) return;
+            $companyId = $_SESSION['company_id'];
+            if(isset($companyId)){ 
+                //如果目标表有company_id字段，自动添加过滤条件
+                $companyId = intval($companyId);
+                $criteria= $this->getDbCriteria();
+                $criteria->addCondition("company_id =".$companyId,"and");
+            }            
+        } 
+    }
+    public function beforeDelete(){
+        $abs = $this->attributes; 
+        if(array_key_exists('company_id', $abs)){
+            if(empty($_SESSION)) return;
+            $companyId = $_SESSION['company_id'];
+            if(isset($companyId)){ 
+                //如果目标表有company_id字段，自动添加过滤条件
+                $companyId = intval($companyId);
+                $criteria= $this->getDbCriteria(); 
+                $criteria->addCondition("company_id =".$companyId,"and"); 
+            }            
+        }
     }
     /**
      *

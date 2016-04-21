@@ -28,7 +28,7 @@ class MiniStoreModule extends MiniPluginModule {
         //获得文件内容
         add_filter("file_content",array($this, "fileContent"));
         //图片缩略图
-        add_filter("image_path",array($this,"cacheFile"));
+        add_filter("image_path",array($this,"thumbnail"));
         //文件上传
         add_filter("upload_start",array($this,"start"));
         //文件秒传
@@ -37,34 +37,22 @@ class MiniStoreModule extends MiniPluginModule {
         add_filter("upload_end",array($this,"end"));
 
     }
-    private function getDownloadUrl($signature){
-        return PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,"image.jpg","application/octet-stream",1);     
-    }
     /**
      * 获得文件的缩略图
      * @param array $params
      * @return string
      */
-    function cacheFile($params){
-        $signature = $params["signature"];
-        $saveFolder = MINIYUN_PATH."/assets/miniStore/";
-        $filePath = $saveFolder.$signature;
-        if(!file_exists($filePath)){
-            if(!file_exists($saveFolder)){
-                mkdir($saveFolder);
-            }
-            //把文件下载到本地
-            $url = $this->getDownloadUrl($signature); 
-            file_put_contents($filePath,file_get_contents($url));
-        }
-        return $filePath;
+    function thumbnail($params){ 
+        $url =  PluginMiniStoreNode::getInstance()->getThumbnailUrl($params); 
+        header('Location: '.$url);
+        exit;
     }
     /**
      * 获得文件下载地址
      * @param array $params
      * @return string
      */
-    function fileDownloadUrl($params){
+    function fileDownloadUrl($params){  
         $signature = $params["signature"];
         $fileName = $params["file_name"];
         $mimeType = $params["mime_type"];
@@ -159,6 +147,7 @@ class MiniStoreModule extends MiniPluginModule {
     */
     public function end(){       
         $user = MUserManager::getInstance()->getCurrentUser();
+        $_SESSION['company_id'] = $user['company_id']; 
         $hash = MiniHttp::getParam('hash','');
         $hash = strtolower($hash);
         //防止重复文件通过网页上传，生成多条记录
@@ -169,8 +158,10 @@ class MiniStoreModule extends MiniPluginModule {
                 $type =MiniHttp::getParam('mime_type','');
                 $size = MiniHttp::getParam('size',0);
                 $nodeId = MiniHttp::getParam('node_id',0);
+                $bucketPath = MiniHttp::getParam('bucket_path','');
                 $version = MiniVersion::getInstance()->create($hash, $size, $type);
                 MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
+                MiniVersionMeta::getInstance()->create($version["id"],"bucket_path",$bucketPath);
                 //更新迷你存储节点状态，把新上传的文件数+1
                 PluginMiniStoreNode::getInstance()->newUploadFile($nodeId);
             } 
@@ -199,17 +190,28 @@ class MiniStoreModule extends MiniPluginModule {
         } 
     }
     /**
+    *把/1/xxx 替换为 /xxx
+    */ 
+    private function getBucketPath($user,$path){ 
+        $prefix = '/'.$user['id'].'/';
+        $path = str_replace($prefix,'/', $path);
+        $bucketPath = 'minicloud/'.$user['user_name'].$path;
+        return $bucketPath;
+    }
+    /**
     *文件开始上传，先要获得上传需要的上下文信息
     */
     public function start(){
-        $storeNode = PluginMiniStoreNode::getInstance()->getUploadNode();
-
         $user = MUserManager::getInstance()->getCurrentUser();  
+        $_SESSION['company_id'] = $user['company_id']; 
+
+        $storeNode = PluginMiniStoreNode::getInstance()->getUploadNode();     
         $path = MiniHttp::getParam('path','/'); 
         $token = MiniHttp::getParam('access_token','');
         //存储路径
         $miniyunPath = $path;
-        $bucketPath = '迷你云/'.$user['user_name'].$path;
+        //把/1/xxx 替换为 /xxx
+        $bucketPath = $this->getBucketPath($user,$path);
         //OSS相关信息
         $id= 'WPkFoYluMvInP9Eu';
         $key= $storeNode['safe_code'];
@@ -250,7 +252,7 @@ class MiniStoreModule extends MiniPluginModule {
         //上传策略信息
         $uploadContext = array();
         $uploadContext['accessid'] = $id;
-        $uploadContext['host'] = $bucketHost;
+        $uploadContext['host'] = $bucketHost.'api/v1/file/upload?name='.$user['user_name'];
         $uploadContext['policy'] = $base64_policy;
         $uploadContext['signature'] = $signature;
         $uploadContext['expire'] = $end;

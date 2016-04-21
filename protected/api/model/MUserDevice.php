@@ -19,8 +19,9 @@ class MUserDevice extends MModel
 	 * @return mixed $value 返回最终需要执行完的结果
 	 */
 	public function queryUserDeviceByDeviceUUID($device_uuid) {
+		$companyId = $_SESSION['company_id'];
 		$db = MDbManager::getInstance();
-		$sql = "select * from ".DB_PREFIX."_user_devices where user_device_uuid=\"{$device_uuid}\"";
+		$sql = "select * from ".DB_PREFIX."_user_devices where user_device_uuid=\"{$device_uuid}\" and company_id={$companyId}";
 		$db_data = $db->selectDb($sql);
 
 		if (empty($db_data)){
@@ -35,8 +36,9 @@ class MUserDevice extends MModel
 	 * @param $device_uuid
 	 */
 	public static function queryUserDeviceByDeviceUUIDAndUserID($user_id, $device_uuid) {
+		$companyId = $_SESSION['company_id'];
 		$db = MDbManager::getInstance();
-		$sql = "select * from " . DB_PREFIX . "_user_devices where user_id = {$user_id} " . "and user_device_uuid = \"{$device_uuid}\"";
+		$sql = "select * from " . DB_PREFIX . "_user_devices where user_id = {$user_id} " . "and user_device_uuid = \"{$device_uuid}\" and company_id={$companyId}";
 		$db_data = $db->selectDb($sql);
 
 		return $db_data;
@@ -49,8 +51,9 @@ class MUserDevice extends MModel
 	 * @return object $device 返回用户的设备信息
 	 */
 	public function queryUserDeviceById($id) {
+		$companyId = $_SESSION['company_id'];
 		$db = MDbManager::getInstance();
-		$sql = "select * from ".DB_PREFIX."_user_devices where id=$id";
+		$sql = "select * from ".DB_PREFIX."_user_devices where id=$id and company_id={$companyId}";
 		$db_data = $db->selectDb($sql);
 
 		if (empty($db_data)){
@@ -70,6 +73,7 @@ class MUserDevice extends MModel
 	 * @return mixed $value 返回true/false
 	 */
 	public function addUserDevices($user_id, $device_uuid, $device_type, $device_info, $device_name) {
+		$companyId = $_SESSION['company_id'];
 		$key        = "user_device_delete_record";
 		$db_manager = MDbManager::getInstance();
 		$value      = MiniOption::getInstance()->getOptionValue($key);
@@ -85,12 +89,12 @@ class MUserDevice extends MModel
 		}
 		if($id==""){
 			$created_at = $updated_at = date("Y-m-d H:i:s", time());
-			$sql = "INSERT INTO ".DB_PREFIX."_user_devices(user_id, user_device_type, user_device_name, user_device_info, user_device_uuid, created_at, updated_at)".
-               " VALUES ($user_id, $device_type, \"{$device_name}\", \"{$device_info}\", \"{$device_uuid}\", \"{$created_at}\", \"{$updated_at}\")";
+			$sql = "INSERT INTO ".DB_PREFIX."_user_devices(user_id, user_device_type, user_device_name, user_device_info, user_device_uuid, created_at, updated_at,company_id)".
+               " VALUES ($user_id, $device_type, \"{$device_name}\", \"{$device_info}\", \"{$device_uuid}\", \"{$created_at}\", \"{$updated_at}\"),{$companyId}";
 		}else{
 			$created_at = $updated_at = date("Y-m-d H:i:s", time());
-			$sql = "INSERT INTO ".DB_PREFIX."_user_devices(id,user_id, user_device_type, user_device_name, user_device_info, user_device_uuid, created_at, updated_at)".
-               " VALUES ($id,$user_id, $device_type, \"{$device_name}\", \"{$device_info}\", \"{$device_uuid}\", \"{$created_at}\", \"{$updated_at}\")";
+			$sql = "INSERT INTO ".DB_PREFIX."_user_devices(id,user_id, user_device_type, user_device_name, user_device_info, user_device_uuid, created_at, updated_at,company_id)".
+               " VALUES ($id,$user_id, $device_type, \"{$device_name}\", \"{$device_info}\", \"{$device_uuid}\", \"{$created_at}\", \"{$updated_at}\",$companyId)";
 		}
 		try {
 			$db_manager->insertDb($sql);
@@ -127,10 +131,11 @@ class MUserDevice extends MModel
 	 * @param $device_id 设备id
 	 */
 	public static function deleteUserDeviceById($device_id) {
+		$companyId = $_SESSION['company_id'];
 		$db_manager = MDbManager::getInstance();
-		$sql = "delete from " . DB_PREFIX . "_user_devices where id = {$device_id}";
+		$sql = "delete from " . DB_PREFIX . "_user_devices where id = {$device_id} and company_id={$companyId}";
 		$db_manager->deleteDb($sql);
-		$sql = "delete from " . DB_PREFIX . "_server_token where ost_usa_id_ref = {$device_id}";
+		$sql = "delete from " . DB_PREFIX . "_server_token where ost_usa_id_ref = {$device_id} and company_id={$companyId}";
 		$db_manager->deleteDb($sql);
 	}
 }

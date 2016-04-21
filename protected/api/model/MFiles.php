@@ -30,6 +30,7 @@ class MFiles extends MModel {
      * @return file  数据库对应的文件信息，结构查看数据库
      */
     public static function queryFilesByPath($path, $is_deleted = false) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance ();
         //
         // 由于传入参数True,False转换整数，不正确需要这样转换(如：python的get metadata请求)
@@ -41,7 +42,7 @@ class MFiles extends MModel {
         }
         
         $sql = "select * from " . DB_PREFIX . "_files where file_path=\"{$path}\" ";
-        $sql .= "AND is_deleted={$is_deleted}";
+        $sql .= "AND is_deleted={$is_deleted} and company_id={$companyId}";
         Yii::trace("function: '{__FUNCTION__}',sql:'{$sql}'");
         
         return $db_manager->selectDb ( $sql );
@@ -51,9 +52,10 @@ class MFiles extends MModel {
      * 创建元数据对象
      */
     public static function CreateFileDetail($file_detail, $user_id) {
+        $companyId = $_SESSION['company_id'];
         $sql = "insert into " . DB_PREFIX . "_files(user_id,file_type,parent_file_id,";
         $sql .= "file_create_time,file_update_time,file_name,version_id,";
-        $sql .= "file_size,file_path,event_uuid,mime_type,created_at,updated_at,file_name_pinyin) values ";
+        $sql .= "file_size,file_path,event_uuid,mime_type,created_at,updated_at,file_name_pinyin,company_id) values ";        
         //
         // 新建对象，需要生成对应的长度信息
         //
@@ -75,18 +77,13 @@ class MFiles extends MModel {
         } else {
             $sql .= "\"{$file_detail->mime_type}\",";
         }
-        $sql .= "now(),now(),'".MiniUtil::getPinYinByName($file_detail->file_name)."')";
+        $sql .= "now(),now(),'".MiniUtil::getPinYinByName($file_detail->file_name)."',".$companyId.")";
         $db_manager = MDbManager::getInstance ();
         $result = $db_manager->insertDb ( $sql );
         if ($result === false) {
             return false;
         }
-        
-        //
-        // 修复sort值为id值，确保唯一
-        //
-        $sql = "update  ".DB_PREFIX."_files set sort=id where sort=0";
-        $db_manager->insertDb($sql);
+         
         return $file_detail;
     }
     
@@ -96,9 +93,10 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function updateRemoveFileDetail($file_detail) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
         $sql = "UPDATE " . DB_PREFIX . "_files SET updated_at=now(), is_deleted = 1 ";
-        $sql .= "WHERE file_path = \"{$file_detail->file_path}\" ";
+        $sql .= "WHERE file_path = \"{$file_detail->file_path}\" and company_id={$companyId}";
         Yii::trace ( "handleRemoveObject: " . $sql );
         return $db_manager->updateDb ( $sql );
     }
@@ -107,6 +105,7 @@ class MFiles extends MModel {
      * 更新元数据对象
      */
     public static function updateFileDetailById($id, $updates = array()) {
+        $companyId = $_SESSION['company_id'];
         $sql = "UPDATE " . DB_PREFIX . "_files SET ";
         foreach ( $updates as $k => $v ) {
             if (is_string ( $v )) {
@@ -116,7 +115,7 @@ class MFiles extends MModel {
             }
             $sql .= ",";
         }
-        $sql .= "updated_at=now() WHERE id=$id";
+        $sql .= "updated_at=now() WHERE id=$id and company_id={$companyId}";
         Yii::trace ( "function: '{updateFileDetailById}',sql:'{$sql}'" );
         $db_manager = MDbManager::getInstance ();
         return $db_manager->updateDb ( $sql );
@@ -126,8 +125,9 @@ class MFiles extends MModel {
      * 根据父亲目录id获取子对象
      */
     public static function queryChildrenByParentId($userId,$parent_file_id, $is_deleted = false) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "_files WHERE parent_file_id=$parent_file_id";
-        $sql .= " AND user_id=$userId AND is_deleted=";
+        $companyId = $_SESSION['company_id'];
+        $sql = "SELECT * FROM " . DB_PREFIX . "_files WHERE company_id={$companyId} and parent_file_id={$parent_file_id}";
+        $sql .= " AND user_id={$userId} AND is_deleted=";
         $sql .= ( int ) $is_deleted;
         Yii::trace ( "function: '{__FUNCTION__}',sql:'{$sql}'" );
         $result = mysql_query ( $sql );
@@ -158,10 +158,11 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function updateRemoveChildrenFile($path) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance ();
         $path .= "/";
         $sql = "UPDATE ".DB_PREFIX."_files SET updated_at=now(),is_deleted = 1 ";
-        $sql .= "WHERE file_path like \"{$path}%\" ";
+        $sql .= "WHERE file_path like \"{$path}%\" and company_id={$companyId}";
         Yii::trace ( "handleRemoveObject: " . $sql );
         return $db_manager->updateDb ( $sql );
     }
@@ -173,6 +174,7 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function updateMoveChildrenFileDetail($user_id, $file_detail) {
+        $companyId = $_SESSION['company_id'];
         $relative_path = $file_detail->file_path;
         $relative_path .= "/";
         $from_path = $file_detail->from_path;
@@ -188,7 +190,7 @@ class MFiles extends MModel {
             $sql .= "CONCAT(\"$relative_path\", SUBSTRING(file_path,CHAR_LENGTH(\"$from_path\") + 1))";
         }
         $sql .= ",user_id={$file_detail->user_id} ";
-        $sql .= " WHERE file_path like \"$from_path%\" and user_id = {$user_id}";
+        $sql .= " WHERE file_path like \"$from_path%\" and user_id = {$user_id} and company_id={$companyId}";
         Yii::trace ( "handleRemoveObject: " . $sql );
         return $db_manager->updateDb ( $sql );
     }
@@ -200,6 +202,7 @@ class MFiles extends MModel {
      */
     public static function updateMoveFileDetail($file_detail)
     {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
         $sql = "UPDATE ".DB_PREFIX."_files SET updated_at=now(),file_path = \"{$file_detail->file_path}\", ";
         $sql .= " parent_file_id = {$file_detail->parent_file_id}, ";
@@ -211,13 +214,14 @@ class MFiles extends MModel {
         } else {
             $sql .= "mime_type=\"{$file_detail->mime_type}\" ";
         }
-        $sql .= "WHERE id = {$file_detail->id}";
+        $sql .= "WHERE id = {$file_detail->id} and company_id={$companyId}";
         Yii::trace ( "handleRemoveObject: " . $sql );
         return $db_manager->updateDb ( $sql );
     }
     
     public static function queryFileById($id) {
-        $sql = "SELECT * FROM " . DB_PREFIX . "_files WHERE id={$id}";
+        $companyId = $_SESSION['company_id'];
+        $sql = "SELECT * FROM " . DB_PREFIX . "_files WHERE id={$id} and company_id={$companyId}";
         Yii::trace ( "function: '{queryFileById}',sql:'{$sql}'" );
         $db_manager = MDbManager::getInstance ();
         return $db_manager->selectDb ( $sql );
@@ -229,9 +233,10 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function queryChildrenFilesByPath($path, $is_sort=false, $is_deleted=-1) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
         $path .= "/";
-        $sql = "select * from ".DB_PREFIX."_files where file_path like \"{$path}%\" ";
+        $sql = "select * from ".DB_PREFIX."_files where company_id={$companyId} and file_path like \"{$path}%\" ";
         if ($is_deleted != -1) {
             $is_deleted = intval($is_deleted);
             $sql .= "AND is_deleted={$is_deleted}";
@@ -251,10 +256,11 @@ class MFiles extends MModel {
      */
     public static function batchCreateFileDetails($user_id, $file_details)
     {
+        $companyId = $_SESSION['company_id'];
         $driver = Yii::app()->db->driverName;
         $sql  = "insert into ".DB_PREFIX."_files(user_id,file_type,parent_file_id,";
         $sql .= "file_create_time,file_update_time,file_name,version_id,";
-        $sql .= "file_size, file_path, event_uuid,mime_type,created_at,updated_at) values ";
+        $sql .= "file_size, file_path, event_uuid,mime_type,created_at,updated_at,company_id) values ";
         if ($driver == 'sqlite') {
             $sql = "insert into  ".DB_PREFIX."_files(user_id,file_type,parent_file_id,";
             $sql .= "file_create_time,file_update_time,file_name,version_id,";
@@ -282,7 +288,7 @@ class MFiles extends MModel {
             } else {
                 $sql_value .= "\"{$file_detail->mime_type}\", ";
             }
-            $sql_value .= "now(),now()";
+            $sql_value .= "now(),now(),{$companyId}";
             $sql_value .= $driver == 'sqlite' ? "" : ")";
             
             //添加 union all select 或者 ','
@@ -306,12 +312,7 @@ class MFiles extends MModel {
             $sql_exe = $sql . $sql_value;
             $result = $db_manager->insertDb ( $sql_exe );
         }
-        
-        //
-        // 修复sort值为id值，确保唯一
-        //
-        $sql = "update  ".DB_PREFIX."_files set sort=id where sort=0";
-        $db_manager->insertDb($sql);
+         
         
         return $result;
     }
@@ -322,9 +323,10 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function queryChildrenFilesByParentFileID($parent_file_id, $include_deleted = false, $user_id=null) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance ();
         $sql = "select * from ".DB_PREFIX."_files where ";
-        $sql .= " parent_file_id = {$parent_file_id} ";
+        $sql .= " parent_file_id = {$parent_file_id} and company_id={$companyId}";
         //
         // 处理是否包含已删除的, 请求过来的参数，是字符串
         //
@@ -349,8 +351,9 @@ class MFiles extends MModel {
      * @param string $path
      */
     public static function queryAllFilesByPath($path) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance ();
-        $sql = "select * from " . DB_PREFIX . "_files where file_path=\"{$path}\" ";
+        $sql = "select * from " . DB_PREFIX . "_files where file_path=\"{$path}\" and company_id={$companyId}";
         Yii::trace ( "function: " . __FUNCTION__ . ",sql:'{$sql}'" );
         
         return $db_manager->selectDb ( $sql );
@@ -379,6 +382,7 @@ class MFiles extends MModel {
      * @return mixed 创建成功返回true，否则返回false
      */
     public static function updateFileDetailByPath($path, $updates) {
+        $companyId = $_SESSION['company_id'];
         if (empty($updates))
         {
             return false;
@@ -392,7 +396,7 @@ class MFiles extends MModel {
             }
             $sql .= ",";
         }
-        $sql .= "updated_at=now() WHERE file_path=\"{$path}\"";
+        $sql .= "updated_at=now() WHERE file_path=\"{$path}\" and company_id={$companyId}";
         Yii::trace("function: '{__FUNCTION__}',sql:'{$sql}'");
         $db_manager = MDbManager::getInstance();
         return $db_manager->updateDb($sql);
@@ -405,6 +409,7 @@ class MFiles extends MModel {
      * @param $include_deleted
      */
     public static function searchFilesByPath($path, $query, $userID, $include_deleted=false) {
+        $companyId = $_SESSION['company_id'];
         $query =  str_replace("%","\\%",$query);
         $db_manager = MDbManager::getInstance();
         $sql = "select * from ".DB_PREFIX."_files where ";
@@ -412,7 +417,7 @@ class MFiles extends MModel {
         $sql .= " and user_id = {$userID}";
         if ($path !== "/{$userID}/")
         {
-            $sql .= " and file_path like \"{$path}%\" ";
+            $sql .= " and file_path like \"{$path}%\" and company_id={$companyId}";
         }
         //
         // 处理是否包含已删除的
@@ -432,8 +437,9 @@ class MFiles extends MModel {
      * @param string $condition
      */
     public static function findAll($condition = 1) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
-        $sql = "select * from ".DB_PREFIX."_files where ";
+        $sql = "select * from ".DB_PREFIX."_files where company_id={$companyId} ";
         $sql .= $condition;
         Yii::trace ( "function: '{findAll}',sql:'{$sql}'" );
         return $db_manager->selectDb ( $sql );
@@ -445,9 +451,10 @@ class MFiles extends MModel {
      * @param int $id
      */
     public static function deleteById($id) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
         $sql = "delete from ".DB_PREFIX."_files where ";
-        $sql .= "id = $id";
+        $sql .= "id = $id and company_id={$companyId}";
         Yii::trace ( "function: '{deleteById}',sql:'{$sql}'" );
         if (empty($id)) return false;
         return $db_manager->selectDb ( $sql );
@@ -460,9 +467,10 @@ class MFiles extends MModel {
      * @param int $toId
      */
     public static function updateParentId($fromId,$toId) {
+        $companyId = $_SESSION['company_id'];
         $sql = "UPDATE " .DB_PREFIX . "_files SET ";
         $sql .= "parent_file_id=$toId";
-        $sql .= " WHERE parent_file_id = $fromId";
+        $sql .= " WHERE parent_file_id = $fromId and company_id={$companyId}";
         Yii::trace ( "function: '{updateParentId}',sql:'{$sql}'" );
         $db_manager = MDbManager::getInstance();
         $db_manager->updateDb($sql);

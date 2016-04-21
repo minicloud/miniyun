@@ -89,7 +89,6 @@ class MUserManager
      * 获取当前用户的信息
      */
     public function getCurrentUser() {
-        $needSetOnline = false;
         if(MiniHttp::clientIsBrowser()){
             //javascript判断用户是否登录，在服务器端本地进行用户初始化
             $this->_current_user = NULL;
@@ -97,19 +96,11 @@ class MUserManager
             $userIdentity->cookieLogin();
             $sessionUser = Yii::app()->session["user"];
             $this->_current_user = $sessionUser;
-            $needSetOnline = true;
         }else{
             if(empty($this->_current_user)){
                 $sessionUser = Yii::app()->session["user"];
                 $this->_current_user = $sessionUser;
-                $needSetOnline = true;
             }
-        }
-        if($needSetOnline){
-            $appId    = Yii::app()->session["appId"];
-            $deviceId = Yii::app()->session["deviceId"];
-            $userId   = $this->_current_user['id'];
-            MiniOnlineDevice::getInstance()->setOnlineDeviceValue($userId,$appId,$deviceId);
         }
         return $this->_current_user;
     }

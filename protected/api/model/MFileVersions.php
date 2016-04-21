@@ -16,8 +16,9 @@ class MFileVersions extends MModel {
      * @return file_version 文件版本信息
      */
     public static function queryFileVersionByID($id) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
-        $sql = "select * from " . DB_PREFIX . "_file_versions where id=$id";
+        $sql = "select * from " . DB_PREFIX . "_file_versions where id=$id and company_id={$companyId}";
         Yii::trace("function: '{queryFileVersionByID}',sql:'{$sql}'");
         
         return $db_manager->selectDb($sql);
@@ -30,8 +31,9 @@ class MFileVersions extends MModel {
      * return file_version
      */
     public static function queryFileVersionBySignatrue($signatrue) {
+        $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
-        $sql = "select * from " . DB_PREFIX . "_file_versions where file_signature=\"$signatrue\"";
+        $sql = "select * from " . DB_PREFIX . "_file_versions where file_signature=\"$signatrue\" and company_id={$companyId}";
         Yii::trace("function: '{queryFileVersionBySignatrue}',sql:'{$sql}'");
         
         return $db_manager->selectDb($sql);
@@ -45,13 +47,14 @@ class MFileVersions extends MModel {
      * @return 
      */
     public static function updateRefCountById($id, $isAdd = true) {
+        $companyId = $_SESSION['company_id'];
         $sql  = "UPDATE " . DB_PREFIX . "_file_versions ";
         if ($isAdd) {
             $sql .= "SET ref_count = ref_count + 1, updated_at = now() ";
         } else {
             $sql .= "SET ref_count = ref_count - 1, updated_at = now() ";
         }
-        $sql .= "WHERE id=$id";
+        $sql .= "WHERE id=$id and company_id={$companyId}";
         Yii::trace("function: '{__FUNCTION__}',sql:'{$sql}'");
         $db_manager = MDbManager::getInstance();
         return $db_manager->updateDb($sql);

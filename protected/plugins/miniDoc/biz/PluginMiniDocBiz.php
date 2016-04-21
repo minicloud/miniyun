@@ -170,7 +170,7 @@ class PluginMiniDocBiz extends MiniBiz{
                 $item['type'] = 2;
             }
             $item['updated_at'] = $version['created_at'];
-            $item['doc_convert_status'] = $version['doc_convert_status'];
+            $item['doc_convert_status'] = 2;
             $items[] = $item;
         }
         $data['list'] = $items;
@@ -198,62 +198,13 @@ class PluginMiniDocBiz extends MiniBiz{
         //获得文件当前版本对应的version
         $version   = PluginMiniDocVersion::getInstance()->getVersion($file["version_id"]);
         $signature = $version["file_signature"];
-        $localPath = PluginMiniDocOption::getInstance()->getMiniDocCachePath().$signature."/".$signature.".".$type;
-        if(!file_exists($localPath)){
-            //文档还在转换中
-            $node = PluginMiniDocNode::getInstance()->getConvertNode($signature);
-            if(empty($node)){
-                throw new MFileopsException( Yii::t('api','convert error'),MConst::HTTP_CODE_412);
-            }
-            //根据情况判断是否需要向迷你文档拉取内容
-            $parentPath = dirname($localPath);
-            //如果缓存目录不存在，则需要创建
-            if(!file_exists($parentPath)){
-                MUtils::MkDirsLocal($parentPath);
-            }
-            //文件不存在，则需要从迷你文档拉取文件内容
-            $url  = PluginMiniDocNode::getInstance()->getDownloadUrl($node["id"],$version,$type);
-            $http = new HttpClient();
-            $http->get($url);
-            $status = $http->get_status();
-            if($status=="200"){
-                $content = $http->get_body();
-                //把文件内容存储到本地硬盘
-                file_put_contents($localPath, $content);
-                Yii::log($signature." get ".$type." success",CLogger::LEVEL_INFO,"doc.convert");
-            }else{
-                if(!($version["doc_convert_status"]==-1)){
-                    //如迷你文档服务器不存在该文档，说明迷你文档服务器发生了变动
-                    //这个时候自动启动负载均衡机制，把文档重新转换
-                    PluginMiniDocVersion::getInstance()->pushConvertSignature($signature,"");
-                    Yii::log($signature." get ".$type." error",CLogger::LEVEL_ERROR,"doc.convert");
-                }                
-            }
-        }
-
-        if(file_exists($localPath)){
-            if($type==="png"){
-                $contentType = "image/png";
-            }
-            if($type==="pdf"){
-                $contentType = "Content-type: application/pdf";
-            } 
-            //Firefox+混合云模式下直接输出内容 
-            //其它浏览器使用sendfile模式输出内容
-            $isSendFile = true;
-            if(MiniUtil::isMixCloudVersion()){
-                $ua = isset($_SERVER ["HTTP_USER_AGENT"]) ? $_SERVER ["HTTP_USER_AGENT"] : NULL;
-                if (strpos($ua,"Firefox")>0 || strpos($ua,"Safari")>0){
-                    $isSendFile = false; 
-                }
-            }
-            if($isSendFile){
-                header('Location: '.MiniHttp::getMiniHost()."assets/minidoc/".$signature."/".$signature.".".$type);
-            }else{
-                Header("Content-type: ".$contentType);
-                echo(file_get_contents($localPath));exit;
-            }
-        }
+        $url = '';
+        if($type==="png"){
+            $url = PluginMiniStoreNode::getInstance()->getDocCoverPngUrl($version);
+        }else if($type==="pdf"){
+            $url = PluginMiniStoreNode::getInstance()->getDocPdfUrl($version);
+        }           
+        header('Location: '.$url);
     }
     /**
      *获得迷你文档节点信息列表

@@ -67,6 +67,8 @@ class UserIdentity extends CUserIdentity
             $deviceId = $device["id"];
         }
         Yii::app()->session["deviceId"] = $deviceId;//设置设备ID
+        //提前设置session的值
+        $_SESSION['company_id'] = $user['company_id'];
     }
 
     /**
@@ -108,6 +110,8 @@ class UserIdentity extends CUserIdentity
      * @return null
      */
     private function getCurrentDevice($user){
+        //提前设置session的值
+        $_SESSION['company_id'] = $user['company_id'];
         $deviceType = 1;
         if(MiniHttp::isPCClient()){
             if(MiniHttp::isWindowsOS()){
