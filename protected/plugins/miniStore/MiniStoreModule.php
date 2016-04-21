@@ -41,11 +41,11 @@ class MiniStoreModule extends MiniPluginModule {
      * 获得文件的缩略图
      * @param array $params
      * @return string
-     */
+     */ 
     function thumbnail($params){ 
         $url =  PluginMiniStoreNode::getInstance()->getThumbnailUrl($params); 
         header('Location: '.$url);
-        exit;
+        exit; 
     }
     /**
      * 获得文件下载地址

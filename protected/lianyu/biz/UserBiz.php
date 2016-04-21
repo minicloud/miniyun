@@ -35,6 +35,7 @@ class UserBiz  extends MiniBiz{
             $friend["nick"] = $item["nick"];
             $friend["name"] = $item["user_name"];
             $friend["avatar"] = $item['avatar'];
+            $friend["user_name_pinyin"] = $item['user_name_pinyin'];
             $arr = MiniUserGroupRelation::getInstance()->findUserGroup($userId,$item["id"]);//找到好友对应的群组(这里会关联到非当前用户新建的用户组，下面解决此问题)
             $ownerGroup = MiniGroup::getInstance()->getList($userId);
             $ownerGroupList = $ownerGroup['list'];//找到当前用户拥有的群组

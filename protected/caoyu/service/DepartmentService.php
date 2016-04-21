@@ -25,6 +25,9 @@ class DepartmentService extends MiniService{
      */
     public function delete(){
         $departmentId = MiniHttp::getParam('department_id','');
+        if(empty($departmentId)||$departmentId==='-1'){
+            return array('success'=>false,'msg'=>'department_id is empty');
+        }
         $biz = new DepartmentBiz();
         $result = $biz->delete($departmentId);
         return $result;
@@ -42,9 +45,19 @@ class DepartmentService extends MiniService{
     /**
      * 部门列表
      */
-    public function getList(){
+    public function getList(){ 
+        $departmentId = MiniHttp::getParam('department_id','-1');
         $biz = new DepartmentBiz();
-        $result = $biz->getList();
+        $result = $biz->getList($departmentId);
+        return $result;
+    }
+    /**
+     * 部门列表
+     */
+    public function userList(){ 
+        $departmentId = MiniHttp::getParam('department_id','-1');
+        $biz = new DepartmentBiz();
+        $result = $biz->getUserList($departmentId);
         return $result;
     }
     /**

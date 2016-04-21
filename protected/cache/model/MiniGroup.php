@@ -218,6 +218,29 @@ class MiniGroup extends MiniCache{
         }
     }
     /**
+     * 更名部门
+     */
+    public function renameDepartment($departmentId,$newGroupName){
+        $criteria = new CDbCriteria();
+        $criteria->condition = "id=:id";
+        $criteria->params = array('id'=> $departmentId);
+        $department = Group::model()->find($criteria); 
+        if(!empty($department)){ 
+            $newGroupName = trim($newGroupName);
+            //查询同父亲部门是否重名
+            $criteria = new CDbCriteria();
+            $criteria->condition = "user_id=-1 and name =:group_name and parent_group_id=:parent_group_id and id<>:id";
+            $criteria->params = array('group_name'=>$newGroupName,'parent_group_id'=> $department->parent_group_id,'id'=>$department->id);
+            $oldDepartment = Group::model()->find($criteria);//查到老群组对象，用以修改名称。 
+            if(empty($oldDepartment)){ 
+                $department->name=$newGroupName;
+                $department->save();
+                return true;
+            }  
+        }
+        return false;
+    }
+    /**
      * 根据Id获取group
      */
     public function getById($id){
@@ -227,7 +250,43 @@ class MiniGroup extends MiniCache{
         $group = Group::model()->find($criteria);
         return $this->db2Item($group);
     }
-
+    /**
+     * 获取子部门信息
+     * @param $parentGroupId 
+     * @return array
+     */
+    public function getChildren($parentGroupId){
+        $data = array();
+        $children = MiniGroupRelation::getInstance()->getByParentId($parentGroupId); 
+        if(isset($children)){
+            foreach($children as $item){
+                $group = $this->getById($item['group_id']); 
+                $data[] =  array("id"=>$group['id'],'name'=>$group['group_name']);
+            }
+        } 
+        return $data;
+    }
+    /**
+     * 获取部门子用户信息
+     * @param $parentGroupId 
+     * @return array
+     */
+    public function getUserList($parentGroupId){
+        $data = array();
+        $userRelations = MiniUserGroupRelation::getInstance()->getByGroupId($parentGroupId);
+        if($userRelations){
+            foreach($userRelations as $userRelation){
+                $user = array();
+                $userInfo = MiniUser::getInstance()->getById($userRelation['user_id']);
+                $user['id'] = $userInfo['id'];
+                $user['user_name']= $userInfo['nick'];
+                $user['user_name_pinyin']= $userInfo['user_name_pinyin'];
+                $user['group_id']=$parentGroupId;
+                $data[] = $user;
+            }
+        } 
+        return $data;
+    }
     /**
      * 获取目录树
      * @param $parentGroupId
