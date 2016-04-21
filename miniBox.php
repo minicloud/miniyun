@@ -488,7 +488,7 @@ class MiniBox{
     }
     private  function loadHtml($head){
         $metaHead = "";
-        $metaHead .= "<meta name='renderer' content='webkit'/>";//强制360安全浏览器使用急速模式
+        $metaHead .= "<meta name='renderer' content='webkit'/><meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1'/>";//强制360安全浏览器使用急速模式
         //输出头信息
         $content = "<!doctype html><html id='ng-app'><head><meta http-equiv=\"content-type\" content=\"text/html;charset=utf-8\"/>".$metaHead.$head."<script>";
         $appInfo = $this->appInfo;
