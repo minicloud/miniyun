@@ -125,6 +125,18 @@ class PluginMiniStoreNode extends MiniCache{
         return $this->db2list($items);
     }
     /**
+     * 是否激活迷你云存储节点
+     */
+    public function actived(){ 
+        $items = StoreNode::model()->findAll(); 
+        foreach($items as $item){
+            if($item->status==1 && $item->running==1){ 
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      * 检查所有节点状态
      */
     public function checkNodesStatus(){
