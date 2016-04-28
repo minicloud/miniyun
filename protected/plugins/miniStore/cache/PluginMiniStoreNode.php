@@ -61,14 +61,18 @@ class PluginMiniStoreNode extends MiniCache{
         if(empty($item)) return NULL;
         $value                        = array();
         $value["id"]                  = $item->id;
-        $value["name"]                = $item->name;
-        $value["host"]                = $item->host;
-        $value["safe_code"]           = $item->safe_code;
+        $value["ip"]                  = $item->ip;
+        $value["port"]                = $item->port;       
+        $value["key"]                 = $item->key;
+        $value["secret"]              = $item->secret;
         $value["status"]              = $item->status;
+        $value["version"]             = $item->version;
         $value["saved_file_count"]    = $item->saved_file_count;
         $value["downloaded_file_count"] = $item->downloaded_file_count;
-        $value["created_at"]          = $item->created_at;
-        $value["updated_at"]          = $item->updated_at;
+        $value["time_diff"]             = $item->time_diff;
+        $value["disk_size"]             = $item->disk_size;
+        $value["created_at"]            = $item->created_at;
+        $value["updated_at"]            = $item->updated_at;
         return $value;
     } 
     /**
@@ -101,14 +105,14 @@ class PluginMiniStoreNode extends MiniCache{
         $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
         $nodes = MiniUtil::getFistArray($validNodes,1);
         if(count($nodes)>0){
-            $node    = $nodes[0];
-            $urlInfo = parse_url($node["host"]);
-            if($urlInfo["host"]=="127.0.0.1"){
-                //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
-                $defaultHost  = MiniHttp::getMiniHost();
-                $miniHostInfo = parse_url($defaultHost);
-                $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":".$urlInfo["port"].$miniHostInfo["path"];
-            }
+            // $node    = $nodes[0];
+            // $urlInfo = parse_url($node["ip"]);
+            // if($urlInfo["ip"]=="127.0.0.1"){
+            //     //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
+            //     $defaultHost  = MiniHttp::getMiniHost();
+            //     $miniHostInfo = parse_url($defaultHost);
+            //     $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["ip"].":".$urlInfo["port"].$miniHostInfo["path"];
+            // }
             return $node;
         }
         return null;
