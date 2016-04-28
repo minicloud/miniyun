@@ -970,12 +970,14 @@ class MiniUser extends MiniCache{
      *
      * 检查用户名是否已经存在
      */
-    private function validateName($name){
-        $user = User::model()->find("user_name=?",array(trim($name)));
-        if(isset($user)){
-            return false;
-        }
-        return true;
+    public function validateName($name){
+        $db = MDbManager::getInstance();
+        $sql = "select * from ".DB_PREFIX."_users where user_name='$name'";
+        $user = $db->selectDb($sql); 
+        if (empty($user)){
+            return true;
+        } 
+        return false;
     }
     /**
      * 查询未分组的用户

@@ -373,7 +373,7 @@ class UserInfoBiz extends MiniBiz{
     public function getUserCount(){
         $data = array();
         $userModel = new User();
-        $data['online_user_count'] = MiniOnlineDevice::getInstance()->getOnlineCount();
+        $data['online_user_count'] = 0;
         $data['user_count'] = $userModel->count();
         $data['disabled_count'] = $userModel->disabledCount();
         $data['admin_count'] = $userModel->adminCount();

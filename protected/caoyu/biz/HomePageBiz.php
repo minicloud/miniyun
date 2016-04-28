@@ -11,96 +11,31 @@ class HomePageBiz extends MiniBiz{
     /**
      * 获取系统已用空间
      */
-    public function getUsedSpace(){
-        $storeData = MiniUtil::getPluginMiniStoreData();
-        if(empty($storeData)){
-            //非迷你存储模式
-            $remain    = $this->getDiskFreeSpace();//空闲空间 字节
-            $total     = $this->getDiskTotalSpace();//总空间 字节
-            $usedSpace = $this->_byteFormat(MiniVersion::getInstance()->getTotalSize());
-            $totalSpace = $this->_byteFormat($total);
-            $usedPercentage = $this->getUsedPercent();//已用空间占的百分比
-            
-        }else{
-            //迷你存储模式下，获得迷你存储所有节点的空间使用情况
-            $usedSpace = 0;
-            $totalSpace = 0;
-            $usedPercentage = 100;
-            $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
-            foreach ($nodes as $node) {
-                if($node["status"]==1){
-                    $url = $node["host"]."/api.php?route=store/info";
-                    $content = file_get_contents($url); 
-                    if($content!=""){
-                        $disks = json_decode($content);
-                        foreach ($disks as $disk) {
-                            $usedSpace += $disk->{"used"};
-                            $totalSpace += $disk->{"total"}; 
-                        }
-                        
-                    }    
-                }
-            }
-            if($totalSpace>0){
-                $usedPercentage = round($usedSpace/$totalSpace,3)*100;
-            }
-            $usedSpace = round($usedSpace/1024/1024,2);
-            $totalSpace = round($totalSpace/1024/1024,2);
-        }     
-        //获得缓存空间大小
-        $tempDirectory = $this->getDirectorySize(BASE.'temp');
-        $tempSize = $tempDirectory['size'];
-        $cacheSize = $this->countCache();
-        $cacheSpace = MiniUtil::formatSize($tempSize+$cacheSize);   
-        $data = array();
-        $data['usedSpace'] = $usedSpace;
-        $data['totalSpace'] = $totalSpace;
-        $data['usedPercentage'] = $usedPercentage;
-        $data['cacheSpace'] = $cacheSpace;
-
-        return $data;
-    }
-
-    public function getDiskTotalSpace() {
-        if (file_exists(BASE) == false) {
-            CUtils::MkDirs(BASE);
-        }
-        return @disk_total_space(BASE);
-    }
-
-    public function getDiskFreeSpace() {
-        if (file_exists(BASE) == false) {
-            CUtils::MkDirs(BASE);
-        }
-        return @disk_free_space(BASE);
-    }
-
-    public function getDiskUsedInMiniyun() {
-        return $this->_directorySize();
-    }
-    /**
-     * 获取剩余空间 数值 以G为单位
-     * @return number
-     */
-    public function getRemainDisk() {
-        $remain_disk=$this->getDiskFreeSpace();
-        return $this->_byteFormat($remain_disk);
-    }
-    /**
-     * 获取使用空间百分比
-     * @return number
-     */
-    public function getUsedPercent() {
-        $remain    = $this->getDiskFreeSpace();//空闲空间
+    public function getUsedSpace(){    
+        //获得总空间 
         $total     = $this->getDiskTotalSpace();//总空间
+        //获得已使用的空间
         $usedSpace = MiniVersion::getInstance()->getTotalSize();
         $percent = 0;
         if ($total > 0) {
             $percent=(float)($usedSpace)/$total;
         }
-        $retval = round($percent,3)*100;
-        return $retval;
+        $usedPercentage = round($percent,3)*100; 
+        $data = array();
+        $data['usedSpace'] = $this->_byteFormat($usedSpace);
+        $data['totalSpace'] = $this->_byteFormat($total);
+        $data['usedPercentage'] = $usedPercentage;
+        $data['cacheSpace'] = 0;
+        return $data;
     }
+    private function getDiskTotalSpace() {
+        $totalsize = 0;
+        $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
+        foreach($nodes as $node){
+            $totalsize+=$node['disk_size'];
+        }
+        return $totalsize;
+    } 
     /**
      * 把目录大小统一为G单位
      * @return int

@@ -127,7 +127,18 @@ class MiniUserMeta extends MiniCache{
             //如修改昵称，则将用户的拼音信息一起更换
             MiniUser::getInstance()->updateUserNamePinYin($userId);
         }
-         return $userMeta;
+        if($key==="is_admin"){
+        	//兼容3.0逻辑
+        	$criteria            = new CDbCriteria();
+	        $criteria->condition = 'id=:id';
+	        $criteria->params    = array('id'=> $userId);
+	        $user = User::model()->find($criteria);
+	        if(isset($user)){ 
+	            $user->role = ($value=='1'?9:1);
+	            $user->save(); 
+	        }
+        }
+        return $userMeta;
 	}
 	/**
 	 * 删除用户的Meta与cache
@@ -178,6 +189,17 @@ class MiniUserMeta extends MiniCache{
 					$userMeta["meta_value"]= $value;
 					$userMeta->save();
 				}
+				if($key==="is_admin"){
+		        	//兼容3.0逻辑
+		        	$criteria            = new CDbCriteria();
+			        $criteria->condition = 'id=:id';
+			        $criteria->params    = array('id'=> $user["id"]);
+			        $user = User::model()->find($criteria);
+			        if(isset($user)){ 
+			            $user->role = ($value=='1'?9:1);
+			            $user->save(); 
+			        }
+		        }
 			}
 		}
 	}

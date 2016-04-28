@@ -102,7 +102,7 @@ class User extends CMiniyunModel
 	 * @since 1.0.3
 	 */
 	public function adminCount(){
-		$count = UserMeta::model()->count("meta_key = 'is_admin' and meta_value = '1'");
+		$count = User::model()->count("role = 9");
 		return $count;
 	}
 

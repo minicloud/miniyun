@@ -273,14 +273,11 @@ class UserInfoService extends MiniService{
             $user['extend']['nick']= trim($item[2]);
             $user['extend']['space']=(trim($item[3])*1024=="")?10240:trim($item[3])*1024;//默认10G
             $user['extend']['email']=trim($item[4]);
-            if(MiniUser::getInstance()->getUserByName($user['name'])){
+            if(!MiniUser::getInstance()->validateName($user['name'])){
                 $count++;
-            }
-            $isExtend = apply_filters("license_user_extend");
-            if($isExtend===1){
-                throw new MiniException(1003);
-            }
-            MiniUser::getInstance()->create($user);
+            }else{
+                MiniUser::getInstance()->create($user);
+            }             
         }
         $tempUrl ="upload/temp/error.csv";
         $fp = fopen($tempUrl, 'w+');

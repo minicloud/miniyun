@@ -1,7 +1,7 @@
 <?php
 define('NAME_ZH', '迷你云');
 define('NAME_EN', 'MyCloud');
-define('APP_VERSION',"2.22");
+define('APP_VERSION',"3.0Beta");
 //
 // 适配无REQUEST_URI的情况
 //

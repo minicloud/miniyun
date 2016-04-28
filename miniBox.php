@@ -427,7 +427,7 @@ class MiniBox{
             if($port=="443"){
                 $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
             }else{
-                $this->staticServerHost = "http://".STATIC_SERVER_HOST."/";
+                $this->staticServerHost = "http://static.minicloud.io/";
             }
         }else{
             //私有云模式下
