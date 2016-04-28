@@ -10,7 +10,7 @@
  */
 
 class MMetadataController extends MApplicationComponent implements MIController{
-	
+    
     private $root      = null;
     private $userId   = null;
     private $locale    = null;
@@ -49,7 +49,7 @@ class MMetadataController extends MApplicationComponent implements MIController{
 
         $this->root = $urlManager->parseRootFromUrl($path);
         if($path===false){
-        	$path = "/";
+            $path = "/";
         }
         $pathPart = explode('/',$path);  
         // 根目录
@@ -220,10 +220,19 @@ class MMetadataController extends MApplicationComponent implements MIController{
             $currentUser = MiniUser::getInstance()->getUserByName($userName);
             //共享空间第二层目录：共享目录
             $user = MUserManager::getInstance()->getCurrentUser();
+            //获得群共享与部门共享列表
+            $groupShareFiles  = MiniGroupPrivilege::getInstance()->getAllGroups();
             $shareFiles   = MiniUserPrivilege::getInstance()->getAllUserPrivilege($user["id"]);
+            //合并
+            $shareFiles       = array_merge($groupShareFiles,$shareFiles);
             $fileData = array(); 
             foreach($shareFiles as $file){
                 $filePath = $file['file_path'];
+                $file = MiniFile::getInstance()->getByPath($filePath); 
+                //剔除公共目录
+                if(empty($file) || $file['file_type']!=='2'){
+                    continue;
+                }
                 //剔除群空间列表
                 $isInGroupSpace = MiniFileMeta::getInstance()->isInGroupSpace($filePath); 
                 if($isInGroupSpace){
