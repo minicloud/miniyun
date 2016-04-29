@@ -100,6 +100,20 @@ class MiniUserMeta extends MiniCache{
 		return $object;
 	} 
 	/**
+	 * 根据$key获得meta
+     */
+	public function getUserMeta($userId,$key){
+		$meta = UserMeta::model()->findByAttributes(array('user_id'=>$userId, 'meta_key'=>$key));
+		if(!empty($meta)){
+           $data             = array();
+           $data["user_id"]  = $userId;
+           $data["meta_key"] = $key;
+           $data["meta_value"] = $meta->value;
+           return $data;
+         }
+		return null;
+	} 
+	/**
 	 * 更新用户属性
 	 * @param int    $userId
 	 * @param string $key

@@ -66,6 +66,7 @@ class PluginMiniStoreNode extends MiniCache{
         $value["key"]                 = $item->key;
         $value["secret"]              = $item->secret;
         $value["status"]              = $item->status;
+        $value["running"]              = $item->running;
         $value["version"]             = $item->version;
         $value["saved_file_count"]    = $item->saved_file_count;
         $value["downloaded_file_count"] = $item->downloaded_file_count;
@@ -87,217 +88,40 @@ class PluginMiniStoreNode extends MiniCache{
             return $this->db2Item($item);
         }
         return null;
-    }
+    } 
     /**
-    * 获得有效文件上传服务器节点
-    * 找到min(saved_file_count) and status=1的记录分配
-    */
+     * 获得有效上传节点
+     */
     public function getUploadNode(){
-        //TODO 对用户进行分区文件管理，需要找到迷你存储节点与用户的关系，然后进行分配处理
-        $nodes = $this->getNodeList();
-        $validNodes = array();
-        foreach ($nodes as $node) {
-            if ($node["status"] == 1) {
-                array_push($validNodes, $node);
-            }
-        }
-        //选出saved_file_count最小的个节点
-        $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
-        $nodes = MiniUtil::getFistArray($validNodes,1);
-        if(count($nodes)>0){
-            // $node    = $nodes[0];
-            // $urlInfo = parse_url($node["ip"]);
-            // if($urlInfo["ip"]=="127.0.0.1"){
-            //     //说明迷你存储在本机，直接把127.0.0.1替换为迷你存储端口
-            //     $defaultHost  = MiniHttp::getMiniHost();
-            //     $miniHostInfo = parse_url($defaultHost);
-            //     $node['host'] = $miniHostInfo["scheme"]."://".$miniHostInfo["ip"].":".$urlInfo["port"].$miniHostInfo["path"];
-            // }
-            return $node;
-        }
-        return null;
-    }
-    /**
-     * 获得迷你存储所有节点列表
-     */
-    public function getNodeList(){
-        $items = StoreNode::model()->findAll();
-        return $this->db2list($items);
-    }
-    /**
-     * 是否激活迷你云存储节点
-     */
-    public function actived(){ 
-        $items = StoreNode::model()->findAll(); 
-        foreach($items as $item){
-            if($item->status==1 && $item->running==1){ 
-                return true;
-            }
-        }
-        return false;
-    }
-    /**
-     * 检查所有节点状态
-     */
-    public function checkNodesStatus(){
-        $items = StoreNode::model()->findAll();
-        foreach($items as $item){
-            $host = $item->host;
-            $oldStatus = $item->status;
-            $status = $this->checkNodeStatus($host);
-            if($status!=$oldStatus){
-                $item->status = $status;
-                $item->save();
-            }
-        }
-    }
-    /**
-     * 检查存储节点状态
-     * @param string $host
-     * @return int
-     */
-    public function checkNodeStatus($host){
-        $url      = $host.'/api.php';
-        $data = array (
-            'route'        => "store/status",
-            'callback_url' => PluginMiniStoreOption::getInstance()->getMiniyunHost()."info.htm"
-        );
-        $http   = new HttpClient();
-        $http->post($url,$data);
-        $result = $http->get_body();
-        $result = @json_decode($result,true);
-        if($result["status"]=="1"){
-            return 1;
-        }
-        return -1;
-    }
-    /**
-     * 节点新上传文件
-     * @param int $nodeId
-     */
-    public function newUploadFile($nodeId){
-        $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
-        if(isset($item)){
-            $item->saved_file_count+=1;
-            $item->save();
-        }
-    }
-    /**
-     * 节点新新下载了文件
-     * @param int $nodeId
-     */
-    public function newDownloadFile($nodeId){
-        $item = StoreNode::model()->find("id=:id",array("id"=>$nodeId));
-        if(isset($item)){
-            $item->downloaded_file_count+=1;
-            $item->save();
-        }
-    }
-    /**
-     * 创建迷你存储节点
-     * @param int $id 节点id
-     * @param string $name 节点名称
-     * @param string $host 节点域名
-     * @param string $safeCode 节点访问的安全码
-     * @return array
-     */
-    public function createOrModifyNode($id,$name,$host,$safeCode){
-        if(!empty($id)){
-            //修改节点信息
-            $item = StoreNode::model()->find("id=:id",array("id"=>$id));
-            //防止节点名称修改为了其它节点的名称
-            if($item->name!=$name){
-                $node = StoreNode::model()->find("name=:name",array("name"=>$name));
-                if(isset($node)){
-                    return null;
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $meta = MiniUserMeta::getInstance()->getUserMeta($user['id'],'store_id');
+        if(!empty($meta)){
+            //如为该用户指定了存储点，则直接用该存储节点
+            $node = $this->getNodeById($meta['meta_value']);
+            if(!empty($node)){
+                if($node['status']==1 && $node['running']==1){
+                    return $node;
                 }
             }
         }else{
-            $item = StoreNode::model()->find("name=:name",array("name"=>$name));
-            if(isset($item)){
-                return null;
-            }
-        }
-        if(!isset($item)){
-            $item = new StoreNode();
-            $item->saved_file_count=0;
-            $item->downloaded_file_count=0;
-        }
-        $item->name      = $name;
-        $item->host      = $host;
-        $item->safe_code = $safeCode;
-        $item->status    = -1;//所有新建或修改节点状态都是无效的
-        $item->save();
-        return $this->db2Item($item);
-    }
-    /**
-     * 根据名称查询节点
-     * @param string $name
-     * @return array
-     */
-    public function getNodeByName($name){
-        return $this->db2Item(StoreNode::model()->find("name=:name",array("name"=>$name)));
-    }
-    /**
-     * 修改迷你存储节点状态
-     * @param string $name 节点名称
-     * @param int $status 节点状态
-     * @return array
-     */
-    public function modifyNodeStatus($name,$status){
-        //迷你存储节点状态只保留2个
-        //1表示迷你存储节点生效,-1表示迷你存储节点无效
-        if($status!=="1"){
-            $status = "-1";
-        }
-        $item = StoreNode::model()->find("name=:name",array("name"=>$name));
-        if(isset($item)){
-            $item->status = $status;
-            $item->save();
-        }
-        return $this->db2Item($item);
-    }
-    /**
-     * 为文件生成其它冗余备份节点
-     * 找到不属当前迷你存储节点，且status=1，saved_file_count最小的记录
-     * @param string $signature 文件内容hash
-     * @return array
-     */
-    public function getReplicateNodes($signature){
-        $version = MiniVersion::getInstance()->getBySignature($signature);
-        if(!empty($version)) {
-            $metaKey = "store_id";
-            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"], $metaKey);
-            if (!empty($meta)) {
-                $value = $meta["meta_value"];
-                $ids = explode(",",$value);
-                $validNodes = array();
-                $nodes = PluginMiniStoreNode::getInstance()->getNodeList();
-                foreach ($nodes as $node) {
-                    //排除当前节点的迷你存储服务器
-                    $isValidNode = false;
-                    foreach ($ids as $validNodeId) {
-                        if($validNodeId!=$node["id"]){
-                            $isValidNode = true;
-                        }
-                    }
-                    if(!$isValidNode) continue;
-                    //然后判断服务器是否有效
-                    if($node["status"]==1){
-                        array_push($validNodes,$node);
-                    }
+            //在该公司列表下查询有效节点
+            $items = StoreNode::model()->findAll();
+            $nodes = $this->db2list($items);
+            $validNodes = array();
+            foreach($nodes as $node){
+                if($node['status']==1 && $node['running']==1){
+                    array_push($validNodes, $node);
                 }
-                //选出save_file_count最小的2个节点
-                $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
-                $nodes = MiniUtil::getFistArray($validNodes,2);
-                if(count($nodes)==2){
-                    return $nodes;
-                }
-                return $nodes;
             }
-        }
-
-    }
+            //选出saved_file_count最小的个节点
+            $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
+            $nodes = MiniUtil::getFistArray($validNodes,1);
+            if(count($nodes)>0){ 
+                return $nodes[0];
+            }
+        }        
+        return null;
+    } 
     /**
      * 获得有效文件下载地址
      * @param string $signature 文件内容hash
@@ -429,29 +253,5 @@ class PluginMiniStoreNode extends MiniCache{
             }
         }
         return null;
-    }
-
-    /**
-     * 创建默认站点
-     */
-    public function createDefault(){
-        $nodes = $this->getNodeList();
-        if(count($nodes)>2){
-            return true;
-        }
-        if(count($nodes)==1){
-            $node = StoreNode::model()->find("id=:id",array("id"=>$nodes[0]["id"]));
-        }else{
-            $node = new StoreNode();
-            $node->saved_file_count=0;
-            $node->downloaded_file_count=0;
-            $node->safe_code = "uBEEAcKM2D7sxpJD7QQEapsxiCmzPCyS";
-            $node->name      = "store1";
-        }
-        $host         = MiniHttp::getMiniHost();
-        $miniHostInfo = parse_url($host);
-        $node->host   = $miniHostInfo["scheme"]."://".$miniHostInfo["host"].":6081".$miniHostInfo["path"];
-        $node->status = 1;
-        $node->save();
-    }
+    } 
 }

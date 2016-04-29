@@ -322,8 +322,13 @@ class SiteAppInfo{
             $data['upload_policy_black_list'] = $policy2;
             $data['upload_policy_file_size'] = $policy3;
             $data['mini_host'] = Util::getMiniHost();
-            //查询激活迷你云
-            $data['minicloud_actived'] = PluginMiniStoreNode::getInstance()->actived();
+            //查询是否激活迷你云服务器
+            $actived = false;
+            $node = PluginMiniStoreNode::getInstance()->getUploadNode();
+            if(!empty($node)){
+                $actived = true;
+            }
+            $data['minicloud_actived'] = $actived;
             $this->user = $data;
             return $data;
         }
