@@ -74,6 +74,11 @@ class PluginMiniStoreNode extends MiniCache{
         $value["disk_size"]             = $item->disk_size;
         $value["created_at"]            = $item->created_at;
         $value["updated_at"]            = $item->updated_at;
+        $host = '//'.$value['ip'];
+        if(!($value['port']==80 || $value['port']==443)){
+            $host.=':'.$value['port'].'/';
+        }
+        $value['host'] = $host;
         return $value;
     } 
     /**
@@ -90,6 +95,51 @@ class PluginMiniStoreNode extends MiniCache{
         return null;
     } 
     /**
+    * 新上传文件 
+    */
+    public function newUploadFile($node){
+        $item = StoreNode::model()->find("id=:id",array("id"=>$node['id']));
+        if(isset($item)){
+            $item->saved_file_count++;
+            $item->save();
+        }
+    }
+    /**
+    * 新下载文件 
+    */
+    private function newDownloadFile($node){
+        $item = StoreNode::model()->find("id=:id",array("id"=>$node['id']));
+        if(isset($item)){
+            $item->downloaded_file_count++;
+            $item->save();
+        }
+    }
+    public function getNodeList(){
+         //在该公司列表下查询有效节点
+        $items = StoreNode::model()->findAll();
+        $nodes = $this->db2list($items);
+        $validNodes = array();
+        foreach($nodes as $node){
+            if($node['status']==1 && $node['running']==1){                
+                array_push($validNodes, $node);
+            }
+        }
+        return $validNodes;
+    }
+    /**
+     * 根据Key查询节点
+     */
+    public function getByKey($key){  
+        $items = StoreNode::model()->findAll();
+        $nodes = $this->db2list($items);
+        foreach($nodes as $node){
+            if($node['key']===$key){
+                return $node;
+            }
+        }
+        return null;
+    }
+    /**
      * 获得有效上传节点
      */
     public function getUploadNode(){
@@ -104,15 +154,8 @@ class PluginMiniStoreNode extends MiniCache{
                 }
             }
         }else{
-            //在该公司列表下查询有效节点
-            $items = StoreNode::model()->findAll();
-            $nodes = $this->db2list($items);
-            $validNodes = array();
-            foreach($nodes as $node){
-                if($node['status']==1 && $node['running']==1){
-                    array_push($validNodes, $node);
-                }
-            }
+            //在该公司列表下查询有效节点 
+            $validNodes = $this->getNodeList();
             //选出saved_file_count最小的个节点
             $validNodes = MiniUtil::arraySort($validNodes,"saved_file_count",SORT_ASC);
             $nodes = MiniUtil::getFistArray($validNodes,1);
@@ -121,6 +164,30 @@ class PluginMiniStoreNode extends MiniCache{
             }
         }        
         return null;
+    }
+    /**
+     * 签名URL地址
+     */
+    private function signatureUrl($url,$node,$bucketPath,$params){ 
+        $now = time()+$node['time_diff']/1000;
+        $expire = 30; //设置该policy超时时间是10s. 即这个policy过了这个有效时间，将不能访问
+        $end = $now + $expire;         
+        //最大文件大小.用户可以自己设置
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1048576000);
+        $conditions[] = $condition; 
+        //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$bucketPath,3=>$end);
+        $conditions[] = $start; 
+        $arr = array('conditions'=>$conditions);  
+        $policy = json_encode($arr);
+        $base64_policy = base64_encode($policy);
+        $string_to_sign = $base64_policy;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $node['secret'], true));
+        $url .='policy='.urlencode($base64_policy).'&signature='.urlencode($signature);
+        foreach($params as $key=>$value){
+            $url .="&".$key."=".urlencode($value);
+        } 
+        return $url;
     } 
     /**
      * 获得有效文件下载地址
@@ -138,20 +205,13 @@ class PluginMiniStoreNode extends MiniCache{
             //迷你存储服务器下载文件地址
             //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
             $data = array( 
-                "path"=>urlencode($meta['meta_value']), 
-                "file_name"=>urlencode($fileName), 
+                "file_name"=>$fileName, 
                 "force_download"=>$forceDownload
             );
-            $url = $node["host"];
-            if(substr($url, strlen($url)-1,1)!="/"){
-                $url .="/";
-            }
-            $url.="api/v1/file/download?";
-            foreach($data as $key=>$value){
-                $url .=$key."=".$value."&";
-            } 
+            $url = $node["host"]."api/v1/file/download?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data); 
             //更新迷你存储节点状态，把新上传的文件数+1
-            PluginMiniStoreNode::getInstance()->newDownloadFile($node["id"]);  
+            $this->newDownloadFile($node["id"]);   
             return $url;
         }
         return null;
@@ -165,17 +225,10 @@ class PluginMiniStoreNode extends MiniCache{
         $node = $this->getDownloadNode($version); 
         if(!empty($node)){ 
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],'bucket_path');
-            $data = array( 
-                "path"=>urlencode($meta['meta_value'])
+            $data = array(  
             );
-            $url = $node["host"];
-            if(substr($url, strlen($url)-1,1)!="/"){
-                $url .="/";
-            }
-            $url.="api/v1/doc/cover?";
-            foreach($data as $key=>$value){
-                $url .=$key."=".$value."&";
-            } 
+            $url = $node["host"]."api/v1/doc/cover?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data);  
             return $url;
         }
         return null;
@@ -189,17 +242,10 @@ class PluginMiniStoreNode extends MiniCache{
         $node = $this->getDownloadNode($version); 
         if(!empty($node)){ 
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],'bucket_path');
-            $data = array( 
-                "path"=>urlencode($meta['meta_value'])
+            $data = array(  
             );
-            $url = $node["host"];
-            if(substr($url, strlen($url)-1,1)!="/"){
-                $url .="/";
-            }
-            $url.="api/v1/doc/pdf?";
-            foreach($data as $key=>$value){
-                $url .=$key."=".$value."&";
-            } 
+            $url = $node["host"]."api/v1/doc/pdf?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data); 
             return $url;
         }
         return null;
@@ -219,19 +265,12 @@ class PluginMiniStoreNode extends MiniCache{
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],'bucket_path');
             //迷你存储服务器下载文件地址
             //对网页的处理分为2种逻辑，-1种是直接显示内容，1种是文件直接下载
-            $data = array( 
-                "path"=>urlencode($meta['meta_value']),
+            $data = array(  
                 "w"=>$w,
                 "h"=>$h
             );
-            $url = $node["host"];
-            if(substr($url, strlen($url)-1,1)!="/"){
-                $url .="/";
-            }
-            $url.="api/v1/img/thumbnail?";
-            foreach($data as $key=>$value){
-                $url .=$key."=".$value."&";
-            } 
+            $url = $node["host"]."api/v1/img/thumbnail?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data);
             return $url;
         }
         return null;

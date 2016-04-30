@@ -143,32 +143,79 @@ class MiniStoreModule extends MiniPluginModule {
         return $expiration."Z";
     }
     /**
+    *获得文件路径
+    */
+    private function getKey(){
+        $policyBase64 = MiniHttp::getParam('policy','');
+        if(empty($policyBase64)){
+            return null;
+        }
+        $policyStr = base64_decode($policyBase64); 
+        $policy = json_decode($policyStr);
+        $conditions = $policy->{'conditions'};
+        $bucketPath = $conditions[1][2]; 
+        return $bucketPath;
+    }
+    /**
+    *判断签名是否完整
+    */
+    private function validSignature(){
+        //检查node是否正确
+        $nodeKey = MiniHttp::getParam('node_key',''); 
+        $node = PluginMiniStoreNode::getInstance()->getByKey($nodeKey);
+        if(empty($node)){
+            return null;
+        } 
+        //检查签名是否正确
+        $paramSignature = MiniHttp::getParam('signature','');
+        if(empty($paramSignature)){
+            return null;
+        } 
+        $policyBase64 = MiniHttp::getParam('policy','');
+        $signature = base64_encode(hash_hmac('sha1', $policyBase64, $node['secret'], true));
+        if($paramSignature!==$signature){
+            return null;
+        } 
+        return $node;
+    }
+    /**
     *文件上传结束
     */
     public function end(){       
         $user = MUserManager::getInstance()->getCurrentUser();
         $_SESSION['company_id'] = $user['company_id']; 
-        $hash = MiniHttp::getParam('hash','');
+        $hash = MiniHttp::getParam('hash',''); 
         $hash = strtolower($hash);
         //防止重复文件通过网页上传，生成多条记录
-        if(!empty($hash)){
-            $version = MiniVersion::getInstance()->getBySignature($hash); 
-            //创建version/versionMeta数据 
-            if(empty($version)){                
-                $type =MiniHttp::getParam('mime_type','');
-                $size = MiniHttp::getParam('size',0);
-                $nodeId = MiniHttp::getParam('node_id',0);
-                $bucketPath = MiniHttp::getParam('bucket_path','');
-                $version = MiniVersion::getInstance()->create($hash, $size, $type);
-                MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
-                MiniVersionMeta::getInstance()->create($version["id"],"bucket_path",$bucketPath);
-                //更新迷你存储节点状态，把新上传的文件数+1
-                PluginMiniStoreNode::getInstance()->newUploadFile($nodeId);
-            } 
-            //创建用户相关元数据 执行文件秒传逻辑
-            $filesController = new MFileSecondsController();
-            $filesController->invoke(); 
-        }   
+        if(!empty($hash)){ 
+            $node = $this->validSignature();
+            if(!empty($node)){
+                $version = MiniVersion::getInstance()->getBySignature($hash); 
+                //创建version/versionMeta数据 
+                if(empty($version)){
+                    $nodeId = $node['id'];           
+                    $type =MiniHttp::getParam('mime_type','');
+                    $size = MiniHttp::getParam('size',0);                    
+                    $bucketPath = $this->getKey();
+                    $version = MiniVersion::getInstance()->create($hash, $size, $type);
+                    MiniVersionMeta::getInstance()->create($version["id"],"store_id",$nodeId);
+                    MiniVersionMeta::getInstance()->create($version["id"],"bucket_path",$bucketPath);
+                    //更新迷你存储节点状态，把新上传的文件数+1
+                    PluginMiniStoreNode::getInstance()->newUploadFile($node);                    
+                }
+                //创建用户相关元数据 执行文件秒传逻辑
+                $filesController = new MFileSecondsController();
+                $filesController->invoke();
+                exit;
+            }             
+        } 
+        //返回错误信息  
+        http_response_code(409);
+        $data = array();
+        $data['code']=409;
+        $data['error']="bad_request";
+        $data['error_description']="invalid singnature";
+        echo(json_encode($data));exit;
     }
     /**
     *文件秒传
@@ -212,22 +259,12 @@ class MiniStoreModule extends MiniPluginModule {
         $miniyunPath = $path;
         //把/1/xxx 替换为 /xxx
         $bucketPath = $this->getBucketPath($user,$path);
-        //OSS相关信息
-        $id= 'WPkFoYluMvInP9Eu';
-        $key= $storeNode['safe_code'];
+        //OSS相关信息  
         $bucketHost = $storeNode['host']; 
         $callbackUrl = MiniHttp::getMiniHost()."api.php"; 
-        //回调地址是阿里云接收文件成功后，反向调用迷你云的地址报竣
-        //其中access_token/route/bucket_url是回调需要的地址
-        //TODO 需要进行签名
-        $callback_param = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=upload/end&node_id='.$storeNode['id'].'&bucket_host='.$bucketHost.'&path='.$miniyunPath.'&bucket_path=${object}&size=${size}&hash=${etag}&mime_type=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}', 
-                     'callbackBodyType'=>"application/x-www-form-urlencoded");
-        $callback_string = json_encode($callback_param);
-
-        $base64_callback_body = base64_encode($callback_string);
-        $now = time();
-        $expire = 30; //设置该policy超时时间是10s. 即这个policy过了这个有效时间，将不能访问
+        //回调地址是阿里云接收文件成功后，反向调用迷你云的地址报竣        
+        $now = time()+$storeNode['time_diff']/1000;
+        $expire = 24*60*60; //设置该policy超时时间是24小时. 即这个policy过了这个有效时间，将不能访问
         $end = $now + $expire;
         $expiration = $this->gmt_iso8601($end);
 
@@ -237,18 +274,23 @@ class MiniStoreModule extends MiniPluginModule {
         $conditions[] = $condition; 
 
         //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
-        $start = array(0=>'starts-with', 1=>'$key', 2=>$bucketPath);
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$bucketPath,3=>$end);
         $conditions[] = $start; 
 
 
-        $arr = array('expiration'=>$expiration,'conditions'=>$conditions); 
-        //return;
+        $arr = array('expiration'=>$expiration,'conditions'=>$conditions);  
         $policy = json_encode($arr);
         $base64_policy = base64_encode($policy);
         $string_to_sign = $base64_policy;
-        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $key, true));
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $storeNode['secret'], true));
 
         $response = array();
+        //其中access_token/route/bucket_url是回调需要的地址 
+        $callback_param = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=upload/end&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&path='.$miniyunPath.'&key=${object}&size=${size}&hash=${etag}&mime_type=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded");
+        $callback_string = json_encode($callback_param);
+        $base64_callback_body = base64_encode($callback_string);
         //上传策略信息
         $uploadContext = array();
         $uploadContext['accessid'] = $id;
