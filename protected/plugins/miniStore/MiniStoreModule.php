@@ -182,8 +182,7 @@ class MiniStoreModule extends MiniPluginModule {
         $paramSignature = str_replace(' ','+',$paramSignature);
         $policyBase64 = MiniHttp::getParam('policy','');
         $signature = base64_encode(hash_hmac('sha1', $policyBase64, $node['secret'], true));
-        if($paramSignature!==$signature){
-            echo($paramSignature.'  '.$signature);exit;
+        if($paramSignature!==$signature){ 
             return null;
         } 
         return $node;

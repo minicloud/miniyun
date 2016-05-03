@@ -846,6 +846,23 @@ class MiniUtil{
      */
     public static function isVedio($filePath){
         $mime = CFileHelper::getMimeTypeByExtension($filePath);
+        if(strpos($filePath,'.3gp')!==false){
+            $mime = 'video/3gp';
+        }else if(strpos($filePath,'.wmv')!==false){
+            $mime = 'video/wmv';
+        }else if(strpos($filePath,'.avi')!==false){
+            $mime = 'video/avi';
+        }else if(strpos($filePath,'.mkv')!==false){
+            $mime = 'video/mkv';
+        }else if(strpos($filePath,'.mov')!==false){
+            $mime = 'video/mov';
+        }else if(strpos($filePath,'.mpg')!==false){
+            $mime = 'video/mpg';
+        }else if(strpos($filePath,'.rmvb')!==false){
+            $mime = 'video/rmvb';
+        }else if(strpos($filePath,'.vob')!==false){
+            $mime = 'video/vob';
+        }
         $mimeTypes = array();
         $mimeTypes[] = 'video/';
         $mimeTypes[] = 'application/vnd.rn-realmedia-vbr'; 
