@@ -35,7 +35,14 @@ class MiniStoreModule extends MiniPluginModule {
         add_filter("upload_sec",array($this,"sec"));
         //文件上传结束
         add_filter("upload_end",array($this,"end"));
-
+        //文档转换开始
+        add_filter("doc_convert_start",array($this,"docConvertStart"));
+        //文档转换结束
+        add_filter("doc_convert_end",array($this,"docConvertEnd"));
+        //视频转换开始
+        add_filter("vedio_convert_start",array($this,"vedioConvertStart"));
+        //文档转换结束
+        add_filter("vedio_convert_end",array($this,"vedioConvertEnd")); 
     }
     /**
      * 获得文件的缩略图
@@ -171,9 +178,12 @@ class MiniStoreModule extends MiniPluginModule {
         if(empty($paramSignature)){
             return null;
         } 
+        //某些情况下base64中的+会替换为空格
+        $paramSignature = str_replace(' ','+',$paramSignature);
         $policyBase64 = MiniHttp::getParam('policy','');
         $signature = base64_encode(hash_hmac('sha1', $policyBase64, $node['secret'], true));
         if($paramSignature!==$signature){
+            echo($paramSignature.'  '.$signature);exit;
             return null;
         } 
         return $node;
@@ -207,6 +217,108 @@ class MiniStoreModule extends MiniPluginModule {
                 $filesController = new MFileSecondsController();
                 $filesController->invoke();
                 exit;
+            }             
+        } 
+        //返回错误信息  
+        http_response_code(409);
+        $data = array();
+        $data['code']=409;
+        $data['error']="bad_request";
+        $data['error_description']="invalid singnature";
+        echo(json_encode($data));exit;
+    }
+    /**
+    *文档转换开始
+    */
+    public function docConvertStart(){       
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $_SESSION['company_id'] = $user['company_id']; 
+        $hash = MiniHttp::getParam('hash',''); 
+        $hash = strtolower($hash); 
+        if(!empty($hash)){ 
+            $node = $this->validSignature();
+            if(!empty($node)){
+                MiniVersion::getInstance()->docConvertStart($hash);
+                $data = array();
+                $data['code']=200;
+                echo(json_encode($data));exit;
+            }             
+        } 
+        //返回错误信息  
+        http_response_code(409);
+        $data = array();
+        $data['code']=409;
+        $data['error']="bad_request";
+        $data['error_description']="invalid singnature";
+        echo(json_encode($data));exit;
+    }
+    /**
+    *文档转换结束
+    */
+    public function docConvertEnd(){       
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $_SESSION['company_id'] = $user['company_id']; 
+        $hash = MiniHttp::getParam('hash',''); 
+        $hash = strtolower($hash); 
+        if(!empty($hash)){ 
+            $node = $this->validSignature();
+            if(!empty($node)){
+                $success = MiniHttp::getParam('success','0'); 
+                MiniVersion::getInstance()->docConvertEnd($hash,$success==='1');
+                $data = array();
+                $data['code']=200;
+                echo(json_encode($data));exit;
+            }             
+        } 
+        //返回错误信息  
+        http_response_code(409);
+        $data = array();
+        $data['code']=409;
+        $data['error']="bad_request";
+        $data['error_description']="invalid singnature";
+        echo(json_encode($data));exit;
+    }
+    /**
+    *视频转换开始
+    */
+    public function vedioConvertStart(){       
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $_SESSION['company_id'] = $user['company_id']; 
+        $hash = MiniHttp::getParam('hash',''); 
+        $hash = strtolower($hash); 
+        if(!empty($hash)){ 
+            $node = $this->validSignature();
+            if(!empty($node)){
+                MiniVersion::getInstance()->vedioConvertStart($hash);
+                $data = array();
+                $data['code']=200;
+                echo(json_encode($data));exit;
+            }             
+        } 
+        //返回错误信息  
+        http_response_code(409);
+        $data = array();
+        $data['code']=409;
+        $data['error']="bad_request";
+        $data['error_description']="invalid singnature";
+        echo(json_encode($data));exit;
+    }
+    /**
+    *视频转换结束
+    */
+    public function vedioConvertEnd(){       
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $_SESSION['company_id'] = $user['company_id']; 
+        $hash = MiniHttp::getParam('hash',''); 
+        $hash = strtolower($hash); 
+        if(!empty($hash)){ 
+            $node = $this->validSignature();
+            if(!empty($node)){
+                $success = MiniHttp::getParam('success','0'); 
+                MiniVersion::getInstance()->vedioConvertEnd($hash,$success==='1');
+                $data = array();
+                $data['code']=200;
+                echo(json_encode($data));exit;
             }             
         } 
         //返回错误信息  
@@ -291,6 +403,7 @@ class MiniStoreModule extends MiniPluginModule {
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
         $callback_string = json_encode($callback_param);
         $base64_callback_body = base64_encode($callback_string);
+               
         //上传策略信息
         $uploadContext = array();
         $uploadContext['accessid'] = $id;
@@ -301,7 +414,37 @@ class MiniStoreModule extends MiniPluginModule {
         $uploadContext['callback'] = $base64_callback_body;
         //这个参数是设置用户上传指定的前缀
         $uploadContext['path'] = $bucketPath;
+        //添加文档转换回掉地址
+        $isDoc = MiniUtil::isDoc($bucketPath);
+        if($isDoc){
+            $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/docStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded");
+            $callbackParamString = json_encode($callbackParam); 
+            $uploadContext['doc_convert_start_callback'] = base64_encode($callbackParamString);
 
+            $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/docEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&success=${success}&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded"); 
+            $callbackParamString = json_encode($callbackParam); 
+            $uploadContext['doc_convert_end_callback'] = base64_encode($callbackParamString);
+        }else{
+            //添加视频转换回掉地址
+            $isVedio = MiniUtil::isVedio($bucketPath);
+            if($isVedio){
+                $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/vedioStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded");
+                $callbackParamString = json_encode($callbackParam); 
+                $uploadContext['vedio_convert_start_callback'] = base64_encode($callbackParamString);
+
+                $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                         'callbackBody'=>'access_token='.$token.'&route=convert/vedioEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
+                         'callbackBodyType'=>"application/x-www-form-urlencoded"); 
+                $callbackParamString = json_encode($callbackParam); 
+                $uploadContext['vedio_convert_end_callback'] = base64_encode($callbackParamString);
+            }
+        } 
         //文件秒传上传策略
         $uploadSecContext = array();
         $uploadSecContext['url'] = MiniHttp::getMiniHost()."api.php?route=upload/sec&access_token=".$token;

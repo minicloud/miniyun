@@ -19,12 +19,12 @@ self.addEventListener('message', function(event) {
     var xhr = new XMLHttpRequest()
     xhr.open('POST', uploadContext.host, true)
     xhr.onload = function(e) {
-        if (xhr.readyState == 4) { 
+        if (xhr.readyState == 4) {
             if (xhr.status == 200) {
-                self.postMessage({ action: 'success',status:200,file: file, index: index })
-            }else{
+                self.postMessage({ action: 'success', status: 200, file: file, index: index })
+            } else {
                 //共享目录下无上传权限
-                self.postMessage({ action: 'success',status:409,file: file, index: index })
+                self.postMessage({ action: 'success', status: 409, file: file, index: index })
             }
         }
     }
@@ -51,6 +51,11 @@ self.addEventListener('message', function(event) {
     form.append('policy', uploadContext.policy)
     form.append('OSSAccessKeyId', uploadContext.accessid)
     form.append('callback', uploadContext.callback)
+    form.append('vedio_convert_start_callback', uploadContext.vedio_convert_start_callback)
+    form.append('vedio_convert_end_callback', uploadContext.vedio_convert_end_callback)
+    form.append('doc_convert_start_callback', uploadContext.doc_convert_start_callback) 
+    form.append('doc_convert_end_callback', uploadContext.doc_convert_end_callback) 
+
     form.append('success_action_status', '200')
     form.append('signature', uploadContext.signature)
     form.append('Content-Disposition', 'attachment;filename=' + fileName + ';' + 'filename=' + encodeURI(fileName) + ';filename*=UTF-8\'\'' + encodeURI(fileName))

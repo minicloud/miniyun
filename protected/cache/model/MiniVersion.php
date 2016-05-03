@@ -135,7 +135,54 @@ class MiniVersion extends MiniCache{
 		if($object===false) return NULL;
 		return $object;
 	}
-	
+	/**
+	 * 文档转换开始
+	 * @param $signature
+     * @return array
+	 */
+	public function docConvertStart($signature){
+		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+		if(isset($item)){ 
+            $item->doc_convert_status = 1; 
+            $item->save();
+		}
+	}
+	/**
+	 * 文档转换结束
+	 * @param $signature
+     * @return array
+	 */
+	public function docConvertEnd($signature,$success){
+		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+		if(isset($item)){ 
+            $item->doc_convert_status = $success?2:-1; 
+            $item->save();
+		}
+	}
+	/**
+	 * 视频转换开始
+	 * @param $signature
+     * @return array
+	 */
+	public function vedioConvertStart($signature){
+		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+		if(isset($item)){ 
+            $item->vedio_convert_status = 1; 
+            $item->save();
+		}
+	}
+	/**
+	 * 视频转换结束
+	 * @param $signature
+     * @return array
+	 */
+	public function vedioConvertEnd($signature,$success){
+		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
+		if(isset($item)){ 
+            $item->vedio_convert_status = $success?2:-1; 
+            $item->save();
+		}
+	} 
 	/**
 	 * 创建文件版本
 	 * @param string $signature

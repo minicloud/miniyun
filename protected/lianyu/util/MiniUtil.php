@@ -804,4 +804,56 @@ class MiniUtil{
             return 'application/octet-stream';
         }
     }
+    /**
+     * 判断文件是否文档
+     * @param string $filename
+     * @param string $path
+     * @return string
+     */
+    public static function isDoc($filePath){
+        $mime = CFileHelper::getMimeTypeByExtension($filePath);
+        if(strpos($filePath,'.docx')!==false){
+            $mime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'; 
+        }
+        else if(strpos($filePath,'.pptx')!==false){
+            $mime = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'; 
+        }
+        else if(strpos($filePath,'.xlsx')!==false){
+            $mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; 
+        }else if(strpos($filePath,'.ppt')!==false){
+            $mime = 'application/ms-powerpoint'; 
+        } 
+        $mimeTypes = array();
+        $mimeTypes[] = 'application/msword';
+        $mimeTypes[] = 'application/vnd.ms-excel';
+        $mimeTypes[] = 'application/ms-powerpoint';
+        $mimeTypes[] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        $mimeTypes[] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        $mimeTypes[] = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+        $mimeTypes[] = 'application/pdf';
+        foreach ($mimeTypes as $index => $mimeType) {
+            if(strpos($mime,$mimeType)!== false){
+                return true;
+            }
+        }
+        return false;
+    }
+     /**
+     * 判断文件是否视频
+     * @param string $filename
+     * @param string $path
+     * @return string
+     */
+    public static function isVedio($filePath){
+        $mime = CFileHelper::getMimeTypeByExtension($filePath);
+        $mimeTypes = array();
+        $mimeTypes[] = 'video/';
+        $mimeTypes[] = 'application/vnd.rn-realmedia-vbr'; 
+        foreach ($mimeTypes as $index => $mimeType) {
+            if(strpos($mime,$mimeType)!== false){
+                return true;
+            }
+        }
+        return false;
+    }
 }
