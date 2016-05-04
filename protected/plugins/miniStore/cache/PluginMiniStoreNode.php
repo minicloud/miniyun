@@ -66,7 +66,8 @@ class PluginMiniStoreNode extends MiniCache{
         $value["key"]                 = $item->key;
         $value["secret"]              = $item->secret;
         $value["status"]              = $item->status;
-        $value["running"]              = $item->running;
+        $value["running"]             = $item->running;
+        $value["plugin_info"]         = $item->plugin_info;
         $value["version"]             = $item->version;
         $value["saved_file_count"]    = $item->saved_file_count;
         $value["downloaded_file_count"] = $item->downloaded_file_count;
@@ -293,4 +294,99 @@ class PluginMiniStoreNode extends MiniCache{
         }
         return null;
     } 
+    private function gmt_iso8601($time) {
+        $dtStr = date("c", $time);
+        $mydatetime = new DateTime($dtStr);
+        $expiration = $mydatetime->format(DateTime::ISO8601);
+        $pos = strpos($expiration, '+');
+        $expiration = substr($expiration, 0, $pos);
+        return $expiration."Z";
+    }
+    /**
+    *把/1/xxx 替换为 /xxx
+    */ 
+    private function getBucketPath($user,$path){ 
+        $prefix = '/'.$user['id'].'/';
+        $path = str_replace($prefix,'/', $path);
+        $bucketPath = 'minicloud/'.$user['user_name'].$path;
+        return $bucketPath;
+    }
+    /**
+     * 文档或视频第二次转换地址
+     */
+    public function getConvertUrl($file,$version){
+        $user = MUserManager::getInstance()->getCurrentUser(); 
+        $bucketPath = $this->getBucketPath($user,$file['file_path']);
+        $hash = $version['file_signature'];
+        $storeNode = $this->getDownloadNode($version);
+        //回调地址是阿里云接收文件成功后，反向调用迷你云的地址报竣        
+        $now = time()+$storeNode['time_diff']/1000;
+        $expire = 60; //设置该policy超时时间是60秒. 即这个policy过了这个有效时间，将不能访问
+        $end = $now + $expire;
+        $expiration = $this->gmt_iso8601($end);
+        //最大文件大小.用户可以自己设置
+        $condition = array(0=>'content-length-range', 1=>0, 2=>1048576000);
+        $conditions[] = $condition; 
+
+        //表示用户上传的数据,必须是以$dir开始, 不然上传会失败,这一步不是必须项,只是为了安全起见,防止用户通过policy上传到别人的目录
+        $start = array(0=>'starts-with', 1=>'$key', 2=>$bucketPath,3=>$end);
+        $conditions[] = $start; 
+
+
+        $arr = array('expiration'=>$expiration,'conditions'=>$conditions);  
+        $policy = json_encode($arr);
+        $base64_policy = base64_encode($policy);
+        $string_to_sign = $base64_policy;
+        $signature = base64_encode(hash_hmac('sha1', $string_to_sign, $storeNode['secret'], true));
+
+        $context = array();
+        $token = MiniHttp::getParam('access_token','');
+        $callbackUrl = MiniHttp::getMiniHost()."api.php"; 
+        $context['policy'] = $base64_policy;
+        $context['signature'] = $signature;
+        $context['expire'] = $end;
+        $context['hash'] = $hash;
+        //添加文档转换回掉地址
+        $isDoc = MiniUtil::isDoc($bucketPath);
+        if($isDoc){
+            $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/docStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded");
+            $callbackParamString = json_encode($callbackParam); 
+            $context['doc_convert_start_callback'] = base64_encode($callbackParamString);
+
+            $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/docEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&success=${success}&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded"); 
+            $callbackParamString = json_encode($callbackParam); 
+            $context['doc_convert_end_callback'] = base64_encode($callbackParamString);
+        }else{
+            //添加视频转换回掉地址
+            $isVedio = MiniUtil::isVedio($bucketPath);
+            if($isVedio){
+                $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/vedioStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBodyType'=>"application/x-www-form-urlencoded");
+                $callbackParamString = json_encode($callbackParam); 
+                $context['vedio_convert_start_callback'] = base64_encode($callbackParamString);
+
+                $callbackParam = array('callbackUrl'=>$callbackUrl, 
+                         'callbackBody'=>'access_token='.$token.'&route=convert/vedioEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
+                         'callbackBodyType'=>"application/x-www-form-urlencoded"); 
+                $callbackParamString = json_encode($callbackParam); 
+                $context['vedio_convert_end_callback'] = base64_encode($callbackParamString);
+            }
+        } 
+        if($isDoc){
+            $url = $storeNode["host"]."api/v1/doc/convert?";
+        }else{
+            if($isVedio){
+                $url = $storeNode["host"]."api/v1/vedio/convert?";
+            }
+        }
+        foreach($context as $key=>$value){
+            $url .="&".$key."=".urlencode($value);
+        } 
+        return $url;
+    }
 }

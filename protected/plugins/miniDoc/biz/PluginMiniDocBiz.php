@@ -24,32 +24,7 @@ class PluginMiniDocBiz extends MiniBiz{
                 404);
         }
 
-    }
-    /**
-     *给迷你云报告文件转换过程
-     * @param int $nodeId 文档转换服务器Id
-     * @param string $signature 文件hash值
-     * @param string $status 文件状态
-     * @return array
-     */
-    public function report($nodeId,$signature,$status){
-        $version = MiniVersion::getInstance()->getBySignature($signature);
-        if(!empty($version)){
-            //文件转换成功
-            if($status==="1"){
-                //更新迷你存储节点状态，把新上传的文件数+1
-                PluginMiniDocNode::getInstance()->newConvertFile($nodeId);
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($nodeId,$signature,2);
-                //通过回调方式让迷你搜索把文件文本内容编制索引到数据库中
-                do_action("pull_text_search",$signature);
-            }
-            //文件转换失败
-            if($status==="0"){
-                PluginMiniDocVersion::getInstance()->updateDocConvertStatus($nodeId,$signature,-1);
-            }
-        }
-        return array("success"=>true);
-    }
+    } 
     private function getSharedDoc($page,$pageSize,$sharedList,$mimeType){
         $cursor = $pageSize;
         $data   = array();
@@ -205,50 +180,7 @@ class PluginMiniDocBiz extends MiniBiz{
             $url = PluginMiniStoreNode::getInstance()->getDocPdfUrl($version);
         }           
         header('Location: '.$url);
-    }
-    /**
-     *获得迷你文档节点信息列表
-     * @return array
-     */
-    public function getNodeList(){
-        return PluginMiniDocNode::getInstance()->getNodeList();
-    }
-    /**
-     * 创建迷你文档节点
-     * @param int $id 节点ID
-     * @param string $name 节点名称
-     * @param string $host 节点域名
-     * @param string $safeCode 节点访问的安全码
-     * @throws MiniException
-     * @return array
-     */
-    public function createOrModifyNode($id,$name,$host,$safeCode){
-        $node = PluginMiniDocNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
-        if(empty($node)){
-            throw new MiniException(100205);
-        }
-        return $node;
-    }
-    /**
-     * 修改迷你文档节点状态
-     * @param string $name 节点名称
-     * @param string $status 节点状态
-     * @throws MiniException
-     */
-    public function modifyNodeStatus($name,$status){
-        $node = PluginMiniDocNode::getInstance()->getNodeByName($name);
-        if(empty($node)){
-            throw new MiniException(100203);
-        }
-        if($status==1){
-            //检查服务器状态，看看是否可以连接迷你文档服务器
-            $nodeStatus = PluginMiniDocNode::getInstance()->checkNodeStatus($node["host"]);
-            if($nodeStatus==-1){
-                throw new MiniException(100204);
-            }
-        }
-        return PluginMiniDocNode::getInstance()->modifyNodeStatus($name,$status);
-    }
+    } 
     /**
      * 获得当前文档转换状态
      * 如状态为0，可能是老文件，以补偿形式开始转换
@@ -257,9 +189,10 @@ class PluginMiniDocBiz extends MiniBiz{
     public function convertStatus($path){
         $file    = MiniFile::getInstance()->getByPath($path);
         $version = PluginMiniDocVersion::getInstance()->getVersion($file['version_id']);
-        if($version["doc_convert_status"]==0){
-            PluginMiniDocVersion::getInstance()->pushConvertSignature($version["file_signature"],""); 
+        if($version["doc_convert_status"]==0){ 
+            //状态为0说明是待转换状态，向minicloud发送请求
+            $url = PluginMiniStoreNode::getInstance()->getConvertUrl($file,$version); 
         }
-        return array('status'=>$version['doc_convert_status']);
+        return array('status'=>$version['doc_convert_status'],'url'=>$url);
     }
 }

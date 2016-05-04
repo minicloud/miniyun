@@ -24,7 +24,6 @@ class MiniPlugin extends MiniCache
     {
         parent::MiniCache();
     }
-
     /**
      * 静态方法, 单例统一访问入口
      * @return object  返回对象的唯一实例
@@ -36,38 +35,29 @@ class MiniPlugin extends MiniCache
         }
         return self::$_instance;
     }
-
     /**
      * 加载插件
      */
     public function load()
     {
-        $configPath = dirname(__FILE__) . '/../../config/miniyun-config.php';
-        //如果系统尚未安装，则不加载插件
-        if (!file_exists($configPath)) {
-            return;
-        }
-        $value = MiniOption::getInstance()->getOptionValue("active_plugins");
-        if ($value !== NULL) {
-            $activePlugins = (array)unserialize($value);
-            $pluginNames = array();
-            //判断插件的入口文件是否存在
-            foreach ($activePlugins as $pluginName => $value) {
-                $path = Yii::getPathOfAlias('application.plugins') . DIRECTORY_SEPARATOR . $pluginName . DIRECTORY_SEPARATOR . ucfirst($pluginName) . "Module.php";
-                if (file_exists($path)) {
-                    $pluginNames[] = $pluginName;
-                }
+        $activePlugins = ['miniStore','miniDoc'];
+        $pluginNames = array();
+        //判断插件的入口文件是否存在
+        foreach ($activePlugins as $index => $pluginName) {
+            $path = Yii::getPathOfAlias('application.plugins') . DIRECTORY_SEPARATOR . $pluginName . DIRECTORY_SEPARATOR . ucfirst($pluginName) . "Module.php";
+            if (file_exists($path)) {
+                $pluginNames[] = $pluginName;
             }
-            //设置Yii环境变量
-            Yii::app()->setModulePath(PLUGIN_DIR);
-            Yii::app()->setModules($pluginNames);
-            //引用模块，让其生效
-            foreach ($pluginNames as $pluginName) {
-                try {
-                    Yii::app()->getModule($pluginName);
-                } catch (Exception $e) {
+        }
+        //设置Yii环境变量
+        Yii::app()->setModulePath(PLUGIN_DIR);
+        Yii::app()->setModules($pluginNames);
+        //引用模块，让其生效
+        foreach ($pluginNames as $pluginName) {
+            try {
+                Yii::app()->getModule($pluginName);
+            } catch (Exception $e) {
 
-                }
             }
         }
     }

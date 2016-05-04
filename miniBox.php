@@ -57,8 +57,6 @@ class OldVersion{
         );
     }
     public function load($webApp){
-
-
         if($this->offline){
             $this->loadContent($webApp);
             exit;
@@ -80,7 +78,6 @@ class OldVersion{
             }
             return false;
         }
-
     }
     private function loadContent($webApp){
         $webApp->run();
@@ -120,11 +117,7 @@ class Util{
     /**
      * 判断是否混合云模式下
      */
-    public static function isMixCloudVersion(){
-        $path = dirname(__FILE__)."/protected/plugins/offline";
-        if(file_exists($path)){
-            return false;
-        }
+    public static function isMixCloudVersion(){ 
         return true;
     }
     /**

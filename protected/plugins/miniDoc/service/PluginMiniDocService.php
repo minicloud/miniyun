@@ -17,10 +17,7 @@ class PluginMiniDocService extends MiniService{
         );
     }
     protected function adminActionList(){
-        return array(
-            "nodeList",
-            "node",
-            "nodeStatus",
+        return array( 
         );
     }
     /**
@@ -31,19 +28,7 @@ class PluginMiniDocService extends MiniService{
         $signature = MiniHttp::getParam('signature',"");
         $biz = new PluginMiniDocBiz();
         $biz->download($signature);
-    }
-    /**
-     * 根据文件hash值报告文档转换情况
-     */
-    public function  report(){
-        //TODO 这里要进行IP的安全过滤，否则将会导致文件匿名下载并外泄
-        $nodeId = MiniHttp::getParam('node_id',"");
-        $signature = MiniHttp::getParam('signature',"");
-        $status = MiniHttp::getParam('status',"");
-        $biz = new PluginMiniDocBiz();
-        $result = $biz->report($nodeId,$signature,$status);
-        return $result;
-    }
+    } 
     /**
      * 文档在线预览列表
      */
@@ -68,38 +53,8 @@ class PluginMiniDocService extends MiniService{
         return $biz->previewContent($path,$type);
     }
     /**
-     * 获得迷你文档节点列表
+     * 查询文件转换状态
      */
-    public function nodeList() {
-        $biz = new PluginMiniDocBiz();
-        return $biz->getNodeList();
-    }
-    /**
-     * 创建或修改新的迷你文档节点
-     */
-    public function node(){
-        $name = MiniHttp::getParam("name","");
-        $id = MiniHttp::getParam("id","");
-        $host = MiniHttp::getParam("host","");
-        $safeCode = MiniHttp::getParam("safe_code","");
-        if(empty($name)||empty($host)||empty($safeCode)){
-            throw new MiniException(100201);
-        }
-        $biz = new PluginMiniDocBiz();
-        return $biz->createOrModifyNode($id,$name,$host,$safeCode);
-    }
-    /**
-     * 修改迷你文档节点的状态
-     */
-    public function nodeStatus(){
-        $name = MiniHttp::getParam("name","");
-        $status = MiniHttp::getParam("status","0");
-        if(empty($name)){
-            throw new MiniException(100202);
-        }
-        $biz = new PluginMiniDocBiz();
-        return $biz->modifyNodeStatus($name,$status);
-    }
     public function convertStatus(){
         $path = MiniHttp::getParam("path","");
         $path = rawurldecode($path);

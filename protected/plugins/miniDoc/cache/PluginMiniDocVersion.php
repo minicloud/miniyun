@@ -83,6 +83,7 @@ class PluginMiniDocVersion extends MiniCache{
         $value["created_at"]      = $item->created_at;
         $value["createTime"]      = strtotime($item->created_at);
         $value['doc_convert_status'] = $item->doc_convert_status;
+        $value['vedio_convert_status'] = $item->vedio_convert_status;
         return  $value;
     }
     /**

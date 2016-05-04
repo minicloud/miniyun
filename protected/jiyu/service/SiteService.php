@@ -25,10 +25,28 @@ class SiteService extends MiniService{
      */
     public function info() {
         $biz = new SiteBiz();
-        $info = $biz->getSiteInfo();
-        $pluginInfo = array();
-        $pluginInfo = apply_filters("plugin_info", $pluginInfo);
-        $info["plugins"] = $pluginInfo;
+        $info = $biz->getSiteInfo();        
+        $storeNode = PluginMiniStoreNode::getInstance()->getUploadNode();   
+        $plugins = array();
+        array_push($plugins,
+            array("name"=>"businessTheme")
+        );  
+        if(!empty($storeNode)){
+            $pluginInfo = json_decode($storeNode['plugin_info']); 
+            if($pluginInfo->{'doc'}){  
+                array_push($plugins,
+                    array(
+                       "name"=>"miniDoc",
+                )); 
+            }  
+            if($pluginInfo->{'mp4'}){  
+                array_push($plugins,
+                    array(
+                       "name"=>"miniVideo",
+                )); 
+            }            
+        }   
+        $info["plugins"] = $plugins;
         return $info;
     }
     /**
