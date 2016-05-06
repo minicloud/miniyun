@@ -18,13 +18,13 @@ class ConvertService extends MiniService{
     /**
     *视频转换开始
     */
-    public function vedioStart(){
-        return apply_filters("vedio_convert_start");        
+    public function videoStart(){
+        return apply_filters("video_convert_start");        
     } 
     /**
     *视频转换结束 
     */
-    public function vedioEnd(){
-        return apply_filters("vedio_convert_end");        
+    public function videoEnd(){
+        return apply_filters("video_convert_end");        
     } 
 }   

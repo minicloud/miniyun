@@ -844,7 +844,7 @@ class MiniUtil{
      * @param string $path
      * @return string
      */
-    public static function isVedio($filePath){
+    public static function isVideo($filePath){
         $mime = CFileHelper::getMimeTypeByExtension($filePath);
         if(strpos($filePath,'.3gp')!==false){
             $mime = 'video/3gp';

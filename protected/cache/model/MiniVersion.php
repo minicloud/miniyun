@@ -164,10 +164,10 @@ class MiniVersion extends MiniCache{
 	 * @param $signature
      * @return array
 	 */
-	public function vedioConvertStart($signature){
+	public function videoConvertStart($signature){
 		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
 		if(isset($item)){ 
-            $item->vedio_convert_status = 1; 
+            $item->video_convert_status = 1; 
             $item->save();
 		}
 	}
@@ -176,10 +176,10 @@ class MiniVersion extends MiniCache{
 	 * @param $signature
      * @return array
 	 */
-	public function vedioConvertEnd($signature,$success){
+	public function videoConvertEnd($signature,$success){
 		$item =  FileVersion::model()->find("file_signature=:signature",array("signature"=>$signature));
 		if(isset($item)){ 
-            $item->vedio_convert_status = $success?2:-1; 
+            $item->video_convert_status = $success?2:-1; 
             $item->save();
 		}
 	} 

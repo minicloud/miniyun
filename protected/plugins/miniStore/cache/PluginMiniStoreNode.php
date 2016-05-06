@@ -145,6 +145,7 @@ class PluginMiniStoreNode extends MiniCache{
      */
     public function getUploadNode(){
         $user = MUserManager::getInstance()->getCurrentUser();
+        if(empty($user)) return null;
         $meta = MiniUserMeta::getInstance()->getUserMeta($user['id'],'store_id');
         if(!empty($meta)){
             //如为该用户指定了存储点，则直接用该存储节点
@@ -246,6 +247,40 @@ class PluginMiniStoreNode extends MiniCache{
             $data = array(  
             );
             $url = $node["host"]."api/v1/doc/pdf?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data); 
+            return $url;
+        }
+        return null;
+    }
+    /**
+     * 获得视频封面图片
+     * @param Object $version 
+     * @return string
+     */
+    public function getVideoCoverPngUrl($version){ 
+        $node = $this->getDownloadNode($version); 
+        if(!empty($node)){ 
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],'bucket_path');
+            $data = array(  
+            );
+            $url = $node["host"]."api/v1/video/cover?";
+            $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data);  
+            return $url;
+        }
+        return null;
+    }
+    /**
+     * 获得视频mp4文档地址
+     * @param Object $version 
+     * @return string
+     */
+    public function getVideoContentUrl($version){ 
+        $node = $this->getDownloadNode($version); 
+        if(!empty($node)){ 
+            $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],'bucket_path');
+            $data = array(  
+            );
+            $url = $node["host"]."api/v1/video/content?";
             $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data); 
             return $url;
         }
@@ -362,26 +397,26 @@ class PluginMiniStoreNode extends MiniCache{
             $context['doc_convert_end_callback'] = base64_encode($callbackParamString);
         }else{
             //添加视频转换回掉地址
-            $isVedio = MiniUtil::isVedio($bucketPath);
-            if($isVedio){
+            $isVideo = MiniUtil::isVideo($bucketPath);
+            if($isVideo){
                 $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=convert/vedioStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/videoStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
                 $callbackParamString = json_encode($callbackParam); 
-                $context['vedio_convert_start_callback'] = base64_encode($callbackParamString);
+                $context['video_convert_start_callback'] = base64_encode($callbackParamString);
 
                 $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                         'callbackBody'=>'access_token='.$token.'&route=convert/vedioEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
+                         'callbackBody'=>'access_token='.$token.'&route=convert/videoEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
                          'callbackBodyType'=>"application/x-www-form-urlencoded"); 
                 $callbackParamString = json_encode($callbackParam); 
-                $context['vedio_convert_end_callback'] = base64_encode($callbackParamString);
+                $context['video_convert_end_callback'] = base64_encode($callbackParamString);
             }
         } 
         if($isDoc){
             $url = $storeNode["host"]."api/v1/doc/convert?";
         }else{
-            if($isVedio){
-                $url = $storeNode["host"]."api/v1/vedio/convert?";
+            if($isVideo){
+                $url = $storeNode["host"]."api/v1/video/convert?";
             }
         }
         foreach($context as $key=>$value){

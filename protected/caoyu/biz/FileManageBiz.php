@@ -103,7 +103,7 @@ class FileManageBiz extends MiniBiz{
         $data['deleted_count'] = $fileModel->deletedCount();
         $data['folders_count'] = $fileModel->foldersCount();
         $data['audio_count'] = $fileModel->audioCount();
-        $data['vedio_count'] = $fileModel->vedioCount();
+        $data['video_count'] = $fileModel->videoCount();
         return $data;
     }
 

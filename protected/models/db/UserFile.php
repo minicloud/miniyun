@@ -615,7 +615,7 @@ class UserFile extends CMiniyunModel
      * 视频数量
      * @since 1.1.2
      */
-    public function vedioCount($sql='')
+    public function videoCount($sql='')
     {
         if (empty($sql)){
             return $this->count("mime_type like 'audio%' and is_deleted=0");

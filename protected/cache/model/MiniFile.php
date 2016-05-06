@@ -727,7 +727,7 @@ class MiniFile extends MiniCache{
      * @param string $sql
      * @return mixed
      */
-    public function getVedioCount($userId, $sql='')
+    public function getVideoCount($userId, $sql='')
     {
         $criteria                = new CDbCriteria();
         $criteria->condition     = "is_deleted=0 and user_id=:user_id and mime_type like 'video%'";

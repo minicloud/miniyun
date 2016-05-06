@@ -51,8 +51,8 @@ self.addEventListener('message', function(event) {
     form.append('policy', uploadContext.policy)
     form.append('OSSAccessKeyId', uploadContext.accessid)
     form.append('callback', uploadContext.callback)
-    form.append('vedio_convert_start_callback', uploadContext.vedio_convert_start_callback)
-    form.append('vedio_convert_end_callback', uploadContext.vedio_convert_end_callback)
+    form.append('video_convert_start_callback', uploadContext.video_convert_start_callback)
+    form.append('video_convert_end_callback', uploadContext.video_convert_end_callback)
     form.append('doc_convert_start_callback', uploadContext.doc_convert_start_callback) 
     form.append('doc_convert_end_callback', uploadContext.doc_convert_end_callback) 
 

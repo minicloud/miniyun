@@ -29,8 +29,19 @@ class SiteService extends MiniService{
         $storeNode = PluginMiniStoreNode::getInstance()->getUploadNode();   
         $plugins = array();
         array_push($plugins,
-            array("name"=>"businessTheme")
-        );  
+            array(
+                "name"=>"businessTheme",
+                "data"=>array(
+                    "productName"=>"迷你云",
+                    "companyName"=>"让文件管理更简单",
+                    "companyEnglishName"=>"www.miniyun.cn",
+                    "helpUrl"=>"//wenda.miniyun.cn",
+                    "helpName"=>"帮助中心",
+                    "logo"=>"/static/images/logo.png",
+                    "carouselImagesUrl"=>array("/static/images/plugins/pluginTheme/default.png")
+                )
+            )
+        );   
         if(!empty($storeNode)){
             $pluginInfo = json_decode($storeNode['plugin_info']); 
             if($pluginInfo->{'doc'}){  

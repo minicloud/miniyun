@@ -180,7 +180,7 @@ class PluginMiniDocBiz extends MiniBiz{
             $url = PluginMiniStoreNode::getInstance()->getDocPdfUrl($version);
         }           
         header('Location: '.$url);
-    } 
+    }     
     /**
      * 获得当前文档转换状态
      * 如状态为0，可能是老文件，以补偿形式开始转换
@@ -195,4 +195,47 @@ class PluginMiniDocBiz extends MiniBiz{
         }
         return array('status'=>$version['doc_convert_status'],'url'=>$url);
     }
+    /**
+     * 获得当前文档转换状态
+     * 如状态为0，可能是老文件，以补偿形式开始转换
+     * @param string $path 文件路径 
+     */
+    public function videoStatus($path){
+        $file    = MiniFile::getInstance()->getByPath($path);
+        $version = PluginMiniDocVersion::getInstance()->getVersion($file['version_id']);
+        if($version["video_convert_status"]==0){ 
+            //状态为0说明是待转换状态，向minicloud发送请求
+            $url = PluginMiniStoreNode::getInstance()->getConvertUrl($file,$version); 
+        }
+        return array('status'=>$version['video_convert_status'],'url'=>$url);
+    }
+    /**
+     * 视频在线浏览获得内容
+     * @param string $path 文件当前路径
+     * @param string $type 文件类型，可选择pdf/png
+     * @throws
+     * @return NULL
+     */
+    public function videoContent($path,$type){
+        $file = MiniFile::getInstance()->getByPath($path);
+        // 权限处理
+        if(empty($file)){
+            return array('success' =>false ,'msg'=>'file not existed');
+        }
+        $fileBiz = new FileBiz();
+        $canRead = $fileBiz->privilege($path);
+        if(!$canRead){
+            throw new MFileopsException( Yii::t('api','no permission'),MConst::HTTP_CODE_409);
+        }
+        //获得文件当前版本对应的version
+        $version   = PluginMiniDocVersion::getInstance()->getVersion($file["version_id"]);
+        $signature = $version["file_signature"];
+        $url = '';
+        if($type==="png"){
+            $url = PluginMiniStoreNode::getInstance()->getVideoCoverPngUrl($version);
+        }else if($type==="mp4"){
+            $url = PluginMiniStoreNode::getInstance()->getVideoContentUrl($version);
+        }           
+        header('Location: '.$url);
+    } 
 }

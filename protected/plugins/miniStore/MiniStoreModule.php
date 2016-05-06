@@ -35,9 +35,9 @@ class MiniStoreModule extends MiniPluginModule {
         //文档转换结束
         add_filter("doc_convert_end",array($this,"docConvertEnd"));
         //视频转换开始
-        add_filter("vedio_convert_start",array($this,"vedioConvertStart"));
+        add_filter("video_convert_start",array($this,"videoConvertStart"));
         //文档转换结束
-        add_filter("vedio_convert_end",array($this,"vedioConvertEnd")); 
+        add_filter("video_convert_end",array($this,"videoConvertEnd")); 
     }
     /**
      * 获得文件的缩略图
@@ -200,7 +200,7 @@ class MiniStoreModule extends MiniPluginModule {
     /**
     *视频转换开始
     */
-    public function vedioConvertStart(){       
+    public function videoConvertStart(){       
         $user = MUserManager::getInstance()->getCurrentUser();
         $_SESSION['company_id'] = $user['company_id']; 
         $hash = MiniHttp::getParam('hash',''); 
@@ -208,7 +208,7 @@ class MiniStoreModule extends MiniPluginModule {
         if(!empty($hash)){ 
             $node = $this->validSignature();
             if(!empty($node)){
-                MiniVersion::getInstance()->vedioConvertStart($hash);
+                MiniVersion::getInstance()->videoConvertStart($hash);
                 $data = array();
                 $data['code']=200;
                 echo(json_encode($data));exit;
@@ -225,7 +225,7 @@ class MiniStoreModule extends MiniPluginModule {
     /**
     *视频转换结束
     */
-    public function vedioConvertEnd(){       
+    public function videoConvertEnd(){       
         $user = MUserManager::getInstance()->getCurrentUser();
         $_SESSION['company_id'] = $user['company_id']; 
         $hash = MiniHttp::getParam('hash',''); 
@@ -234,7 +234,7 @@ class MiniStoreModule extends MiniPluginModule {
             $node = $this->validSignature();
             if(!empty($node)){
                 $success = MiniHttp::getParam('success','0'); 
-                MiniVersion::getInstance()->vedioConvertEnd($hash,$success==='1');
+                MiniVersion::getInstance()->videoConvertEnd($hash,$success==='1');
                 $data = array();
                 $data['code']=200;
                 echo(json_encode($data));exit;
@@ -349,19 +349,19 @@ class MiniStoreModule extends MiniPluginModule {
             $uploadContext['doc_convert_end_callback'] = base64_encode($callbackParamString);
         }else{
             //添加视频转换回掉地址
-            $isVedio = MiniUtil::isVedio($bucketPath);
-            if($isVedio){
+            $isVideo = MiniUtil::isVideo($bucketPath);
+            if($isVideo){
                 $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=convert/vedioStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                     'callbackBody'=>'access_token='.$token.'&route=convert/videoStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
                 $callbackParamString = json_encode($callbackParam); 
-                $uploadContext['vedio_convert_start_callback'] = base64_encode($callbackParamString);
+                $uploadContext['video_convert_start_callback'] = base64_encode($callbackParamString);
 
                 $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                         'callbackBody'=>'access_token='.$token.'&route=convert/vedioEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
+                         'callbackBody'=>'access_token='.$token.'&route=convert/videoEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
                          'callbackBodyType'=>"application/x-www-form-urlencoded"); 
                 $callbackParamString = json_encode($callbackParam); 
-                $uploadContext['vedio_convert_end_callback'] = base64_encode($callbackParamString);
+                $uploadContext['video_convert_end_callback'] = base64_encode($callbackParamString);
             }
         } 
         //文件秒传上传策略
