@@ -536,7 +536,7 @@ class MiniBox{
         //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
         if($this->isWeb){
             if($this->isMixCloudVersion){
-                $this->syncNewVersion();
+                // $this->syncNewVersion();
             }
         }
         //默认业务主路径
