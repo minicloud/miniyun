@@ -60,26 +60,5 @@ class PluginMiniDocService extends MiniService{
         $path = rawurldecode($path);
         $biz = new PluginMiniDocBiz();
         return $biz->convertStatus($path);
-    }
-    /**
-     * 查询文件转换状态
-     */
-    public function videoStatus(){
-        $path = MiniHttp::getParam("path","");
-        $path = rawurldecode($path);
-        $biz = new PluginMiniDocBiz();
-        return $biz->videoStatus($path);
-    }
-    /**
-     * 视频在线浏览文件获得内容
-     * path文件当前路径
-     * type文件类型，可选择mp4/png
-     */
-    public function videoContent(){
-        $path = MiniHttp::getParam("path","");
-        $path = rawurldecode($path);
-        $type = MiniHttp::getParam("type","mp4");
-        $biz = new PluginMiniDocBiz();
-        return $biz->videoContent($path,$type);
-    }
+    }    
 }

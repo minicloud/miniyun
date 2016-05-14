@@ -439,8 +439,8 @@ class MFiles extends MModel {
     public static function findAll($condition = 1) {
         $companyId = $_SESSION['company_id'];
         $db_manager = MDbManager::getInstance();
-        $sql = "select * from ".DB_PREFIX."_files where company_id={$companyId} ";
-        $sql .= $condition;
+        $sql = "select * from ".DB_PREFIX."_files where company_id={$companyId} and";
+        $sql .= $condition; 
         Yii::trace ( "function: '{findAll}',sql:'{$sql}'" );
         return $db_manager->selectDb ( $sql );
     }
