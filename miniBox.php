@@ -421,18 +421,8 @@ class MiniBox{
             setcookie("appSecret",$appSecret,time()+10*24*3600,"/");
         }
         //根据物理路径判断网页客户端本地是否存在
-        $this->offline = $this->isOffline();
-        if($this->isMixCloudVersion){
-            $port = $_SERVER["SERVER_PORT"];
-            if($port=="443"){
-                $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
-            }else{
-                $this->staticServerHost = "http://static.minicloud.io/";
-            }
-        }else{
-            //私有云模式下
-            $this->staticServerHost = "http://".$_SERVER["HTTP_HOST"]."/statics/";
-        }
+        $this->offline = false;
+        $this->staticServerHost = "https://jt.miniyun.cn/";
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
         $uriInfo      = explode("/",$requestUri);
@@ -535,9 +525,9 @@ class MiniBox{
         $this->appInfo = new SiteAppInfo();
         //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
         if($this->isWeb){
-            if($this->isMixCloudVersion){
-                // $this->syncNewVersion();
-            }
+            // if($this->isMixCloudVersion){
+            //     $this->syncNewVersion();
+            // }
         }
         //默认业务主路径
         $this->cloudFolderName = "mini-box";
