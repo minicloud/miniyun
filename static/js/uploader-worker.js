@@ -18,11 +18,18 @@ self.addEventListener('message', function(event) {
     var start = new Date()
     var xhr = new XMLHttpRequest()
     xhr.open('POST', uploadContext.host, true)
+    xhr.onloadend = function(e){
+        if (xhr.readyState == 4) {
+            if (xhr.status == 0) {
+                self.postMessage({ action: 'failed', status: 0, file: file, index: index ,uploadPath:uploadContext.host})
+            }
+        }
+    }
     xhr.onload = function(e) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 self.postMessage({ action: 'success', status: 200, file: file, index: index })
-            } else {
+            } else if(xhr.status == 413){
                 //共享目录下无上传权限
                 self.postMessage({ action: 'success', status: 409, file: file, index: index })
             }

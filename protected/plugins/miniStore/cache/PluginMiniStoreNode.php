@@ -108,9 +108,9 @@ class PluginMiniStoreNode extends MiniCache{
     /**
     * 新下载文件 
     */
-    private function newDownloadFile($node){
+    private function newDownloadFile($node){ 
         $item = StoreNode::model()->find("id=:id",array("id"=>$node['id']));
-        if(isset($item)){
+        if(isset($item)){ 
             $item->downloaded_file_count++;
             $item->save();
         }
@@ -212,8 +212,8 @@ class PluginMiniStoreNode extends MiniCache{
             );
             $url = $node["host"]."api/v1/file/download?";
             $url = $this->signatureUrl($url,$node,$meta['meta_value'],$data); 
-            //更新迷你存储节点状态，把新上传的文件数+1
-            $this->newDownloadFile($node["id"]);   
+            //更新迷你存储节点状态，把新上传的文件数+1 
+            $this->newDownloadFile($node);   
             return $url;
         }
         return null;
@@ -322,8 +322,8 @@ class PluginMiniStoreNode extends MiniCache{
             $metaKey = "store_id";
             $meta = MiniVersionMeta::getInstance()->getMeta($version["id"],$metaKey);
             if(!empty($meta)){
-                $id = $meta["meta_value"];
-                $node =$this->getNodeById($id); 
+                $id = $meta["meta_value"]; 
+                $node =$this->getNodeById($id);  
                 return $node;
             }
         }

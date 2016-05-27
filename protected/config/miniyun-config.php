@@ -12,19 +12,19 @@
 
 
 /** Miniyun 数据库的名称 */
-define('DB_NAME', 'miniyun');
+define('DB_NAME', 'miniyun_app');
 
 /** MySQL 数据库用户名 */
-define('DB_USER', 'root');
+define('DB_USER', 'miniyunapp');
 
 /** MySQL 数据库密码 */
-define('DB_PASSWORD', '123456');
+define('DB_PASSWORD', 'qweasdzxc');
 
 /** MySQL 端口号 */
 define('DB_PORT', '3306');
 
 /** MySQL 主机 */
-define('DB_HOST', '127.0.0.1'); 
+define('DB_HOST', 'rdsfy2mj2fy2mj2.mysql.rds.aliyuncs.com'); 
 /** MySQL 编码 */
 define('DB_CHARSET', 'utf8');
 /**#@-*/
