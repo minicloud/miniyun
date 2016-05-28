@@ -23,7 +23,7 @@ if(isWeixin()){
     $box = new MiniWeixin();
     $box->load();
 }else{
-    define('STATIC_SERVER_HOST',"static.minicloud.io");
+    define('STATIC_SERVER_HOST',"jt.miniyun.cn");
     include "miniBox.php";
     $box = new MiniBox();
     $box->load();
