@@ -266,7 +266,7 @@ class MiniStoreModule extends MiniPluginModule {
             $filesController = new MFileSecondsController();
             $filesController->invoke(); 
         } 
-    }
+    } 
     /**
     *把/1/xxx 替换为 /xxx
     */ 
@@ -320,6 +320,13 @@ class MiniStoreModule extends MiniPluginModule {
         $callback_param = array('callbackUrl'=>$callbackUrl, 
                      'callbackBody'=>'access_token='.$token.'&route=upload/end&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&path='.$miniyunPath.'&key=${object}&size=${size}&hash=${etag}&mime_type=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
+        //获得文档当前的hash值，当用户上传新版本，此前的文件将被标记为历史版本
+        $file = MiniFile::getInstance()->getByFilePath($miniyunPath);
+        if(!empty($file)){
+            $versionId = $file['version_id'];
+            $version = MiniVersion::getInstance()->getVersion($versionId);
+            $callback_param['beforeVersionBody'] = 'operator_id='.$user['id'].'&file_id='.$file['id'].'&hash='.$version['file_signature'].'&signature='.$signature.'&policy='.$base64_policy.'&new_path=${path}';
+        }
         $callback_string = json_encode($callback_param);
         $base64_callback_body = base64_encode($callback_string);
                
