@@ -50,19 +50,6 @@ class FileService extends MiniService{
         $biz = new FileBiz();
         $biz->content($path,$signature);
     }
-
-    /**
-     * 文本文件預覽
-     * @return mixed
-     */
-    public function preViewTxt(){
-        $path    = MiniHttp::getParam("path","");
-        $signature = MiniHttp::getParam("signature","");
-        $biz    = new FileBiz();
-        $content = $biz->txtContent($path,$signature);
-        return $content;
-
-    }
     /**
      * 上传文件
      */
