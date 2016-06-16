@@ -29,15 +29,7 @@ class MiniStoreModule extends MiniPluginModule {
         //文件秒传
         add_filter("upload_sec",array($this,"sec"));
         //文件上传结束
-        add_filter("upload_end",array($this,"end"));
-        //文档转换开始
-        add_filter("doc_convert_start",array($this,"docConvertStart"));
-        //文档转换结束
-        add_filter("doc_convert_end",array($this,"docConvertEnd"));
-        //视频转换开始
-        add_filter("video_convert_start",array($this,"videoConvertStart"));
-        //文档转换结束
-        add_filter("video_convert_end",array($this,"videoConvertEnd")); 
+        add_filter("upload_end",array($this,"end"));  
     }
     /**
      * 获得文件的缩略图
@@ -145,109 +137,7 @@ class MiniStoreModule extends MiniPluginModule {
         $data['error']="bad_request";
         $data['error_description']="invalid singnature";
         echo(json_encode($data));exit;
-    }
-    /**
-    *文档转换开始
-    */
-    public function docConvertStart(){       
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $_SESSION['company_id'] = $user['company_id']; 
-        $hash = MiniHttp::getParam('hash',''); 
-        $hash = strtolower($hash); 
-        if(!empty($hash)){ 
-            $node = $this->validSignature();
-            if(!empty($node)){
-                MiniVersion::getInstance()->docConvertStart($hash);
-                $data = array();
-                $data['code']=200;
-                echo(json_encode($data));exit;
-            }             
-        } 
-        //返回错误信息  
-        http_response_code(409);
-        $data = array();
-        $data['code']=409;
-        $data['error']="bad_request";
-        $data['error_description']="invalid singnature";
-        echo(json_encode($data));exit;
-    }
-    /**
-    *文档转换结束
-    */
-    public function docConvertEnd(){       
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $_SESSION['company_id'] = $user['company_id']; 
-        $hash = MiniHttp::getParam('hash',''); 
-        $hash = strtolower($hash); 
-        if(!empty($hash)){ 
-            $node = $this->validSignature();
-            if(!empty($node)){
-                $success = MiniHttp::getParam('success','0'); 
-                MiniVersion::getInstance()->docConvertEnd($hash,$success==='1');
-                $data = array();
-                $data['code']=200;
-                echo(json_encode($data));exit;
-            }             
-        } 
-        //返回错误信息  
-        http_response_code(409);
-        $data = array();
-        $data['code']=409;
-        $data['error']="bad_request";
-        $data['error_description']="invalid singnature";
-        echo(json_encode($data));exit;
-    }
-    /**
-    *视频转换开始
-    */
-    public function videoConvertStart(){       
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $_SESSION['company_id'] = $user['company_id']; 
-        $hash = MiniHttp::getParam('hash',''); 
-        $hash = strtolower($hash); 
-        if(!empty($hash)){ 
-            $node = $this->validSignature();
-            if(!empty($node)){
-                MiniVersion::getInstance()->videoConvertStart($hash);
-                $data = array();
-                $data['code']=200;
-                echo(json_encode($data));exit;
-            }             
-        } 
-        //返回错误信息  
-        http_response_code(409);
-        $data = array();
-        $data['code']=409;
-        $data['error']="bad_request";
-        $data['error_description']="invalid singnature";
-        echo(json_encode($data));exit;
-    }
-    /**
-    *视频转换结束
-    */
-    public function videoConvertEnd(){       
-        $user = MUserManager::getInstance()->getCurrentUser();
-        $_SESSION['company_id'] = $user['company_id']; 
-        $hash = MiniHttp::getParam('hash',''); 
-        $hash = strtolower($hash); 
-        if(!empty($hash)){ 
-            $node = $this->validSignature();
-            if(!empty($node)){
-                $success = MiniHttp::getParam('success','0'); 
-                MiniVersion::getInstance()->videoConvertEnd($hash,$success==='1');
-                $data = array();
-                $data['code']=200;
-                echo(json_encode($data));exit;
-            }             
-        } 
-        //返回错误信息  
-        http_response_code(409);
-        $data = array();
-        $data['code']=409;
-        $data['error']="bad_request";
-        $data['error_description']="invalid singnature";
-        echo(json_encode($data));exit;
-    }
+    } 
     /**
     *文件秒传
     */
@@ -266,7 +156,7 @@ class MiniStoreModule extends MiniPluginModule {
             $filesController = new MFileSecondsController();
             $filesController->invoke(); 
         } 
-    }
+    } 
     /**
     *把/1/xxx 替换为 /xxx
     */ 
@@ -320,6 +210,13 @@ class MiniStoreModule extends MiniPluginModule {
         $callback_param = array('callbackUrl'=>$callbackUrl, 
                      'callbackBody'=>'access_token='.$token.'&route=upload/end&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&path='.$miniyunPath.'&key=${object}&size=${size}&hash=${etag}&mime_type=${mimeType}&height=${imageInfo.height}&width=${imageInfo.width}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
+        //获得文档当前的hash值，当用户上传新版本，此前的文件将被标记为历史版本
+        $file = MiniFile::getInstance()->getByFilePath($miniyunPath);
+        if(!empty($file)){
+            $versionId = $file['version_id'];
+            $version = MiniVersion::getInstance()->getVersion($versionId);
+            $callback_param['beforeVersionBody'] = 'operator_id='.$user['id'].'&file_id='.$file['id'].'&hash='.$version['file_signature'].'&signature='.$signature.'&policy='.$base64_policy.'&new_path=${path}';
+        }
         $callback_string = json_encode($callback_param);
         $base64_callback_body = base64_encode($callback_string);
                

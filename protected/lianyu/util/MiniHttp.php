@@ -110,27 +110,7 @@ class MiniHttp{
      * 获得迷你云Host
      */
     public static function getMiniHost(){
-        $serverPort = $_SERVER["SERVER_PORT"];
-        $url = "http://";
-        if($serverPort==="443"){
-            $url = "https://";
-        }
-        $serverName = $_SERVER["HTTP_HOST"];
-        $url .=$serverName; 
-        if(array_key_exists("HTTP_PROXY_PORT",$_SERVER) && $_SERVER["HTTP_PROXY_PORT"]!=80){
-            $url .= ":".$_SERVER["HTTP_PROXY_PORT"];
-        } 
-        //计算相对地址
-        $documentRoot  = $_SERVER["DOCUMENT_ROOT"];
-        $scriptFileName = $_SERVER["SCRIPT_FILENAME"];
-        $relativePath = substr($scriptFileName,strlen($documentRoot),strlen($scriptFileName)-strlen($documentRoot));
-        $path = dirname($relativePath);
-        //兼容Windows服务器，把右斜杠替换为左边斜杠
-        $path = str_replace("\\","/",$path);
-        if($path!=="/"){
-            $path.="/";
-        }  
-        return $url.$path;
+        return 'https://app.miniyun.cn/'
     }
     /**
      * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀
