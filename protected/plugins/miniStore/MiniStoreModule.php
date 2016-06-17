@@ -20,10 +20,6 @@ class MiniStoreModule extends MiniPluginModule {
             "miniStore.models.*",
             "miniStore.service.*",
         )); 
-        //文件下载
-        add_filter("file_download_url",array($this, "fileDownloadUrl")); 
-        //图片缩略图
-        add_filter("image_path",array($this,"thumbnail"));
         //文件上传
         add_filter("upload_start",array($this,"start"));
         //文件秒传
@@ -31,28 +27,6 @@ class MiniStoreModule extends MiniPluginModule {
         //文件上传结束
         add_filter("upload_end",array($this,"end"));  
     }
-    /**
-     * 获得文件的缩略图
-     * @param array $params
-     * @return string
-     */ 
-    function thumbnail($params){ 
-        $url =  PluginMiniStoreNode::getInstance()->getThumbnailUrl($params); 
-        header('Location: '.$url);
-        exit; 
-    }
-    /**
-     * 获得文件下载地址
-     * @param array $params
-     * @return string
-     */
-    function fileDownloadUrl($params){  
-        $signature = $params["signature"];
-        $fileName = $params["file_name"];
-        $mimeType = $params["mime_type"];
-        $forceDownload = $params["force_download"];
-        return PluginMiniStoreNode::getInstance()->getDownloadUrl($signature,$fileName,$mimeType,$forceDownload);
-    }  
     private function gmt_iso8601($time) {
         $dtStr = date("c", $time);
         $mydatetime = new DateTime($dtStr);
@@ -233,14 +207,14 @@ class MiniStoreModule extends MiniPluginModule {
         //添加文档转换回掉地址
         $isDoc = MiniUtil::isDoc($bucketPath);
         if($isDoc){
-            $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=convert/docStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+            $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/doc/convert_start', 
+                     'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
             $callbackParamString = json_encode($callbackParam); 
             $uploadContext['doc_convert_start_callback'] = base64_encode($callbackParamString);
 
-            $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=convert/docEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&success=${success}&hash=${etag}', 
+            $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/doc/convert_end', 
+                     'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&success=${success}&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded"); 
             $callbackParamString = json_encode($callbackParam); 
             $uploadContext['doc_convert_end_callback'] = base64_encode($callbackParamString);
@@ -248,14 +222,14 @@ class MiniStoreModule extends MiniPluginModule {
             //添加视频转换回掉地址
             $isVideo = MiniUtil::isVideo($bucketPath);
             if($isVideo){
-                $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                     'callbackBody'=>'access_token='.$token.'&route=convert/videoStart&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
+                $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/video/convert_start', 
+                     'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
                 $callbackParamString = json_encode($callbackParam); 
                 $uploadContext['video_convert_start_callback'] = base64_encode($callbackParamString);
 
-                $callbackParam = array('callbackUrl'=>$callbackUrl, 
-                         'callbackBody'=>'access_token='.$token.'&route=convert/videoEnd&node_key='.$storeNode['key'].'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
+                $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/video/convert_end', 
+                         'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
                          'callbackBodyType'=>"application/x-www-form-urlencoded"); 
                 $callbackParamString = json_encode($callbackParam); 
                 $uploadContext['video_convert_end_callback'] = base64_encode($callbackParamString);
