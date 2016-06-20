@@ -33,14 +33,8 @@ class OldVersion{
      * @var
      */
     private $actionName;
-    /**
-     * 是否离线
-     * @var
-     */
-    private $offline;
 
-    public function OldVersion($offline){
-        $this->offline = $offline;
+    public function OldVersion(){
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
         $requestUri   = Util::getRequestUri();
@@ -57,27 +51,22 @@ class OldVersion{
         );
     }
     public function load($webApp){
-        if($this->offline){
-            $this->loadContent($webApp);
-            exit;
-        }else{
-            //查询黑名单，让新版本加载
-            foreach($this->blackList as $item){
-                $info = explode("/",$item);
-                $itemController = $info[0];
-                $itemAction = $info[1];
-                if($itemController === $this->controllerName && $itemAction === $this->actionName){
-                    return false;
-                }
+        //查询黑名单，让新版本加载
+        foreach($this->blackList as $item){
+            $info = explode("/",$item);
+            $itemController = $info[0];
+            $itemAction = $info[1];
+            if($itemController === $this->controllerName && $itemAction === $this->actionName){
+                return false;
             }
-            foreach($this->whiteList as $item){
-                if($item == $this->controllerName){
-                    $this->loadContent($webApp);
-                    exit;
-                }
-            }
-            return false;
         }
+        foreach($this->whiteList as $item){
+            if($item == $this->controllerName){
+                $this->loadContent($webApp);
+                exit;
+            }
+        }
+        return false;
     }
     private function loadContent($webApp){
         $webApp->run();
@@ -298,6 +287,7 @@ class SiteAppInfo{
                 $actived = true;
             }
             $data['minicloud_actived'] = $actived;
+            $data['minicloud_host'] = $node['host'];
             $this->user = $data;
             return $data;
         }
@@ -339,11 +329,6 @@ class MiniBox{
      * @var
      */
     private $cloudFolderName;
-    /**
-     * 网页客户端是否在本地离线
-     * @var
-     */
-    private $offline;
     /**
      *是否是网页客户端
      * @var
@@ -396,8 +381,6 @@ class MiniBox{
         if(!empty($appSecret)){
             setcookie("appSecret",$appSecret,time()+10*24*3600,"/");
         }
-        //根据物理路径判断网页客户端本地是否存在
-        $this->offline = false;
         $this->staticServerHost = "https://jt.miniyun.cn/";
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
@@ -430,11 +413,7 @@ class MiniBox{
                 $accessToken = $this->getCookie("accessToken");
                 if(!empty($accessToken)){
                     //根目录访问
-                    if($this->offline){
-                        $url = Util::getMiniHost()."index.php/netdisk/index";
-                    }else{
-                        $url = Util::getMiniHost()."index.php/box/index";
-                    }
+                    $url = Util::getMiniHost()."index.php/box/index";
                 }else{
                     $url = Util::getMiniHost()."index.php/site/login";
                 }
@@ -495,16 +474,10 @@ class MiniBox{
         @ini_set('display_errors', '1');
         if($this->isWeb){
             //兼容老版本逻辑
-            $oldVersion = new OldVersion($this->offline);
+            $oldVersion = new OldVersion();
             $oldVersion->load($this->webApp);
         }
         $this->appInfo = new SiteAppInfo();
-        //如果是PC客户端，不用比较版本信息，因为当前PC客户端浏览器没有cache
-        if($this->isWeb){
-            // if($this->isMixCloudVersion){
-            //     $this->syncNewVersion();
-            // }
-        }
         //默认业务主路径
         $this->cloudFolderName = "mini-box";
 
@@ -524,9 +497,6 @@ class MiniBox{
                 $v = Util::getParam("cloudVersion");
             }
         }
-        if(YII_DEBUG){
-            $v = time();
-        }
         $this->version = $v;
         $header = "";
         $site          = $this->appInfo->getSiteInfo();
@@ -535,49 +505,6 @@ class MiniBox{
         $header .= "<script id='miniBox' static-server-host='".$this->staticServerHost."' host='".Util::getMiniHost()."' version='".$v."' type=\"text/javascript\"  src='".$this->staticServerHost."miniLoad.php?t=js&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."' charset=\"utf-8\"></script>";
         $header .= "<link rel=\"stylesheet\" type=\"text/css\"  href='".$this->staticServerHost."miniLoad.php?t=css&c=".$this->controller."&a=".$this->action."&v=".$serverVersion."&l=".$this->language."'/>";
         $this->loadHtml($header);
-    }
-
-
-    /**
-     * 判断网页客户端是否离线
-     * @return bool
-     */
-    private function isOffline(){
-        if($this->isMixCloudVersion){
-            $syncTime = $this->getCookie("syncTime");
-            if(!empty($syncTime) && $syncTime==="-1"){
-                return true;
-            }
-            return false;
-        }else{
-            return false;
-        }
-    }
-    /**
-     *每隔24小时与云端同步一次版本信息，用户在不清理缓存的情况下，24小时更新到最新版本迷你云网页版
-     */
-    private function syncNewVersion(){
-        //如本地尚未安装网页客户端，则跳转到online.html，通过online.html的js请求获得相关数据
-        $needSyncCloud = false;
-        //24小时后至少与云端同步一次最新网页客户端代码
-        $syncTime = $this->getCookie("syncTime");
-        if($syncTime!==NULL){
-            $diff = time()-intval($syncTime);
-            if($diff>86400){
-                $needSyncCloud = true;
-            }
-        }else{
-            $needSyncCloud = true;
-        }
-        //如是外链访问，则不用跳转进行是否在线检测
-        $requestUri   = Util::getRequestUri();
-        if(strpos($requestUri,"link/access/key")){
-            $needSyncCloud = false;
-        }
-        if($needSyncCloud===true){
-            $url = Util::getMiniHost()."online.html?t=".time()."&back=".urlencode($_SERVER["REQUEST_URI"])."&staticServerHost=".$this->staticServerHost;
-            $this->redirectUrl($url);
-        }
     }
     /**
      *
