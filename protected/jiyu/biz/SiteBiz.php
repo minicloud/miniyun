@@ -24,44 +24,44 @@ class SiteBiz extends MiniBiz
         $data['can_register'] = true;
         $data['register_url'] = "";
         //产品名称
-        $value = MiniOption::getInstance()->getOptionValue('site_name');
-        if (isset($value)) {
-            $data['app_name'] = $value;
-        } 
-        //产品Logo
-        $value = MiniOption::getInstance()->getOptionValue('site_logo_url');
-        if (isset($value)) {
-            $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . $value;
-        }
-        //判断系统是否可以注册
-        $enableReg = MiniOption::getInstance()->getOptionValue("user_register_enabled");
-        if (isset($enableReg) && $enableReg == "0") {
-            $data['can_register'] = false;
-        }
-        //系统注册入口是否在第3方
-        $value = MiniOption::getInstance()->getOptionValue("user_create_url");
-        if (isset($value) && !empty($value)) {
-            $data['register_url'] = $value;
-        }
-        // 32M
-        $blockSize = 4 * 1024 * 1024;
-        // 内存配置需要
-        $memoryLimit = CUtils::return_bytes(ini_get('memory_limit'));
-        if ($memoryLimit < 4 * $blockSize) {
-            $blockSize = $memoryLimit / 4;
-        }
-        $postMaxSize = CUtils::return_bytes(ini_get('post_max_size'));
-        $uploadMaxFileSize = CUtils::return_bytes(ini_get('upload_max_filesize'));
+        // $value = MiniOption::getInstance()->getOptionValue('site_name');
+        // if (isset($value)) {
+        //     $data['app_name'] = $value;
+        // } 
+        // //产品Logo
+        // $value = MiniOption::getInstance()->getOptionValue('site_logo_url');
+        // if (isset($value)) {
+        //     $data['app_logo'] = MiniHttp::getSystemParam("absoluteUrl") . $value;
+        // }
+        // //判断系统是否可以注册
+        // $enableReg = MiniOption::getInstance()->getOptionValue("user_register_enabled");
+        // if (isset($enableReg) && $enableReg == "0") {
+        //     $data['can_register'] = false;
+        // }
+        // //系统注册入口是否在第3方
+        // $value = MiniOption::getInstance()->getOptionValue("user_create_url");
+        // if (isset($value) && !empty($value)) {
+        //     $data['register_url'] = $value;
+        // }
+        // // 32M
+        // $blockSize = 4 * 1024 * 1024;
+        // // 内存配置需要
+        // $memoryLimit = CUtils::return_bytes(ini_get('memory_limit'));
+        // if ($memoryLimit < 4 * $blockSize) {
+        //     $blockSize = $memoryLimit / 4;
+        // }
+        // $postMaxSize = CUtils::return_bytes(ini_get('post_max_size'));
+        // $uploadMaxFileSize = CUtils::return_bytes(ini_get('upload_max_filesize'));
 
-        $min = $postMaxSize > $uploadMaxFileSize ? $uploadMaxFileSize : $postMaxSize;
+        // $min = $postMaxSize > $uploadMaxFileSize ? $uploadMaxFileSize : $postMaxSize;
 
-        $data['block_size'] = $min > $blockSize ? $blockSize : $min;
-        if ($data['block_size'] == $postMaxSize && $data['block_size'] == $uploadMaxFileSize) {
-            $data['block_size'] = $data['block_size'] - 104858;
-        }
-        // 获取忘记密码使用短信口子地址
-        $forgetPasswordUrl = MiniHttp::getSystemParam("absoluteUrl");
-        $data['forget_password_url'] = $forgetPasswordUrl;
+        // $data['block_size'] = $min > $blockSize ? $blockSize : $min;
+        // if ($data['block_size'] == $postMaxSize && $data['block_size'] == $uploadMaxFileSize) {
+        //     $data['block_size'] = $data['block_size'] - 104858;
+        // }
+        // // 获取忘记密码使用短信口子地址
+        // $forgetPasswordUrl = MiniHttp::getSystemParam("absoluteUrl");
+        // $data['forget_password_url'] = $forgetPasswordUrl;
         return $data;
     }
 

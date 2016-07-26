@@ -497,24 +497,6 @@ class MiniUser extends MiniCache{
         }
         MiniOption::getInstance()->setOptionValue(MiniUser::$OPTION_KEY,implode(",",$ids));
     }
-    /**
-     * 获得被删除的ID，如果没有删除的记录，则返回空值
-     */
-    public function getTemporaryId(){
-        $key   = MiniUser::$OPTION_KEY;
-        $value = MiniOption::getInstance()->getOptionValue($key);
-        $id    = "";
-        if(isset($value) && !empty($value)){
-            $ids     = explode(",", $value);
-            if(count($ids)>0){
-                $id  = $ids[0];
-                unset($ids[0]);
-                //把新值保存到db中
-                MiniOption::getInstance()->setOptionValue($key,implode(",", $ids));
-            }
-        }
-        return $id;
-    }
 
     /**
      * 合并主键，剔除重复的,避免因为主键而导致的系统紊乱

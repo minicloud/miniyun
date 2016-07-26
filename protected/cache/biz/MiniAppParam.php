@@ -108,9 +108,9 @@ class MiniAppParam extends MiniCache{
      */
     private function getParams(){
         $params     = $this->getDefaultParams();
-        if (Yii::app()->params["app"]["initialized"]){//当系统初始化好的情况下
-            $params = $this->renewOptions($params);
-        }
+        // if (Yii::app()->params["app"]["initialized"]){//当系统初始化好的情况下
+        //     $params = $this->renewOptions($params);
+        // }
         return $params;
     }
     /**

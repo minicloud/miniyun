@@ -231,37 +231,6 @@ class SystemManageBiz extends MiniBiz{
      * @return array
      */
     public function settingSiteInfo($site){
-        //迷你存储没有启用，将判断用户存储路径的完整性
-        $storeData = MiniUtil::getPluginMiniStoreData();
-        if(empty($storeData)){
-            $fileStorePath = $site['fileStorePath'];
-            //文件存储路径的合法性检测
-            if(is_dir($fileStorePath)== false){
-                return array('success'=>false,'msg'=>'dir_is_not_exist');
-            }
-            //
-            // 判断父目录是否存在
-            //
-            if (file_exists(dirname($fileStorePath)) == false){
-                return array('success'=>false,'msg'=>'parent_dir_is_not_exist');
-            }
-            //
-            // 文件不存在
-            //
-            if (file_exists($fileStorePath) == false){
-                mkdir($fileStorePath);
-                chmod($fileStorePath, 0755);
-            }
-            //
-            // 文件夹不可写
-            //
-            if (is_writable($fileStorePath) == false){
-                return array('success'=>false,'msg'=>'dir_is_not_writable');
-            }
-            //修改文件存储配置
-            $this->setStorePath($site['fileStorePath']);
-        }
-        MiniOption::getInstance()->setOptionValue("miniyun_host", $site['miniyun_host']);
         MiniOption::getInstance()->setOptionValue("site_title", $site['siteTitle']);
         MiniOption::getInstance()->setOptionValue("site_name", $site['siteName']);
         MiniOption::getInstance()->setOptionValue("site_default_space", $site['siteDefaultSpace']);
@@ -270,19 +239,6 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("upload_policy_white_list", $site['upload_policy_white_list']);
         MiniOption::getInstance()->setOptionValue("upload_policy_black_list", $site['upload_policy_black_list']);
         MiniOption::getInstance()->setOptionValue("upload_policy_file_size", $site['upload_policy_file_size']);
-        //如果是混合云版，则调整迷你存储的访问地址
-        if(MiniUtil::isMixCloudVersion()){
-            $plugins = MiniUtil::getActivedPluginsInfo();
-            if(!empty($plugins)){
-                foreach ($plugins as $plugin) { 
-                    if($plugin["name"]==="miniStore"){
-                        //创建默认迷你存储站点
-                        PluginMiniStoreNode::getInstance()->createDefault();
-                    }
-                }
-            }
-            
-        }
         return array('success'=>true);
     }
 
@@ -437,8 +393,6 @@ class SystemManageBiz extends MiniBiz{
             $miniHost = MiniHttp::getMiniHost();
             MiniOption::getInstance()->setOptionValue('miniyun_host',$miniHost);
         }
-        $data['miniyun_host']         = $miniHost;
-        $data['fileStorePath']        = BASE;
         return $data;
     }
 

@@ -835,10 +835,10 @@ class MUtils
      */
     public static function defaultTotalSize(){
         $total      = DEFAULT_USER_SPACE *1024*1024;
-        $value      = MiniOption::getInstance()->getOptionValue("site_default_space");
-        if (isset($value)){
-            $total  = doubleval($value)*1024*1024;
-        }
+        // $value      = MiniOption::getInstance()->getOptionValue("site_default_space");
+        // if (isset($value)){
+        //     $total  = doubleval($value)*1024*1024;
+        // }
         return $total;
     }
 

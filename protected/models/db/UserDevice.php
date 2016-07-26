@@ -36,23 +36,6 @@ class UserDevice extends CMiniyunModel
 		return Yii::app()->params['tablePrefix'].'user_devices';
 	}
 	/**
-	 * 存储前设置ID，因为这里要重用被删除的ID
-	 * @see CActiveRecord::beforeSave()
-	 */
-	public function beforeSave()
-	{
-		if(parent::beforeSave()){ 
-			if($this->isNewRecord){//如果是添加记录，而且Options表存在上次被删除的用户ID，则重复使用
-				$currentId    = MiniUserDevice::getInstance()->getTemporaryId();
-				if(!empty($currentId)){
-					$this->id = $currentId;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-	/**
 	 *
 	 * 删除用户设备信息
 	 */

@@ -57,7 +57,6 @@ class UserIdentity extends CUserIdentity
      * @param $device
      */
     public function setSession($user, $device) {
-
         //初始化系统需要的状态信息
         Yii::app()->session["appId"] = $device["user_device_type"];
         $user["appId"] = $device["user_device_type"];
@@ -69,8 +68,71 @@ class UserIdentity extends CUserIdentity
         Yii::app()->session["deviceId"] = $deviceId;//设置设备ID
         //提前设置session的值
         $_SESSION['company_id'] = $user['company_id'];
+        $this->setAppOptions($user['company_id']);
     }
-
+    /**
+     *
+     * 设置参数
+     *
+     */
+    private function setAppOptions($companyId){
+        $params = Yii::app()->params["app"];
+        //用户基础地址
+        $baseUri   = CUtils::getBaseUrl();
+        $options   = MiniOption::getInstance()->getOptions($companyId);
+        foreach ($options as $key=>$option){
+            $key   = $option["option_name"];
+            $value = $option["option_value"];
+            if("site_name" == $key){
+                $params["siteName"]  = $value;
+                $params["name"]      = $value;
+            }
+            else if("skin" == $key){
+                $params["skinUrl"]   = $baseUri."/static/skin/".$value."/";
+                $params["skin"]      = $value;
+            }
+            else if("site_title" == $key){
+                $params["siteTitle"] = $value;
+                $params["title"]     = $value;
+            }
+            else if("site_logo_url" == $key){
+                $params["logo"]      = $value;
+                $params["siteLogo"]  = $value;
+            }
+            else if("site_logo_small_url" == $key){
+                $params["logoSmall"] = $value;
+                $params["siteLogoSmall"] = $value;
+            }
+            else if("site_default_space" == $key){
+                $params["defaultSpace"]  = $value;
+            }
+            else if("site_sys_space" == $key){
+                $params["sysSpace"]  = $value;
+            }
+            else if("site_company" == $key){
+                $params["company"]       = $value;
+            }
+            else if("user_register_enabled" == $key){
+                $params["enabledReigster"] = $value=="1"?true:false;
+            }
+            else if("user_create_url" == $key && !empty($value)){
+                $params["registerUrl"]    = $value;
+            }
+            else if("user_getpwd_url" == $key && !empty($value)){
+                $params["getpwUrl"]      = $value;
+            }
+            else if("mail_enabled_email" == $key){
+                $params["enableMail"]    = $value;
+            }
+            else if("mid" == $key){
+                $params["mid"]           = $value;
+            }
+            else if("default_permission" == $key){
+                $params["permission"] = unserialize($value);
+            }
+        }
+        Yii::app()->params["app"] =$params;
+    }
     /**
      * 根据cookie中的accessToken获得用户信息
      */

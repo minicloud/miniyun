@@ -74,28 +74,7 @@ class User extends CMiniyunModel
 		$user = $this->find("user_name=? and user_pass=? and user_status=1",array($username,md5($passwd)));
 		return $user;
 	} 
-	/**
-	 *存储前设置ID，因为这里要重用被删除的ID
-	 * @see CActiveRecord::beforeSave()
-	 */
-	public function beforeSave()
-	{
-		if(parent::beforeSave()){
-			if(!isset($this->user_status))
-			{
-				$this->user_status = 1;
-			}
-			if($this->isNewRecord){//如果是添加记录，而且Options表存在上次被删除的用户ID，则重复使用
-				$currentId         = MiniUser::getInstance()->getTemporaryId();
-				if(!empty($currentId)){
-					$this->id      = $currentId;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-	
+
 	/**
 	 *
 	 * 获得属于管理员的总数

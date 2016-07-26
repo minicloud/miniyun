@@ -1291,14 +1291,14 @@ class CUtils{
      * 系统空间是否还有剩余
      */
     public static function hasOverSysSpace(){
-        $value            = MiniOption::getInstance()->getOptionValue("site_sys_space");
-        if(isset($value) && $value>0){
-            $usedSpace    = MiniVersion::getInstance()->getTotalSize();
-            $overSpace    = $value*1024*1024-$usedSpace;
-            if($overSpace<0){
-                return false;
-            }
-        }
+        // $value            = MiniOption::getInstance()->getOptionValue("site_sys_space");
+        // if(isset($value) && $value>0){
+        //     $usedSpace    = MiniVersion::getInstance()->getTotalSize();
+        //     $overSpace    = $value*1024*1024-$usedSpace;
+        //     if($overSpace<0){
+        //         return false;
+        //     }
+        // }
         return true;
     }
 

@@ -47,12 +47,12 @@ class MiniSiteUtils
      * @since 1.0.7
      */
     public static function getSiteID(){
-        $siteId = MiniOption::getInstance()->getOptionValue("site_id");
-        if ($siteId===NULL){
-            $siteId         = md5(MiniUtil::random(32));
-            MiniOption::getInstance()->setOptionValue("site_id", $siteId);
-        }
-        return $siteId;
+        // $siteId = MiniOption::getInstance()->getOptionValue("site_id");
+        // if ($siteId===NULL){
+        //     $siteId         = md5(MiniUtil::random(32));
+        //     MiniOption::getInstance()->setOptionValue("site_id", $siteId);
+        // }
+        return  md5(MiniUtil::random(32));;
     }
     /**
      *
