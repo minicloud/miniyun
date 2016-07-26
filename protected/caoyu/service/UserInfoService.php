@@ -146,9 +146,9 @@ class UserInfoService extends MiniService{
      */
     public function deleteUser(){
         $id = MiniHttp::getParam('id',"");
-        $isAdmin    = MiniHttp::getParam('is_admin',"");
+        $user = MUserManager::getInstance()->getCurrentUser();
         $model = new UserInfoBiz();
-        $data  = $model->delete($id,$isAdmin);
+        $data  = $model->delete($id,$user['is_admin']);
         $status = array();
         $status['success']=$data;
         return $status;

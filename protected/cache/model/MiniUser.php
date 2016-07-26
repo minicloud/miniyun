@@ -459,7 +459,7 @@ class MiniUser extends MiniCache{
      * @param int $userId
      */
     public function deleteUser($userId){
-        $user   = User::model()->findByPk($userId);
+        $user   = User::model()->findByPk($userId); 
         if(isset($user)){
             //管理员账户不能被删除
             if($user->user_name=='admin' || $userId==1){

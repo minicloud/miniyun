@@ -245,9 +245,8 @@ class UserInfoBiz extends MiniBiz{
      * 删除用户
      */
     public function delete($id,$isAdmin){
-        if(!$isAdmin){
-            $user = new User();
-            $user->deleteUsers($id);
+        if($isAdmin){
+            MiniUser::getInstance()->deleteUser($id);
             MiniUserPrivilege::getInstance()->deletePrivilegeWhenKillUser($id);
             return true;
         }

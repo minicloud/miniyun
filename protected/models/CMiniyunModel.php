@@ -81,10 +81,12 @@ class CMiniyunModel extends CActiveRecord
             if(isset($companyId)){ 
                 //如果目标表有company_id字段，自动添加过滤条件
                 $companyId = intval($companyId);
-                $criteria= $this->getDbCriteria(); 
-                $criteria->addCondition("company_id =".$companyId,"and"); 
-            }            
+                if($this->company_id!=$companyId){
+                    return false;
+                }
+            }
         }
+        return true;
     }
     /**
      *

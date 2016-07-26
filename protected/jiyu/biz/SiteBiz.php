@@ -27,11 +27,7 @@ class SiteBiz extends MiniBiz
         $value = MiniOption::getInstance()->getOptionValue('site_name');
         if (isset($value)) {
             $data['app_name'] = $value;
-        }
-        //站点ID
-        $data['code']     = MiniSiteUtils::getSiteCode();
-        $data['site_id']  = MiniSiteUtils::getSiteID();
-        $data['wx_token'] = MiniSiteUtils::getWxToken();
+        } 
         //产品Logo
         $value = MiniOption::getInstance()->getOptionValue('site_logo_url');
         if (isset($value)) {
