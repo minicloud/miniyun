@@ -12,7 +12,7 @@
 
 
 /** Miniyun 数据库的名称 */
-define('DB_NAME', 'miniyun');
+define('DB_NAME', 'miniyun_m1');
 
 /** MySQL 数据库用户名 */
 define('DB_USER', 'root');

@@ -12,13 +12,15 @@ class SiteController extends CController {
      * This is the action to handle external exceptions.
      */
     public function actionError() {
-        if ($error = Yii::app()->errorHandler->error) {
+         $error = Yii::app()->errorHandler->error;
+         echo(json_encode($error));exit;
+         /*if ($error = Yii::app()->errorHandler->error) {
             if (Yii::app()->request->isAjaxRequest||MiniHttp::isPCClient()){
 				echo $error['message'];
 			}                
             else{
                 $this->render('error', $error);
 			}
-        }
+        }*/
     } 
 }

@@ -121,11 +121,7 @@ class Util{
      * 判断是否混合云模式下
      */
     public static function isMixCloudVersion(){
-        $path = dirname(__FILE__)."/protected/plugins/offline";
-        if(file_exists($path)){
-            return false;
-        }
-        return true;
+        return false;
     }
     /**
      * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀
@@ -422,17 +418,8 @@ class MiniBox{
         }
         //根据物理路径判断网页客户端本地是否存在
         $this->offline = $this->isOffline();
-        if($this->isMixCloudVersion){
-            $port = $_SERVER["SERVER_PORT"];
-            if($port=="443"){
-                $this->staticServerHost = "https://".STATIC_SERVER_HOST."/";
-            }else{
-                $this->staticServerHost = "http://".STATIC_SERVER_HOST."/";
-            }
-        }else{
-            //私有云模式下
-            $this->staticServerHost = "http://".$_SERVER["HTTP_HOST"]."/statics/";
-        }
+        //私有云模式下
+        $this->staticServerHost = "http://".$_SERVER["HTTP_HOST"]."/statics/";
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
         $uriInfo      = explode("/",$requestUri);
@@ -577,15 +564,7 @@ class MiniBox{
      * @return bool
      */
     private function isOffline(){
-        if($this->isMixCloudVersion){
-            $syncTime = $this->getCookie("syncTime");
-            if(!empty($syncTime) && $syncTime==="-1"){
-                return true;
-            }
-            return false;
-        }else{
-            return false;
-        }
+        return false;
     }
     /**
      *每隔24小时与云端同步一次版本信息，用户在不清理缓存的情况下，24小时更新到最新版本迷你云网页版
