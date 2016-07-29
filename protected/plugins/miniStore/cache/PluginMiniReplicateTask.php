@@ -172,6 +172,45 @@ class PluginMiniReplicateTask extends MiniCache{
                 }
             }
         }
+        $this->replicateBreakFile();
+        $this->overtime();
         return $fileCount;
+    }
+    //补偿在某个节点拉下的情况下，开启后文件不能备份的情况
+    private function replicateBreakFile(){
+        $miniHost                = PluginMiniStoreOption::getInstance()->getMiniyunHost();
+        $criteria                = new CDbCriteria();
+        $criteria->condition     = "meta_key='store_id' and meta_value not like '%%,%%' and TIME_TO_SEC(timediff(now(),created_at))>300";
+        $metas = FileVersionMeta::model()->findAll($criteria);
+        foreach($metas as $meta){
+            $versionId = $meta->version_id;
+            $version = FileVersion::model()->find("id=:id",array("id"=>$versionId));
+            $signature = $version->file_signature;
+             //为其它节点生成冗余备份记录
+            $nodes = PluginMiniStoreNode::getInstance()->getReplicateNodes($signature);
+            foreach($nodes as $node){
+                $task = ReplicateTask::model()->find("file_signature=:file_signature and node_id=:node_id",
+                    array(
+                        "file_signature"=>$signature,
+                        "node_id"=>$node["id"]
+                    ));
+                if(!isset($task)){
+                    $task                 = new ReplicateTask();
+                    $task->file_signature = $signature;
+                    $task->node_id        = $node["id"];
+                    $task->status         = 0;
+                    $task->save();
+                    $this->pushReplicateTask($miniHost,$task);
+                }
+            }
+        }
+    }
+    //补偿一直都未处理的任务
+    private function overtime(){
+        $miniHost                = PluginMiniStoreOption::getInstance()->getMiniyunHost();
+        $items = ReplicateTask::model()->findAll("TIME_TO_SEC(timediff(now(),created_at))>300");
+        foreach($items as $task){
+            $this->pushReplicateTask($miniHost,$task);
+        }
     }
 }

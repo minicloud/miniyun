@@ -1,10 +1,10 @@
 <?php
 /**
  * 缓存miniyun_file_versions表的记录
- * @author app <app@miniyun.cn>
- * @link http://www.miniyun.cn
+ * @author app <app@ygsoft.com>
+ * @link http://www.ygsoft.com
  * @copyright 2015 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html
+ * @license http://www.ygsoft.com/license.html
  * @since 1.7
  */
 class PluginMiniDocVersion extends MiniCache{
@@ -86,7 +86,7 @@ class PluginMiniDocVersion extends MiniCache{
         return  $value;
     }
     /**
-     * 获得迷你文档需要转换的文件列表，每次返回最多80条记录
+     * 获得微云文档需要转换的文件列表，每次返回最多80条记录
      * @param $status
      * @param $noPage
      * @return array
@@ -99,7 +99,7 @@ class PluginMiniDocVersion extends MiniCache{
      */
     public function getDocConvertList($status=0,$noPage=false){
 
-        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+        $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         $data = array();
         foreach ($mimeTypeList as $mimeType){
             $criteria                = new CDbCriteria();
@@ -141,7 +141,7 @@ class PluginMiniDocVersion extends MiniCache{
         if(isset($versionItem)){
             $versionItem["doc_convert_status"] = $status;
             $versionItem->save();
-            //文档转换成功，为meta添加记录，便于二次寻找迷你文档服务器
+            //文档转换成功，为meta添加记录，便于二次寻找微云文档服务器
             if($status==2){
                 MiniVersionMeta::getInstance()->create($versionItem->id,"doc_id",$nodeId);
             }

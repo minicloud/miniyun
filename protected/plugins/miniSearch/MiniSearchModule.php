@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * 迷你搜索插件
+ * 微云搜索插件
  *
  */
 class MiniSearchModule extends MiniPluginModule {
@@ -19,7 +19,7 @@ class MiniSearchModule extends MiniPluginModule {
         ));
         add_filter("plugin_info",array($this, "setPluginInfo"));
         //在文件上传成功后，如果文件是文本文件，需要建立索引
-        //迷你文档转换文件成功后，需要建立拉取文本内容到数据中，建立索引
+        //微云文档转换文件成功后，需要建立拉取文本内容到数据中，建立索引
         add_action("pull_text_search",array($this, "pullText"));
     }
     /**
@@ -56,11 +56,11 @@ class MiniSearchModule extends MiniPluginModule {
                     return;
                 }
             }
-            $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf");
+            $mimeTypeList = array("application/mspowerpoint","application/msword","application/msexcel","application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document","application/vnd.ms-powerpoint","application/vnd.openxmlformats-officedocument.presentationml.presentation","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             foreach ($mimeTypeList as $mimeType){
                 if($mimeType===$version["mime_type"]){
                     //文档类增量转换
-                    //doc/ppt/xls/pdf全文检索需要通过迷你文档拉取文本内容
+                    //doc/ppt/xls/pdf全文检索需要通过微云文档拉取文本内容
                     PluginMiniSearchFile::getInstance()->create($signature);
                 }
             }

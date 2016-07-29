@@ -4,10 +4,10 @@
  * 按客户端请求方式，逐渐增加记录到内存
  * 直接查询Cache,而非DB
  * 数据更新首先更新Cache，然后是DB
- * @author app <app@miniyun.cn>
- * @link http://www.miniyun.cn
+ * @author app <app@ygsoft.com>
+ * @link http://www.ygsoft.com
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.ygsoft.com/license.html 
  * @since 1.6
  */
 class MiniUser extends MiniCache{
@@ -327,6 +327,8 @@ class MiniUser extends MiniCache{
         $this->cleanCache($userId);
         //清空与当前用户相关的Token
         MiniToken::getInstance()->cleanByUserId($userId);
+        //置空密码输入错误次数
+        $this->cleanPasswordError($user["user_name"]);
         //返回最新的值
         return $this->getUser($userId);
     }
@@ -352,6 +354,8 @@ class MiniUser extends MiniCache{
         $this->cleanCache($userId);
         //清空与当前用户相关的Token
         MiniToken::getInstance()->cleanByUserId($userId);
+        //置空密码输入错误次数
+        $this->cleanPasswordError($user["user_name"]);
         //返回最新的值
         return $this->getUser($userId);
     }
@@ -570,7 +574,7 @@ class MiniUser extends MiniCache{
             $user["user_uuid"]   = uniqid();
             $user["user_name"]   = $name;
             //
-            //如果传递salt和password 则存储用户密码和salt到迷你云自有数据库
+            //如果传递salt和password 则存储用户密码和salt到远光微云自有数据库
             //
             if (!array_key_exists('salt', $userData)){
                 $salt = MiniUtil::genRandomString(6);
@@ -1023,7 +1027,7 @@ class MiniUser extends MiniCache{
     public function updateUserNamePinYin($id){
         $item  = User::model()->findByPk($id);
         if(!empty($item)){
-            //把登陆名转化为拼音
+            //把登录名转化为拼音
             $name = $item->user_name;
             //把昵称转化为拼音
             $nick = "";
@@ -1064,7 +1068,7 @@ class MiniUser extends MiniCache{
 
         foreach($items as $item){
             if(empty($item->user_name_pinyin)){
-                //把登陆名转化为拼音
+                //把登录名转化为拼音
                 $name = $item->user_name;
                 //把昵称转化为拼音
                 $nick = "";

@@ -1,10 +1,10 @@
 <?php
 /** 
  * 系统管理
- * @author app <app@miniyun.cn>
- * @link http://www.miniyun.cn
+ * @author app <app@ygsoft.com>
+ * @link http://www.ygsoft.com
  * @copyright 2014 Chengdu MiniYun Technology Co. Ltd.
- * @license http://www.miniyun.cn/license.html 
+ * @license http://www.ygsoft.com/license.html 
  * @since 1.8
  */
 class SystemManageBiz extends MiniBiz{
@@ -72,18 +72,18 @@ class SystemManageBiz extends MiniBiz{
      * 统计文件的缓存,不统计清除
      */
     public function countCache() {
-        $sql_str = 'SELECT file_size FROM ' . Yii::app()->params['tablePrefix'] . 'file_versions WHERE ref_count<=0';
-        $sql = Yii::app()->db->createCommand($sql_str);
-        $versions = $sql->queryAll();
-        //计算总大小
-        $sum_size = 0;
-        foreach ($versions as $version){
-            $sum_size += $version["file_size"];
-        }
-        $biz = new HomePageBiz();
-        $tempDirectory = $biz->getDirectorySize(BASE.'temp');
-        $tempSize = $tempDirectory['size'];
-        return $tempSize+$sum_size;
+        // $sql_str = 'SELECT file_size FROM ' . Yii::app()->params['tablePrefix'] . 'file_versions WHERE ref_count<=0';
+        // $sql = Yii::app()->db->createCommand($sql_str);
+        // $versions = $sql->queryAll();
+        // //计算总大小
+        // $sum_size = 0;
+        // foreach ($versions as $version){
+        //     $sum_size += $version["file_size"];
+        // }
+        // $biz = new HomePageBiz();
+        // $tempDirectory = $biz->getDirectorySize(BASE.'temp'); 
+        // $tempSize = $tempDirectory['size'];
+        return 0;
     }
 
     /**
@@ -150,40 +150,40 @@ class SystemManageBiz extends MiniBiz{
      */
     public function cleanCache($limit) {
         //data源处理对象
-        $dataObj = Yii::app()->data;
-        // 回收站插件: -1保留值 0正常 1删除
-        $this->handleCleanFileMeta($limit);
-        // 清理ref_count等于0的文件
-        $versions = MiniVersion::getInstance()->getCleanFiles(100);
-        foreach ($versions as $version){
-            $files = UserFile::model()->findAll('version_id=?', array($version['id']));
-            // 如果$file存在此version_id,不删除
-            if (!empty($files)){
-                for($i=0;$i<count($files);$i++){
-                    MiniVersion::getInstance()->updateRefCount($version["id"]);
-                }
-                continue;
-            }
+        // $dataObj = Yii::app()->data;
+        // // 回收站插件: -1保留值 0正常 1删除
+        // $this->handleCleanFileMeta($limit);
+        // // 清理ref_count等于0的文件
+        // $versions = MiniVersion::getInstance()->getCleanFiles(100);
+        // foreach ($versions as $version){
+        //     $files = UserFile::model()->findAll('version_id=?', array($version['id']));
+        //     // 如果$file存在此version_id,不删除
+        //     if (!empty($files)){
+        //         for($i=0;$i<count($files);$i++){
+        //             MiniVersion::getInstance()->updateRefCount($version["id"]);
+        //         }
+        //         continue;
+        //     }
 
-            // 如果不存在的话，删除流文件，删除该条version记录
-            $signature    = $version['file_signature'];
-            $signaturePath = MiniUtil::getPathBySplitStr($signature);
-            // 判断文件是否存在
-            if ($dataObj->exists($signaturePath) === false){
-                MiniVersion::getInstance()->deleteById($version["id"]);
-                continue;
-            }
-            // 删除文件
-            $dataObj->delete($signaturePath);
-            //删除空的文件夹
-            $parts = CUtils::getFoldersBySplitStr($signature);
-            foreach ($parts as $part) {
-                $dataObj->delete($part);
-            }
-            // 删除version记录
-            MiniVersion::getInstance()->deleteById($version["id"]);
+        //     // 如果不存在的话，删除流文件，删除该条version记录
+        //     $signature    = $version['file_signature'];
+        //     $signaturePath = MiniUtil::getPathBySplitStr($signature);
+        //     // 判断文件是否存在
+        //     if ($dataObj->exists($signaturePath) === false){
+        //         MiniVersion::getInstance()->deleteById($version["id"]);
+        //         continue;
+        //     }
+        //     // 删除文件
+        //     $dataObj->delete($signaturePath);
+        //     //删除空的文件夹
+        //     $parts = CUtils::getFoldersBySplitStr($signature);
+        //     foreach ($parts as $part) {
+        //         $dataObj->delete($part);
+        //     }
+        //     // 删除version记录
+        //     MiniVersion::getInstance()->deleteById($version["id"]);
 
-        }
+        // }
         MiniUtil::deleteDir(BASE.'temp');
     }
 
@@ -231,7 +231,7 @@ class SystemManageBiz extends MiniBiz{
      * @return array
      */
     public function settingSiteInfo($site){
-        //迷你存储没有启用，将判断用户存储路径的完整性
+        //微云存储没有启用，将判断用户存储路径的完整性
         $storeData = MiniUtil::getPluginMiniStoreData();
         if(empty($storeData)){
             $fileStorePath = $site['fileStorePath'];
@@ -270,13 +270,13 @@ class SystemManageBiz extends MiniBiz{
         MiniOption::getInstance()->setOptionValue("upload_policy_white_list", $site['upload_policy_white_list']);
         MiniOption::getInstance()->setOptionValue("upload_policy_black_list", $site['upload_policy_black_list']);
         MiniOption::getInstance()->setOptionValue("upload_policy_file_size", $site['upload_policy_file_size']);
-        //如果是混合云版，则调整迷你存储的访问地址
+        //如果是混合云版，则调整微云存储的访问地址
         if(MiniUtil::isMixCloudVersion()){
             $plugins = MiniUtil::getActivedPluginsInfo();
             if(!empty($plugins)){
                 foreach ($plugins as $plugin) { 
                     if($plugin["name"]==="miniStore"){
-                        //创建默认迷你存储站点
+                        //创建默认微云存储站点
                         PluginMiniStoreNode::getInstance()->createDefault();
                     }
                 }
@@ -327,7 +327,7 @@ class SystemManageBiz extends MiniBiz{
      */
     public function cleanExcessData($events,$errors,$files){
         $limit  = 1000;
-        //TODO 更新客户端多账号登陆
+        //TODO 更新客户端多账号登录
 //            $this->updateMultiClients();
         if ( (empty($events) && empty($errors) && empty($files))){
             return false;
