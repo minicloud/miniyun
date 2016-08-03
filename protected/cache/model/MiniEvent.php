@@ -302,7 +302,7 @@ class MiniEvent extends MiniCache{
         $criteria->condition = 'user_id = :userId';
         $criteria->params    = array('userId' => $userId);
         if($time!=="-1"){
-            $criteria->addCondition("created_at > :created_at","and");
+            $criteria->addCondition("created_at < :created_at","and");
             $criteria->params[':created_at'] = $time;
         }
         if($deviceUuid!=="-1"){
@@ -313,7 +313,7 @@ class MiniEvent extends MiniCache{
         if($filePath!==""){
             $criteria->addCondition("file_path like '".$filePath."/%'","and");
         }
-        //$criteria->order     = '-id';
+        $criteria->order     = '-id';
         $criteria->limit     = $limit;
         $criteria->offset    = $offset;
         $items = Event::model()->findAll($criteria);
