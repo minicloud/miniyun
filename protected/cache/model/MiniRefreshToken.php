@@ -60,10 +60,10 @@ class MiniRefreshToken extends MiniCache{
 		$item =  ORefreshToken::model()->find("oauth_token=:oauth_token",array("oauth_token"=>$token));
 		if(isset($item)){
 			$value = array();
-			$value["client_id"]      = $item->client_id;
-			$value["oauth_token"]    = $item->oauth_token;
-			$value["refresh_token"]  = $item->refresh_token;
-			$value["expires"]        = $item->expires;
+			$value["client_id"]      = $item["client_id"];
+			$value["oauth_token"]    = $item["oauth_token"];
+			$value["refresh_token"]  = $item["refresh_token"];
+			$value["expires"]        = $item["expires"];
 			return  $value;
 		}
 		return false;

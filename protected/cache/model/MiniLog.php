@@ -58,14 +58,14 @@ class MiniLog extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]             = $item->id;
-        $value["type"]           = $item->type;
-        $value["user_id"]        = $item->user_id;
-        $value["message"]        = $item->message;
-        $value["context"]        = $item->context;
-        $value["created_at"]     = $item->created_at;
-        $value["updated_at"]     = $item->updated_at;
-        $value["is_deleted"]     = $item->is_deleted;
+        $value["id"]             = $item["id"];
+        $value["type"]           = $item["type"];
+        $value["user_id"]        = $item["user_id"];
+        $value["message"]        = $item["message"];
+        $value["context"]        = $item["context"];
+        $value["created_at"]     = $item["created_at"];
+        $value["updated_at"]     = $item["updated_at"];
+        $value["is_deleted"]     = $item["is_deleted"];
         return $value;
     }
     /**

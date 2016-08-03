@@ -78,17 +78,17 @@ class MiniUser extends MiniCache{
     private function db2Item($item){
         if(isset($item)){
             $user                   = array();
-            $user["id"]             = $item->id;
-            $user["user_id"]        = $item->id;
-            $user["user_uuid"]      = $item->user_uuid;
-            $user["user_name"]      = $item->user_name;
-            $user["user_pass"]      = $item->user_pass;
-            $user["user_status"]    = $item->user_status==0?false:true;
-            $user["user_pass"]      = $item->user_pass;
-            $user["user_status"]    = $item->user_status;
-            $user["salt"]           = $item->salt;
-            $user["created_at"]     = $item->created_at;
-            $user["updated_at"]     = $item->updated_at;
+            $user["id"]             = $item["id"];
+            $user["user_id"]        = $item["id"];
+            $user["user_uuid"]      = $item["user_uuid"];
+            $user["user_name"]      = $item["user_name"];
+            $user["user_pass"]      = $item["user_pass"];
+            $user["user_status"]    = $item["user_status"]==0?false:true;
+            $user["user_pass"]      = $item["user_pass"];
+            $user["user_status"]    = $item["user_status"];
+            $user["salt"]           = $item["salt"];
+            $user["created_at"]     = $item["created_at"];
+            $user["updated_at"]     = $item["updated_at"];
             //查询用户Meta信息
             $avatar                 = Yii::app()->params["defaultAvatar"];
             if(!MiniHttp::isConsole()){
@@ -160,15 +160,26 @@ class MiniUser extends MiniCache{
            return $this->userList[$id];
         }
         $user                  = $this->get4Db($id);
-        if($needSpaceSize){
-            $user["usedSpace"]     = $this->getUsedSize($id);//查询当前用户已经消耗的空间
-            //如系统做了总空间控制，且空间已经使用完毕，则进行提示
-            if(CUtils::hasOverSysSpace()===false){
-                $user["space"] = $user["usedSpace"]-1;
-            }
-        }
+        // if($needSpaceSize){
+        //     $user["usedSpace"]     = 0;//$this->getUsedSize($id);//查询当前用户已经消耗的空间
+        //     //如系统做了总空间控制，且空间已经使用完毕，则进行提示
+        //     if(CUtils::hasOverSysSpace()===false){
+        //         $user["space"] = $user["usedSpace"]-1;
+        //     }
+        // }
         $this->userList[$id] = $user;
         return $user;
+    }
+    public function getSpaceInfo($user){
+        $data = array();
+        $data["usedSpace"]     = $this->getUsedSize($user['id']);//查询当前用户已经消耗的空间
+        //如系统做了总空间控制，且空间已经使用完毕，则进行提示
+        if(CUtils::hasOverSysSpace()===false){
+            $data["space"] = $data["usedSpace"]-1;
+        }else{
+            $data["space"] = $user['space'];
+        }
+        return $data;
     }
     /**
      * 获得指定用户密码输错的次数

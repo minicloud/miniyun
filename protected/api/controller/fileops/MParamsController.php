@@ -43,9 +43,10 @@ class MParamsController extends MFileSecondsController{
      * 空间检查
      */
     private function spaceFilter($size) {
-        $user       = MUserManager::getInstance ()->getCurrentUser ();
-		$space      = $user["space"];
-        $used_space = $user["usedSpace"]; 
+        $user     = MUserManager::getInstance()->getCurrentUser();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
+		$space      = $spaceInfo["space"];
+        $used_space = $spaceInfo["usedSpace"]; 
         //
         // 空间检查
         //

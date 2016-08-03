@@ -46,10 +46,10 @@ class MiniVersionMeta extends MiniCache{
 	private function db2Item($item){
 		if(!isset($item)) return NULL;
 		$value                   = array();
-		$value["id"]             = $item->id;
-		$value["version_id"]     = $item->version_id;
-		$value["meta_key"]       = $item->meta_key;
-		$value["meta_value"]     = $item->meta_value; 
+		$value["id"]             = $item["id"];
+		$value["version_id"]     = $item["version_id"];
+		$value["meta_key"]       = $item["meta_key"];
+		$value["meta_value"]     = $item["meta_value"]; 
 		return  $value;
 	}
 	/**

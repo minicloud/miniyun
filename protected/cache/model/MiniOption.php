@@ -59,11 +59,11 @@ class MiniOption extends MiniCache{
 		$items                     = Option::model()->findAll();
 		$data                      = array();
 		foreach($items as $item) {
-			$key                   = $item->option_name;
+			$key                   = $item["option_name"];
 			$value                 = array();
-			$value["option_id"]    = $item->option_id;
-			$value["option_name"]  = $item->option_name;
-			$value["option_value"] = $item->option_value;
+			$value["option_id"]    = $item["option_id"];
+			$value["option_name"]  = $item["option_name"];
+			$value["option_value"] = $item["option_value"];
 			$data["$key"]          = $value;
 		}
 		return $data;

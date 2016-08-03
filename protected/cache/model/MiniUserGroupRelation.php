@@ -52,8 +52,8 @@ class MiniUserGroupRelation extends MiniCache{
         if(empty($item)) return NULL;
         $value                     = array();
 //        $value["id"]           = $item->id;
-        $value["group_id"]      = $item->group_id;
-        $value["user_id"]    = $item->user_id;
+        $value["group_id"]      = $item["group_id"];
+        $value["user_id"]    = $item["user_id"];
         return $value;
     }
     /**

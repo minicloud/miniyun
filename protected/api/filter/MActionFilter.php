@@ -43,9 +43,10 @@ class MActionFilter extends MApplicationComponent implements MIController
         
         // 获取用户信息
         $user      = MUserManager::getInstance()->getCurrentUser();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
         $user_id   = $user["user_id"];
-        $space     = $user["space"];
-        $usedSpace = $user["usedSpace"];
+        $space     = $spaceInfo["space"];
+        $usedSpace = $spaceInfo["usedSpace"];
         // 预测空间是否超出限制,新接口中size作为文件大小参数判断
         switch ($this->action) {
             case "files_put":

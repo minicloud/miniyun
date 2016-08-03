@@ -39,15 +39,15 @@ class MiniLink extends MiniCache{
 	private function db2Item($item){
 		if(empty($item)) return NULL;
 		$value                = array();
-		$value["id"]          = $item->id;
-        $value["user_id"]     = $item->user_id;
-        $value["expiry"]      = $item->expiry;
-		$value["share_key"]   = $item->share_key;
-		$value["file_id"]     = $item->file_id;
-		$value["password"]    = $item->password; 
-		$value["created_at"]  = $item->created_at; 
-		$value["updated_at"]  = $item->updated_at; 
-		$value["down_count"]  = $item->down_count; 
+		$value["id"]          = $item["id"];
+        $value["user_id"]     = $item["user_id"];
+        $value["expiry"]      = $item["expiry"];
+		$value["share_key"]   = $item["share_key"];
+		$value["file_id"]     = $item["file_id"];
+		$value["password"]    = $item["password"]; 
+		$value["created_at"]  = $item["created_at"]; 
+		$value["updated_at"]  = $item["updated_at"]; 
+		$value["down_count"]  = $item["down_count"]; 
 		return $value;
 	}
 	/**

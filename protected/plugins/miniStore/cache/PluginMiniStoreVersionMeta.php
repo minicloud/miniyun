@@ -60,12 +60,12 @@ class PluginMiniStoreVersionMeta extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                      = array();
-        $value["id"]                = $item->id;
-        $value["version_id"]        = $item->version_id;
-        $value["meta_key"]          = $item->meta_key;
-        $value["meta_value"]        = $item->meta_value; 
-        $value["created_at"]        = $item->created_at;
-        $value["updated_at"]        = $item->updated_at;
+        $value["id"]                = $item["id"];
+        $value["version_id"]        = $item["version_id"];
+        $value["meta_key"]          = $item["meta_key"];
+        $value["meta_value"]        = $item["meta_value"]; 
+        $value["created_at"]        = $item["created_at"];
+        $value["updated_at"]        = $item["updated_at"];
         return $value;
     }
 

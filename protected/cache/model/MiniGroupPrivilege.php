@@ -70,12 +70,12 @@ class MiniGroupPrivilege extends MiniCache
     {
         if (empty($item)) return NULL;
         $value = array();
-        $value["id"] = $item->id;
-        $value["group_id"] = $item->group_id;
-        $value["file_path"] = $item->file_path;
-        $value["permission"] = $item->permission;
-        $value["created_at"] = $item->created_at;
-        $value["updated_at"] = $item->updated_at;
+        $value["id"] = $item["id"];
+        $value["group_id"] = $item["group_id"];
+        $value["file_path"] = $item["file_path"];
+        $value["permission"] = $item["permission"];
+        $value["created_at"] = $item["created_at"];
+        $value["updated_at"] = $item["updated_at"];
         return $value;
     }
     public function create($groupId,$filePath,$permission){

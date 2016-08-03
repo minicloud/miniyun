@@ -134,34 +134,11 @@ class MiniEvent extends MiniCache{
         }
         catch(Exception $e) {
             return false;
-        }
-        //
-        // 为创建事件记录日志信息
-        //
-        $this->createLogs($user_id, $action, $path, $context);
+        } 
         return true;
     }
 
-    /**
-     * 为创建事件记录日志信息
-     * @param $user_id
-     * @param $action
-     * @param $path
-     * @param $context
-     */
-    private function createLogs($user_id, $action, $path, &$context) {
-        if ($action == MConst::CREATE_FILE) {
-            //
-            // 如果是创建文件，记录path
-            //
-            $new = $path;
-        } else {
-            $new = $context;
-        }
-        $context = array($path,$new,$action);
-        MiniLog::getInstance()->createOperateLog($user_id, serialize($context));
-        return $new;
-    }
+
 
 
     /**
@@ -202,15 +179,15 @@ class MiniEvent extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]               = $item->id;
-        $value["user_id"]          = $item->user_id;
-        $value["user_device_id"]   = $item->user_device_id;
-        $value["action"]           = $item->action;
-        $value["file_path"]        = $item->file_path;
-        $value["context"]          = $item->context;
-        $value['created_at']       = $item->created_at;
-        $value["event_uuid"]       = $item->event_uuid;
-        $value["type"]             = $item->type;
+        $value["id"]               = $item["id"];
+        $value["user_id"]          = $item["user_id"];
+        $value["user_device_id"]   = $item["user_device_id"];
+        $value["action"]           = $item["action"];
+        $value["file_path"]        = $item["file_path"];
+        $value["context"]          = $item["context"];
+        $value['created_at']       = $item["created_at"];
+        $value["event_uuid"]       = $item["event_uuid"];
+        $value["type"]             = $item["type"];
         return $value;
     }
     /**
@@ -325,7 +302,7 @@ class MiniEvent extends MiniCache{
         $criteria->condition = 'user_id = :userId';
         $criteria->params    = array('userId' => $userId);
         if($time!=="-1"){
-            $criteria->addCondition("created_at <=:created_at","and");
+            $criteria->addCondition("created_at > :created_at","and");
             $criteria->params[':created_at'] = $time;
         }
         if($deviceUuid!=="-1"){
@@ -336,7 +313,7 @@ class MiniEvent extends MiniCache{
         if($filePath!==""){
             $criteria->addCondition("file_path like '".$filePath."/%'","and");
         }
-        $criteria->order     = '-id';
+        //$criteria->order     = '-id';
         $criteria->limit     = $limit;
         $criteria->offset    = $offset;
         $items = Event::model()->findAll($criteria);

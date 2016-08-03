@@ -37,9 +37,10 @@ class MBtUpload extends MApplicationComponent {
         //
         // 检查空间
         //
-        $user       = MUserManager::getInstance ()->getCurrentUser ();
-        $space      = $user["space"];
-        $used_space = $user["usedSpace"];
+        $user     = MUserManager::getInstance()->getCurrentUser();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
+        $space      = $spaceInfo["space"];
+        $used_space = $spaceInfo["usedSpace"];
         
         $used_space += $total_size;
         if ($used_space > $space) {

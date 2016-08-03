@@ -46,9 +46,10 @@ class MCopyController extends MApplicationComponent implements MIController{
      * @throws MFileopsException
      */
     protected function beforecheck() {
-    	$user      = MUserManager::getInstance()->getCurrentUser();
-        $space     = $user["space"];
-        $usedSpace = $user["usedSpace"];
+        $user     = MUserManager::getInstance()->getCurrentUser();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
+        $space     = $spaceInfo["space"];
+        $usedSpace = $spaceInfo["usedSpace"];
         if ($space<=$usedSpace) {
             throw new MFileopsException(
                                         Yii::t('api','User is over storage quota.'),

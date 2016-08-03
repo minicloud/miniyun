@@ -56,13 +56,13 @@ class MiniClient extends MiniCache{
 		$item =  OClients::model()->find("client_id=:client_id",array("client_id"=>$clientId));
 		if(isset($item)){
 			$value = array();
-			$value["id"]             = $item->id;
-			$value["user_id"]        = $item->user_id;
-			$value["client_name"]    = $item->client_name;
-			$value["client_id"]      = $item->client_id;
-			$value["client_secret"]  = $item->client_secret;
-			$value["redirect_uri"]   = $item->redirect_uri;
-			$value["enabled"]        = $item->enabled;
+			$value["id"]             = $item["id"];
+			$value["user_id"]        = $item["user_id"];
+			$value["client_name"]    = $item["client_name"];
+			$value["client_id"]      = $item["client_id"];
+			$value["client_secret"]  = $item["client_secret"];
+			$value["redirect_uri"]   = $item["redirect_uri"];
+			$value["enabled"]        = $item["enabled"];
 			return  $value;
 		}
 		return false;

@@ -15,15 +15,17 @@ class ProfileBiz  extends MiniBiz{
      */
     public function getProfile(){
         $data = array();
+
         $data['id'] = $this->user['id'];
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($this->user);
         $data['display_name'] = $this->user['nick'];
         $data['user_name']    = $this->user['user_name'];
         $data['avatar']       = $this->user['avatar'];
         $data['nick']         = $this->user['nick'];
         $data['email']        = $this->user['email'];
         $data['space']        = $this->user['space'];
-        $data['usedSpace']    = $this->user['usedSpace'];
-        $data['used_space']   = $this->user['usedSpace'];
+        $data['usedSpace']    = $spaceInfo['usedSpace'];
+        $data['used_space']   = $spaceInfo['usedSpace'];
         $data['email']        = $this->user['email'];
         $data['phone']        = $this->user['phone'];
         //这里的信息比较冗余，把站点的逻辑融入到用户信息获得的地方，是为了不让PC客户端发送多次请求

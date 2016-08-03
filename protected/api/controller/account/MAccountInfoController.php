@@ -17,13 +17,14 @@ class MAccountInfoController extends MApplicationComponent implements MIControll
     {
         $user     = MUserManager::getInstance()->getCurrentUser();
         $device   = MUserManager::getInstance()->getCurrentDevice();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
         $data = array();
         $data['user_name']         = $user["user_name"];
         $data['display_name']      = $user["nick"];
         $data['id']                = $user["id"];
         $data['uid']               = $user["user_uuid"];
-        $data['space']             = (double)$user["space"];
-        $data['used_space']        = (double)$user["usedSpace"];
+        $data['space']             = (double)$$spaceInfo["space"];
+        $data['used_space']        = (double)$$spaceInfo["usedSpace"];
         $data['email']             = $user["email"];
         $data['phone']             = $user["phone"];
         $data['avatar']            = $user["avatar"];

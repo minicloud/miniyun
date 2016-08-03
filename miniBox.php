@@ -259,16 +259,17 @@ class SiteAppInfo{
         if(isset($this->user)){
             return $this->user;
         }
-        $user     = MUserManager::getInstance()->getCurrentUser();
+        $user     = MUserManager::getInstance()->getCurrentUser();        
         if(!empty($user)){
             $user = MiniUser::getInstance()->getUser($user["id"]);
+            $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
             $data = array();
             $data['id']                = $user["id"];
             $data['user_uuid']         = $user["user_uuid"];
             $data['user_name']         = $user["user_name"];
             $data['display_name']      = $user["nick"];
-            $data['space']             = (double)$user["space"];
-            $data['used_space']        = (double)$user["usedSpace"];
+            $data['space']             = (double)$spaceInfo["space"];
+            $data['used_space']        = (double)$spaceInfo["usedSpace"];
             $data['email']             = $user["email"];
             $data['phone']             = $user["phone"];
             $data['avatar']            = $user["avatar"];

@@ -58,12 +58,12 @@ class MiniChooser extends MiniCache{
     public function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]               = $item->id;
-        $value["name"]             = $item->name;
-        $value["app_key"]          = $item->app_key;
-        $value["type"]             = $item->type;
-        $value['created_at']       = $item->created_at;
-        $value["updated_at"]       = $item->updated_at;
+        $value["id"]               = $item["id"];
+        $value["name"]             = $item["name"];
+        $value["app_key"]          = $item["app_key"];
+        $value["type"]             = $item["type"];
+        $value['created_at']       = $item["created_at"];
+        $value["updated_at"]       = $item["updated_at"];
         return $value;
     }
     /**

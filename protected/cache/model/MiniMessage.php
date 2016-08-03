@@ -55,13 +55,13 @@ class MiniMessage extends MiniCache{
     public function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]               = $item->id;
-        $value["content"]             = $item->content;
-        $value["status"]          = $item->status;
-        $value["user_id"]             = $item->user_id;
-        $value["uu_id"]             = $item->uu_id;
-        $value['created_at']       = $item->created_at;
-        $value['updated_at']       = $item->updated_at;
+        $value["id"]               = $item["id"];
+        $value["content"]             = $item["content"];
+        $value["status"]          = $item["status"];
+        $value["user_id"]             = $item["user_id"];
+        $value["uu_id"]             = $item["uu_id"];
+        $value['created_at']       = $item["created_at"];
+        $value['updated_at']       = $item["updated_at"];
         return $value;
     }
 

@@ -54,11 +54,11 @@ class MiniToken extends MiniCache{
 	private function db2Item($item){
 		if(!isset($item)) return NULL;
 		$value = array();
-		$value["oauth_token"]    = $item->oauth_token;
-		$value["client_id"]      = $item->client_id;
-		$value["device_id"]      = $item->device_id;
-		$value["expires"]        = $item->expires;
-		$value["scope"]          = $item->scope;
+		$value["oauth_token"]    = $item["oauth_token"];
+		$value["client_id"]      = $item["client_id"];
+		$value["device_id"]      = $item["device_id"];
+		$value["expires"]        = $item["expires"];
+		$value["scope"]          = $item["scope"];
 		return  $value;
 	}
 	/**

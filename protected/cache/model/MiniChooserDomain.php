@@ -56,11 +56,11 @@ class MiniChooserDomain extends MiniCache{
     public function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]               = $item->id;
-        $value["chooser_id"]          = $item->chooser_id;
-        $value["domain"]           = $item->domain;
-        $value['created_at']       = $item->created_at;
-        $value["updated_at"]       = $item->updated_at;
+        $value["id"]               = $item["id"];
+        $value["chooser_id"]       = $item["chooser_id"];
+        $value["domain"]           = $item["domain"];
+        $value['created_at']       = $item["created_at"];
+        $value["updated_at"]       = $item["updated_at"];
         return $value;
     }
     /**

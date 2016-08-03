@@ -75,14 +75,14 @@ class PluginMiniDocVersion extends MiniCache{
     private function db2Item($item){
         if(!isset($item)) return NULL;
         $value                   = array();
-        $value["id"]             = $item->id;
-        $value["file_signature"] = $item->file_signature;
-        $value["file_size"]      = $item->file_size;
-        $value["ref_count"]      = $item->ref_count;
-        $value["mime_type"]      = $item->mime_type;
-        $value["created_at"]      = $item->created_at;
-        $value["createTime"]      = strtotime($item->created_at);
-        $value['doc_convert_status'] = $item->doc_convert_status;
+        $value["id"]             = $item["id"];
+        $value["file_signature"] = $item["file_signature"];
+        $value["file_size"]      = $item["file_size"];
+        $value["ref_count"]      = $item["ref_count"];
+        $value["mime_type"]      = $item["mime_type"];
+        $value["created_at"]      = $item["created_at"];
+        $value["createTime"]      = strtotime($item["created_at"]);
+        $value['doc_convert_status'] = $item["doc_convert_status"];
         return  $value;
     }
     /**

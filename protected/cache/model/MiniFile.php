@@ -73,23 +73,23 @@ class MiniFile extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]               = $item->id;
-        $value["user_id"]          = $item->user_id;
-        $value["file_type"]        = $item->file_type;
-        $value["parent_file_id"]   = $item->parent_file_id;
-        $value["file_create_time"] = $item->file_create_time;
-        $value["file_update_time"] = $item->file_update_time;
-        $value["file_name"]        = $item->file_name;
-        $value["file_name_pinyin"] = $item->file_name_pinyin;
-        $value["version_id"]       = $item->version_id;
-        $value["file_size"]        = $item->file_size;
-        $value["file_path"]        = $item->file_path;
-        $value["event_uuid"]       = $item->event_uuid;
-        $value["is_deleted"]       = $item->is_deleted;
-        $value["mime_type"]        = $item->mime_type;
-        $value["created_at"]       = $item->created_at;
-        $value["updated_at"]       = $item->updated_at;
-        $value["sort"]             = $item->is_deleted;
+        $value["id"]               = $item["id"];
+        $value["user_id"]          = $item["user_id"];
+        $value["file_type"]        = $item["file_type"];
+        $value["parent_file_id"]   = $item["parent_file_id"];
+        $value["file_create_time"] = $item["file_create_time"];
+        $value["file_update_time"] = $item["file_update_time"];
+        $value["file_name"]        = $item["file_name"];
+        $value["file_name_pinyin"] = $item["file_name_pinyin"];
+        $value["version_id"]       = $item["version_id"];
+        $value["file_size"]        = $item["file_size"];
+        $value["file_path"]        = $item["file_path"];
+        $value["event_uuid"]       = $item["event_uuid"];
+        $value["is_deleted"]       = $item["is_deleted"];
+        $value["mime_type"]        = $item["mime_type"];
+        $value["created_at"]       = $item["created_at"];
+        $value["updated_at"]       = $item["updated_at"];
+        $value["sort"]             = $item["is_deleted"];
         return $value;
     }
 

@@ -160,8 +160,9 @@ abstract class CApiComponent extends CComponent {
      */
     public function handleSpace() {
     	$user             = MiniUser2::getInstance()->getUser2($this->_userId);
-        $this->totalSpace = $user["space"];
-        $this->usedSpace  = $user["usedSpace"];
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
+        $this->totalSpace = $spaceInfo["space"];
+        $this->usedSpace  = $spaceInfo["usedSpace"];
         
         if ($this->totalSpace <= $this->usedSpace) {
             $this->result["msg"]     = "空间不足";

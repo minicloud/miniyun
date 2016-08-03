@@ -52,6 +52,7 @@ class MFilesCommon extends MModel {
         
         $user                          = MUserManager::getInstance ()->getCurrentUser ();
         $device                        = MUserManager::getInstance ()->getCurrentDevice ();
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
         $fileCommon                   = new MFilesCommon ();
         $fileCommon->overwrite        = $overwrite;
         $fileCommon->locale           = $locale;
@@ -64,8 +65,8 @@ class MFilesCommon extends MModel {
         $fileCommon->file_update_time = $updateTime;
         $fileCommon->file_create_time = $createTime;
         $fileCommon->conflict         = false; // 生成冲突文件标志
-        $fileCommon->space            = $user["space"];
-        $fileCommon->used_space       = $user["usedSpace"];
+        $fileCommon->space            = $spaceInfo["space"];
+        $fileCommon->used_space       = $spaceInfo["usedSpace"];
         $fileCommon->create_event     = true;
         return $fileCommon;
     }
@@ -286,8 +287,9 @@ class MFilesCommon extends MModel {
         }
         $pathInfo                = MUtils::pathinfo_utf($this->share_filter->src_path);
         $user                    = MiniUser2::getInstance()->getUser2($this->user_id);
-        $total                   = $user["space"];
-        $usedSpace               = $user["usedSpace"]; 
+        $spaceInfo = MiniUser::getInstance()->getSpaceInfo($user);
+        $total                   = $spaceInfo["space"];
+        $usedSpace               = $spaceInfo["usedSpace"]; 
         $uploadSizeRemain      = $total - $usedSpace;
         $cid                     = isset($_REQUEST['cid']) ? $_REQUEST['cid'] : 0;
         $data                    = Array();

@@ -36,10 +36,10 @@ class MiniChooserLink extends MiniCache{
 	private function db2Item($item){
 		if(empty($item)) return NULL;
 		$value                = array();
-		$value["app_key"]     = $item->app_key;
-        $value["link_id"]     = $item->link_id;
-		$value["created_at"]  = $item->created_at; 
-		$value["updated_at"]  = $item->updated_at;
+		$value["app_key"]     = $item["app_key"];
+        $value["link_id"]     = $item["link_id"];
+		$value["created_at"]  = $item["created_at"]; 
+		$value["updated_at"]  = $item["updated_at"];
 		return $value;
 	}
     /**

@@ -60,12 +60,12 @@ class PluginMiniSearchBuildTask extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                    = array();
-        $value["id"]              = $item->id;
-        $value["file_signature"]  = $item->file_signature;
-        $value["node_id"]         = $item->node_id;
-        $value["status"]          = $item->status;
-        $value["created_at"]      = $item->created_at;
-        $value["updated_at"]      = $item->updated_at;
+        $value["id"]              = $item["id"];
+        $value["file_signature"]  = $item["file_signature"];
+        $value["node_id"]         = $item["node_id"];
+        $value["status"]          = $item["status"];
+        $value["created_at"]      = $item["created_at"];
+        $value["updated_at"]      = $item["updated_at"];
         return $value;
     }
 

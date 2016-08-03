@@ -51,9 +51,9 @@ class MiniGroupRelation extends MiniCache{
     private function db2Item($item){
         if(empty($item)) return NULL;
         $value                     = array();
-        $value["id"]           = $item->id;
-        $value["group_id"]      = $item->group_id;
-        $value["parent_group_id"]    = $item->parent_group_id;
+        $value["id"]           = $item["id"];
+        $value["group_id"]      = $item["group_id"];
+        $value["parent_group_id"]    = $item["parent_group_id"];
         return $value;
     }
     /**

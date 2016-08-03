@@ -40,12 +40,12 @@ class MiniPrivilege extends MiniCache{
     	$data  = array();
 		foreach($items as $item) {
 			$value                 = array();
-			$value["id"]           = $item->id;
-			$value["user_id"]      = $item->user_id;
-			$value["file_path"]    = $item->file_path;
-			$value["permission"]   = $item->permission;
-			$value["created_at"]   = $item->created_at;
-			$value["updated_at"]   = $item->updated_at; 
+			$value["id"]           = $item["id"];
+			$value["user_id"]      = $item["user_id"];
+			$value["file_path"]    = $item["file_path"];
+			$value["permission"]   = $item["permission"];
+			$value["created_at"]   = $item["created_at"];
+			$value["updated_at"]   = $item["updated_at"]; 
 			array_push($data, $value);
 		}
 		return $data;

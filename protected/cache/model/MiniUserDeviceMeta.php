@@ -81,11 +81,11 @@ class MiniUserDeviceMeta extends MiniCache{
 	private function db2Item($item){
 		if(!isset($item)) return NULL;
 		$value               = array();
-		$value["id"]         = $item->id;
-		$value["user_id"]    = $item->user_id;
-		$value["device_id"]  = $item->device_id;
-		$value["meta_name"]  = $item->meta_name;
-		$value["meta_value"] = $item->meta_value;
+		$value["id"]         = $item["id"];
+		$value["user_id"]    = $item["user_id"];
+		$value["device_id"]  = $item["device_id"];
+		$value["meta_name"]  = $item["meta_name"];
+		$value["meta_value"] = $item["meta_value"];
 		return $value;
 	}
 	/**

@@ -57,9 +57,9 @@ class MiniTag extends MiniCache{
 	private function db2Item($item){
 		if(empty($item)) return NULL;
 		$value                     = array();
-		$value["id"]               = $item->id;
-		$value["name"]             = $item->name; 
-		$value["user_id"]          = $item->user_id; 
+		$value["id"]               = $item["id"];
+		$value["name"]             = $item["name"]; 
+		$value["user_id"]          = $item["user_id"]; 
 		return $value;
 	}
     /**

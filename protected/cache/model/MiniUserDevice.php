@@ -66,18 +66,16 @@ class MiniUserDevice extends MiniCache{
 	private function db2Item($item){
 		if(!$item) return NULL;
 		$value = array();
-		$value["id"]                    = $item->id;
-		$value["device_id"]             = $item->id;
-		$value["user_device_uuid"]      = $item->user_device_uuid;
-		$value["user_id"]               = $item->user_id;
-		$value["user_device_type"]      = $item->user_device_type;
-		$value["user_device_name"]      = $item->user_device_name;
-		$value["user_device_info"]      = $item->user_device_info;
-        $value["created_at"]            = $item->created_at;
-		$value["updated_at"]            = $item->updated_at;
-        if(array_key_exists("device_status",$item->metaData->columns)){
-            $value["device_status"] = $item["device_status"];
-        }
+		$value["id"]                    = $item["id"];
+		$value["device_id"]             = $item["id"];
+		$value["user_device_uuid"]      = $item["user_device_uuid"];
+		$value["user_id"]               = $item["user_id"];
+		$value["user_device_type"]      = $item["user_device_type"];
+		$value["user_device_name"]      = $item["user_device_name"];
+		$value["user_device_info"]      = $item["user_device_info"];
+        $value["created_at"]            = $item["created_at"];
+		$value["updated_at"]            = $item["updated_at"];
+        // $value["device_status"] = $item["device_status"];
 		return  $value;
 	}
     /**
