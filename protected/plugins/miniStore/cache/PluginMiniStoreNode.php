@@ -67,6 +67,7 @@ class PluginMiniStoreNode extends MiniCache{
         $value["status"]              = $item["status"];
         $value["saved_file_count"]    = $item["saved_file_count"];
         $value["downloaded_file_count"] = $item["downloaded_file_count"];
+        $value["region"] = $item["region"];
         $value["created_at"]          = $item["created_at"];
         $value["updated_at"]          = $item["updated_at"];
         return $value;
@@ -89,11 +90,13 @@ class PluginMiniStoreNode extends MiniCache{
     * 找到min(saved_file_count) and status=1的记录分配
     */
     public function getUploadNode(){
-        //TODO 对用户进行分区文件管理，需要找到迷你存储节点与用户的关系，然后进行分配处理
+        //支持分区存储
+        $user = MUserManager::getInstance()->getCurrentUser();
+        $region = $user['region'];
         $nodes = $this->getNodeList();
         $validNodes = array();
         foreach ($nodes as $node) {
-            if ($node["status"] == 1) {
+            if ($node["status"] == 1 && $node["region"]==$region) {
                 array_push($validNodes, $node);
             }
         }
@@ -144,7 +147,7 @@ class PluginMiniStoreNode extends MiniCache{
         $url      = $host.'/api.php';
         $data = array (
             'route'        => "store/status",
-            'callback_url' => PluginMiniStoreOption::getInstance()->getMiniyunHost()."info.htm"
+            'callback_url' => PluginMiniStoreOption::getInstance()->getMiniyunHost()."a.php/1/site/hello"
         );
         $http   = new HttpClient();
         $http->post($url,$data);
@@ -185,7 +188,7 @@ class PluginMiniStoreNode extends MiniCache{
      * @param string $safeCode 节点访问的安全码
      * @return array
      */
-    public function createOrModifyNode($id,$name,$host,$safeCode){
+    public function createOrModifyNode($id,$name,$host,$safeCode,$region){
         if(!empty($id)){
             //修改节点信息
             $item = StoreNode::model()->find("id=:id",array("id"=>$id));
@@ -211,6 +214,7 @@ class PluginMiniStoreNode extends MiniCache{
         $item->host      = $host;
         $item->safe_code = $safeCode;
         $item->status    = -1;//所有新建或修改节点状态都是无效的
+        $item->region    = intval($region);
         $item->save();
         return $this->db2Item($item);
     }

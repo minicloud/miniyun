@@ -67,4 +67,10 @@ class SiteService extends MiniService{
         $biz = new SiteBiz();
         return  $biz->onlyDefaultAccount();
     }
+     /**
+     * 系统是否只有默认的账号
+     */
+    public function hello(){
+        echo('ok');exit;
+    }
 }

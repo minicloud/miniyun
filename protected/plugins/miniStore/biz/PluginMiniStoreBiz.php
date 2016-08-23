@@ -92,8 +92,8 @@ class PluginMiniStoreBiz extends MiniBiz{
      * @throws MiniException
      * @return array
      */
-    public function createOrModifyNode($id,$name,$host,$safeCode){
-        $node = PluginMiniStoreNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode);
+    public function createOrModifyNode($id,$name,$host,$safeCode,$region){
+        $node = PluginMiniStoreNode::getInstance()->createOrModifyNode($id,$name,$host,$safeCode,$region);
         if(empty($node)){
             throw new MiniException(100105);
         }

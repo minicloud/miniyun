@@ -319,6 +319,8 @@ class SiteAppInfo{
             $data['upload_policy_black_list'] = $policy2;
             $data['upload_policy_file_size'] = $policy3;
             $data['mini_host'] = Util::getMiniHost();
+            //添加存储区域列表
+            $data['region'] = MiniOption::getInstance()->getRegions();
             $this->user = $data;
             return $data;
         }

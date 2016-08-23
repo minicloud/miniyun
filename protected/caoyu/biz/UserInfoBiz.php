@@ -32,6 +32,7 @@ class UserInfoBiz extends MiniBiz{
         $policy1=$userMeta['upload_policy_white_list'];
         $policy2=$userMeta['upload_policy_black_list'];
         $policy3=$userMeta['upload_policy_file_size'];
+        
         if(empty($policy1)){
             $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
             if(empty($policy1)){
@@ -50,6 +51,13 @@ class UserInfoBiz extends MiniBiz{
                 $policy3 = 102400;
             }
         }
+        $region=$userMeta['region'];
+        if(empty($region)){
+            $region = 0;
+        }else{
+            $region = intval($region);
+        }
+        $data['region']=$region;
         $policy3 = intval($policy3);
         $data['upload_policy_white_list'] = $policy1;
         $data['upload_policy_black_list'] = $policy2;
@@ -98,6 +106,13 @@ class UserInfoBiz extends MiniBiz{
                 $policy3 = 102400;
             }
         }
+        $region=$userMeta['region'];
+        if(empty($region)){
+            $region = 0;
+        }else{
+            $region = intval($region);
+        }
+        $data['region']=$region;
         $policy3 = intval($policy3);
         $data['upload_policy_white_list'] = $policy1;
         $data['upload_policy_black_list'] = $policy2;
@@ -124,6 +139,7 @@ class UserInfoBiz extends MiniBiz{
             $arr['usedSpace']=MiniFile::getInstance()->getUsedSize($item['id']);
             $arr['space']=$item['space']/1024/1024;
             $arr['avatar']=$item['avatar'];
+            $arr['region']=$item['region'];
             array_push($data['all'],$arr);
         }
         return $data;
@@ -148,6 +164,7 @@ class UserInfoBiz extends MiniBiz{
             $arr['usedSpace']=MiniFile::getInstance()->getUsedSize($item['id']);
             $arr['space']=$item['space']/1024/1024;
             $arr['avatar']=$item['avatar'];
+            $arr['region']=$item['region'];
             array_push($data['admin'],$arr);
         }
         return $data;
@@ -172,6 +189,7 @@ class UserInfoBiz extends MiniBiz{
             $arr['usedSpace']=MiniFile::getInstance()->getUsedSize($item['id']);
             $arr['space']=$item['space']/1024/1024;
             $arr['avatar']=$item['avatar'];
+            $arr['region']=$item['region'];
             array_push($data['disabled'],$arr);
         }
         return $data;
@@ -194,6 +212,7 @@ class UserInfoBiz extends MiniBiz{
             $arr['usedSpace']=MiniFile::getInstance()->getUsedSize($item['id']);
             $arr['space']=$item['space']/1024/1024;
             $arr['avatar']=$item['avatar'];
+            $arr['region']=$item['region'];
             array_push($data['list'],$arr);
         }
         return $data;
@@ -317,7 +336,7 @@ class UserInfoBiz extends MiniBiz{
      * @param $space
      * @param $memo
      */
-    public function updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size){
+    public function updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size,$region){
         $metas   = MiniUserMeta::getInstance()->getUserMetas($id);
         $user = MiniUser::getInstance()->getUser($id);
         foreach ($metas as $key=>$value){
@@ -330,6 +349,7 @@ class UserInfoBiz extends MiniBiz{
         $metas['qq']=$qq;
         $metas['website']=$website;
         $metas['memo']=$memo;
+        $metas['region']=$region;
         if(!empty($upload_policy_white_list)){
             $policy1  = MiniOption::getInstance()->getOptionValue('upload_policy_white_list');
             if($policy1!==$upload_policy_white_list){

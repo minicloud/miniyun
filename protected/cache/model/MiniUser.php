@@ -101,6 +101,7 @@ class MiniUser extends MiniCache{
             $user["space"]          = MUtils::defaultTotalSize();
             $user["is_admin"]       = false;
             $user["user_name_pinyin"] = $item->user_name_pinyin;
+            $user["region"] = 0;
             $metas                  = MiniUserMeta::getInstance()->getUserMetas($user["id"]);
             foreach ($metas as $key=>$value){
                 if($key==="nick"){
@@ -123,6 +124,10 @@ class MiniUser extends MiniCache{
                 }
                 if($key==='file_sort_order'){
                     $user["file_sort_order"]   = $value;
+                }
+                //存储区域
+                if($key==='region'){
+                    $user["region"]   = intval($value);
                 } 
             }
             //获得用户头像，如本地没有图片，则重新下载原始图片
@@ -964,6 +969,13 @@ class MiniUser extends MiniCache{
                     $userMeta["meta_value"]=$userData["nick"];
                     $userMeta->save();
                 }
+                //存储区
+                $userMeta = new UserMeta();
+                $userMeta["user_id"]=$user["id"];
+                $userMeta["meta_key"]="region";
+                $userMeta["meta_value"]=$userData["region"];
+                $userMeta->save();
+
                 $userMeta = new UserMeta();//管理员
                 $userMeta["user_id"]=$user["id"];
                 $userMeta["meta_key"]="is_admin";

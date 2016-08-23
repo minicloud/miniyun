@@ -78,6 +78,7 @@ class UserInfoService extends MiniService{
         $email    = MiniHttp::getParam('email',"");
         $space    = MiniHttp::getParam('space',0);
         $isAdmin    = MiniHttp::getParam('is_admin',0);
+        $region    = MiniHttp::getParam('region',0);
         $userData = array();
         $userData['user_name'] = $userName;
         $userData['password'] = $password;
@@ -85,6 +86,7 @@ class UserInfoService extends MiniService{
         $userData['email'] = $email;
         $userData['space'] = $space;
         $userData['is_admin'] = $isAdmin;
+        $userData['region'] = $region;
         $model = new UserInfoBiz();
         $data  = $model->create($userData);
         $status = array();
@@ -202,11 +204,12 @@ class UserInfoService extends MiniService{
         $qq = MiniHttp::getParam('qq',"");
         $website = MiniHttp::getParam('website',"");
         $memo = MiniHttp::getParam('memo',"");
+        $region = MiniHttp::getParam('region',0);
         $upload_policy_white_list = MiniHttp::getParam('upload_policy_white_list',"");
         $upload_policy_black_list = MiniHttp::getParam('upload_policy_black_list',"");
         $upload_policy_file_size = MiniHttp::getParam('upload_policy_file_size',"");
         $model = new UserInfoBiz();
-        $data  = $model->updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size);
+        $data  = $model->updateMoreInformation($id,$phone,$real_name,$qq,$website,$memo,$upload_policy_white_list,$upload_policy_black_list,$upload_policy_file_size,$region);
         $status = array();
         $status['success']=$data;
         return $status;
@@ -237,7 +240,7 @@ class UserInfoService extends MiniService{
         $model = new UserInfoBiz();
         $data  = $model->getUserCount();
         return $data;
-    }
+    }    
     /**
      * 批量导入用户
      */
@@ -273,6 +276,7 @@ class UserInfoService extends MiniService{
             $user['extend']['nick']= trim($item[2]);
             $user['extend']['space']=(trim($item[3])*1024=="")?10240:trim($item[3])*1024;//默认10G
             $user['extend']['email']=trim($item[4]);
+            $user['extend']['region']=MiniOption::getInstance()->getRegionIdByName($item[5]);
             if(MiniUser::getInstance()->getUserByName($user['name'])){
                 $count++;
             }

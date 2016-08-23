@@ -147,4 +147,33 @@ class MiniOption extends MiniCache{
 		return NULL;
 		 
 	}
+	//根据存储区名称
+    public function getRegionIdByName($regionName){
+        $regionInfo = $this->getOptionValue('region');
+        if(!empty($regionInfo)){
+            $infos = explode('|',$regionInfo);
+            foreach ($infos as $index => $name) {
+                if($regionName==$name){
+                    return $index;
+                } 
+            }
+        }
+        return 0;
+    }
+    //获得分区信息
+    public function getRegions(){
+    	$data = array();
+    	$regionInfo =  $this->getOptionValue('region');
+        if(empty($regionInfo)){
+            $item = array('id'=>0,'name'=>'默认存储区');
+            array_push($data,$item);
+        }else{
+            $infos = explode('|',$regionInfo);
+            foreach ($infos as $index => $name) {
+                $item = array('id'=>$index,'name'=>$name);
+                array_push($data,$item);  
+            }
+        }
+        return $data;
+    }
 }
