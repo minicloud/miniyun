@@ -21,37 +21,7 @@ class MOauth2Controller extends MApplicationComponent implements MIController
         $path = explode('?', $uri);
         $parts = array_slice(explode('/', $path[0]), 2);
 
-        if ($parts[0] === "authorize") {
-            $oauth = new PDOOAuth2();
-            
-            if ($_POST) {
-              $oauth->finishClientAuthorization($_POST["accept"] == "Yep", $_POST);
-            }
-            
-            $auth_params = $oauth->getAuthorizeParams();
-            
-            $inputs = "";
-            foreach ($auth_params as $k => $v) { 
-              $inputs = $inputs.'<input type="hidden" name="'.$k.'" value="'.$v. '" />';
-            }
-            
-            $content =
-            '<html>'.
-              '<head>Authorize</head>'.
-              '<body>'.
-                '<form method="post" action="http://web.miniyun.cn/miniyun_oauth2/api.php/1/oauth2/authorize">'.
-                  $inputs.
-                  'Do you authorize the app to do its thing?'.
-                  '<p>'.
-                   ' <input type="submit" name="accept" value="Yep" />'.
-                    '<input type="submit" name="accept" value="Nope" />'.
-                 ' </p>'.
-                '</form>'.
-              '</body>'.
-           ' </html>';
-          echo $content;
-        }
-        elseif ($parts[0] === "token") {
+        if ($parts[0] === "token") {
 
             $oauth = new PDOOAuth2();
             $token = $oauth->grantAccessToken();

@@ -8,83 +8,13 @@
  * @license http://www.miniyun.cn/license.html
  * @since 1.6
  */
-/**
- * 老版本
- * Class oldVersion
- */
-class OldVersion{
-    /**
-     * 白名单
-     * @var array
-     */
-    private $whiteList;
-    /**
-     * 黑名单
-     * @var
-     */
-    private $blackList;
-    /**
-     * 控制器名
-     * @var
-     */
-    private $controllerName;
-    /**
-     * 动作名
-     * @var
-     */
-    private $actionName;
-
-    public function OldVersion(){
-        //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
-        //提取出controller与action
-        $requestUri   = Util::getRequestUri();
-        $uriInfo      = explode("/",$requestUri);
-        $this->controllerName = $uriInfo[1];
-        $actionInfo   = explode("?",$uriInfo[2]);
-        $this->actionName = $actionInfo[0];
-        $this->whiteList = array(
-            "install",
-            "db",
-        );
-        $this->blackList = array(
-            "site/login"
-        );
-    }
-    public function load($webApp){
-        //查询黑名单，让新版本加载
-        foreach($this->blackList as $item){
-            $info = explode("/",$item);
-            $itemController = $info[0];
-            $itemAction = $info[1];
-            if($itemController === $this->controllerName && $itemAction === $this->actionName){
-                return false;
-            }
-        }
-        foreach($this->whiteList as $item){
-            if($item == $this->controllerName){
-                $this->loadContent($webApp);
-                exit;
-            }
-        }
-        return false;
-    }
-    private function loadContent($webApp){
-        $webApp->run();
-    }
-}
 class Util{
     /**
      * 获得迷你云Host
      */
     public static function getMiniHost(){
         return 'https://app.miniyun.cn/';
-    }
-    /**
-     * 判断是否混合云模式下
-     */
-    public static function isMixCloudVersion(){ 
-        return true;
-    }
+    } 
     /**
      * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀
      * @return string
@@ -328,18 +258,8 @@ class MiniBox{
      * 云端存储的主目录
      * @var
      */
-    private $cloudFolderName;
-    /**
-     *是否是网页客户端
-     * @var
-     */
-    private $isWeb = true;
-    private $appInfo;
-    /**
-     *是否是混合云
-     * @var
-     */
-    private $isMixCloudVersion = true;
+    private $cloudFolderName; 
+    private $appInfo; 
 
     /**
      *
@@ -347,7 +267,6 @@ class MiniBox{
     private $webApp = NULL;
     public function MiniBox(){
         $requestUri   = Util::getRequestUri();
-        $this->isMixCloudVersion = Util::isMixCloudVersion();
         //如果系统尚未初始化，则直接跳转到安装页面
         $configPath  = dirname(__FILE__).'/protected/config/miniyun-config.php';
         if (!file_exists($configPath) && !strpos($requestUri,"install")) {
@@ -360,9 +279,7 @@ class MiniBox{
         require_once($yii);
         $this->webApp = Yii::createWebApplication($config);
         MiniAppParam::getInstance()->load();
-        MiniPlugin::getInstance()->load();
-        //根据外部的参数判断是什么客户端
-        $this->isWeb = !Util::isPCClient();
+        MiniPlugin::getInstance()->load(); 
         //初始化cookie等信息
         $accessToken = Util::getParam("accessToken");
         if(!empty($accessToken)){
@@ -384,7 +301,7 @@ class MiniBox{
         $this->staticServerHost = "https://jt.miniyun.cn/";
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
-        $uriInfo      = explode("/",$requestUri);
+        $uriInfo      = explode("/",$requestUri); 
         if(count($uriInfo)===1){
             //用户输入的是根路径
             $url = Util::getMiniHost()."index.php/box/index";
@@ -407,19 +324,17 @@ class MiniBox{
         }else{
             $actionInfo   = explode("?",$uriInfo[2]);
             $this->action = $actionInfo[0];
-        }
-        if($this->isWeb){
-            if(empty($this->controller)){
-                $accessToken = $this->getCookie("accessToken");
-                if(!empty($accessToken)){
-                    //根目录访问
-                    $url = Util::getMiniHost()."index.php/box/index";
-                }else{
-                    $url = Util::getMiniHost()."index.php/site/login";
-                }
-                $this->redirectUrl($url);
+        } 
+        if(empty($this->controller)){
+            $accessToken = $this->getCookie("accessToken");
+            if(!empty($accessToken)){
+                //根目录访问
+                $url = Util::getMiniHost()."index.php/box/index";
+            }else{
+                $url = Util::getMiniHost()."login";
             }
-        }
+            $this->redirectUrl($url);
+        } 
     }
 
     /**
@@ -472,11 +387,6 @@ class MiniBox{
     public function load(){
         date_default_timezone_set("PRC");
         @ini_set('display_errors', '1');
-        if($this->isWeb){
-            //兼容老版本逻辑
-            $oldVersion = new OldVersion();
-            $oldVersion->load($this->webApp);
-        }
         $this->appInfo = new SiteAppInfo();
         //默认业务主路径
         $this->cloudFolderName = "mini-box";
@@ -491,11 +401,7 @@ class MiniBox{
         if (empty($v)) {
             //这里为空，只有一种情况就是PC客户端第一次访问的时候，由于没有进行syncNewVersion操作
             //PC客户端使用Get方式初始化
-            if($this->isWeb){
-                $v = "1.0";
-            }else{
-                $v = Util::getParam("cloudVersion");
-            }
+            $v = "1.0";
         }
         $this->version = $v;
         $header = "";

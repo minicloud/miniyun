@@ -143,10 +143,10 @@ class UserIdentity extends CUserIdentity
         if(empty($accessToken)){
             //PC客户端从Post参数获得access_token
             if(MiniHttp::isPCClient()){
-                $accessToken = MiniHttp::getParam("access_token","");
+                $accessToken = MiniHttp::getParam("accessToken","");
             }else{
                 if(!array_key_exists("accessToken",$_COOKIE)){
-                    $accessToken = MiniHttp::getParam("access_token","");
+                    $accessToken = MiniHttp::getParam("accessToken","");
                     if(empty($accessToken)){
                         return NULL;
                     }
