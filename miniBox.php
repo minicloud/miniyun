@@ -13,7 +13,7 @@ class Util{
      * 获得迷你云Host
      */
     public static function getMiniHost(){
-        return 'https://app.miniyun.cn/';
+        return 'http://app.miniyun.cn/';
     } 
     /**
      * 获得RequestUri,如果是二级目录、三级目录则自动去掉路径前缀

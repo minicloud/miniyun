@@ -67,6 +67,7 @@ class MiniStoreModule extends MiniPluginModule {
         //某些情况下base64中的+会替换为空格
         $paramSignature = str_replace(' ','+',$paramSignature);
         $policyBase64 = MiniHttp::getParam('policy','');
+        $policyBase64 = str_replace(' ','+',$policyBase64);
         $signature = base64_encode(hash_hmac('sha1', $policyBase64, $node['secret'], true));
         if($paramSignature!==$signature){ 
             return null;
@@ -207,13 +208,13 @@ class MiniStoreModule extends MiniPluginModule {
         //添加文档转换回掉地址
         $isDoc = MiniUtil::isDoc($bucketPath);
         if($isDoc){
-            $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/doc/convert_start', 
+            $callbackParam = array('callbackUrl'=>'http://app.miniyun.cn/api/v1/doc/convert_start', 
                      'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
             $callbackParamString = json_encode($callbackParam); 
             $uploadContext['doc_convert_start_callback'] = base64_encode($callbackParamString);
 
-            $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/doc/convert_end', 
+            $callbackParam = array('callbackUrl'=>'http://app.miniyun.cn/api/v1/doc/convert_end', 
                      'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&success=${success}&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded"); 
             $callbackParamString = json_encode($callbackParam); 
@@ -222,13 +223,13 @@ class MiniStoreModule extends MiniPluginModule {
             //添加视频转换回掉地址
             $isVideo = MiniUtil::isVideo($bucketPath);
             if($isVideo){
-                $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/video/convert_start', 
+                $callbackParam = array('callbackUrl'=>'http://app.miniyun.cn/api/v1/video/convert_start', 
                      'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}', 
                      'callbackBodyType'=>"application/x-www-form-urlencoded");
                 $callbackParamString = json_encode($callbackParam); 
                 $uploadContext['video_convert_start_callback'] = base64_encode($callbackParamString);
 
-                $callbackParam = array('callbackUrl'=>'https://app.miniyun.cn/api/v1/video/convert_end', 
+                $callbackParam = array('callbackUrl'=>'http://app.miniyun.cn/api/v1/video/convert_end', 
                          'callbackBody'=>'token='.$token.'&signature='.$signature.'&policy='.$base64_policy.'&hash=${etag}&success=${success}', 
                          'callbackBodyType'=>"application/x-www-form-urlencoded"); 
                 $callbackParamString = json_encode($callbackParam); 
