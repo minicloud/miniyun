@@ -55,8 +55,8 @@ class MiniOption extends MiniCache{
 	/**
 	 * 通过所有Options记录
 	 */
-	private function getAll4Db($companyId){
-		$items                     = Option::model()->findAll("company_id=".$companyId);
+	private function getAll4Db(){
+		$items                     = Option::model()->findAll();
 		$data                      = array();
 		foreach($items as $item) {
 			$key                   = $item->option_name;
@@ -84,14 +84,14 @@ class MiniOption extends MiniCache{
 	/**
 	 * 获得系统所有的Options
 	 */
-	public function getOptions($companyId){
+	public function getOptions(){
 		if($this->options!==NULL){
 			Yii::trace(MiniOption::$CACHE_KEY." cache 2 Options","miniyun.cache2");
 			return $this->options;
 		}
 		if($this->hasCache===false){
 			//设置二级缓存
-			$this->options =  $this->getAll4Db($companyId);
+			$this->options =  $this->getAll4Db();
 			return $this->options;
 		}
 		$dataStr    = $this->get(MiniOption::$CACHE_KEY);

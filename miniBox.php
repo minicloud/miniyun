@@ -298,7 +298,7 @@ class MiniBox{
         if(!empty($appSecret)){
             setcookie("appSecret",$appSecret,time()+10*24*3600,"/");
         }
-        $this->staticServerHost = "https://jt.miniyun.cn/";
+        $this->staticServerHost = "https://jt.9wcloud.com/";
         //解析形如/index.php/site/login?backUrl=/index.php/box/index这样的字符串
         //提取出controller与action
         $uriInfo      = explode("/",$requestUri); 
