@@ -40,6 +40,8 @@ class MiniStoreModule extends MiniPluginModule {
     */
     private function getKey(){
         $policyBase64 = MiniHttp::getParam('policy','');
+        //某些情况下base64中的+会替换为空格
+        $policyBase64 = str_replace(' ','+',$policyBase64);
         if(empty($policyBase64)){
             return null;
         }
